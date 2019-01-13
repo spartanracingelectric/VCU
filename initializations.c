@@ -39,7 +39,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_05); IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
 
     //Lowside outputs (connects to ground when on)
-    IO_DO_Init(IO_ADC_CUR_00); IO_DO_Set(IO_ADC_CUR_00, FALSE); //TCS
+    IO_DO_Init(IO_ADC_CUR_00); IO_DO_Set(IO_ADC_CUR_00, FALSE); //Brake light
     IO_DO_Init(IO_ADC_CUR_01); IO_DO_Set(IO_ADC_CUR_01, FALSE); //Eco
     IO_DO_Init(IO_ADC_CUR_02); IO_DO_Set(IO_ADC_CUR_02, FALSE); //Err
     IO_DO_Init(IO_ADC_CUR_03); IO_DO_Set(IO_ADC_CUR_03, FALSE); //RTD
@@ -50,10 +50,9 @@ void vcu_initializeADC(bool benchMode)
 	Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); //Rear  x2
 
     //Digital PWM outputs ---------------------------------------------------
-	IO_PWM_Init(IO_PWM_02, 500, TRUE, FALSE, 0, FALSE, NULL); IO_PWM_SetDuty(IO_PWM_02, 0, NULL);  //Brake Light
+    IO_PWM_Init(IO_PWM_01, 750, TRUE, FALSE, 0, FALSE, NULL); IO_PWM_SetDuty(IO_PWM_01, 0, NULL);  //RTD Sound
 	IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL); IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);  //Bench LED 12V source
 	IO_PWM_Init(IO_PWM_05, 100, TRUE, FALSE, 0, FALSE, NULL); IO_PWM_SetDuty(IO_PWM_05, .90 * 0xFFFF, NULL);  //Water pump signal 
-    IO_PWM_Init(IO_PWM_07, 750, TRUE, FALSE, 0, FALSE, NULL); IO_PWM_SetDuty(IO_PWM_07, 0, NULL);  //RTD Sound
 
     //----------------------------------------------------------------------------
 	//ADC channels
@@ -112,7 +111,8 @@ void vcu_initializeADC(bool benchMode)
 	Sensor_RTDButton.ioErr_signalInit = IO_DI_Init(IO_DI_00, IO_DI_PD_10K); //RTD Button
     Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PD_10K); //Eco Button
     Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K); //TCS Switch A
-	Sensor_TCSSwitchDown.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); //TCS Switch B
+    Sensor_TCSSwitchDown.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); //TCS Switch B
+    Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
 
     //
@@ -176,6 +176,8 @@ Sensor Sensor_EcoButton;
 Sensor Sensor_TCSSwitchUp;
 Sensor Sensor_TCSSwitchDown;
 Sensor Sensor_HVILTerminationSense;
+
+Sensor Sensor_IO_DI_06;
 
 //Switches
 //precharge failure

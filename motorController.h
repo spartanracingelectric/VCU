@@ -62,6 +62,7 @@ sbyte4 MCM_getPower(MotorController* me);
 ubyte2 MCM_getCommandedTorque(MotorController* me);
 
 bool MCM_getHvilOverrideStatus(MotorController* me);
+bool MCM_getHvilOverrideStatus(MotorController* me);
 
 void MCM_setRTDSFlag(MotorController* me, bool start);
 bool MCM_getRTDSFlag(MotorController* me);

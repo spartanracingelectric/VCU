@@ -65,6 +65,10 @@ struct _MotorController {
     ubyte4 timeStamp_HVILOverrideCommandReceived;
     bool HVILOverride;
 
+    ubyte4 timeStamp_InverterEnableOverrideCommandReceived;
+    ubyte4 timeStamp_InverterDisableOverrideCommandReceived;
+    Status InverterOverride;
+
     ubyte1 startupStage;
     Status lockoutStatus;
 	Status inverterStatus;
@@ -276,7 +280,7 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
     //Note: All stored torque values should be positive / unsigned
     //----------------------------------------------------------------------------
 	MCM_commands_setDischarge(me, DISABLED);
-	MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
+	MCM_commands_setDirection(me, REVERSE); //1 = forwards for our car, 0 = reverse
     
 	sbyte2 torqueOutput = 0;
 	sbyte2 appsTorque = 0;
@@ -290,6 +294,14 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
+
+    // Inverter override
+    if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
+        me->InverterOverride = DISABLED;
+    else if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
+        me->InverterOverride = ENABLED;
+    else
+        me->InverterOverride = UNKNOWN;
 }
 
 void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
@@ -399,7 +411,7 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
         {
             RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is driveable
             SerialManager_send(me->serialMan, "Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
-            RTDS_setVolume(rtds, .0025, 500000);
+            RTDS_setVolume(rtds, .005, 1500000);
             MCM_setStartupStage(me, 4); //MCM_getStartupStage(me) + 1);  //leave this stage since we've already kicked off the RTDS
         }
         break;
@@ -429,6 +441,21 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
         break;
     }
     
+    //----------------------------------------------------------
+    //Inverter Command Overrides
+    //----------------------------------------------------------
+    switch (me->InverterOverride)
+    {
+        case DISABLED:
+            MCM_commands_setInverter(me, DISABLED);
+            break;
+        case ENABLED:
+            MCM_commands_setInverter(me, DISABLED);
+            break;
+        case UNKNOWN:
+            break;
+    }
+
     //After all that, we can turn the RTD light on/off
     Light_set(Light_dashRTD, RTDPercent);
 
@@ -558,12 +585,18 @@ void MCM_parseCanMessage(MotorController* me, IO_CAN_DATA_FRAME* mcmCanMessage)
 
 
     case 0x5FF:
-        //0,1 Commanded Torque
         if (mcmCanMessage->data[1] > 0)
         {
             IO_RTC_StartTime(&me->timeStamp_HVILOverrideCommandReceived);
         }
-        //2,3 Torque Feedback
+        if (mcmCanMessage->data[2] == 55)
+        {
+            IO_RTC_StartTime(&me->timeStamp_InverterEnableOverrideCommandReceived);
+        }
+        if (mcmCanMessage->data[3] > 0)
+        {
+            IO_RTC_StartTime(&me->timeStamp_InverterDisableOverrideCommandReceived);
+        }
         break;
 
     }
@@ -663,6 +696,11 @@ Status MCM_getInverterStatus(MotorController* me)
 bool MCM_getHvilOverrideStatus(MotorController* me)
 {
     return me->HVILOverride;
+}
+
+Status MCM_getInverterOverrideStatus(MotorController* me)
+{
+    return me->InverterOverride;
 }
 
 void MCM_setRTDSFlag(MotorController* me, bool enableRTDS)

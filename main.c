@@ -47,6 +47,7 @@
 #include "serial.h"
 #include "cooling.h"
 
+
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
     { 0                      /* ubyte4 versionAPDB        */
