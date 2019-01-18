@@ -191,8 +191,58 @@ void main(void)
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
-    //----------------------------------------------------------------------------
+    // //----------------------------------------------------------------------------
+	// ubyte2 tps0_calibMin = 0xABCD;  //me->tps0->sensorValue;
+	// ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
+	// ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
+	// ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
+	ubyte2 tps0_calibMin = 850;  //me->tps0->sensorValue;
+	ubyte2 tps0_calibMax = 1650;  //me->tps0->sensorValue;
+	ubyte2 tps1_calibMin = 3270;  //me->tps1->sensorValue;
+	ubyte2 tps1_calibMax = 4300;  //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
+    // Wait for EEPROM to be available
+    ubyte1 state;
+    ubyte4 timestamp;
+
+    state = 1;
+    while(1)
+    {
+        IO_RTC_StartTime(&timestamp);
+
+        IO_Driver_TaskBegin();
+
+        if (IO_EEPROM_GetStatus() == IO_E_OK)
+        {
+            if (state == 1)
+            {
+                IO_EEPROM_Write(0xC, 2, &tps0_calibMin);
+                state++;
+            }
+            else if (state == 2)
+            {
+                IO_EEPROM_Write(0xE, 2, &tps0_calibMax);
+                state++;
+            }
+            else if (state == 3)
+            {
+                IO_EEPROM_Write(0x10, 2, &tps1_calibMin);
+                state++;
+            }
+            else if (state == 4)
+            {
+                IO_EEPROM_Write(0x12, 2, &tps1_calibMax);
+                state++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        IO_Driver_TaskEnd();
+    }
+    
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
 
