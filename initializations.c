@@ -34,7 +34,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_00);
     IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
     IO_DO_Init(IO_DO_01);
-    IO_DO_Set(IO_DO_01, TRUE); //HVIL shutdown relay
+    IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay - not currently used SRE-4, wire does go to penthouse
     IO_DO_Init(IO_DO_02);
     IO_DO_Set(IO_DO_02, FALSE); //Water pump relay - always on per RMS HW manual pg 7 - NOT USED
     IO_DO_Init(IO_DO_03);
