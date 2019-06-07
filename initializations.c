@@ -55,8 +55,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Set(IO_ADC_CUR_03, FALSE); //RTD
 
     //Wheel Speed Sensor supplies
-    Sensor_WSS_FL.ioErr_powerInit = Sensor_WSS_FR.ioErr_powerInit = IO_DO_Init(IO_DO_06); //Front x2
-    Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); //Rear  x2
+    Sensor_WSS_FL.ioErr_powerInit = Sensor_WSS_FR.ioErr_powerInit = Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); // WSS power
 
     //Digital PWM outputs ---------------------------------------------------
     IO_PWM_Init(IO_PWM_01, 750, TRUE, FALSE, 0, FALSE, NULL);
@@ -147,8 +146,6 @@ void vcu_ADCWasteLoop(void)
 
         IO_DO_Set(IO_DO_00, FALSE); //False = low
         //IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
-        //IO_DO_Set(IO_DO_06, FALSE); //Front WSS x2
-        //IO_DO_Set(IO_DO_07, FALSE); //Rear  WSS x2
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
         IO_DI_Get(IO_DI_04, &tempData);

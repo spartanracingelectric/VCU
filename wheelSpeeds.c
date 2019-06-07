@@ -50,8 +50,7 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
     me->speed_RR = 0;
 
     //Turn on WSS power pins
-    IO_DO_Set(IO_DO_06, TRUE); //Front WSS x2
-    IO_DO_Set(IO_DO_07, TRUE); //Rear  WSS x2
+    IO_DO_Set(IO_DO_07, TRUE); // WSS x4
 
     return me;
 }
