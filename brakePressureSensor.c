@@ -173,7 +173,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
-            Light_set(Light_dashTCS, 0);
+            Light_set(Light_dashEco, 0);
         }
     }
     else

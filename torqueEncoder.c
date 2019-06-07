@@ -175,7 +175,7 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
-            Light_set(Light_dashTCS, 0);
+            Light_set(Light_dashEco, 0);
 
         }
 
