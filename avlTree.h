@@ -1,6 +1,5 @@
 //http://www.zentut.com/c-tutorial/c-avl-tree/
 
-
 #ifndef AVLTREE_H_INCLUDED
 #define AVLTREE_H_INCLUDED
 
@@ -8,25 +7,25 @@
 
 typedef struct AVLNode
 {
-	//Message Metadata -----------------------------------------------------
-	//int data;
-	//ubyte4 id;           /**< ID for CAN communication             */
-	ubyte1 data[8];
+    //Message Metadata -----------------------------------------------------
+    //int data;
+    //ubyte4 id;           /**< ID for CAN communication             */
+    ubyte1 data[8];
 
-    ubyte4 timeBetweenMessages_Min;  //Fastest rate at which messages will be sent
-    ubyte4 lastMessage_timeStamp;    //Last time message was sent/received
+    ubyte4 timeBetweenMessages_Min; //Fastest rate at which messages will be sent
+    ubyte4 lastMessage_timeStamp;   //Last time message was sent/received
 
     bool required;
-    ubyte4 timeBetweenMessages_Max;  //Slowest rate at which messages will be sent, OR max time between receiving messages before throwing an error
+    ubyte4 timeBetweenMessages_Max; //Slowest rate at which messages will be sent, OR max time between receiving messages before throwing an error
 
-	//Tree stuff -----------------------------------------------------
-	//struct AVLNode*  left;
-	//struct AVLNode*  right;
-	//int      height;
+    //Tree stuff -----------------------------------------------------
+    //struct AVLNode*  left;
+    //struct AVLNode*  right;
+    //int      height;
 } AVLNode;
 
 //Note on passing arrays: http://stackoverflow.com/questions/5573310/difference-between-passing-array-and-array-pointer-into-function-in-c
-AVLNode* AVL_insert(AVLNode **t, ubyte4 messageID, ubyte1 messageData[8], ubyte4 timeBetweenMessages_Min, ubyte4 timeBetweenMessages_Max, bool required);
+AVLNode *AVL_insert(AVLNode **t, ubyte4 messageID, ubyte1 messageData[8], ubyte4 timeBetweenMessages_Min, ubyte4 timeBetweenMessages_Max, bool required);
 //////////////////AVLNode* AVL_find(AVLNode *t, ubyte4 messageID);
 //int AVL_getData(AVLNode* n);
 //AVLNode* AVL_findMin(AVLNode *t);
@@ -34,7 +33,6 @@ AVLNode* AVL_insert(AVLNode **t, ubyte4 messageID, ubyte1 messageData[8], ubyte4
 //void AVL_display(AVLNode* t);
 //void AVL_dispose(AVLNode* t);
 //AVLNode* AVL_delete(int id, AVLNode *t);
-
 
 /*
 //C AVL tree program main.c
@@ -69,7 +67,5 @@ dispose(t);
 return 0;
 }
 */
-
-
 
 #endif // AVLTREE_H_INCLUDED

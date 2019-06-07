@@ -12,7 +12,7 @@
 *                              statement inside of a loop
 *****************************************************************************/
 
-#include "IO_Driver.h"  //Includes datatypes, constants, etc - should be included in every c file
+#include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_ADC.h"
 #include "IO_PWD.h"
 #include "IO_PWM.h"
@@ -67,16 +67,15 @@ void sensors_updateSensors(void)
     Sensor_TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_TPS0.sensorValue, &Sensor_TPS0.fresh);
     Sensor_TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_TPS1.sensorValue, &Sensor_TPS1.fresh);
     //Sensor_TPS0.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_00, &Sensor_TPS0.sensorValue);
-	//Sensor_TPS1.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_01, &Sensor_TPS1.sensorValue);
+    //Sensor_TPS1.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_01, &Sensor_TPS1.sensorValue);
 
-	
-	//Brake Position Sensor ---------------------------------------------------
-	Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
+    //Brake Position Sensor ---------------------------------------------------
+    Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
 
-	//TCS Knob
-	Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
-    
-	//?? - For future use ---------------------------------------------------
+    //TCS Knob
+    Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
+
+    //?? - For future use ---------------------------------------------------
     //IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
 
     //Shock pots ---------------------------------------------------
@@ -84,26 +83,24 @@ void sensors_updateSensors(void)
     IO_ADC_Get(IO_ADC_5V_05, &Sensor_WPS_FR.sensorValue, &Sensor_WPS_FR.fresh);
     IO_ADC_Get(IO_ADC_5V_06, &Sensor_WPS_RL.sensorValue, &Sensor_WPS_RL.fresh);
     IO_ADC_Get(IO_ADC_5V_07, &Sensor_WPS_RR.sensorValue, &Sensor_WPS_RR.fresh);
-	*/
+    */
 
     //Wheel speed sensors ---------------------------------------------------
-	Sensor_WSS_FL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue);
-	Sensor_WSS_FR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue);
-	Sensor_WSS_RL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_11, &Sensor_WSS_RL.sensorValue);
-	Sensor_WSS_RR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_09, &Sensor_WSS_RR.sensorValue);
+    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue);
+    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue);
+    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_11, &Sensor_WSS_RL.sensorValue);
+    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_09, &Sensor_WSS_RR.sensorValue);
 
     //Switches / Digital ---------------------------------------------------
-	Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
-	Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
-	Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
-	Sensor_TCSSwitchDown.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_TCSSwitchDown.sensorValue);
-	Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
+    Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
+    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
+    Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
+    Sensor_TCSSwitchDown.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_TCSSwitchDown.sensorValue);
+    Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
-	Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
-
-
+    Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
 }
 
 void Light_set(Light light, float4 percent)
@@ -114,7 +111,7 @@ void Light_set(Light light, float4 percent)
     switch (light)
     {
     //PWM devices
-	case Light_brake:
+    case Light_brake:
         IO_DO_Set(IO_ADC_CUR_00, power);
         break;
 
@@ -133,15 +130,15 @@ void Light_set(Light light, float4 percent)
         //--------------------------------------------
         //These devices moved from PWM to DIO
 
-	case Light_dashTCS:
+    case Light_dashTCS:
         break;
 
-	case Light_dashEco:
-		//IO_PWM_SetDuty(IO_PWM_04, duty, NULL);  //Pin 116
+    case Light_dashEco:
+        //IO_PWM_SetDuty(IO_PWM_04, duty, NULL);  //Pin 116
         IO_DO_Set(IO_ADC_CUR_01, power);
         break;
 
-	case Light_dashError:
+    case Light_dashError:
         //IO_PWM_SetDuty(IO_PWM_05, duty *.6, NULL);  //Pin 104
         IO_DO_Set(IO_ADC_CUR_02, power);
         break;
@@ -151,7 +148,6 @@ void Light_set(Light light, float4 percent)
         IO_DO_Set(IO_ADC_CUR_03, power);
         break;
     }
-
 }
 
 /*****************************************************************************

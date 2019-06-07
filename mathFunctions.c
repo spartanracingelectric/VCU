@@ -18,15 +18,21 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
 {
-	float4 retVal = (value - start) / (end - start);
+    float4 retVal = (value - start) / (end - start);
 
-	if (zeroToOneOnly == TRUE)
-	{
-		if (retVal < 0) { retVal = 0; }
-		if (retVal > 1) { retVal = 1; }
-	}
+    if (zeroToOneOnly == TRUE)
+    {
+        if (retVal < 0)
+        {
+            retVal = 0;
+        }
+        if (retVal > 1)
+        {
+            retVal = 1;
+        }
+    }
 
-	return retVal;
+    return retVal;
 }
 
 // A utility function to get maximum of two integers
@@ -41,8 +47,7 @@ ubyte2 min(ubyte2 a, ubyte2 b)
     return (a < b) ? a : b;
 }
 
-
-/**********************************************************************//**
+/**********************************************************************/ /**
  *
  * \brief Decides whether a blinking light should be on or off based on
  *        the system clock and period given
@@ -62,7 +67,7 @@ ubyte2 min(ubyte2 a, ubyte2 b)
  *   Blablabla
  *
  ***************************************************************************/
-bool blink(ubyte4* clock, ubyte2 highPeriod)
+bool blink(ubyte4 *clock, ubyte2 highPeriod)
 {
     //time passed since the start of the blinks divided by the period to get
     //count.
@@ -71,12 +76,8 @@ bool blink(ubyte4* clock, ubyte2 highPeriod)
     //removes decimal places. there may be a better way to do this but I got lazy
     count = count - count % 1;
 
-    return !( count / highPeriod ) % 2;
+    return !(count / highPeriod) % 2;
 }
-
-
-
-
 
 //byte swapping functions used by BMS
 
@@ -113,4 +114,3 @@ sbyte4 swap_int32(sbyte4 val)
     val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
     return (val << 16) | ((val >> 16) & 0xFFFF);
 }
-
