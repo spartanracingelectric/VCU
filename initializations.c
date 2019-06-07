@@ -142,7 +142,7 @@ void vcu_ADCWasteLoop(void)
     {
         IO_Driver_TaskBegin();
 
-        IO_PWM_SetDuty(IO_PWM_07, 0, NULL); //Pin 103
+        IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
         IO_DO_Set(IO_DO_00, FALSE); //False = low
         //IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
