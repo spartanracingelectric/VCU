@@ -116,10 +116,10 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_waterPump:
-        IO_PWM_SetDuty(IO_PWM_05, duty, NULL);
+        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
         break;
 
-    case Cooling_motorFans:
+    case Cooling_motorFans:  // Powerpack fan(s)
         IO_DO_Set(IO_DO_03, power);
         break;
 
@@ -134,17 +134,14 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Light_dashEco:
-        //IO_PWM_SetDuty(IO_PWM_04, duty, NULL);  //Pin 116
         IO_DO_Set(IO_ADC_CUR_01, power);
         break;
 
     case Light_dashError:
-        //IO_PWM_SetDuty(IO_PWM_05, duty *.6, NULL);  //Pin 104
         IO_DO_Set(IO_ADC_CUR_02, power);
         break;
 
     case Light_dashRTD:
-        //IO_PWM_SetDuty(IO_PWM_06, duty * .25, NULL);  //Pin 115
         IO_DO_Set(IO_ADC_CUR_03, power);
         break;
     }
