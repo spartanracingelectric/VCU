@@ -50,7 +50,7 @@ struct _MotorController {
     ubyte2 torqueMaximumDNm;  //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
     
     //Regen torque calculations in whole Nm..?
-    ubyte1 regen_mode;					  //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
+    RegenMode regen_mode;					  //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
     ubyte2 regen_torqueLimitDNm;          //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
     ubyte2 regen_torqueAtZeroPedalDNm;    //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel.  Positive value.
     float4 regen_percentBPSForMaxRegen;   //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
@@ -151,7 +151,7 @@ MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID,
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
 
-    me->regen_mode = 0xFF;
+    me->regen_mode = REGENMODE_OFF;
     me->regen_torqueLimitDNm = 0;
     me->regen_torqueAtZeroPedalDNm = 0;
     me->regen_percentBPSForMaxRegen = 1; //zero to one.. 1 = 100%
@@ -179,76 +179,54 @@ me->getInverterStatus = &getInverterStatus;
     return me;
 }
 
-//Note: As of 2017-01-27, TCS Switch has been removed from SRE-2.  Control is now selected based on 8-position knob (pot)
-//This function sets all of the regen variables based on the knob's position (relative to 5 positions marked on dash)
-//Knob Positions
-//Pos  Hex   Dec  Comment
-// 0   FFFF       Knob clicked off
-// .      1    1
-// 1      4    4
-// .     A1  161
-// 2    17E  382
-// .    230  560
-// 3    2FF  767
-// .    383  899
-// 4    3DA  986
-// .    3DA  986
-
-void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot)
+void MCM_setRegenMode(MotorController* me, RegenMode regenMode)
 {	
-     
+    switch (regenMode)
+    {
+        case REGENMODE_FORMULAE:  //Position 1 = Coasting mode (Formula E mode)
+            me->regen_mode = 1;
+            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+            me->regen_torqueAtZeroPedalDNm = 0;
+            me->regen_percentAPPSForCoasting = 0;
+            me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+            break;
 
-    //If the pot is clicked off (resistance goes to FFFF)
-    if (TCSPot->sensorValue > 5000)  //Position 0 = Regen Off
-    {
-        me->regen_mode = 0;  
+        case REGENMODE_HYBRID: //Position 2 = light "engine braking" (Hybrid mode)
+            me->regen_mode = 2;
+            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+            me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm * 0.3;
+            me->regen_percentAPPSForCoasting = .2;
+            me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+            break;
 
-        me->regen_torqueLimitDNm = 0;
-        me->regen_torqueAtZeroPedalDNm = 0;
-        me->regen_percentAPPSForCoasting = 0;
-        me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
-    }
-    else if (TCSPot->sensorValue < 0xA1)  //Position 1 = Coasting mode (Formula E mode)
-    {
-        me->regen_mode = 1;
-        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-        me->regen_torqueAtZeroPedalDNm = 0;
-        me->regen_percentAPPSForCoasting = 0;
-        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
-    }
-    else if (TCSPot->sensorValue < 0x230)  //Position 2 = light "engine braking" (Hybrid mode)
-    {
-        me->regen_mode = 2;
-        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm * 0.3;
-        me->regen_percentAPPSForCoasting = .2;
-        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
-    }
-    else if (TCSPot->sensorValue < 0x383)  //Position 3 = One pedal driving (Tesla mode)
-    {
-        me->regen_mode = 3;
-        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
-        me->regen_percentAPPSForCoasting = .1;
-        me->regen_percentBPSForMaxRegen = 0;
-    }
-    else if (TCSPot->sensorValue >= 0x383)  //Position 4 = User customizable
-    {
-        me->regen_mode = 4;
-        me->regen_torqueLimitDNm = 0;
-        me->regen_torqueAtZeroPedalDNm = 0;
-        me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
-        me->regen_percentAPPSForCoasting = 0;
-    }
-    else  //This should never happen
-    {
-        me->regen_mode = 0xFFFF;  //Default: Regen off
-        me->regen_torqueLimitDNm = 0;
-        me->regen_torqueAtZeroPedalDNm = 0;
-        me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
-        me->regen_percentAPPSForCoasting = 0;
+        case REGENMODE_TESLA:  //Position 3 = One pedal driving (Tesla mode)
+            me->regen_mode = 3;
+            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+            me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
+            me->regen_percentAPPSForCoasting = .1;
+            me->regen_percentBPSForMaxRegen = 0;
+            break;
+
+        // TODO:  User customizable regen settings - Issue #97
+        // case REGENMONDE_CUSTOM:  
+        //     me->regen_mode = 4;
+        //     me->regen_torqueLimitDNm = 0;
+        //     me->regen_torqueAtZeroPedalDNm = 0;
+        //     me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
+        //     me->regen_percentAPPSForCoasting = 0;
+        //     break;
+
+        case REGENMODE_OFF: default:
+            me->regen_mode = REGENMODE_OFF;
+
+            me->regen_torqueLimitDNm = 0;
+            me->regen_torqueAtZeroPedalDNm = 0;
+            me->regen_percentAPPSForCoasting = 0;
+            me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
+            break;
     }
 }
+    
 
 /*****************************************************************************
 * Motor Control Functions
@@ -359,7 +337,7 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
 {
     float4 RTDPercent;
     RTDPercent = (Sensor_RTDButton.sensorValue == TRUE ? 1 : 0);
-    
+
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
