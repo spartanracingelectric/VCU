@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PCANExplorerProject Version="5.0" Name="SRE2">
     <Connections AutoReset="0" IgnoreRTRLength="0" ProcessRTR="1">
-        <Connection Bus="1" Enabled="1" Protocol="0" CalcBusLoad="1" SymbolsFileName="SRE2.sym" BitRate="28" Connection="SRE-2@pcan_usb" Name="SRE-2"/>
+        <Connection Bus="2" Enabled="1" Protocol="0" SymbolsFileName="SRE2.sym" BitRate="28" Connection="500k@pcan_usb" Name="500k"/>
     </Connections>
     <MessageFilters/>
     <Files>

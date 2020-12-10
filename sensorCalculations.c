@@ -290,7 +290,7 @@ void GetBrakePosition(void)
 ****************************************************************************/
 //Inputs: Wheel speed sensor frequency
 //Outputs: 4 speeds, RPM, ground speed
-//4 funcs, one to get each wheel’s speed
+//4 funcs, one to get each wheelï¿½s speed
 //16 bumps per rotation, 16 hz = 1 rotation per second
 
 double freq_to_rpm(double freq) {

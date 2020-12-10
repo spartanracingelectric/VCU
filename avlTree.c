@@ -111,7 +111,6 @@
 //////////////////////    return AVL_singleRotateWithRight(k1);
 //////////////////////}
 
-
 /*
 Recursively display AVL tree or subtree
 void display_avl(AVLNode* t)
@@ -251,11 +250,11 @@ return root;
 insert a new node into the tree
 */
 //AVLNode* AVL_insert(AVLNode* t, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
-AVLNode* AVL_insert(AVLNode** messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
 {
     //This function has been hijacked for an emergency quick fix
 
-    AVLNode* message = (AVLNode*)malloc(sizeof(AVLNode));
+    AVLNode *message = (AVLNode *)malloc(sizeof(AVLNode));
     if (message == NULL) //malloc failed
     {
         //fprintf(stderr, "Out of memory!!! (insert)\n");
@@ -392,5 +391,3 @@ AVLNode* AVL_insert(AVLNode** messageHistoryArray, ubyte4 messageID, ubyte1 mess
 //
 //    return t;
 //}
-
-

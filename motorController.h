@@ -18,6 +18,9 @@ typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 //1 = CCW = FORWARD (for our car)
 typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction;
 
+// Regen mode
+typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA } RegenMode;
+
 typedef struct _MotorController MotorController;
 
 MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);
@@ -62,6 +65,7 @@ sbyte4 MCM_getPower(MotorController* me);
 ubyte2 MCM_getCommandedTorque(MotorController* me);
 
 bool MCM_getHvilOverrideStatus(MotorController* me);
+bool MCM_getHvilOverrideStatus(MotorController* me);
 
 void MCM_setRTDSFlag(MotorController* me, bool start);
 bool MCM_getRTDSFlag(MotorController* me);
@@ -87,8 +91,9 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
 //----------------------------------------------------------------------------
 //Inter-object functions
 //----------------------------------------------------------------------------
-void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
-void MCM_calculateCommands(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps);
+// void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
+void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
+void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
 
 void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);

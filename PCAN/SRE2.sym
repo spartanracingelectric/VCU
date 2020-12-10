@@ -420,9 +420,19 @@ DLC=8
 CycleTime=100
 Var="VCU Safety Disable (0xC4)" unsigned 0,8
 Var="VCU MCM HVIL Override" unsigned 8,8
+Var="VCU MCM Force Enable (0x55)" unsigned 16,8 -b	// 01010101 (0x55) to Enable
+Var="VCU MCM Force Disable (>0)" unsigned 24,8 -b
 
 [V507_LVS_Battery]
 ID=507h
 Var="LVS Battery Voltage" unsigned 0,16 /u:V /f:0.001 /p:3
 Var="LVS Battery SOC" signed 16,8 /u:%
+
+[V509_DI_RTD_Status]
+ID=509h
+DLC=8
+Var="VCU HVIL Term Sense" unsigned 0,16
+Var="VCU HVIL Override Status" unsigned 16,8
+Var="V509-6" unsigned 48,8
+Var="V509-7" unsigned 56,8
 

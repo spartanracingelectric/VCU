@@ -11,34 +11,34 @@
 #include "bms.h"
 
 //All temperatures in C
-CoolingSystem* CoolingSystem_new(SerialManager* serialMan)
+CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
 {
-    CoolingSystem* me = (CoolingSystem*)malloc(sizeof(struct _CoolingSystem));
-    SerialManager* sm = serialMan;
+    CoolingSystem *me = (CoolingSystem *)malloc(sizeof(struct _CoolingSystem));
+    SerialManager *sm = serialMan;
 
     //Cooling systems:
     //Water pump (motor, controller) - PWM
     me->waterPumpMinPercent = 0.2;
-    me->waterPumpLow = 25;  //Start ramping beyond min at this temp
+    me->waterPumpLow = 25; //Start ramping beyond min at this temp
     me->waterPumpHigh = 40;
     me->waterPumpPercent = .2;
 
     //PP fans (motor, radiator) - Relay
     //Motor fan + radiator on same circuit
-    me->motorFanLow = 30;    //Turn off BELOW tuhis point
+    me->motorFanLow = 30;     //Turn off BELOW tuhis point
     me->motorFanHigh = 32;    //Turn on at this temperature
-    me->motorFanState = TRUE;        //float4 motorFanPercent;
-    
+    me->motorFanState = TRUE; //float4 motorFanPercent;
+
     //Radiator fan
     //sbyte1 radiatorFanLo = 30; //Turn off BELOW tuhis point
     //sbyte1 radiatorFanHigh = 32; //Turn on at this temperature
     //bool motorFanState;
 
     //Battery fans (batteries) - Relay
-    me->batteryFanLow = 32;  //Turn off BELOW tuhis point
-    me->batteryFanHigh = 35;  //Turn on at this temperature
-    me->batteryFanState = TRUE;      //float4 batteryFanPercent;
-    
+    me->batteryFanLow = 32;     //Turn off BELOW tuhis point
+    me->batteryFanHigh = 35;    //Turn on at this temperature
+    me->batteryFanState = TRUE; //float4 batteryFanPercent;
+
     return me;
 }
 
@@ -46,7 +46,7 @@ CoolingSystem* CoolingSystem_new(SerialManager* serialMan)
 // Cooling system calculations - turns fans on/off, sends water pump PWM control signal
 //Rinehart water temperature operating range: -30C to +80C before derating
 //-------------------------------------------------------------------
-void CoolingSystem_calculations(CoolingSystem* me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp)
+void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp)
 {
     //Water pump ------------------
     //Water pump PWM protocol unknown
@@ -97,11 +97,9 @@ void CoolingSystem_calculations(CoolingSystem* me, sbyte2 motorControllerTemp, s
 
     // END - RABEEL's CODE
     *******************************/
-    
-
 
     //Motor fan / rad fan
-    if(me->motorFanState == FALSE)
+    if (me->motorFanState == FALSE)
     {
         if ((motorControllerTemp >= me->motorFanHigh) || (motorTemp >= me->motorFanHigh))
         {
@@ -109,10 +107,10 @@ void CoolingSystem_calculations(CoolingSystem* me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning motor fans on.\n");
         }
     }
-    else  //motor fan is on
+    else //motor fan is on
     {
         if ((motorControllerTemp < me->motorFanLow) && (motorTemp < me->motorFanLow))
-            // Shouldn't this be an || instead of an &&
+        // Shouldn't this be an || instead of an &&
         {
             me->motorFanState = FALSE;
             SerialManager_send(me->sm, "Turning motor fans off.\n");
@@ -136,13 +134,11 @@ void CoolingSystem_calculations(CoolingSystem* me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
-
 }
 
-
 //    // Turn on FANS
-//    //IO_DO_Init(IO_DO_06); 
-//    IO_DO_Set(IO_DO_06, TRUE); //pin 142 - sending 12V 
+//    //IO_DO_Init(IO_DO_06);
+//    IO_DO_Set(IO_DO_06, TRUE); //pin 142 - sending 12V
 //    IO_PWM_SetDuty(IO_PWM_05, 0, NULL);  //Water pump
 //}
 //else
@@ -154,11 +150,10 @@ void CoolingSystem_calculations(CoolingSystem* me, sbyte2 motorControllerTemp, s
 // Cooling system control - turns fans on/off, sends water pump PWM control signal
 //Rinehart water temperature operating range: -30C to +80C before derating
 //-------------------------------------------------------------------
-void CoolingSystem_enactCooling(CoolingSystem* me)
+void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
     Light_set(Cooling_waterPump, me->waterPumpPercent);
     Light_set(Cooling_motorFans, me->motorFanState == TRUE ? 1 : 0);
     Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 1 : 0);
-
 }
