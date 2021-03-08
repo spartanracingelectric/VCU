@@ -24,10 +24,20 @@ SerialManager *SerialManager_new(void)
     return me;
 }
 
-IO_ErrorType SerialManager_send(SerialManager *me, const ubyte1 *data)
+// IO_ErrorType SerialManager_send(SerialManager *me, const ubyte1 *data)
+// {
+//     IO_ErrorType err = IO_UART_Write(IO_UART_CH0, data, strlen(data), &me->size);
+//     return err;
+// }
+
+void SerialManager_send(SerialManager* me, const ubyte1* data)
 {
-    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, data, strlen(data), &me->size);
-    return err;
+    IO_UART_Write(IO_UART_CH0, data, strlen(data), &me->size);
+    do
+    {
+        IO_UART_GetTxStatus(IO_UART_CH0, &me->size);
+        IO_UART_Task();
+    } while (me->size != 0);
 }
 
 IO_ErrorType SerialManager_sprintf(SerialManager *me, const ubyte1 *message, void *dataValue)
