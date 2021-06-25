@@ -33,6 +33,9 @@ extern Sensor Sensor_HVILTerminationSense;
  *
  ****************************************************************************/
 
+// exponent applied to pedal curve.  1 = linear, < 1 means more torque is given early on, > 1 means torque ramps up more slowly
+#define APPS_PEDAL_CURVE_EXPONENT 3
+
 struct _MotorController {
     SerialManager* serialMan;
     //----------------------------------------------------------------------------
@@ -264,7 +267,7 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
     sbyte2 appsTorque = 0;
     sbyte2 bpsTorque = 0;
 
-    appsTorque = me->torqueMaximumDNm * getPercent(tps->percent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(tps->percent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    appsTorque = me->torqueMaximumDNm * getPercent(pow(tps->percent, APPS_PEDAL_CURVE_EXPONENT), me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(tps->percent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
     
     torqueOutput = appsTorque + bpsTorque;
