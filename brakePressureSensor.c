@@ -10,11 +10,13 @@
 //extern Sensor Sensor_BenchTPS1;
 
 /*****************************************************************************
-* Torque Encoder (TPS) functions
-* RULE EV2.3.5:
-* If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
-* It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
+* Brake Pressure Sensor (BPS) functions
 ****************************************************************************/
+
+// TODO: Store in EEPROM
+#define BRAKES_ON_PERCENT .1
+
+
 BrakePressureSensor *BrakePressureSensor_new(void)
 {
     BrakePressureSensor *me = (BrakePressureSensor *)malloc(sizeof(struct _BrakePressureSensor));
@@ -63,13 +65,13 @@ void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
         me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
     }
 
-    if (me->percent <= 0)
+    if (BrakePressureSensor_brakesAreOn(me))
     {
-        Light_set(Light_brake, 0);
+        Light_set(Light_brake, 1);
     }
     else if (bench == FALSE)
     {
-        Light_set(Light_brake, 1);
+        Light_set(Light_brake, 0);
     }
     else
     {
@@ -227,4 +229,9 @@ void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCo
     //    {
     //return (TPS0PedalPercent + TPS1PedalPercent) / 2;
     //    }
+}
+
+bool BrakePressureSensor_brakesAreOn(BrakePressureSensor *me)
+{
+    return me->percent <= BRAKES_ON_PERCENT;
 }
