@@ -32,7 +32,7 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
 
     // TODO: Fetch from / store in EEPROM
     // exponent applied to pedal curve.  1 = linear, < 1 means more torque is given early on, > 1 means torque ramps up more slowly
-    me->outputCurveExponent = 1.2;
+    me->outputCurveExponent = 1.0;
 
     me->travelPercent = 0;
     me->runCalibration = FALSE;  //Do not run the calibration at the next main loop cycle
