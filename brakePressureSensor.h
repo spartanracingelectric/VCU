@@ -33,6 +33,7 @@ typedef struct _BrakePressureSensor
 
     bool calibrated;
     float4 percent;
+    bool brakesAreOn;
     bool implausibility;
 } BrakePressureSensor;
 
@@ -45,6 +46,5 @@ void BrakePressureSensor_loadCalibrationFromEEPROM(BrakePressureSensor *me);
 void BrakePressureSensor_startCalibration(BrakePressureSensor *me, ubyte1 secondsToRun);
 void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *errorCount);
 void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCount, float4 *pedalPercent);
-bool BrakePressureSensor_brakesAreOn(BrakePressureSensor *me);
 
 #endif //  _BRAKEPRESSURESENSOR_H
