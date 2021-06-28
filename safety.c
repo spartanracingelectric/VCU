@@ -84,8 +84,6 @@ struct _SafetyChecker
     ubyte1 maxAmpsCharge;
     ubyte1 maxAmpsDischarge;
 
-    bool tpsbpsImplausible;
-
     bool bypass;
     ubyte4 timestamp_bypassSafetyChecks;
     ubyte4 bypassSafetyChecksTimeout_us;
@@ -104,8 +102,6 @@ SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2
     me->serialMan = sm;
     me->faults = 0;
     me->warnings = 0;
-
-    me->tpsbpsImplausible = TRUE;
 
     me->maxAmpsCharge = maxChargeAmps;
     me->maxAmpsDischarge = maxDischargeAmps;
@@ -276,55 +272,26 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     me->faults &= ~F_bpsOutOfSync;
 
     //===================================================================
-    //Torque Encoder <-> Brake Pedal Plausibility Check
+    // 2021 EV.5.7 APPS / Brake Pedal Plausibility Check
     //===================================================================
-    // EV2.5 Torque Encoder / Brake Pedal Plausibility Check
-    //  The power to the motors must be immediately shut down completely, if the mechanical brakes
-    //  are actuated and the torque encoder signals more than 25 % pedal travel at the same time.
-    //  This must be demonstrated when the motor controllers are under load.
-    // EV2.5.1 The motor power shut down must remain active until the torque encoder signals less than 5 % pedal travel,
-    //  no matter whether the brakes are still actuated or not.
+    // EV.5.7.1 The power to the Motor(s) must be immediately and completely shut down when both of the following exist at the same time:
+    //     • The mechanical brakes are actuated
+    //     • The APPS signals more than 25% pedal travel
+    //     This must be demonstrated at Technical Inspection
+    // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
-    //Implausibility if..
-    //float4 twelve = 12.0;
-    //SerialManager_sprintf(me->serialMan, "The number twelve: %d\n", &twelve);
-    bool tpsHigh = FALSE;
-    bool bpsHigh = FALSE;
-    if (bps->percent > .05)
-    {
-        bpsHigh = TRUE;
-    }
-    else
-    {
-        bpsHigh = FALSE;
-    }
+    bool tpsAbove25Percent = (tps->travelPercent > .25);
 
-    if (tps->percent > .25)
+    //If mechanical brakes actuated && tps > 25%
+    if (bps->brakesAreOn && tpsAbove25Percent)
     {
-        tpsHigh = TRUE;
-    }
-    else
-    {
-        tpsHigh = FALSE;
-    }
-
-    //if (bps->percent > .05 && tps->percent > .25)
-    if (tpsHigh == TRUE && bpsHigh == TRUE)
-    {
-        //If mechanical brakes actuated && tps > 25%
-
+        // Set the TPS/BPS implaisibility VCU fault
         me->faults |= F_tpsbpsImplausible;
-        me->tpsbpsImplausible = TRUE;
         SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
-        //From here, assume that motor controller will check for implausibility before accepting commands
     }
-    //Clear implausibility if...
-    //if ((me->faults & F_tpsbpsImplausible) > 0)
-    //{
-    if (tps->percent < .10) //TPS is reduced to < 5%
+    else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {
-        //me->tpsbpsImplausible = FALSE;
-        //SerialManager_send(me->serialMan, "TPS below .05.  No implausibility.\n");
+        // There is no implausibility if TPS is below 5%
         me->faults &= ~(F_tpsbpsImplausible); //turn off the implausibility flag
     }
     //}
@@ -463,16 +430,17 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
         multiplier = 0;
     }
-    //////////if ((me->notices & N_HVILTermSenseLost) > 0) // HVIL is low (must command 0 torque before opening MCM relay
-    //////////{
-    //////////    multiplier = 0;
-    //////////    SerialManager_send(me->serialMan, "SC.0: HVIL term sense low\n");
-    //////////}
-    ////////if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)  //No regen below 5kph
-    ////////{
-    ////////    SerialManager_send(me->serialMan, "SC.0: Regen < 5kph\n");
-    ////////    multiplier = 0;
-    ////////}
+    // // If HVIL is open, we must command 0 torque before opening the motor controller relay
+    // if ((me->notices & N_HVILTermSenseLost) > 0)
+    // {
+    //    multiplier = 0;
+    //    SerialManager_send(me->serialMan, "HVIL term sense low\n");
+    // }
+    // if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)  //No regen below 5kph
+    // {
+    //    SerialManager_send(me->serialMan, "Regen < 5kph\n");
+    //    multiplier = 0;
+    // }
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these
     // IMPORTANT: Be aware of direction-sensitive situations (accel/regen)

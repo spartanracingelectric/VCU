@@ -13,9 +13,9 @@
 * Brake Pressure Sensor (BPS) functions
 ****************************************************************************/
 
-// TODO: Store in EEPROM
-#define BRAKES_ON_PERCENT .1
-
+// TODO: #94 Make this CAN configurable and store in EEPROM
+// This value is used for controlling the brake light and triggering the TPS-BPS implausibility fault
+#define BRAKES_ON_PERCENT .08
 
 BrakePressureSensor *BrakePressureSensor_new(void)
 {
@@ -34,10 +34,10 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     // Accuracy above 100PSI is +/- 0.25% of the full scale span (4V), which is +/- 0.1V
     Sensor_BPS0.specMax = 4500 + (4000 * .0025);
 
-    //Where/should these be hardcoded?
     me->bps0_reverse = FALSE;
 
     me->percent = 0;
+    me->brakesAreOn = FALSE;
     me->runCalibration = FALSE; //Do not run the calibration at the next main loop cycle
 
     me->calibrated = FALSE;
@@ -47,25 +47,27 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 }
 
 //Updates all values based on sensor readings, safety checks, etc
-void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
+ void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
 {
     me->bps0_value = me->bps0->sensorValue;
-
-    me->percent = 0;
 
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
     if (me->runCalibration == TRUE || me->calibrated == FALSE)
     {
         me->bps0_percent = 0;
+        me->percent = 0;
+        me->brakesAreOn = FALSE;  // Blocks Ready To Drive
     }
     else
     {
         me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
         me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
+        me->brakesAreOn = me->percent > BRAKES_ON_PERCENT;
     }
 
-    if (BrakePressureSensor_brakesAreOn(me))
+    // Turn brake light on or off
+    if (me->brakesAreOn)
     {
         Light_set(Light_brake, 1);
     }
@@ -229,9 +231,4 @@ void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCo
     //    {
     //return (TPS0PedalPercent + TPS1PedalPercent) / 2;
     //    }
-}
-
-bool BrakePressureSensor_brakesAreOn(BrakePressureSensor *me)
-{
-    return me->percent <= BRAKES_ON_PERCENT;
 }
