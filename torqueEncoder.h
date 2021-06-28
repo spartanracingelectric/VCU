@@ -30,8 +30,10 @@ typedef struct _TorqueEncoder
     ubyte4 timestamp_calibrationStart;
     ubyte1 calibrationRunTime;
 
+    float4 outputCurveExponent;
+
     bool calibrated;
-    float4 percent;
+    float4 travelPercent;
     bool implausibility;
 } TorqueEncoder;
 
@@ -45,5 +47,6 @@ void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);
 void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount);
 //void TorqueEncoder_plausibilityCheck(TorqueEncoder* me, ubyte1* errorCount, bool* isPlausible);
 void TorqueEncoder_getPedalTravel(TorqueEncoder *me, ubyte1 *errorCount, float4 *pedalPercent);
+void TorqueEncoder_getOutputPercent(TorqueEncoder *me, float4 *outputPercent);
 
 #endif //  _TORQUEENCODER_H

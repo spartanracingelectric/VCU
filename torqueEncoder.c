@@ -30,7 +30,11 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     me->tps0_reverse = FALSE;
     me->tps1_reverse = TRUE;
 
-    me->percent = 0;
+    // TODO: Fetch from / store in EEPROM
+    // exponent applied to pedal curve.  1 = linear, < 1 means more torque is given early on, > 1 means torque ramps up more slowly
+    me->outputCurveExponent = 1.2;
+
+    me->travelPercent = 0;
     me->runCalibration = FALSE;  //Do not run the calibration at the next main loop cycle
 
     //me->calibrated = FALSE;
@@ -53,7 +57,7 @@ void TorqueEncoder_update(TorqueEncoder* me)
     me->tps0_value = me->tps0->sensorValue;
     me->tps1_value = me->tps1->sensorValue;
 
-    me->percent = 0;
+    me->travelPercent = 0;
     ubyte2 errorCount = 0;
     
     //This function runs before the calibration cycle function.  If calibration is currently
@@ -83,7 +87,7 @@ void TorqueEncoder_update(TorqueEncoder* me)
             me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
             me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
 
-            me->percent = (me->tps0_percent + me->tps1_percent) / 2;
+            me->travelPercent = (me->tps0_percent + me->tps1_percent) / 2;
         }
     }
 }
@@ -215,7 +219,7 @@ void TorqueEncoder_getIndividualSensorPercent(TorqueEncoder* me, ubyte1 sensorNu
 -------------------------------------------------------------------*/
 void TorqueEncoder_getPedalTravel(TorqueEncoder* me, ubyte1* errorCount, float4* pedalPercent)
 {
-    *pedalPercent = me->percent;
+    *pedalPercent = me->travelPercent;
 
     //What about other error states?
     //Voltage outside of calibration range
@@ -229,4 +233,9 @@ void TorqueEncoder_getPedalTravel(TorqueEncoder* me, ubyte1* errorCount, float4*
     //    {
     //return (TPS0PedalPercent + TPS1PedalPercent) / 2;
     //    }
+}
+
+void TorqueEncoder_getOutputPercent(TorqueEncoder* me, float4* outputPercent)
+{
+    *outputPercent = powf(me->travelPercent, me->outputCurveExponent);
 }
