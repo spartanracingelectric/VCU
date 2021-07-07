@@ -302,7 +302,7 @@ void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
         {
             //Okay to turn MCM off once 0 torque is commanded, or after 2 sec
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
-            if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)  //EXTRA 0
+            if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
                 IO_DO_Set(IO_DO_00, FALSE);  //Need MCM relay object
                 me->relayState = FALSE;
