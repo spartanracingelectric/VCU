@@ -232,207 +232,170 @@ Var=D8_14V_Current_Monitor unsigned 48,7
 ID=500h
 DLC=8
 CycleTime=100
-Var="1- Throttle Percent (0-FF)" unsigned 0,8 /u:% /f:0.392156862746 /p:0
-Var="2- TPS0 Percent (0-FF)" unsigned 8,8 /u:% /f:0.392156862746
-Var="3- TPS0 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- TPS0 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- TPS0 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=ThrottlePercent0FF unsigned 0,8 /u:% /f:0.392156862746 /p:0
+Var=TPS0Percent0FF unsigned 8,8 /u:% /f:0.392156862746
+Var=TPS0Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=TPS0CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=TPS0CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V501_TPS1]
 ID=501h
 DLC=8
 CycleTime=100
-Var="1- Throttle Percent (0-FF)" unsigned 0,8 -h
-Var="2- TPS1 Percent (0-FF)" unsigned 8,8 -h /u:% /f:0.392156862746
-Var="3- TPS1 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- TPS1 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- TPS1 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=ThrottlePercent0FF unsigned 0,8 -h
+Var=TPS1Percent0FF unsigned 8,8 -h /u:% /f:0.392156862746
+Var=TPS1Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=TPS1CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=TPS1CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V502_BPS0]
 ID=502h
 DLC=8
 CycleTime=100
-Var="1- Brake Percent (0-FF)" unsigned 0,8 -h /u:% /f:0.392156862746
-Var="2- unused" unsigned 8,8 -h
-Var="3- BPS0 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- BPS0 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- BPS0 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=BrakePercent0FF unsigned 0,8 -h /u:% /f:0.392156862746
+Var=unused unsigned 8,8 -h
+Var=BPS0Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=BPS0CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=BPS0CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V503_WheelSpeeds]
 ID=503h
 DLC=8
 CycleTime=100
-Var="1- WSS FL Ground Speed" unsigned 0,16 /u:m/s
-Var="2- WSS FR Ground Speed" unsigned 16,16 /u:m/s
-Var="3- WSS RL Ground Speed" unsigned 32,16 /u:m/s
-Var="4- WSS RR Ground Speed" unsigned 48,16 /u:m/s
+Var=WSSFLGroundSpeed unsigned 0,16 /u:m/s
+Var=WSSFRGroundSpeed unsigned 16,16 /u:m/s
+Var=WSSRLGroundSpeed unsigned 32,16 /u:m/s
+Var=WSSRRGroundSpeed unsigned 48,16 /u:m/s
 
 [V504_WSS_PulseWidth_Front]
 ID=504h
 DLC=8
 CycleTime=100
-Var="1- WSS FL Pulse" unsigned 0,32 /u:us
-Var="2- WSS FR Pulse" unsigned 32,32 /u:us
+Var=WSSFLPulse unsigned 0,32 /u:us
+Var=WSSFRPulse unsigned 32,32 /u:us
 
 [V505_WSS_PulseWidth_Rear]
 ID=505h
 DLC=8
 CycleTime=100
-Var="1- WSS RL Pulse" unsigned 0,32 /u:us
-Var="2- WSS RR Pulse" unsigned 32,32 /u:us
+Var=WSSRLPulse unsigned 0,32 /u:us
+Var=WSSRRPulse unsigned 32,32 /u:us
 
 [V506_VCU_Faults_and_Warnings]
 ID=506h
 DLC=8
 CycleTime=100
-Var="E-1 TPS Out of Range" unsigned 0,1
-Var="E-2 BPS Out of Range" unsigned 1,1
-Var="E-3 TPS Power Failure" unsigned 2,1
-Var="E-4 BPS Power Failure" unsigned 3,1
-Var="E-5 TPS Signal Failure" unsigned 4,1
-Var="E-6 BPS Signal Failure" unsigned 5,1
-Var="E-7 TPS Not Calibrated" unsigned 6,1
-Var="E-8 BPS Not Calibrated" unsigned 7,1
-Var="E-9 TPS Out of Sync" unsigned 8,1
-Var="E-10 BPS Out of Sync (unused)" unsigned 9,1
-Var="E-11 TPS-BPS Implausible" unsigned 10,1
-Var="E-12 (reserved)" unsigned 11,1
-Var="E-13 (unused)" unsigned 12,1
-Var="E-14 (unused)" unsigned 13,1
-Var="E-15 (unused)" unsigned 14,1
-Var="E-16 (unused)" unsigned 15,1
-Var="E-17 LVS Battery Empty" unsigned 16,1
-Var="W-1 LVS Battery Low" unsigned 32,1
-Var="W-8 Safety Disabled" unsigned 39,1
-Var="W-7 HVIL Override" unsigned 38,1
+Var=E1TPSOutofRange unsigned 0,1
+Var=E2BPSOutofRange unsigned 1,1
+Var=E3TPSPowerFailure unsigned 2,1
+Var=E4BPSPowerFailure unsigned 3,1
+Var=E5TPSSignalFailure unsigned 4,1
+Var=E6BPSSignalFailure unsigned 5,1
+Var=E7TPSNotCalibrated unsigned 6,1
+Var=E8BPSNotCalibrated unsigned 7,1
+Var=E9TPSOutofSync unsigned 8,1
+Var=E10BPSOutofSyncunused unsigned 9,1
+Var=E11TPSBPSImplausible unsigned 10,1
+Var=E12reserved unsigned 11,1
+Var=E13SoftBSPDFault bit 12,1
+Var=E14unused unsigned 13,1
+Var=E15unused unsigned 14,1
+Var=E16unused unsigned 15,1
+Var=E17LVSBatteryEmpty unsigned 16,1
+Var=W1LVSBatteryLow unsigned 32,1
+Var=W8SafetyDisabled unsigned 39,1
+Var=W7HVILOverride unsigned 38,1
 
-[B620_Elithion]
-ID=620h
-DLC=8
-CycleTime=1000
-Var=Elithion char 0,8
-
-[B621_Elithion_Rev]
-ID=621h
-DLC=0
-CycleTime=1000
-Var=Rev char 0,8
-
-[B622_Status]
-ID=622h
-DLC=8
-Var="1_0- BMS Fault State" bit 0,1
-Var="2- Uptime" unsigned 8,16 /u:min /f:0.166666666666
-Var="3_0- Power from source" bit 24,1
-Var="3_1- Power from load" bit 25,1
-Var="3_2- Interlock tripped" bit 26,1
-Var="3_3- Contactor requested (wire)" bit 27,1
-Var="3_4- Contactor requested (CAN)" bit 28,1
-Var="3_5- HLIM" bit 29,1
-Var="3_6- LLIM" bit 30,1
-Var="3_7- Fan is on" bit 31,1
-Var="4- Fault code" unsigned 32,8 /e:B622_Status_Fault_Code
-Var="5_0- Driving while plugged in" bit 40,1
-Var="5_1- Interlock is tripped" bit 41,1
-Var="5_2- Comm Fault (bank or cell)" bit 42,1
-Var="5_3- Overcurrent (chg)" bit 43,1
-Var="5_4- Overcurrent (disc)" bit 44,1
-Var="5_5- Overtemp" bit 45,1
-Var="5_6- Undervolt" bit 46,1
-Var="5_7- Overvolt" bit 47,1
-Var="6_0- Low voltage" bit 48,1
-Var="6_1- High voltage" bit 49,1
-Var="6_2- Charge overcurrent" bit 50,1
-Var="6_3- Discharge Overcurrent" bit 51,1
-Var="6_4- Cold temperature" bit 52,1
-Var="6_5- Hot temperature" bit 53,1
-Var="6_6- Low SOH" bit 54,1
-Var="6_7- Isolation fault" bit 55,1
-
-[B623_Voltage]
-ID=623h
-DLC=8
-CycleTime=1000
-Var="1- Voltage" unsigned 0,16 /u:V
-
-[B624_Current]
-ID=624h
-DLC=8
-CycleTime=1000
-Var="1- Current" signed 0,16 /u:A
-Var="2- CCL" signed 16,16 /u:A
-Var="3- DCL" signed 32,16 /u:A
-
-[B625_Energy]
-ID=625h
-DLC=8
-CycleTime=1000
-Var="1- Energy In" unsigned 0,32 /u:kWh
-Var="2- Energy out" unsigned 32,32 /u:kWh
-
-[B626_SOC]
-ID=626h
-DLC=8
-CycleTime=1000
-Var="1- SOC" char 0,8
-Var="2- DOD" unsigned 8,16
-Var="3- Capacity" unsigned 24,16
-Var="4- SOH" unsigned 48,8
-
-[B627_Temp]
-ID=627h
-DLC=8
-CycleTime=1000
-Var="1- Pack temp (avg)" signed 0,8 /u:C
-Var="2- Coldest temp" signed 16,8 /u:C
-Var="3- Coldest cell" unsigned 24,8
-Var="4- Hottest temp" signed 32,8 /u:C
-Var="5- Hottest cell" unsigned 40,8
-
-[B628_Resistance]
-ID=628h
-DLC=8
-CycleTime=1000
-Var="1- Pack resistance" unsigned 0,16 /u:mO /f:0.1
-Var="2- Min res" unsigned 16,8 /u:mO /f:0.1
-Var="3- Lowest res cell" unsigned 24,8
-Var="4- Max res" unsigned 32,8 /u:mO /f:0.1
-Var="5- Highest res cell" unsigned 40,8
-
-[B629_Custom]
-ID=629h
-DLC=8
-CycleTime=10
-Var=Custom char 0,8
-
-["V508_Regen Mode"]
+[V508_RegenMode]
 ID=508h
 DLC=8
-Var="Regen Torque Limit" unsigned 8,16 /u:Nm /f:0.1
-Var="Regen Mode" unsigned 0,8
-Var="Regen BPS% for full regen torque" unsigned 56,8 /u:% /f:0.392156862746
-Var="Regen At Zero Pedal" unsigned 24,16 /u:Nm /f:0.392156862746
-Var="Regen APPS% for coasting" unsigned 48,8 /u:% /f:0.392156862746
+Var=RegenTorqueLimit unsigned 8,16 /u:Nm /f:0.1
+Var=RegenMode unsigned 0,8
+Var=RegenBPSforfullregentorque unsigned 56,8 /u:% /f:0.392156862746
+Var=RegenAtZeroPedal unsigned 24,16 /u:Nm /f:0.392156862746
+Var=RegenAPPSforcoasting unsigned 48,8 /u:% /f:0.392156862746
 
-["V5FF VCU Debug"]
+[V5FFVCUDebug]
 ID=5FFh
 DLC=8
 CycleTime=100
-Var="VCU Safety Disable (0xC4)" unsigned 0,8
-Var="VCU MCM HVIL Override" unsigned 8,8
-Var="VCU MCM Force Enable (0x55)" unsigned 16,8 -b	// 01010101 (0x55) to Enable
-Var="VCU MCM Force Disable (>0)" unsigned 24,8 -b
+Var=VCUSafetyDisable0xC4 unsigned 0,8
+Var=VCUMCMHVILOverride unsigned 8,8
+Var=VCUMCMForceEnable0x55 unsigned 16,8 -b	// 01010101 (0x55) to Enable
+Var=VCUMCMForceDisable0 unsigned 24,8 -b
 
 [V507_LVS_Battery]
 ID=507h
-Var="LVS Battery Voltage" unsigned 0,16 /u:V /f:0.001 /p:3
-Var="LVS Battery SOC" signed 16,8 /u:%
+Var=LVSBatteryVoltage unsigned 0,16 /u:V /f:0.001 /p:3
+Var=LVSBatterySOC signed 16,8 /u:%
 
 [V509_DI_RTD_Status]
 ID=509h
 DLC=8
-Var="VCU HVIL Term Sense" unsigned 0,16
-Var="VCU HVIL Override Status" unsigned 16,8
-Var="V509-6" unsigned 48,8
-Var="V509-7" unsigned 56,8
+Var=VCUHVILTermSense unsigned 0,16
+Var=VCUHVILOverrideStatus unsigned 16,8
+Var=V5096 unsigned 48,8
+Var=V5097 unsigned 56,8
+
+[BMS620_Status]
+ID=620h	// BMS Status and Fault Message
+DLC=1
+Var=BMS_Cell_Over_Voltage bit 0,1
+Var=BMS_Cell_Under_Voltage bit 1,1
+Var=BMS_Cell_Over_Temperature bit 2,1
+Var=BMS_Board_Over_Temperature bit 3,1
+Var=BMS_Power_Exceed_80kW bit 4,1
+
+[BMS623_Pack_Info]
+ID=623h	// Accumulator Pack Voltage and Current
+DLC=8
+Var=BMS_Pack_Voltage signed 0,32 /u:V /f:0.01 /min:0 /max:300
+Var=BMS_Pack_Current signed 32,32 /u:A /f:0.01 /o:-3000 /min:-3000 /max:3000
+
+[BMS624_Load_Info]
+ID=624h	// Accumulator Load Voltage and Current
+DLC=8
+Var=BMS_Load_Voltage signed 0,32 /u:V /f:0.01 /min:0 /max:300
+Var=BMS_Load_Current signed 32,32 /u:A /f:0.01 /o:-3000 /min:-3000 /max:3000
+
+[BMS625_Cell_Voltage_High_Low]
+ID=625h	// Cell Voltage High and Low
+DLC=8
+Var=BMS_Cell_Voltage_High signed 0,32 /u:V /f:0.01 /min:0 /max:6.55
+Var=BMS_Cell_Voltage_Low signed 32,32 /u:V /f:0.01 /min:0 /max:6.55
+
+[BMS626_Cell_Voltage_Average]
+ID=626h	// Cell Voltage Average and Mismatch
+DLC=8
+Var=BMS_Cell_Voltage_Average signed 0,32 /u:V /f:0.01 /min:0 /max:6.55
+Var=BMS_Cell_Voltage_Mismatch signed 32,32 /u:V /f:0.01 /min:0 /max:6.55
+
+[BMS627_Status_Soc]
+ID=627h	// SOC Percentage and Battery Capacity
+DLC=8
+Var=BMS_SOC signed 0,32 /u:% /f:0.1 /min:0 /max:100
+Var=BMS_Capacity signed 32,32 /u:Ah /f:0.1 /min:0 /max:30
+
+[BMS628_Temperature_Average]
+ID=628h	// Cell and BMS Board Temperature Average
+DLC=8
+Var=BMS_Cell_Temperature_Average signed 0,32 /u:DegreeC /f:0.1 /o:-100 /min:-100 /max:100
+Var=BMS_Board_Temperature_Average signed 32,32 /u:DegresC /f:0.1 /o:-100 /min:-100 /max:100
+
+[BMS629_Cell_Temperature]
+ID=629h	// Cell Temperature High and Low
+DLC=8
+Var=BMS_Cell_Temperature_High signed 0,32 /u:DegreeC /f:0.1 /o:-100 /min:-100 /max:100
+Var=BMS_Cell_Temperature_Low signed 32,32 /u:DegreeC /f:0.1 /o:100 /min:-100 /max:100
+
+[BMS630_Board_Temperature]
+ID=630h	// Accumulator Load Power
+DLC=8
+Var=BMS_Board_Temperature_High signed 0,32 /u:DegreeC /f:0.1 /o:-100 /min:-100 /max:100
+Var=BMS_Board_Temperature_Low signed 32,32 /u:DegreeC /f:0.1 /o:-100 /min:-100 /max:100
+
+[BMS631_Load_Power]
+ID=631h
+DLC=4
+Var=BMS_Load_Power signed 0,32 /u:W /f:0.1 /o:-100000 /min:-100000 /max:100000
 

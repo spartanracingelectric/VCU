@@ -614,7 +614,19 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 
     //Cooling?
 
-    //510 - 51F reserved for dash
+
+    //510: SoftBSPD
+    // ubyte1 flags = sc->softBSPD_bpsHigh;
+    // flags |= sc->softBSPD_kwHigh << 1;
+    // canMessageCount++;
+    // byteNum = 0;
+    // canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    // canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    // canMessages[canMessageCount - 1].data[byteNum++] = sc->softBSPD_fault;
+    // canMessages[canMessageCount - 1].data[byteNum++] = flags;
+    // canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)mcm->kwRequestEstimate;
+    // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
+    // canMessages[canMessageCount - 1].length = byteNum;
 
 
     //Motor controller command message
