@@ -67,6 +67,8 @@ static const ubyte2 N_HVILTermSenseLost = 1;
 static const ubyte2 N_Over75kW_BMS = 0x10;
 static const ubyte2 N_Over75kW_MCM = 0x20;
 
+ubyte4 timestamp_SoftBSPD = 0;
+
 /*****************************************************************************
 * SafetyChecker object
 ******************************************************************************
@@ -347,18 +349,20 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // 40922 = 60227 <-- This discrepancy is because we don't get all of the requested torque 
 
 
-    me->softBSPD_bpsHigh = bps->bps0->sensorValue > 2.7;
-    me->softBSPD_kwHigh = MCM_getPower(mcm) > 4500;
+    me->softBSPD_bpsHigh = bps->bps0->sensorValue > 2.5;
+    me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
 
     // Note: this is using the FUTURE torque request with the PREVIOUS RPM
     if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh)
     {
+        IO_RTC_StartTime(&timestamp_SoftBSPD);
         me->softBSPD_fault = TRUE;
         me->faults |= F_softBSPDFault;
         Light_set(Light_dashEco, 1);  // For testing only
     }
-    else
+    else if (IO_RTC_GetTimeUS(timestamp_SoftBSPD) >= 500000 || IO_RTC_GetTimeUS(timestamp_SoftBSPD) == 0)
     {
+        timestamp_SoftBSPD = 0;
         me->softBSPD_fault = FALSE;
         me->faults &= ~F_softBSPDFault;
         Light_set(Light_dashEco, 0);  // For testing only
