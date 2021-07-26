@@ -108,10 +108,11 @@ void vcu_initializeADC(bool benchMode)
     //MOVED TO TPS/BPS BLOCK ABOVE
 
     //Wheel Speed Sensors (Pulse Width Detection)
-    Sensor_WSS_FL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_06, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_FR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_04, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_RL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_05, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_RR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_07, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+    Sensor_WSS_FL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_02, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+    Sensor_WSS_FR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_00, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+    Sensor_WSS_RL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_01, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+    Sensor_WSS_RR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_03, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+    //Maybe look for falling edge because we're using NPN/sinking WSS? 
 
     //----------------------------------------------------------------------------
     //Switches
