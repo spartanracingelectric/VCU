@@ -203,7 +203,7 @@ void main(void)
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2300, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
-    WheelSpeeds *wss = WheelSpeeds_new(18, 18, 16, 16);
+    WheelSpeeds *wss = WheelSpeeds_new(16, 16, 16, 16);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     BatteryManagementSystem *bms = BMS_new(serialMan, 0x620);
     CoolingSystem *cs = CoolingSystem_new(serialMan);
