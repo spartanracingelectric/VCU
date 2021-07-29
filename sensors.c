@@ -91,6 +91,11 @@ void sensors_updateSensors(void)
     Sensor_WSS_RL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_01, &Sensor_WSS_RL.sensorValue);
     Sensor_WSS_RR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_03, &Sensor_WSS_RR.sensorValue);
 
+    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, NULL, NULL);
+    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, NULL, NULL);
+    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_09, &Sensor_WSS_RL.sensorValue, NULL, NULL);
+    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue, NULL, NULL);
+
     //Switches / Digital ---------------------------------------------------
     Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
     Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
