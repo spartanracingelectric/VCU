@@ -88,6 +88,30 @@ float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
     return speed;
 }
 
+float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner)
+{
+    float4 speed;
+    switch (corner)
+    {
+    case FL:
+        speed = me->speed_FL;
+        break;
+    case FR:
+        speed = me->speed_FR;
+        break;
+    case RL:
+        speed = me->speed_RL;
+        break;
+    case RR:
+        speed = me->speed_RR;
+        break;
+    default:
+        speed = 0;
+    }
+
+    return speed*60.0;
+}
+
 float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
 {
     return (me->speed_FL < me->speed_FR) ? me->speed_FL : me->speed_FR;
