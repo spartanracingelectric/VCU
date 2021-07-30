@@ -490,7 +490,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = bps->bps0_calibMax >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //WSS
+    //WSS Hz output
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
@@ -505,19 +505,19 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeed(wss, RR) + 0.5)) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //TEMP: WSS2
+    //WSS RPM output
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FL.sensorValue;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FL.sensorValue >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FL.sensorValue >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FL.sensorValue >> 24;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FR.sensorValue;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FR.sensorValue >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FR.sensorValue >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_WSS_FR.sensorValue >> 24;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL) + 0.5);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL) + 0.5)) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR) + 0.5);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR) + 0.5)) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL) + 0.5);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL) + 0.5)) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR) + 0.5);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR) + 0.5)) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
     /*
