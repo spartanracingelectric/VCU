@@ -86,6 +86,41 @@ void sensors_updateSensors(void)
     */
    
     //Wheel speed sensors ---------------------------------------------------
+
+    //For input smoothing
+    if(Sensor_WSS_FL.sensorValue > 0) { //If non-zero reading, update displayed val
+        Sensor_WSS_FL.heldSensorValue=Sensor_WSS_FL.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_FL.timestamp); //Reset time
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750) { //Has been longer than 750ms (timeout, reset heldSensorValue to 0)
+        Sensor_WSS_FL.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_FR.sensorValue > 0) {
+        Sensor_WSS_FR.heldSensorValue=Sensor_WSS_FR.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750) { //Has been longer than 750ms (timeout, reset heldSensorValue to 0)
+        Sensor_WSS_FL.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_RL.sensorValue > 0) {
+        Sensor_WSS_RL.heldSensorValue=Sensor_WSS_RL.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750) { //Has been longer than 750ms (timeout, reset heldSensorValue to 0)
+        Sensor_WSS_FL.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_RR.sensorValue > 0) {
+        Sensor_WSS_RR.heldSensorValue=Sensor_WSS_RR.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750) { //Has been longer than 750ms (timeout, reset heldSensorValue to 0)
+        Sensor_WSS_FL.heldSensorValue=0;
+    }
+
+
     ubyte4 pulseTrash;
     Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, &pulseTrash, NULL);
     Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, &pulseTrash, NULL);

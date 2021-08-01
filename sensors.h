@@ -134,6 +134,8 @@ typedef struct _Sensor {
 
     //ubyte2 calibratedValue;
     ubyte4 sensorValue;
+    ubyte4 heldSensorValue;
+    ubyte4 timestamp;
     bool fresh;
     //bool isCalibrated;
     IO_ErrorType ioErr_powerInit;
