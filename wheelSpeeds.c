@@ -88,25 +88,46 @@ float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
     return speed;
 }
 
-float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner)
+float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
 {
     float4 speed;
-    switch (corner)
-    {
-    case FL:
-        speed = me->speed_FL;
-        break;
-    case FR:
-        speed = me->speed_FR;
-        break;
-    case RL:
-        speed = me->speed_RL;
-        break;
-    case RR:
-        speed = me->speed_RR;
-        break;
-    default:
-        speed = 0;
+    if (interpolate) {
+        switch (corner)
+        {
+            case FL:
+                speed = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+                break;
+            case FR:
+                speed = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+                break;
+            case RL:
+                speed = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+                break;
+            case RR:
+                speed = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+                break;
+            default:
+                speed = 0;
+        }
+    }
+    else {
+        switch (corner)
+        {
+            case FL:
+                speed = me->speed_FL;
+                break;
+            case FR:
+                speed = me->speed_FR;
+                break;
+            case RL:
+                speed = me->speed_RL;
+                break;
+            case RR:
+                speed = me->speed_RR;
+                break;
+            default:
+                speed = 0;
+        }
     }
 
     return speed*60.0;
