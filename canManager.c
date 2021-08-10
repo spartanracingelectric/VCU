@@ -9,6 +9,7 @@
 #include "sensors.h"
 #include "canManager.h"
 #include "avlTree.h"
+#include "instrumentCluster.h"
 #include "motorController.h"
 #include "bms.h"
 #include "safety.h"

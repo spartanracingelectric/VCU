@@ -37,6 +37,7 @@
 #include "initializations.h"
 #include "sensors.h"
 #include "canManager.h"
+#include "instrumentCluster.h"
 #include "motorController.h"
 #include "readyToDriveSound.h"
 #include "torqueEncoder.h"
@@ -200,6 +201,7 @@ void main(void)
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
+    InstrumentCluster *ic = InstrumentCluster_new(serialMan, 0x702);
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2300, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
