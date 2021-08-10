@@ -20,6 +20,8 @@ InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBas
 // Update Functions (CAN Inputs)
 //----------------------------------------------------------------------------
 
+void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage);
+
 //----------------------------------------------------------------------------
 // Status Functions (CAN Inputs)
 //----------------------------------------------------------------------------
@@ -27,5 +29,8 @@ InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBas
 //----------------------------------------------------------------------------
 //Inter-object functions
 //----------------------------------------------------------------------------
+
+ubyte1 IC_getTorqueMapMode(InstrumentCluster *me);
+ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me);
 
 #endif // _INSTRUMENTCLUSTER_H
