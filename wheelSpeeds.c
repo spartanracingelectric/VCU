@@ -95,16 +95,16 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
         switch (corner)
         {
             case FL:
-                speed = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+                speed = Sensor_WSS_FL.heldSensorValue;
                 break;
             case FR:
-                speed = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+                speed = Sensor_WSS_FR.heldSensorValue;
                 break;
             case RL:
-                speed = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+                speed = Sensor_WSS_RL.heldSensorValue;
                 break;
             case RR:
-                speed = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+                speed = Sensor_WSS_RR.heldSensorValue;
                 break;
             default:
                 speed = 0;
