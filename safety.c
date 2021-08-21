@@ -39,7 +39,7 @@ static const ubyte4 F_tpsbpsImplausible = 0x400;
 //static const ubyte4 UNUSED = 0x800;
 
 //nibble 4
-//static const ubyte4 F_ = 0x1000;
+static const ubyte4 F_softBSPDFault = 0x1000;
 //static const ubyte4 F_ = 0x2000;
 //static const ubyte4 F_ = 0x4000;
 //static const ubyte4 F_ = 0x8000;
@@ -67,6 +67,8 @@ static const ubyte2 N_HVILTermSenseLost = 1;
 static const ubyte2 N_Over75kW_BMS = 0x10;
 static const ubyte2 N_Over75kW_MCM = 0x20;
 
+ubyte4 timestamp_SoftBSPD = 0;
+
 /*****************************************************************************
 * SafetyChecker object
 ******************************************************************************
@@ -83,6 +85,10 @@ struct _SafetyChecker
     ubyte2 notices;
     ubyte1 maxAmpsCharge;
     ubyte1 maxAmpsDischarge;
+
+    bool softBSPD_bpsHigh;
+    bool softBSPD_kwHigh;
+    bool softBSPD_fault;
 
     bool bypass;
     ubyte4 timestamp_bypassSafetyChecks;
@@ -105,6 +111,10 @@ SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2
 
     me->maxAmpsCharge = maxChargeAmps;
     me->maxAmpsDischarge = maxDischargeAmps;
+
+    me->softBSPD_bpsHigh = TRUE;
+    me->softBSPD_kwHigh = TRUE;
+    me->softBSPD_fault = TRUE;
 
     me->bypass = FALSE;
     me->timestamp_bypassSafetyChecks = 0;
@@ -250,17 +260,8 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     TorqueEncoder_getIndividualSensorPercent(tps, 0, &tps0Percent); //borrow the pedal percent variable
     TorqueEncoder_getIndividualSensorPercent(tps, 1, &tps1Percent);
 
-    //sprintf(message, "TPS0: %f\n", tps0Percent);
-    //SerialManager_send(me->serialMan, message);
-    //sprintf(message, "TPS1: %f\n", tps1Percent);
-    //SerialManager_send(me->serialMan, message);
-
     if ((tps1Percent - tps0Percent) > .1 || (tps1Percent - tps0Percent) < -.1) //Note: Individual TPS readings don't go negative, otherwise this wouldn't work
     {
-
-        //Err.Report(Err.Codes.TPSDiscrepancy, "TPS discrepancy of over 10%", Motor.Stop);
-        SerialManager_send(me->serialMan, "TPS discrepancy of over 10%\n");
-
         me->faults |= F_tpsOutOfSync;
     }
     else
@@ -294,7 +295,8 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         // There is no implausibility if TPS is below 5%
         me->faults &= ~(F_tpsbpsImplausible); //turn off the implausibility flag
     }
-    //}
+
+    
 
     SerialManager_send(me->serialMan, "\n");
 
@@ -326,6 +328,46 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->warnings &= ~W_lvsBatteryLow;
         //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
     }
+
+    
+    //===================================================================
+    // softBSPD - Software implementation of Brake System Plausibility Device
+    //===================================================================
+    // Danny (e-tech judge) suggested implementing a BSPD check in software as
+    // an alternative to making a hardware adjustment to the BSPD requiring us to re-tech.
+    // By tripping a software BSPD slightly before the actual BSPD would trip, we can avoid
+    // the BSPD actually shutting down the car and ending our run.
+    // 2021 BSPD looks for 2.75V from BPS
+    // and ?? kW (approximation from a current sensor assuming nominal pack voltage)
+    // We will use 2.0V (TBD) BPS voltage and even the tiniest amount of torque command
+    
+    // Formula for relating kW to Nm:
+    //(kW) = torque (Nm) x speed (RPM) / 9.5488
+    
+    // MCM readings <--> REQUESTED torque * rpm / 9.5488
+    // 259*158 = 225 * 2556 / 9.5488
+    // 40922 = 60227 <-- This discrepancy is because we don't get all of the requested torque 
+
+
+    me->softBSPD_bpsHigh = bps->bps0->sensorValue > 2500;
+    me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
+
+    // Note: this is using the FUTURE torque request with the PREVIOUS RPM
+    if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh)
+    {
+        IO_RTC_StartTime(&timestamp_SoftBSPD);
+        me->softBSPD_fault = TRUE;
+        me->faults |= F_softBSPDFault;
+        // Light_set(Light_dashEco, 1);  // For testing only
+    }
+    else if (IO_RTC_GetTimeUS(timestamp_SoftBSPD) >= 500000 || IO_RTC_GetTimeUS(timestamp_SoftBSPD) == 0)
+    {
+        timestamp_SoftBSPD = 0;
+        me->softBSPD_fault = FALSE;
+        me->faults &= ~F_softBSPDFault;
+        // Light_set(Light_dashEco, 0);  // For testing only
+    }
+
 
     //===================================================================
     // Safety checker bypass
