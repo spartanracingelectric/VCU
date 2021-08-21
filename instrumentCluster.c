@@ -1,8 +1,3 @@
-#include <stdlib.h>  //Needed for malloc
-#include "IO_Driver.h"
-#include "IO_RTC.h"
-#include "IO_CAN.h"
-
 #include "instrumentCluster.h"
 
 //#include "canManager.h"
