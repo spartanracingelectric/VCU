@@ -23,12 +23,11 @@ void vcu_initializeADC(bool benchMode)
     //Power supplies/outputs
     //----------------------------------------------------------------------------
     //Analog sensor supplies
-    Sensor_TPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148
-    Sensor_BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 136
+    Sensor_TPS0.ioErr_powerSet = Sensor_BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148 and 136
     Sensor_TPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
 
-    //Variable power supply (used by BPS)
-    //IO_POWER_Set(IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);    //IO_POWER_Set(IO_PIN_269, IO_POWER_8_5_V);
+    //Variable power supply
+    IO_POWER_Set(IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);    //IO_POWER_Set(IO_PIN_269, IO_POWER_8_5_V);
 
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
@@ -47,6 +46,7 @@ void vcu_initializeADC(bool benchMode)
 
     //Wheel Speed Sensor supplies
     Sensor_WSS_FL.ioErr_powerInit = Sensor_WSS_FR.ioErr_powerInit = Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); // WSS power
+    // IO_POWER_Set (IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);
 
     //Digital PWM outputs ---------------------------------------------------
     // RTD Sound
