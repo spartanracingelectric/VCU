@@ -324,7 +324,7 @@ void main(void)
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
-        MCM_setRegenMode(mcm0, REGENMODE_OFF); // TODO: Read regen mode from DCU CAN message - Issue #96
+        MCM_setRegenMode(mcm0, REGENMODE_HYBRID); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         MCM_calculateCommands(mcm0, tps, bps);
 
