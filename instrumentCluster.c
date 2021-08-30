@@ -1,6 +1,6 @@
 #include "instrumentCluster.h"
 
-//#include "canManager.h"
+#include "canManager.h"
 
 
 struct _InstrumentCluster
