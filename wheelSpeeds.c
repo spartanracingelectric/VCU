@@ -90,7 +90,7 @@ float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
 
 float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
 {
-    float4 speed;
+    ubyte4 speed;
     if (interpolate) {
         switch (corner)
         {
@@ -114,23 +114,24 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
         switch (corner)
         {
             case FL:
-                speed = me->speed_FL;
+                speed = Sensor_WSS_FL.sensorValue;
                 break;
             case FR:
-                speed = me->speed_FR;
+                speed = Sensor_WSS_FR.sensorValue;
                 break;
             case RL:
-                speed = me->speed_RL;
+                speed = Sensor_WSS_RL.sensorValue;
                 break;
             case RR:
-                speed = me->speed_RR;
+                speed = Sensor_WSS_RR.sensorValue;
                 break;
             default:
                 speed = 0;
         }
     }
 
-    return speed*60.0;
+    //Multiply sensorValue by 60 seconds to get RPM (1 Hz per bump)
+    return speed*60.0f/NUM_BUMPS;
 }
 
 float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
