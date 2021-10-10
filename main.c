@@ -200,7 +200,14 @@ void main(void)
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2300, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    
+    //Crows test
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2200, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2000, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 1800, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 1600, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 1400, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
 
     //Driver day torque limit
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 1800, 5, 15);
