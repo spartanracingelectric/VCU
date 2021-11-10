@@ -532,14 +532,16 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     //////////        SerialManager_send(me->serialMan, "SC.Mult: CCL\n");
     //////////    }
     //////////    //Also, regen should be ramped down as speed approaches minimum
-    //////////    if ( groundSpeedKPH < 15)
-    //////////    {
-    //////////        float4 regenMultiplier = 1 - getPercent(groundSpeedKPH, MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
+    
+    
     //////////        if (tempMultiplier < 1) { SerialManager_send(me->serialMan, "SC.Mult: Regen < 15kph\n"); }
-    //////////        if (regenMultiplier < tempMultiplier) { tempMultiplier = regenMultiplier; } // Pick the lesser of CCL (tempMultiplier) or speed reduction (regenMultiplier)
     //////////    }
-    //////////}
     ////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
+    if ( groundSpeedKPH < MCM_getRegenRampdownStartSpeed(mcm))
+    {
+        float4 regenMultiplier = 1 - getPercent(groundSpeedKPH, MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
+        if (regenMultiplier < multiplier ) { multiplier = regenMultiplier; } // Use regenMultiplier if it is lower
+    }
 
     //Reduce the torque command.  Multiplier should be a percent value (between 0 and 1)
 
