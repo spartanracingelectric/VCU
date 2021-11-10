@@ -356,7 +356,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh)
     {
         IO_RTC_StartTime(&timestamp_SoftBSPD);
-        me->softBSPD_fault = TRUE;
+        me->softBSPD_fault = FALSE;
         //me->faults |= F_softBSPDFault;
         // Light_set(Light_dashEco, 1);  // For testing only
     }
