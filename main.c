@@ -200,7 +200,7 @@ void main(void)
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2300, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
@@ -324,7 +324,7 @@ void main(void)
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
-        MCM_setRegenMode(mcm0, REGENMODE_HYBRID); // TODO: Read regen mode from DCU CAN message - Issue #96
+        MCM_setRegenMode(mcm0, REGENMODE_TESLA); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         MCM_calculateCommands(mcm0, tps, bps);
 
