@@ -459,11 +459,12 @@ ubyte4 SafetyChecker_getNotices(SafetyChecker *me)
     return (me->notices);
 }
 
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms)
+void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
 {
     float4 multiplier = 1;
     //float4 tempMultiplier = 1;
-    sbyte1 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+    //Get ground speed in KPH using only FL WSS
+    sbyte1 groundSpeedKPH = (sbyte1)WheelSpeeds_getGroundSpeedKPH(wss, 1);
 
     //-------------------------------------------------------------------
     // Critical conditions - set 0 torque

@@ -309,7 +309,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        
+
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
         //ControlLaw_update();
@@ -335,7 +335,7 @@ void main(void)
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
         /*******************************************/
-        SafetyChecker_reduceTorque(sc, mcm0, bms);
+        SafetyChecker_reduceTorque(sc, mcm0, bms, wss);
 
         /*******************************************/
         /*              Enact Outputs              */
