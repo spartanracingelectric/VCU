@@ -480,12 +480,13 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
        SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }
 
-    // //No regen below 5kph
-    // if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
-    // {
-    //    SerialManager_send(me->serialMan, "Regen < 5kph\n");
-    //    multiplier = 0;
-    // }
+    //No regen below 5kph
+     if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
+    {
+        SerialManager_send(me->serialMan, "Regen < 5kph\n");
+        multiplier = 0;
+    }
+
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these
     // IMPORTANT: Be aware of direction-sensitive situations (accel/regen)
@@ -537,12 +538,15 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     //////////        if (tempMultiplier < 1) { SerialManager_send(me->serialMan, "SC.Mult: Regen < 15kph\n"); }
     //////////    }
     ////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
-    if ( groundSpeedKPH < MCM_getRegenRampdownStartSpeed(mcm))
+
+   /* if ( groundSpeedKPH < MCM_getRegenRampdownStartSpeed(mcm))
     {
         float4 regenMultiplier = 1 - getPercent(groundSpeedKPH, MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
+        //float4 regenMultiplier = 1 - getPercent(WheelSpeeds_getGroundSpeed(wss), MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
+            //USE FOR WHEEL SPEEDS TO DETECT RAMP DOWN
         if (regenMultiplier < multiplier ) { multiplier = regenMultiplier; } // Use regenMultiplier if it is lower
     }
-
+    */
     //Reduce the torque command.  Multiplier should be a percent value (between 0 and 1)
 
     //If the safety bypass is enabled, then override the multiplier to 100% (no reduction)

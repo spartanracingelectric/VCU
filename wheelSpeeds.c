@@ -64,6 +64,15 @@ void WheelSpeeds_update(WheelSpeeds *me)
     me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
 }
 
+//Trash code
+//void WheelSpeed_UnitCorrection(WheelSpeeds *me)
+//{
+//    me->speed_FL = me->speed_FL * 3.6;
+//    me->speed_FR = me->speed_FR * 3.6;
+//    me->speed_RL = me->speed_RL * 3.6;
+//    me->speed_RR = me->speed_RR * 3.6;
+//}
+
 float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
 {
     float4 speed;
@@ -148,3 +157,8 @@ float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me)
 {
     return (me->speed_FL + me->speed_FR) / 2;
 }
+
+//float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me)
+//{
+//    return WheelSpeeds_getGroundspeed(WheelSpeeds *me) * 3.6; //m/s to kph
+//}
