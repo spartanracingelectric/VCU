@@ -307,7 +307,9 @@ void main(void)
 
         //TractionControl_update(tps, mcm0, wss, daq);
 
-        WheelSpeeds_update(wss);
+        //Update WheelSpeed and interpolate
+        WheelSpeeds_update(wss, TRUE);
+        
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
         //ControlLaw_update();

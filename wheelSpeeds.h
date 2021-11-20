@@ -13,11 +13,11 @@ typedef enum { FL,FR,RL,RR } Wheel;
 typedef struct _WheelSpeeds WheelSpeeds;
 
 WheelSpeeds* WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R);
-void WheelSpeeds_update(WheelSpeeds* me);
+void WheelSpeeds_update(WheelSpeeds* me, bool interpolate);
 float4 WheelSpeeds_getWheelSpeed(WheelSpeeds* me, Wheel corner);
 float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds* me, Wheel corner, bool interpolate);
 float4 WheelSpeeds_getSlowestFront(WheelSpeeds* me);
 float4 WheelSpeeds_getFastestRear(WheelSpeeds* me);
-float4 WheelSpeeds_getGroundSpeed(WheelSpeeds* me);
+float4 WheelSpeeds_getGroundSpeed(WheelSpeeds* me, ubyte1 tire_config);
 
 #endif //  _BRAKEPRESSURESENSOR_H
