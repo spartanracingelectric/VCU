@@ -19,5 +19,6 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds* me, Wheel corner, bool interpol
 float4 WheelSpeeds_getSlowestFront(WheelSpeeds* me);
 float4 WheelSpeeds_getFastestRear(WheelSpeeds* me);
 float4 WheelSpeeds_getGroundSpeed(WheelSpeeds* me, ubyte1 tire_config);
+float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config);
 
-#endif //  _BRAKEPRESSURESENSOR_H
+#endif //  _WHEELSPEEDS_H

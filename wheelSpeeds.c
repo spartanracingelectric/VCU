@@ -189,10 +189,7 @@ float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
     return 0;
 }
 
-/*
-float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me)
+float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config)
 {
-    return WheelSpeeds_getGroundSpeed(WheelSpeeds *me) * 3.6; //m/s to kph
+    return (WheelSpeeds_getGroundSpeed(me, tire_config) * 3.6); //m/s to kph
 }
-
-*/
