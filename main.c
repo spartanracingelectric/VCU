@@ -38,6 +38,7 @@
 #include "sensors.h"
 #include "canManager.h"
 #include "motorController.h"
+#include "instrumentCluster.h"
 #include "readyToDriveSound.h"
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
@@ -200,7 +201,8 @@ void main(void)
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2300, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
@@ -253,7 +255,7 @@ void main(void)
 
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
-        CanManager_read(canMan, CAN0_HIPRI, mcm0, bms, sc);
+        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
@@ -350,7 +352,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, wss, sc);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, wss, sc);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 
