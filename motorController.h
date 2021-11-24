@@ -21,6 +21,105 @@ typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction
 // Regen mode
 typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA } RegenMode;
 
+struct _MotorController
+{
+    SerialManager *serialMan;
+    //----------------------------------------------------------------------------
+    // Controller statuses/properties
+    //----------------------------------------------------------------------------
+    // These represent the state of the controller (set at run time, not compile
+    // time.)  These are updated by canInput.c
+    //----------------------------------------------------------------------------
+    ubyte2 canMessageBaseId; //Starting message ID for messages that will come in from this controller
+    ubyte4 timeStamp_inverterEnabled;
+
+    //Motor controller torque units are in 10ths (500 = 50.0 Nm)
+    //Positive = accel, negative = regen
+    //Reverse not allowed
+    ubyte2 torqueMaximumDNm; //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
+
+    //Regen torque calculations in whole Nm..?
+    RegenMode regen_mode;                //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
+    ubyte2 regen_torqueLimitDNm;         //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
+    ubyte2 regen_torqueAtZeroPedalDNm;   //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel.  Positive value.
+    float4 regen_percentBPSForMaxRegen;  //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
+    float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
+    sbyte1 regen_minimumSpeedKPH;        //Assigned by main
+    sbyte1 regen_SpeedRampStart;
+
+    bool relayState;
+    bool previousHVILState;
+    ubyte4 timeStamp_HVILLost;
+
+    ubyte4 timeStamp_HVILOverrideCommandReceived;
+    bool HVILOverride;
+
+    ubyte4 timeStamp_InverterEnableOverrideCommandReceived;
+    ubyte4 timeStamp_InverterDisableOverrideCommandReceived;
+    Status InverterOverride;
+
+    ubyte1 startupStage;
+    Status lockoutStatus;
+    Status inverterStatus;
+    bool startRTDS;
+    /*ubyte4 vsmStatus0;      //0xAA Byte 0,1
+    ubyte4 vsmStatus1;      //0xAA Byte 0,1
+    ubyte4 vsmStatus2;      //0xAA Byte 0,1
+    ubyte4 vsmStatus3;      //0xAA Byte 0,1
+    ubyte4 faultCodesPOST; //0xAB Byte 0-3
+    ubyte4 faultCodesRUN;  //0xAB Byte 4-7*/
+
+    ubyte1 faultHistory[8];
+
+    sbyte2 motor_temp;
+    sbyte4 DC_Voltage;
+    sbyte4 DC_Current;
+
+    sbyte2 commandedTorque;
+    ubyte4 currentPower;
+
+    sbyte2 motorRPM;
+    //----------------------------------------------------------------------------
+    // Control parameters
+    //----------------------------------------------------------------------------
+    // These are updated by ??? and will be sent to the MCM over CAN
+    //----------------------------------------------------------------------------
+    //struct _commands {
+    ubyte4 timeStamp_lastCommandSent; //from IO_RTC_StartTime(&)
+    ubyte2 updateCount;               //Number of updates since lastCommandSent
+
+    sbyte2 commands_torque;
+    sbyte2 commands_torqueLimit;
+    ubyte1 commands_direction;
+    //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
+    Status commands_discharge;
+    Status commands_inverter;
+    //ubyte1 controlSwitches; // example: 0b00000001 = inverter is enabled, discharge is disabled
+
+    /*
+    //----------------------------------------------------------------------------
+    // Control functions - for functions nested within struct
+    //----------------------------------------------------------------------------
+    void(*setTorque)(MotorController* me, ubyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+    void(*setDirection)(MotorController* me, Direction rotation);
+    void(*setInverter)(MotorController* me, Status inverterState);
+    void(*setDischarge)(MotorController* me, Status dischargeState);
+    void(*setTorqueLimit)(MotorController* me, ubyte2 torqueLimit);
+    //        void(*motorController_setTorque)(MotorController* me, ubyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+    //        void(*motorController_setDirection)(MotorController* me, Direction rotation);
+    //        void(*motorController_setInverter)(MotorController* me, Status inverterState);
+    //        void(*motorController_setDischarge)(MotorController* me, Status dischargeState);
+    //        void(*motorController_setTorqueLimit)(MotorController* me, ubyte2 torqueLimit);
+    void(*updateLockoutStatus)(MotorController* me, Status newState);
+    void(*updateInverterStatus)(MotorController* me, Status newState);
+    void(*getLockoutStatus)(MotorController* me);
+    void(*getInverterStatus)(MotorController* me);
+    }
+    */
+    //_commands commands;
+    //};
+};
+
 typedef struct _MotorController MotorController;
 
 MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);

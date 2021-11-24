@@ -1,5 +1,7 @@
-#include "instrumentCluster.h"
+#include "IO_Driver.h"
 
+#include "instrumentCluster.h"
+#include "motorController.h"    // need definition of MotorController's struct, not just decaration
 #include "canManager.h"
 
 
@@ -14,11 +16,6 @@ struct _InstrumentCluster
     //0 = off. Default OFF
     ubyte1 launchControlSensitivity;
     
-    ubyte2 torqueMaximumDNm;             //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
-    ubyte2 regen_torqueLimitDNm;         //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
-    ubyte2 regen_torqueAtZeroPedalDNm;   //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel. Positive value.
-    float4 regen_percentBPSForMaxRegen;  //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
-    float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
 };
 
 InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBaseID)
@@ -46,12 +43,10 @@ void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage)
         case 0x703:
             me->launchControlSensitivity = icCanMessage->data[0];
             break;
+        // TODO: include data frames for torque mutator's values
     }
 }
 
-/*****************************************************************************
-* Accessors / Mutators (Set/Get)
-****************************************************************************/
 ubyte1 IC_getTorqueMapMode(InstrumentCluster *me)
 {
     return me->torqueMapMode;
@@ -62,44 +57,51 @@ ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
     return me->launchControlSensitivity;
 }
 
-// In deci-newton-meters e.g 100 DNm = 10.0 Nm
-void IC_commands_setTorqueDNm(InstrumentCluster* me, ubyte2 newTorque) 
+/*****************************************************************************
+* Accessors / Mutators (Set/Get)
+****************************************************************************/
+void IC_commands_setTorqueDNm(MotorController* mc, ubyte2 newTorque)
 {
-    me->torqueMaximumDNm = newTorque;
+    mc->torqueMaximumDNm = newTorque;
 }
-void IC_commands_setRegen_TorqueLimitDNm(InstrumentCluster* me, ubyte2 newTorqueLimit) 
+void IC_commands_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 newTorqueLimit)
 {
-    me->regen_torqueLimitDNm = newTorqueLimit;
+    if (newTorqueLimit >= 0)
+        mc->regen_torqueLimitDNm = newTorqueLimit;
 }
-void IC_commands_setRegen_TorqueAtZeroPedalDNm(InstrumentCluster* me, ubyte2 newTorqueZero) 
+void IC_commands_setTorqueAtZeroPedalDNm(MotorController* mc, ubyte2 newTorqueZero)
 {
-    me->regen_torqueAtZeroPedalDNm = newTorqueZero;
+    if(newTorqueZero >= 0)
+        mc->regen_torqueAtZeroPedalDNm = newTorqueZero;
 }
-void IC_commands_setPercentBPSForMaxRegen(InstrumentCluster* me, float4 newPercentBPS) 
+void IC_commands_setPercentBPSForMaxRegen(MotorController* mc, float4 percentBPS)
 {
-    me->regen_percentBPSForMaxRegen = newPercentBPS;
+    if(percentBPS >=0 || percentBPS <= 1)
+        mc->regen_percentBPSForMaxRegen = percentBPS;
 }
-void IC_commands_setPercentAPPSForCoasting(InstrumentCluster* me, float4 newPercentAPPS) 
+void IC_commands_setPercentAPPSForCoasting(MotorController* mc, float4 percentAPPS)
 {
-    me->regen_percentAPPSForCoasting = newPercentAPPS;
+    if(percentAPPS >=0 || percentAPPS <= 1)
+        mc->regen_percentAPPSForCoasting = percentAPPS;
 }
-ubyte2 IC_commands_getTorqueDNm(InstrumentCluster* me) 
+
+ubyte2 IC_commands_getTorqueDNm(MotorController* mc)
 {
-    return me->torqueMaximumDNm;
+    return mc->torqueMaximumDNm;
 }
-ubyte2 IC_commands_getRegen_TorqueLimitDNm(InstrumentCluster* me) 
+ubyte2 IC_commands_getRegen_TorqueLimitDNm(MotorController* mc)
 {
-    return me->regen_torqueLimitDNm;
+    return mc->regen_torqueLimitDNm;
 }
-ubyte2 IC_commands_getRegen_TorqueAtZeroPedalDNm(InstrumentCluster* me) 
+ubyte2 IC_commands_getTorqueAtZeroPedalDNm(MotorController* mc)
 {
-    return me->regen_torqueAtZeroPedalDNm;
+    return mc->regen_torqueAtZeroPedalDNm;
 }
-float4 IC_commands_getPercentBPSForMaxRegen(InstrumentCluster* me) 
+float4 IC_commands_getPercentBPSForMaxRegen(MotorController* mc)
 {
-    return me->regen_percentBPSForMaxRegen;
+    return mc->regen_percentBPSForMaxRegen;
 }
-float4 IC_commands_getPercentAPPSForCoasting(InstrumentCluster* me) 
+float4 IC_commands_getPercentAPPSForCoasting(MotorController* mc)
 {
-    return me->regen_percentAPPSForCoasting;
+    return mc->regen_percentAPPSForCoasting;
 }
