@@ -17,6 +17,17 @@ InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBas
 //----------------------------------------------------------------------------
 // Command Functions
 //----------------------------------------------------------------------------
+void IC_commands_setTorqueDNm(InstrumentCluster* me, ubyte2 torque);
+void IC_commands_setRegen_TorqueLimitDNm(InstrumentCluster* me, ubyte2 torqueLimit);
+void IC_commands_setRegen_TorqueAtZeroPedalDNm(InstrumentCluster* me, ubyte2 torqueZero);
+void IC_commands_setPercentBPSForMaxRegen(InstrumentCluster* me, float4 percentBPS);
+void IC_commands_setPercentAPPSForCoasting(InstrumentCluster* me, float4 percentAPPS);
+
+ubyte2 IC_commands_getTorqueDNm(InstrumentCluster* me);
+ubyte2 IC_commands_getRegen_TorqueLimitDNm(InstrumentCluster* me);
+ubyte2 IC_commands_getRegen_TorqueAtZeroPedalDNm(InstrumentCluster* me);
+float4 IC_commands_getPercentBPSForMaxRegen(InstrumentCluster* me);
+float4 IC_commands_getPercentAPPSForCoasting(InstrumentCluster* me);
 
 //----------------------------------------------------------------------------
 // Update Functions (CAN Inputs)
