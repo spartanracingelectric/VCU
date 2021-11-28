@@ -59,7 +59,7 @@ void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
 void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
 void MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
 
-ubyte2 MCM_getTorqueDNm(MotorController* mcm);
+ubyte2 MCM_getMaxTorqueDNm(MotorController* mcm);
 ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
 ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
 float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);

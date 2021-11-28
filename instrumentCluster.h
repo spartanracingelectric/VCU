@@ -35,12 +35,13 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
 ubyte1 IC_getTorqueMapMode(InstrumentCluster *me);
 ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me);
 
+void IC_to_MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 newTorque);
 void IC_to_MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
 void IC_to_MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
 void IC_to_MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
 void IC_to_MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
 
-ubyte2 IC_to_MCM_getTorqueDNm(MotorController* mcm);
+ubyte2 IC_to_MCM_getMaxTorqueDNm(MotorController* mcm);
 ubyte2 IC_to_MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
 ubyte2 IC_to_MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
 float4 IC_to_MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);

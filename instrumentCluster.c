@@ -38,12 +38,26 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
     switch (icCanMessage->id)
     {
         case 0x702:
-            me->torqueMapMode = icCanMessage->data[0];
+            IC_to_MCM_setMaxTorqueDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
+            me->torqueMapMode = icCanMessage->data[2];
+            // me->launchControlSensitivity = icCanMessage->data[3];    //unused
             break;
         case 0x703:
-            me->launchControlSensitivity = icCanMessage->data[0];
+            IC_to_MCM_setRegen_TorqueLimitDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
+            IC_to_MCM_setRegen_TorqueAtZeroPedalDNm(mcm, (ubyte2)icCanMessage->data[3] << 8 | icCanMessage->data[2]);
             break;
-        // TODO: include data frames for torque mutator's values
+        case 0x704:
+        {
+            float4 BPSfloat, APPSfloat;
+            // evil bithack avoids float cast errors and keeps code footprint small
+            // relies on non-standard behaviour of pointer typecasting
+            // more rigorous implementaion will probably involve creating a memcpy-like function
+            * (ubyte4 *) &BPSfloat = (ubyte4)icCanMessage->data[3] << 24 | (ubyte4)icCanMessage->data[2] << 16 | icCanMessage->data[1] << 8 | icCanMessage->data[0];
+            * (ubyte4 *) &APPSfloat = (ubyte4)icCanMessage->data[7] << 24 | (ubyte4)icCanMessage->data[6] << 16 | icCanMessage->data[5] << 8 | icCanMessage->data[4];
+            IC_to_MCM_setRegen_PercentBPSForMaxRegen(mcm, BPSfloat);
+            IC_to_MCM_setRegen_PercentAPPSForCoasting(mcm, APPSfloat);
+        }
+            break;
     }
 }
 
