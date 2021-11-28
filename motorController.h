@@ -53,17 +53,17 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController* me);
 //----------------------------------------------------------------------------
 //Allow other object access to the private struct
 //Note: only added as needed, not necessarily comprehensive
-void MCM_setTorqueDNm(MotorController* mc, ubyte2 torque);
-void MCM_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 torqueLimit);
-void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mc, ubyte2 torqueZero);
-void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mc, float4 percentBPS);
-void MCM_setRegen_PercentAPPSForCoasting(MotorController* mc, float4 percentAPPS);
+void MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 torque);
+void MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
+void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
+void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
+void MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
 
-ubyte2 MCM_getTorqueDNm(MotorController* mc);
-ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mc);
-ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mc);
-float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mc);
-float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mc);
+ubyte2 MCM_getTorqueDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
+float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);
+float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm);
 
 //----------------------------------------------------------------------------
 // Update Functions (CAN Inputs)

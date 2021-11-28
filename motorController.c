@@ -775,48 +775,48 @@ ubyte1 MCM_getStartupStage(MotorController *me)
     return me->startupStage;
 }
 
-void MCM_setTorqueDNm(MotorController* mc, ubyte2 newTorque)
+void MCM_setMaxTorqueDNm(MotorController* me, ubyte2 newTorque)
 {
-    mc->torqueMaximumDNm = newTorque;
+    me->torqueMaximumDNm = newTorque;
 }
-void MCM_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 newTorqueLimit)
+void MCM_setRegen_TorqueLimitDNm(MotorController* me, ubyte2 newTorqueLimit)
 {
     if (newTorqueLimit >= 0)
-        mc->regen_torqueLimitDNm = newTorqueLimit;
+        me->regen_torqueLimitDNm = newTorqueLimit;
 }
-void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mc, ubyte2 newTorqueZero)
+void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* me, ubyte2 newTorqueZero)
 {
     if(newTorqueZero >= 0)
-        mc->regen_torqueAtZeroPedalDNm = newTorqueZero;
+        me->regen_torqueAtZeroPedalDNm = newTorqueZero;
 }
-void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mc, float4 percentBPS)
+void MCM_setRegen_PercentBPSForMaxRegen(MotorController* me, float4 percentBPS)
 {
     if(percentBPS >=0 || percentBPS <= 1)
-        mc->regen_percentBPSForMaxRegen = percentBPS;
+        me->regen_percentBPSForMaxRegen = percentBPS;
 }
-void MCM_setRegen_PercentAPPSForCoasting(MotorController* mc, float4 percentAPPS)
+void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS)
 {
     if(percentAPPS >=0 || percentAPPS <= 1)
-        mc->regen_percentAPPSForCoasting = percentAPPS;
+        me->regen_percentAPPSForCoasting = percentAPPS;
 }
 
-ubyte2 MCM_getTorqueDNm(MotorController* mc)
+ubyte2 MCM_getMaxTorqueDNm(MotorController* me)
 {
-    return mc->torqueMaximumDNm;
+    return me->torqueMaximumDNm;
 }
-ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mc)
+ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* me)
 {
-    return mc->regen_torqueLimitDNm;
+    return me->regen_torqueLimitDNm;
 }
-ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mc)
+ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* me)
 {
-    return mc->regen_torqueAtZeroPedalDNm;
+    return me->regen_torqueAtZeroPedalDNm;
 }
-float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mc)
+float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* me)
 {
-    return mc->regen_percentBPSForMaxRegen;
+    return me->regen_percentBPSForMaxRegen;
 }
-float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mc)
+float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* me)
 {
-    return mc->regen_percentAPPSForCoasting;
+    return me->regen_percentAPPSForCoasting;
 }

@@ -33,7 +33,7 @@ InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBas
     return me;
 }
 
-void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage)
+void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA_FRAME* icCanMessage)
 {
     switch (icCanMessage->id)
     {
@@ -60,44 +60,44 @@ ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
 /*****************************************************************************
 * Motor Controller module Accessors / Mutators (Set/Get)
 ****************************************************************************/
-void IC_to_MCM_setTorqueDNm(MotorController* mc, ubyte2 newTorque)
+void IC_to_MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 newTorque)
 {
-    MCM_setTorqueDNm(mc, newTorque);
+    MCM_setMaxTorqueDNm(mcm, newTorque);
 }
-void IC_to_MCM_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 newTorqueLimit)
+void IC_to_MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 newTorqueLimit)
 {
-    MCM_setRegen_TorqueLimitDNm(mc, newTorqueLimit);
+    MCM_setRegen_TorqueLimitDNm(mcm, newTorqueLimit);
 }
-void IC_to_MCM_setRegenTorqueAtZeroPedalDNm(MotorController* mc, ubyte2 newTorqueZero)
+void IC_to_MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 newTorqueZero)
 {
-    MCM_setRegen_TorqueAtZeroPedalDNm(mc, newTorqueZero);
+    MCM_setRegen_TorqueAtZeroPedalDNm(mcm, newTorqueZero);
 }
-void IC_to_MCM_setRegen_PercentBPSForMaxRegen(MotorController* mc, float4 percentBPS)
+void IC_to_MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS)
 {
-    MCM_setRegen_PercentBPSForMaxRegen(mc, percentBPS);
+    MCM_setRegen_PercentBPSForMaxRegen(mcm, percentBPS);
 }
-void IC_to_MCM_setRegen_PercentAPPSForCoasting(MotorController* mc, float4 percentAPPS)
+void IC_to_MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS)
 {
-    MCM_setRegen_PercentAPPSForCoasting(mc, percentAPPS);
+    MCM_setRegen_PercentAPPSForCoasting(mcm, percentAPPS);
 }
 
-ubyte2 IC_to_MCM_getTorqueDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getMaxTorqueDNm(MotorController* mcm)
 {
-    return MCM_getTorqueDNm(mc);
+    return MCM_getMaxTorqueDNm(mcm);
 }
-ubyte2 IC_to_MCM_getRegen_TorqueLimitDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getRegen_TorqueLimitDNm(MotorController* mcm)
 {
-    return MCM_getRegen_TorqueLimitDNm(mc);
+    return MCM_getRegen_TorqueLimitDNm(mcm);
 }
-ubyte2 IC_to_MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm)
 {
-    return MCM_getRegen_TorqueAtZeroPedalDNm(mc);
+    return MCM_getRegen_TorqueAtZeroPedalDNm(mcm);
 }
-float4 IC_to_MCM_getRegen_PercentBPSForMaxRegen(MotorController* mc)
+float4 IC_to_MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm)
 {
-    return MCM_getRegen_PercentBPSForMaxRegen(mc);
+    return MCM_getRegen_PercentBPSForMaxRegen(mcm);
 }
-float4 IC_to_MCM_getRegen_PercentAPPSForCoasting(MotorController* mc)
+float4 IC_to_MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm)
 {
-    return MCM_getRegen_PercentAPPSForCoasting(mc);
+    return MCM_getRegen_PercentAPPSForCoasting(mcm);
 }

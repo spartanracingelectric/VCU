@@ -378,10 +378,13 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             break;
 
         case 0x702:
-            IC_parseCanMessage(ic, &canMessages[currMessage]);
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
         case 0x703:
-            IC_parseCanMessage(ic, &canMessages[currMessage]);
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            break;
+        case 0x704:
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
 
             
