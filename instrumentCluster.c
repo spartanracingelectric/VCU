@@ -58,50 +58,46 @@ ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
 }
 
 /*****************************************************************************
-* Accessors / Mutators (Set/Get)
+* Motor Controller module Accessors / Mutators (Set/Get)
 ****************************************************************************/
-void IC_commands_setTorqueDNm(MotorController* mc, ubyte2 newTorque)
+void IC_to_MCM_setTorqueDNm(MotorController* mc, ubyte2 newTorque)
 {
-    mc->torqueMaximumDNm = newTorque;
+    MCM_setTorqueDNm(mc, newTorque);
 }
-void IC_commands_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 newTorqueLimit)
+void IC_to_MCM_setRegen_TorqueLimitDNm(MotorController* mc, ubyte2 newTorqueLimit)
 {
-    if (newTorqueLimit >= 0)
-        mc->regen_torqueLimitDNm = newTorqueLimit;
+    MCM_setRegen_TorqueLimitDNm(mc, newTorqueLimit);
 }
-void IC_commands_setTorqueAtZeroPedalDNm(MotorController* mc, ubyte2 newTorqueZero)
+void IC_to_MCM_setRegenTorqueAtZeroPedalDNm(MotorController* mc, ubyte2 newTorqueZero)
 {
-    if(newTorqueZero >= 0)
-        mc->regen_torqueAtZeroPedalDNm = newTorqueZero;
+    MCM_setRegen_TorqueAtZeroPedalDNm(mc, newTorqueZero);
 }
-void IC_commands_setPercentBPSForMaxRegen(MotorController* mc, float4 percentBPS)
+void IC_to_MCM_setRegen_PercentBPSForMaxRegen(MotorController* mc, float4 percentBPS)
 {
-    if(percentBPS >=0 || percentBPS <= 1)
-        mc->regen_percentBPSForMaxRegen = percentBPS;
+    MCM_setRegen_PercentBPSForMaxRegen(mc, percentBPS);
 }
-void IC_commands_setPercentAPPSForCoasting(MotorController* mc, float4 percentAPPS)
+void IC_to_MCM_setRegen_PercentAPPSForCoasting(MotorController* mc, float4 percentAPPS)
 {
-    if(percentAPPS >=0 || percentAPPS <= 1)
-        mc->regen_percentAPPSForCoasting = percentAPPS;
+    MCM_setRegen_PercentAPPSForCoasting(mc, percentAPPS);
 }
 
-ubyte2 IC_commands_getTorqueDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getTorqueDNm(MotorController* mc)
 {
-    return mc->torqueMaximumDNm;
+    return MCM_getTorqueDNm(mc);
 }
-ubyte2 IC_commands_getRegen_TorqueLimitDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getRegen_TorqueLimitDNm(MotorController* mc)
 {
-    return mc->regen_torqueLimitDNm;
+    return MCM_getRegen_TorqueLimitDNm(mc);
 }
-ubyte2 IC_commands_getTorqueAtZeroPedalDNm(MotorController* mc)
+ubyte2 IC_to_MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mc)
 {
-    return mc->regen_torqueAtZeroPedalDNm;
+    return MCM_getRegen_TorqueAtZeroPedalDNm(mc);
 }
-float4 IC_commands_getPercentBPSForMaxRegen(MotorController* mc)
+float4 IC_to_MCM_getRegen_PercentBPSForMaxRegen(MotorController* mc)
 {
-    return mc->regen_percentBPSForMaxRegen;
+    return MCM_getRegen_PercentBPSForMaxRegen(mc);
 }
-float4 IC_commands_getPercentAPPSForCoasting(MotorController* mc)
+float4 IC_to_MCM_getRegen_PercentAPPSForCoasting(MotorController* mc)
 {
-    return mc->regen_percentAPPSForCoasting;
+    return MCM_getRegen_PercentAPPSForCoasting(mc);
 }
