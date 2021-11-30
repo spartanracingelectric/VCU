@@ -9,7 +9,8 @@
 COMPILER=viper
 AREA=appl
 DEBUGINFO=true
-TARGET=TTC50
+#TARGET=TTC50
+TARGET=TTC60
 
 
 ifeq ($(origin TARGET), undefined)
