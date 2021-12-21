@@ -200,20 +200,20 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 
     case REGENMODE_TESLA: //Position 3 = One pedal driving (Tesla mode)
         me->regen_mode = 3;
-        me->regen_torqueLimitDNm = 1000;
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * .5;
         me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
-        me->regen_percentAPPSForCoasting = .05;
+        me->regen_percentAPPSForCoasting = .1;
         me->regen_percentBPSForMaxRegen = 0;
         break;
-/*
+
     case REGENMODE_FIXED: //Position 4 = Fixed Regen
         me->regen_mode = 4;
-        me->regen_torqueLimitDNm = 1000;
+        me->regen_torqueLimitDNm = 250; //1000 = 100Nm
         me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
         me->regen_percentAPPSForCoasting = .05;
         me->regen_percentBPSForMaxRegen = 0;
         break;
-/*
+
         // TODO:  User customizable regen settings - Issue #97
         // case REGENMONDE_CUSTOM:
         //     me->regen_mode = 4;

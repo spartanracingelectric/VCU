@@ -19,7 +19,7 @@ typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction;
 
 // Regen mode
-typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA } RegenMode;
+typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA, REGENMODE_FIXED } RegenMode;
 
 typedef struct _MotorController MotorController;
 
