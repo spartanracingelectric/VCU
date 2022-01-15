@@ -9,7 +9,7 @@
 #include "sensors.h"
 #include "canManager.h"
 #include "avlTree.h"
-#include "motorController.h"
+#include "motorController.h"bms
 #include "bms.h"
 #include "safety.h"
 #include "wheelSpeeds.h"
@@ -364,16 +364,16 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, B
         //-------------------------------------------------------------------------
         //BMS
         //-------------------------------------------------------------------------
-        case 0x620:
-        case 0x621:
-        case 0x622:
-        case 0x623:
-        case 0x624:
-        case 0x625:
-        case 0x626:
-        case 0x627:
-        case 0x628:
-        case 0x629:
+        case 0x300:
+        case 0x302:
+        case 0x304:
+        case 0x310:
+        case 0x311:
+        case 0x312:
+        case 0x320:
+        case 0x321:
+        case 0x322:
+        case 0x324:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
             
