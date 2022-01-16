@@ -226,7 +226,6 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
     case REGENMODE_OFF:
     default:
         me->regen_mode = REGENMODE_OFF;
-
         me->regen_torqueLimitDNm = 0;
         me->regen_torqueAtZeroPedalDNm = 0;
         me->regen_percentAPPSForCoasting = 0;

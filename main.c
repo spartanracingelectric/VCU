@@ -200,7 +200,7 @@ void main(void)
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 15); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);

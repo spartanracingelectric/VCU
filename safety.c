@@ -464,7 +464,9 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     float4 multiplier = 1;
     //float4 tempMultiplier = 1;
     //Get ground speed in KPH using only FL WSS
-    sbyte1 groundSpeedKPH = (sbyte1)WheelSpeeds_getGroundSpeedKPH(wss, 1);
+    //sbyte1 groundSpeedKPH = (sbyte1)WheelSpeeds_getGroundSpeedKPH(wss, 1);
+    sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+
 
     //-------------------------------------------------------------------
     // Critical conditions - set 0 torque
@@ -482,11 +484,13 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     }
 
     //No regen below 5kph
-     if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
+    /*
+    if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
     {
         SerialManager_send(me->serialMan, "Regen < 5kph\n");
         multiplier = 0;
     }
+    */
 
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these
