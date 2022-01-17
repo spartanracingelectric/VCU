@@ -37,15 +37,37 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
 {
     switch (icCanMessage->id)
     {
+        //////////////////////////////////////////////////////////
+        //              NON-REGEN TORQUE SETTINGS               //
+        // Byte 0-1 LE ubyte2: Set Max Overall Torque Limit     //
+        // Byte 2 ubyte1: Set Torque Map Mode                   //
+        // Byte 3 ubyte1: Launch control sensitivity (unused)   //
+        //////////////////////////////////////////////////////////
         case 0x702:
-            IC_to_MCM_setMaxTorqueDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
+        {
+            MCM_setMaxTorqueDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
             me->torqueMapMode = icCanMessage->data[2];
             // me->launchControlSensitivity = icCanMessage->data[3];    //unused
             break;
+        }
+        
+        //////////////////////////////////////////////////////
+        //              REGEN TORQUE SETTINGS               //
+        // Byte 0-1 LE ubyte2: Set Max Regen Torque Limit   //
+        // Byte 2-3 LE ubyte2: Set Torque at Zero Pedal     //
+        //////////////////////////////////////////////////////
         case 0x703:
-            IC_to_MCM_setRegen_TorqueLimitDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
-            IC_to_MCM_setRegen_TorqueAtZeroPedalDNm(mcm, (ubyte2)icCanMessage->data[3] << 8 | icCanMessage->data[2]);
+        {
+            MCM_setRegen_TorqueLimitDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
+            MCM_setRegen_TorqueAtZeroPedalDNm(mcm, (ubyte2)icCanMessage->data[3] << 8 | icCanMessage->data[2]);
             break;
+        }
+
+        //////////////////////////////////////////////////////
+        //          REGEN PEDAL PERCENTAGE SETTINGS         //
+        // Byte 0-3 LE float4: Set Max Regen Torque Limit   //
+        // Byte 4-7 LE float4: Set Torque at Zero Pedal     //
+        //////////////////////////////////////////////////////
         case 0x704:
         {
             float4 BPSfloat, APPSfloat;
@@ -54,10 +76,10 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
             // more rigorous implementaion will probably involve creating a memcpy-like function
             * (ubyte4 *) &BPSfloat = (ubyte4)icCanMessage->data[3] << 24 | (ubyte4)icCanMessage->data[2] << 16 | icCanMessage->data[1] << 8 | icCanMessage->data[0];
             * (ubyte4 *) &APPSfloat = (ubyte4)icCanMessage->data[7] << 24 | (ubyte4)icCanMessage->data[6] << 16 | icCanMessage->data[5] << 8 | icCanMessage->data[4];
-            IC_to_MCM_setRegen_PercentBPSForMaxRegen(mcm, BPSfloat);
-            IC_to_MCM_setRegen_PercentAPPSForCoasting(mcm, APPSfloat);
-        }
+            MCM_setRegen_PercentBPSForMaxRegen(mcm, BPSfloat);
+            MCM_setRegen_PercentAPPSForCoasting(mcm, APPSfloat);
             break;
+        }
     }
 }
 
@@ -74,6 +96,7 @@ ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
 /*****************************************************************************
 * Motor Controller module Accessors / Mutators (Set/Get)
 ****************************************************************************/
+/*
 void IC_to_MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 newTorque)
 {
     MCM_setMaxTorqueDNm(mcm, newTorque);
@@ -115,3 +138,4 @@ float4 IC_to_MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm)
 {
     return MCM_getRegen_PercentAPPSForCoasting(mcm);
 }
+*/
