@@ -49,6 +49,23 @@ void MCM_commands_resetUpdateCountAndTime(MotorController* me);
 ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController* me);
 
 //----------------------------------------------------------------------------
+// Mutator Functions
+//----------------------------------------------------------------------------
+//Allow other object access to the private struct
+//Note: only added as needed, not necessarily comprehensive
+void MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 torque);
+void MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
+void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
+void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
+void MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
+
+ubyte2 MCM_getMaxTorqueDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
+float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);
+float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm);
+
+//----------------------------------------------------------------------------
 // Update Functions (CAN Inputs)
 //----------------------------------------------------------------------------
 //void updatefromCAN(MotorController* me, CANFRAME or MOVE THIS EXTERNAL);
