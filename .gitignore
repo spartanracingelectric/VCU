@@ -36,6 +36,9 @@
 SRE2
 .vscode
 
+#Vincent's VS Folder
+hex/
+
 #VCU build files
 AddAPDB.html
 build/*
