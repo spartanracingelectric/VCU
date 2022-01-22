@@ -752,7 +752,7 @@ ubyte1 MCM_getRegenMode(MotorController *me)
 }
 sbyte2 MCM_getRegenTorqueLimitDNm(MotorController *me)
 {
-    return 0xFF * me->regen_torqueLimitDNm;
+    return me->regen_torqueLimitDNm;
 }
 sbyte2 MCM_getRegenTorqueAtZeroPedalDNm(MotorController *me)
 {
