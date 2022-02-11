@@ -26,15 +26,18 @@ extern Sensor Sensor_TCSSwitchDown; // used currently for regen
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 
 
-//sbyte2 MotorGndSpd = MCM_getGroundSpeedKPH(MotorController *me);
-
 //does this have to be sbyte2? should always be positive and shouldnt need 2 bytes of values
+//Check Data Types
+//
+
 sbyte1 SlipAngle; //Need steering angle measurement fed through CAN to VCU
-sbyte1 SlipActual; //does this need to be initialized as 0?
+sbyte1 SlipActual; //does this need to be initialized as 0? can be a fractional #
 sbyte1 SlipAim; // value can be a decimal # 
 float4 ThrottlePos = 100 * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE); //this needs to be entered correctly, throttle must be detected to indicate driver is intending to accelerate
 sbyte1 TCMultiplier;
-sbyte2 TCTorque;
+ubyte2 TCTorque;
+
+
 
 /***************************************************************
 *SlipAngle
@@ -77,37 +80,33 @@ void SlipRatio(MotorController *me, WheelSpeeds *me) //Sensor_GPS?
 //written in its own .c file for vehicle dynamics?
 
 
-// If wheel speed differences between left and right exceed X amount, swap calculation method
+// If wheel speed differences between left and right exceed X amount, swap calculation method. Kalman Filter?
 // If front wheels are turned (i.e. SteeringAngle != 0), Front and Rear wheel speed differences will be non-zero 
 // If rear wheels are independently driven (inhub motors), wheel speed di
 
 
 /***********************************************************************************************************
 Slip Aim
+*************************************************************************************************************
     //Allowable Slip Ratio Target (changes at different velocities due to downforce)
-**************************************************************************************************************************/
-//void SlipAim //make a map/multidimensional array of velocity, slip angle, against slip target,
+    //Can be made into a map/multidimensional array of velocity, slip angle, against slip target,
+*************************************************************************************************************/
+//void SlipAim 
 
             //some value between between +.20 and -.20
             //Slipratio of 1 is complete slippage
 
 
-/* if SlipRatio > 1 & ThrottlePos > 5; //is 5% throttle early enough to trigger at launch? is this a good enough condition?
-
-    TCTorque = TCMode(*me)//not sure this is written correctly.
-                            
-*/
-
-
-
 /*********************************************************************************
  * Traction Control Mode Settings
+ *********************************************************************************
  * Selections Traction Control Mode
  **Sets SlipAim target and torque reduction multipliers based on TC setting
+ ** Slip generally does not exceed -.2 and +.2 within grip according to data
  **********************************************************************************/
 
 
-void TC_setMode(TractionControl *TCSMode)
+void TC_setMode(TractionControl *TCSMode) //**HEADER FILE FIX**
 {
     switch (TCSMode) //
     {
@@ -134,7 +133,8 @@ void TC_setMode(TractionControl *TCSMode)
 //Does the header file need to contain pointer to TCMode* me sbyte1
 
 /*********************************************************************************
-Torque Reduction 
+Torque Reduction
+********************************************************************************** 
 *Triggered when SlipRatio exceeds SlipAim target chosen by TCmode
 *********************************************************************************/
 
@@ -147,31 +147,20 @@ if (abs(SlipRatio(MotorController *me, WheelSpeeds *me)) > SlipAim && ThrottlePo
     }
 
 else
-    me->TCTorque = 0;
+    me->TCTorque = 0; //How does this pointer get stored? 
 
 
 
 
 //need to add this TCTorque pointer element into motorcontroller
 
-//Currently poorman's control system
+//Currently poorman's control system, does not reduce torque relative to error 
 //Actual Control system will reduce torque until slip aim target is achieved
 //**For ABS, BPS needs to be triggered instead**
-
-
-//can make an if loop that adds TC torque ++5 if slip ratio still > 100
-//By next time step, recalculate slip
-
-
-
-//subtracting torque by a fixed number like this does not control based on magnitude
-//very basic form of control feedback loop
 
 //Display Traction Control Light active
 
 
-//Use wheel speed and compare with motor speed or front wheel speeds or maybe even GPS speed 
-//Kalman Filter?
 
 
 //if slip ratio exceed this amount, reduce max torque? or getTorquedemand, 
