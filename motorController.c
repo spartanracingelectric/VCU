@@ -270,7 +270,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    torqueOutput = appsTorque + bpsTorque;
+    torqueOutput = appsTorque + bpsTorque - TCTorque;
     //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
@@ -728,7 +728,7 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
-    sbyte2 wheelRPM = me->motorRPM / 3;
+    sbyte2 wheelRPM = me->motorRPM / 3.6; //needs to be changed to Gear Ratio variable instead of hard code
     float4 tireCircumference = 3.141592653589 * 18 * .0254; // (pi * diameter * in to m) = circumference in meters
     sbyte2 groundKPH = wheelRPM / 60 * tireCircumference;
     return groundKPH;
