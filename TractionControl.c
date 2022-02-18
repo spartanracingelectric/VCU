@@ -10,6 +10,8 @@
 #include "sensors.h"
 #include "PID.h"
 
+#define PI 3.141592654
+
 /*****************************************************************************
 * Traction Control
 ******************************************************************************
@@ -28,7 +30,6 @@ extern Sensor Sensor_TCSKnob;       // used currently for regen
 
 //does this have to be sbyte2? should always be positive and shouldnt need 2 bytes of values
 //Check Data Types
-//
 
 sbyte1 SlipAngle; //Need steering angle measurement fed through CAN to VCU
 sbyte1 SlipActual; //does this need to be initialized as 0? can be a fractional #
@@ -43,6 +44,7 @@ ubyte2 TCTorque;
 *SlipAngle
 *Steering angle needs to be sent through CAN to VCU***
 ***************************************************************/
+SlipAngle = 0 * PI / 180; //set to 0 until slip angle measurement is incorprated from sensors. (*PI/180 is a conversion to radians)
 
 /**********************************************************************************
 *Slip Ratio Caluclation
@@ -60,18 +62,18 @@ ubyte2 TCTorque;
 void SlipRatio(MotorController *me, WheelSpeeds *me) //Sensor_GPS?
 {
         //Free Wheel vs Driven Wheel **(AWD will require some independent form of vehicle speed)** 
-        SlipActual = (WheelSpeeds_getSlowestFront / WheelSpeeds_getFastestRear(WheelSpeeds *me)) - 1 ; 
+        SlipActual = (WheelSpeeds_getSlowestFront / WheelSpeeds_getFastestRear(WheelSpeeds *me)*cos(SlipAngle)) - 1 ; 
             //CHECK UNITS
             //Is there an instance where you would want to choose the faster front? i.e. when there is steering angle
 
         //Front Wheel Speed vs Groundspeed (through MotorSpeed) 
-        SlipActual = (WheelSpeeds_getSlowestFront(WheelSpeeds *me / MCM_getGroundSpeedKPH(MotorController *me)) - 1; //GroundSpeedKPH is in KPH here
+        SlipActual = (WheelSpeeds_getSlowestFront(WheelSpeeds *me / MCM_getGroundSpeedKPH(MotorController *me)*cos(SlipAngle)) - 1; //GroundSpeedKPH is in KPH here
 
         //GPS vs Rear Wheel Speed
-        SlipActual = ((GPSSpeed() / WheelSpeeds_getFastestRear(WheelSpeeds *me)) /  - 1;
+        SlipActual = ((GPSSpeed() / WheelSpeeds_getFastestRear(WheelSpeeds *me)*cos(SlipAngle)) /  - 1;
 
         //GPS vs GroundSpeed through MotorSpeed
-        SlipActual = ((GPSSpeed() / MCM_getGroundSpeedKPH(MotorController *me)) /  - 1;
+        SlipActual = ((GPSSpeed() / MCM_getGroundSpeedKPH(MotorController *me)*cos(SlipAngle)) /  - 1;
 
         //Needs if statements for checks in case the sensors are broken
         return SlipActual
@@ -104,24 +106,22 @@ Slip Aim
  **Sets SlipAim target and torque reduction multipliers based on TC setting
  ** Slip generally does not exceed -.2 and +.2 within grip according to data
  **********************************************************************************/
-
-
 void TC_setMode(TractionControl *TCSMode) //**HEADER FILE FIX**
 {
     switch (TCSMode) //
     {
         case TC1: 
             SlipAim = .2;
-            TCMultiplier = 50;
-             //5 Nm, don't think these pointers work correctly like this, TCmode is not an object yet
+            me->TCMultiplier = 50; //5 Nm, does the pointer work like this? how do you start a reference to *me, TCmode is not an object yet
+            
             
         case TC2:
             SlipAim = .15;
-            TCMultiplier = 200; //20 Nm
+            me->TCMultiplier = 200; //20 Nm
 
         case TC3:
             SlipAim = .1;
-            TCMultiplier = 500; //50 Nm
+            me->TCMultiplier = 500; //50 Nm
 
         default:
         
@@ -141,9 +141,11 @@ Torque Reduction
 if (abs(SlipRatio(MotorController *me, WheelSpeeds *me)) > SlipAim && ThrottlePos > 5); //Compares SlipActual value against SlipAim, is this right way to call out SlipActual? Checks if Throttle is actuated at 5%
     {
         for (i=0, abs(SlipRatio(MotorController *me, WheelSpeeds *me)) > SlipAim ,i++)
-            me->TCTorque = TCMultiplier*i; //reduces TCMultiplier Nm of Toruqe for every instance it sees that SlipRatio > Slip Aim
+            me->TCTorque = me->TCMultiplier * i; //reduces TCMultiplier Nm of Toruqe for every instance it sees that SlipRatio > Slip Aim
                                             //careful so that TorqueOutput does not become negative
                                             //Does this keep recalculating SlipRatio through the for loop?
+                                            //Start i=1 so first iteration reduces torque?
+                                            //if driver locks up braking but is also at 5% throttle, abs(SlipRatio) may exceed SlipAim and reduce torque******
     }
 
 else
