@@ -1,0 +1,2058 @@
+[33mcommit 07f31bdbe00e129c7cd94da5e40d0a36024d33f6[m[33m ([m[1;36mHEAD -> [m[1;32muser/James/TractionControl[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Sun Aug 22 15:20:29 2021 -0700
+
+    Fix TPS0/BPS0 power init, enable WSS power init - FINAL 2021 COMP CODE
+
+[33mcommit edd9d230b8927a281dd7fded7b008a941e14841d[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Sat Aug 21 05:14:05 2021 -0700
+
+    SoftBSPD
+    
+    
+    WIP- SoftBSPD
+    Fix softBSPD BPS trigger voltage
+    
+    
+    WIP- Undo eco light on softBSPD trigger
+
+[33mcommit 63cf19ce6e216453d1268681e8254653c4a01d89[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Thu Jul 8 15:24:46 2021 -0700
+
+    #109 Fix wheel speed sensor input pins
+
+[33mcommit 0250a4c0c34c77a317a4c1cfcf145100a4ff4a28[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Thu Jul 8 10:34:20 2021 -0700
+
+    #115 Update sym/dbc - replace elithion BMS with ennoid BMS messages
+
+[33mcommit 4817b4ffda800744624367847ddef95496e68794[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Wed Jul 7 11:51:52 2021 -0700
+
+    #114 Disable torque command on HVIL loss before inverter shutoff
+
+[33mcommit 3e65cc779bb2a27f140f30a54c503f67475c3441[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Wed Jul 7 09:53:11 2021 -0700
+
+    Add cooling software workaround for backwards wiring. Code/comment clean up
+    
+    This commit does NOT close #110.  It is a temporary mitigation until the root cause of #110 is resolved (wiring fix).  #110 can be closed when the `wiringIsWrong` if block can be removed.
+
+[33mcommit 351a62391361931ef3a89a85174803e347db5947[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Sun Jun 27 22:39:04 2021 -0700
+
+    Increase RTDS to 100%
+
+[33mcommit 80cb5bcfa3632940c48a0da681d251e258097e88[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Sun Jun 27 20:25:29 2021 -0700
+
+    Additional BPS cleanup. APPS-BPS plausibility check tweaks
+
+[33mcommit f62056d642a7b75c8a5316567e1141e044845bbf[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Sat Jun 26 17:35:17 2021 -0700
+
+    Turn brake light on at 10% travel
+
+[33mcommit 7711c9871f32978e5e6616520c936d841144e779[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Fri Jun 25 00:21:19 2021 -0700
+
+    Exponential pedal/torque curve support (currently set to 1.0)
+
+[33mcommit 54f11812dcd8d1da1eacdf35d1fbe53a11b2b1b9[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Thu Jun 24 23:05:32 2021 -0700
+
+    Increase BPS top deadzone from 2% to 5%.  Clean up calibration code
+
+[33mcommit 5f4903cdb943f9f0a03f4122296705f12b4ea6d1[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Thu Jun 24 23:02:19 2021 -0700
+
+    Increase RTDS output from 0.5% duty cycle to 10% duty cycle
+
+[33mcommit 1a8e4485634033642ac2e94045f01065f5c992ad[m
+Author: Enrique Pedrosa <epedrosa@tesla.com>
+Date:   Thu Jun 24 22:28:23 2021 -0700
+
+    Increase torque limit from 100Nm to 230Nm
+    
+    NO SAFETY AGAINST EXCEEDING BURST POWER TIME LIMIT of "a few seconds"
+    Driver must apply BELOW 50% pedal to stay within burst limit
+
+[33mcommit df43999ea818c7b019eda7b9dcb5925f7c96dfd5[m
+Author: RustyPedrosa <6540111+RustyPedrosa@users.noreply.github.com>
+Date:   Wed Dec 9 16:04:58 2020 -0800
+
+    #98 Sre4 updates (#99)
+    
+    * PCAN: DI overrides, debug graphs, other updates
+    
+    * Update pins for SRE-3b, add inverter overrides, TPS->calibrated = False
+    
+    * Initial eeprom.hex as found on VCU
+    
+    * WIP- Remove unused sensor IO_DI_06, hardcoded EEPROM test
+    
+    * ignore .vscode
+    
+    * Convert indentation tabs to spaces
+    
+    * Use Eco light to indicate calibration (TCS light has been removed from dash)
+    
+    * Update all 4 wheel speed sensors: powered by IO_DO_07 now.  IO_DO_06 no longer used
+    
+    * Remove EEPROM test code
+    
+    * Updated WSS inputs to new pins
+    
+    * Updated RTDS pin
+    
+    * Update waterpump signal pin, clean up comments
+    
+    * Turn off HVIL shutdown relay output.  Relay not present in SRE-4
+    
+    * Fix power/signal pin initializations
+    
+    * WIP- Get regen mode from dash/CAN since there's no TCS pot.
+
+[33mcommit 59e0ff9e99e29c5292dc97af09a4aefc6b620ee6[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Mon May 22 01:25:17 2017 -0700
+
+    Reduced Readme clutter
+    
+    Power supply info moved to the wiki
+
+[33mcommit 48c44b09937a390343267b632e1319c169cd5493[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Tue Mar 7 21:12:39 2017 -0800
+
+    Code cleanup
+
+[33mcommit b2d679e9ee772f0b8275c6ae64c7dc0ad77f6dc2[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Thu Feb 23 21:34:32 2017 -0800
+
+    Quieter RTDS.  Removed some serial messages.
+
+[33mcommit c2119d64dd8122c7782b80bc5f697d6cef33fa4b[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Feb 17 20:25:55 2017 -0800
+
+    PCAN Explorer stuff updated for HVIL term sense override
+
+[33mcommit 24996ac3eae8618782401fa46e6711726b8766b1[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Feb 17 20:08:46 2017 -0800
+
+    Added HVIL Sense Override CAN message for turning on motor controller without HV
+
+[33mcommit 90d1e79fe8ab831355b71b8cc5cfaacf756ab86c[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Wed Feb 15 00:46:01 2017 -0800
+
+    Updated TPS default calibration values
+
+[33mcommit 5bc4842d61bd31a074363e9864b5cf6b4fe729e8[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Wed Feb 15 00:45:23 2017 -0800
+
+    Added safety checker bypass CAN command
+
+[33mcommit 1a669c113b5074b436f78aca658bf0e3c9c02a49[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Wed Feb 15 00:17:18 2017 -0800
+
+    Delete instructions
+    
+    It's included in the markdown
+    The download link is also in the readme
+    Reduce file clutter
+
+[33mcommit 1f4c2f9b151b29d9c709ebd07f35c8a7d0cc7fe6[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Wed Feb 15 00:14:30 2017 -0800
+
+    Updated readme links
+    
+    More readability now
+
+[33mcommit e727ecedcfa84b14af9cda16106229e365f1ecf1[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 20:33:27 2017 -0800
+
+    Update readme.md
+    
+    Added power supply instructions for accessibility on front page
+
+[33mcommit 05cc35eb38268c4f4b87c3ad0b8c6d94e8936e00[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 20:31:38 2017 -0800
+
+    FInal spacing touches
+
+[33mcommit 8a5aef6e07fb52765c6683c9c324b66064a13a56[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 20:30:46 2017 -0800
+
+    Added emojis
+    
+    Easier readability
+
+[33mcommit 5aa03277a5c1d255b2531f26cee8caf2f2e36713[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 20:01:54 2017 -0800
+
+    Updated powersupply.md
+    
+    Changed spacing again
+
+[33mcommit 0d26f5a251592f3f6759ab8bf0af70c6d300c58a[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 19:58:04 2017 -0800
+
+    Updated Other Settings
+    
+    Changed text and fonts
+
+[33mcommit c4c76b2f69118ba2a7a16a3ae02e817e8d5798d8[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 19:56:45 2017 -0800
+
+    Updated indentation
+    
+    Added HTML inline code for indenting
+
+[33mcommit 281f2b9bff86344c17298ee42518758662f8abaa[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 19:52:12 2017 -0800
+
+    Created power supply markdown
+    
+    Markdown for easy readability from github
+
+[33mcommit b92f6583b12b20902adf3ac824da99c9152ce207[m
+Author: Thinh Le <timothyle85@gmail.com>
+Date:   Tue Feb 14 19:46:13 2017 -0800
+
+    Added DC power supply image
+    
+    Going to include this picture in low power supply markdown
+
+[33mcommit a3141708870ff2ef1cab8ec08f69f81ec5b2c52f[m
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Thu Feb 9 19:32:34 2017 -0800
+
+    Update README.md
+
+[33mcommit ec1f70c93206722bb6aed228abb7038142f2fa3c[m
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Thu Feb 9 19:30:19 2017 -0800
+
+    Added Low Voltage Power Supply Instructions
+
+[33mcommit 03b7e84171b4262b082fd9d81ad0f8e69248cccc[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Tue Feb 7 02:47:05 2017 -0800
+
+    Added safety checker bypass
+    
+    When safety bypasss code 0xC4 is sent to VCU at address 0x5FF, safety
+    checker multiplier will be set to 1 (no torque reduction) for a period
+    of time (currently 500ms).  If this message is not repeated, safety
+    multiplier will be applied as normal.
+    Safety checker CAN parse function addded to receive bypass code.
+    When safety bypass code has been received, a warning flag is set.
+
+[33mcommit 2eb4a3391f51c1d79192fc41989c88884e2291a4[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Tue Feb 7 00:27:36 2017 -0800
+
+    Eliminated initializeSensors functions.  Moved TPS/BPS operating range values to their constructors.
+
+[33mcommit d461e223dbdd6942294d9bbc43f3abdb408d0721[m
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Sun Feb 5 14:39:57 2017 -0800
+
+    Added EEPROM addresses to readme.md
+
+[33mcommit 86ce6429cd4da98830590f76b3d928da70856916[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Sun Feb 5 01:40:53 2017 -0800
+
+    Working regen.  Changed mode 4 to custom mode (not yet programmed)
+
+[33mcommit 00d7377d92ebbe24ad63220056195c861f0dd383[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Feb 3 21:32:15 2017 -0800
+
+    Changed regen debug messages.
+
+[33mcommit df7eeb38ee6527a26323c437964bcccce6ec4b15[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Feb 3 21:25:14 2017 -0800
+
+    Fixed regen torque calculations.  Tweaked regen BPS% settings.  Changed regen accessors.
+
+[33mcommit 2a72514a68d4166dba9eddb8bfacc2e591852a36[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Feb 3 20:57:25 2017 -0800
+
+    Massively simplified getPercent.  Fixed bug with reverse direction
+
+[33mcommit 7a80ca832644d19ed92dab895ffc7cd8743fe5e3[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Wed Feb 1 00:21:56 2017 -0800
+
+    Changed regen units to DNm.  Updates to regen torque calculation.
+
+[33mcommit 2bce72d2fe4cbc319fd876aae25c82f99ef4e650[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Tue Jan 31 23:21:11 2017 -0800
+
+    Many changes to regen. TCS switch removed from car.  TCS knob modes added.  Changes to getPercent()
+    
+    GetPercent updates for start > end.
+    TCS knob rewritten to have 4 modes instead of adjusting one variable.
+    TCS switch is no longer on the car.   Code removed.
+    More regen calculation fixes.  Variables renamed.
+    Played with some PCAN explorer temperature stuff.
+
+[33mcommit aacc3b98024144ec9aa6692bf1ac1acb6fe6dba1[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Jan 27 18:22:14 2017 -0800
+
+    Re-enabled regen in pedal->torque calcs in motorController.c.  Removed WSS debug can messages.
+
+[33mcommit e852cf2d7aaef1c003ab84778a0fa75404240ebd[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Jan 27 18:14:02 2017 -0800
+
+    Temporarily prevent PID.c from compiling
+
+[33mcommit e4a267d1f21469845c3add0ab0de0c78f281cdd0[m
+Merge: fa4db4b 68ce02c
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Jan 27 11:02:22 2017 -0800
+
+    Merge branch 'master' of https://github.com/spartanracingelectric/SRE-2
+
+[33mcommit fa4db4b83a8f64309cee0cb6f177841702ded5ae[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Fri Jan 27 11:02:13 2017 -0800
+
+    New APPS fixes
+    
+    Updated default calibration values.
+    Flipped over TPS1 pedal percent in CAN message
+
+[33mcommit 68ce02c3c8a614c38dffeca712bcd085292a00ec[m
+Author: vinayponnaganti <vinayponnaganti@users.noreply.github.com>
+Date:   Wed Jan 25 01:32:48 2017 -0800
+
+    Added a PID that was tested in Visual Studio
+
+[33mcommit ef1352863c5cf2891a20b02930ab1df823ce91c2[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Mon Jan 23 02:24:02 2017 -0800
+
+    Flipped TPS1 calculation for SRE-3 APPS
+
+[33mcommit 367e917a2d7dee6138fd81ccf1f6694b9d642107[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Sun Jan 22 08:02:27 2017 -0800
+
+    Added SRE-3 pinout/CAN addresses to readme.md
+
+[33mcommit b33997fc0b6f73d476ad5ac2db3b9eebe9e3b610[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Sep 21 17:33:05 2016 -0700
+
+    Fixed pinout URL in readme
+
+[33mcommit 5a11af1cead734504cdda6eae4f66be96df986d6[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Sep 17 03:13:18 2016 -0700
+
+    Fixed default water pump control signal
+    
+    Changed 0x9 to (9% of 0xFFFF).  Changed to variable high.
+
+[33mcommit 5c341efcb20b7c39ea1c7fa29e05bd5241ec4d97[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun Jun 26 15:14:46 2016 -0700
+
+    Increased RTDS volume.  Increased allowable BPS before TPS-BPS Implaus
+    
+    Changed RTDS from 0.5% to 25%
+    Changed BPS allowed from 2% to 25% (slightly more than one-finger
+    pressure)
+
+[33mcommit a660c40f61f7e8c42bd7deeea3f9ade339d7aed2[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun Jun 26 15:12:36 2016 -0700
+
+    Changed water pump PWM values
+    
+    http://www.lingenfelter.com/PDFdownloads/L460320002.pdf
+
+[33mcommit db23d66036adf5cc816c8fde902b97329be107fe[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 25 19:50:13 2016 -0700
+
+    Reduced RTDS to 0.5% volume for driving outside of comp
+
+[33mcommit 09725bdffda6e256addb8e206a9ea9599d4d1637[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 25 19:46:47 2016 -0700
+
+    PCAN updates
+    
+    Updated motor controller to 20160525 .dbc
+    Updated BMS variables
+    Moved PCAN Explorer files to their own folder
+
+[33mcommit 9346d87056f7dc70999bc5b18b4609b2f0c4ee8a[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 17 09:38:31 2016 -0500
+
+    Increased torque limit from 9 Nm to 100 Nm.  Fixed warnings/notices CAN message
+
+[33mcommit cbed4f6c973b4d66ee436fbca9b7fe1165c085cf[m[33m ([m[1;33mtag: v1.0.0[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 17 08:55:16 2016 -0500
+
+    Fixed defects in TPS-BPS Plausibility Check.  OTHER FAULTS DISABLED TEMPORARILY
+
+[33mcommit 6b94d22a2d129eba8175e6996ced7a9ba7930b59[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 17 08:52:33 2016 -0500
+
+    Regen fixes
+
+[33mcommit dc9b5cd0cc66ad20d19ff186d3df24edbd9447e1[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 17 08:49:01 2016 -0500
+
+    Updated calibration values.  Fixed bug when holding calibration button.
+
+[33mcommit a20d9c3b63c852bc708c523a7a5648d2459a329c[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 15 05:18:06 2016 -0500
+
+    Fixed warning causing 0 torque (warning value assigned to faults)
+    
+    Also removed warnings from error light
+
+[33mcommit 75ac1e76e3e34aaaefa1fd7c6d955f4209a429ee[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 15 05:11:34 2016 -0500
+
+    Cooling system overflow fixes
+
+[33mcommit 4ac0fcb564f78b2b0d92e8bcc77d862541a64359[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 15 05:10:14 2016 -0500
+
+    Added TCS switches/pot to CAN debug messages
+
+[33mcommit a708d174ffc632ef6eb966048c794859e35e5aea[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Jun 14 13:12:39 2016 -0700
+
+    Add main.hex back to gitignore
+
+[33mcommit eeb66550241ebedf8a95f5162877466cfea191a6[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Jun 14 13:09:22 2016 -0700
+
+    CCL/DCL Fixes
+    
+    Added battery amp limits to BMS object constructor.  These values must
+    match the BMS's programming.
+    BMS gives CCL/DCL in amps, not %.  Can't use custom message due to space
+    limitations.  Instead, changed BMS CCL/DCL functions to return 2-byte
+    CCL/DCL values from default BMS message.
+
+[33mcommit bb7dd3a5bfe84d124a6cc4bd8534ff5458d3cdbd[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Jun 14 11:56:55 2016 -0700
+
+    Added regen switch/pot controls and torque calcs
+    
+    Regen is still disabled (hardcoded) but torque that would be commanded
+    is displayed on serial.
+    TCS Switch Up/Down pins may be reversed.
+
+[33mcommit aa5b91f1425bd5c5316ba250a903bef0eef1861f[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Jun 13 10:28:06 2016 -0700
+
+    Minor optimizations/defaults added
+
+[33mcommit 0c1fcf324ba651dce9cafd0d53bbb882cae92cc0[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Jun 13 10:13:27 2016 -0700
+
+    Set regen limit to lowest of CCL (tempMultiplier), speed ramp (regenMultiplier).  Set default CCL/DCL to 0.
+
+[33mcommit 67fd304b3d7dd0b94254a55839849d770fc7a93c[m
+Merge: ae1c890 87bee91
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Jun 13 06:46:50 2016 -0700
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit ae1c89035647f2be36245c45e94e15e795859a2e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Jun 13 06:44:19 2016 -0700
+
+    Added regen speed rampdown from 15kph to 5kph
+
+[33mcommit 87bee911c94854c3342e22a8895e5c59aeea8c0b[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Jun 13 06:42:28 2016 -0700
+
+    Added framework for regen speed ramping
+
+[33mcommit 633455e41f113b0abd0a9a8d0e3749d22498f86b[m[33m ([m[1;33mtag: v0.1.1[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 14:11:12 2016 -0700
+
+    Re-enabled 0 torque faults
+
+[33mcommit 75df0112afa7b647deb4603836b637be2fa5ec55[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 14:10:19 2016 -0700
+
+    Added eco mode button detection, changed calibration to TCS light
+
+[33mcommit 9e8fdfce3f5ce3d4481c4d9f388ae4cb4dbd61ea[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 06:03:48 2016 -0700
+
+    Cooling/safety system updates
+
+[33mcommit 19763ec4d1924a1b824659b51a4acb31580e43b0[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 06:03:28 2016 -0700
+
+    Updated MCM torques to signed ints.  Added MCM temp, speed functions
+
+[33mcommit e618b01c680fe8d5dcbd816f2b7fae63f04f92bc[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 06:01:34 2016 -0700
+
+    Fan controls fixed
+
+[33mcommit d7cd9278711db564f85cc582b23709489d538395[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 06:00:27 2016 -0700
+
+    Moved BMS byte swapping stuff to mathFunctions.c
+
+[33mcommit 411f57adb9c443d5c927ba8c4bcc8b93595f4b19[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 05:59:23 2016 -0700
+
+    Added custom CAN message back to BMS parse
+
+[33mcommit 519c9a5a807aad43b0c3e244354a412d115bf9ec[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Jun 11 05:56:49 2016 -0700
+
+    Changed BMS priority message
+    
+    Changed SOC byte to CCL byte
+
+[33mcommit bd42d4f29f45dda154919fad0f464f2cc212f7ef[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 10 17:31:03 2016 -0700
+
+    Added water pump, cooling fan controls (BROKEN)
+    
+    Supporting functions (BMS/MCM gets) in later commit.
+
+[33mcommit bc7128a5e9d5c1d2b3c0a64c75bf9008b65a89ee[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 10 17:27:31 2016 -0700
+
+    Added serial sprintf with one value
+    
+    Can print a message with a single sprintf style value
+
+[33mcommit d50142e04b88d603c7359568e0e01da0f6655fcf[m
+Merge: c7c6784 152ac98
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 9 23:33:11 2016 -0700
+
+    Added blink function to mathFunctions.c by Vinay
+    
+    Merge code by Vinay
+
+[33mcommit c7c6784a1a70d4a117a3f89cd76b129bd73cf5e0[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 9 23:31:25 2016 -0700
+
+    BMS update from Rabeel
+
+[33mcommit 8b38599fc3961e90982d0d02c7bbec8196441db1[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 9 23:31:00 2016 -0700
+
+    Started cooling system functions
+    
+    Added cooling.c/h
+    Added water pump control signal PWM05 to Light_set function
+    Added low lvs battery error light
+    Removed HVIL term sense lost warning
+
+[33mcommit 152ac98d86292f78fb91e581955ec4befea8888a[m
+Author: vinayponnaganti <vinay.ponnaganti@gmail.com>
+Date:   Thu Jun 9 01:03:45 2016 -0700
+
+    implemented the blink function for LEDs. (UNTESTED)
+
+[33mcommit 7a38dccd931de335a86ca68d48f5eb96560c3adf[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 17:48:40 2016 -0700
+
+    Fixed TEPC (TPS out of sync) issue.
+    
+    Bad default calibration values and bad calibration reset function.
+
+[33mcommit 1be979f552a1a9cfda15f011421135c4ef3e2203[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 16:32:47 2016 -0700
+
+    Fixed false TPS out of sync error
+
+[33mcommit c1b1aa3a75cb3c1e389760b83f54082ccbb0e8c4[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 15:58:11 2016 -0700
+
+    Added SafetyChecker torque reduction function. Other SC fixes
+
+[33mcommit 345141068cd586e77f6d1bc9c90f9a6341c57ffb[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 14:04:21 2016 -0700
+
+    Updated TPS/BPS voltage ranges from spec sheet
+
+[33mcommit e68f61bc5a3758796d9429f9b0a20b2d83df1777[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 14:03:14 2016 -0700
+
+    Added 12v battery to CAN messages
+
+[33mcommit c0380023e91b420530831222bf9a7e9bf40daa39[m[33m ([m[1;33mtag: v0.1.0[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 11:52:27 2016 -0700
+
+    Working RTD, CAN
+    
+    Numerous bugfixes in CAN, MCM.
+    Reduced RTD BPS pressure requirement to 25%.
+
+[33mcommit e32a0609338131d23a6bf75ce0d4b395d05f2e56[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 8 01:19:07 2016 -0700
+
+    Disabled ADC waste loop stuff for outputs we're using
+    
+    This function should probably just be tossed.  Ideally, code should be
+    made robust enough to handle bad VCU outputs.
+
+[33mcommit 21973fe7f5142fb94d4d87ce9f5b44551d7c1036[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Jun 7 18:53:24 2016 -0700
+
+    HVIL Shutdown relay defaulted to high
+    
+    HVIL relay should always be on - set low to kill the car.  (No
+    car-killing conditions defined yet)
+
+[33mcommit 2ab79fb110f6c441f05502fd75f0d07b310da08c[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 22:44:22 2016 -0700
+
+    CanManager updates
+    
+    Commented out CAN read status serial message.
+    Commented out MCM lockout status serial message.
+    Added serial support and debug messages to canManager.
+    Note: main loop speed changed temporarily.
+    Note: AVL tree implementation is bad.  Previously sent messages are
+    never found.  Either insert is broken or search is broken.
+
+[33mcommit 8e65b7eb8a69b41627d82f9dfbf3f5184bbce65f[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 21:03:40 2016 -0700
+
+    CAN debug stuff to figure out timing issue
+    
+    Added CanManager_getReadStatus() to check status of last CAN Read.
+    This status is sent over serial every cycle
+
+[33mcommit b8f2b75c5f2f9f256c61fc740967e0b6a0a805ef[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 16:56:36 2016 -0700
+
+    MCM Fixed inverter/lockout status from CAN message, default to UNKNOWN on power down
+
+[33mcommit dfad42bda2414eee3e549ff223bd7ed73552d7e8[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 16:55:44 2016 -0700
+
+    Reduced startup delay (shorter ADC waste loop)
+
+[33mcommit 9c0e8a1d8001335303df4823ba55f2d38f2a5133[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 16:55:22 2016 -0700
+
+    Reduced default BPS calibMax to from 2V to 1.25V
+
+[33mcommit 795ce11e32b80c59a214b14915302c3c320fdf0e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 04:09:27 2016 -0700
+
+    New MCM RTD procedure
+    
+    Rewrote RTD procedure in new, more organized style.
+    Added BPS minimum pressure requirement, TPS max allowed value.
+    RTD button should light up while pressed, or after MCM has turned on.
+    Renamed RTD function from MotorControllerPowerManagement() to
+    MCM_inverterControl().
+
+[33mcommit 046ea7cba9a517ec7b0b1561c0583ef849755b58[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Jun 3 01:44:40 2016 -0700
+
+    Added PCAN Explorer Files
+
+[33mcommit eaa9cec3a99e7db172ce533c951a76cb382ed499[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 2 23:43:12 2016 -0700
+
+    MCM, CANMan updated - Motor works on car!
+    
+    Disabled regen (defect in calculation).
+    Switched to bench RTD procedure - need to fix proper RTD code.
+    Set MCM.commands.torquelimit = torquemax (previously was set to 0 to use
+    limit set in MCM eeprom)..
+
+[33mcommit f5965a2afc970dc5394c166767d62f314e6e44ca[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 2 17:59:14 2016 -0700
+
+    Motor Spinning Updates
+    
+    Added mcm can message.
+    Increased calibration deadzones.
+    Added default calibration values (hardcoded).
+    Send default to calibrated=TRUE
+
+[33mcommit 2833587087620d30b891244da704b8c9490c49b9[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 2 16:03:00 2016 -0700
+
+    Timing updates
+    
+    Separated start time timestamp from main loop timestamp.
+    Added blink function stub to mathfunctions.c
+
+[33mcommit 8dab4629cea71880f533ac997e4896c09bfd2b90[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Jun 2 02:13:20 2016 -0700
+
+    Changed dash LEDs to lowside output.  Fixed bench sense.
+
+[33mcommit 1233f1d746c67fcdfd07e7d642eb26b5dbd9dce7[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Jun 1 00:33:27 2016 -0700
+
+    Disabled broken bench detection code.  Turned off cooling systems.
+    
+    Bench detection wiring needs to change to voltage sense.  For now,
+    hardcoded to bench = FALSE;
+    Turned off cooling fans / water pump for testing in room.
+
+[33mcommit f34d7cb6f466c1595b7445977d8d1ad0675be67c[m
+Merge: 6e14164 63eacfe
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 20:07:46 2016 -0700
+
+    Merge remote-tracking branch 'origin/master'
+    
+    # Conflicts:
+    #       build/main.hex
+
+[33mcommit 6e1416401768303c2f0499fa411e0009345262db[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 20:04:30 2016 -0700
+
+    Fix HVIL term sense fault.  Working on keeping MCM on until 0 torque.  Add serial to MCM obj.
+
+[33mcommit 425f6bc78827c2bcf79f67de673a93830b296532[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 20:00:26 2016 -0700
+
+    Undoing work trying to make SerialMan into global var
+
+[33mcommit f2ff2022400ed11f0f774b44a5dab4d30a06dca7[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 20:00:06 2016 -0700
+
+    Fix WSS pointing to wrong pins (mixed up)
+
+[33mcommit 2c03ef99c180e6eb97b43ca024dc8bdab48afa5e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 19:58:58 2016 -0700
+
+    Fixed mixed up WSS sensors.  Updated TPS/BPS specmin/max values, made them change based on bench.
+
+[33mcommit b6aca3e1fc6f6a34df3a3dfb25537f209a0f7f43[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 31 19:57:50 2016 -0700
+
+    SafetyChecker, CAN Debug messages updated
+    
+    Made SC faults self-clearing
+    Added warnings to SC
+    Added 12V battery to SC warnings
+
+[33mcommit 63eacfe9534c2c814251fb5404e2619095aeefbb[m
+Author: vinayponnaganti <vinay.ponnaganti@gmail.com>
+Date:   Fri May 27 20:48:53 2016 -0700
+
+    Added logic for regen switches and pot (COMPILES BUT UNTESTED)
+
+[33mcommit e8f185435eb651b369be3a11b05a22ba7494f4ab[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri May 27 18:11:28 2016 -0700
+
+    Changed bench mode sensors..  Swapped switch polarities..  Updates to calibration.
+    
+    Working on changing calibration to start by holding Eco for 3 seconds.
+    Need to fix indicator light.
+    Switches changed from active low to active high.
+    Removed digital TPS.
+    Removed bench TPS object.
+    Bench mode: TPS = resistive input
+    Normal mode: TPS = ratiometric input
+
+[33mcommit 57e5db743e6c38eabaebfe9f3e25abd39ede920a[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri May 27 06:01:08 2016 -0700
+
+    Hold eco button 3 seconds to start calibration
+    
+    New calibration start procedure (used to start immediately on eco click)
+
+[33mcommit a19e738934ba1962584fa632ddc6f2d6d1b1d39f[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri May 27 05:58:31 2016 -0700
+
+    Changed cooling relays default to on. Change dash switches/buttons to pulldown.
+
+[33mcommit 51371a64fd183be864b17b0173c1efa1f402a8e1[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed May 25 18:58:54 2016 -0700
+
+    Reorganized inits in main
+
+[33mcommit ae2c1f93f5c0451139df081394e57fd3e0b8ca54[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 24 23:12:58 2016 -0700
+
+    TCS Knob fixes, Add HVIL Term Sense to SafetyChecker, Regen added
+
+[33mcommit a061fb8726f19a64c089d37f9c9728b4ede6394f[m
+Author: Rusty <rusty@guysmily.com>
+Date:   Tue May 24 20:36:07 2016 -0700
+
+    Reorganized motorcontroller.c, fixed TCS knob sensor
+
+[33mcommit cba5a2ef0509cccafc2a69421fbb2d312d267d63[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 24 19:36:02 2016 -0700
+
+    Regen: Started adding regen function
+    
+    Note: Torque calculation will not work until this is done.
+
+[33mcommit 0bdab15cba2a8bb54ac2ddba9d072767dbc4c663[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 20:12:29 2016 -0700
+
+    WSS Fixes
+    
+    Corrected sensor pin assignments
+
+[33mcommit 74cd6e47975c9e474a3ef6362e099bea7722f28e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 16:32:30 2016 -0700
+
+    Add HVIL Term Sense to Safety Check to keep MCM on until 0 torque commanded
+    
+    Same code should be applied to HVIL Shutdown when it is implemented.
+    
+    Minor changes to MCM power control / relay code (and removed temp code
+    from sensors.c)
+
+[33mcommit cd1e08b2ef55a75bbf395c5a30203019f4752c02[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 16:15:03 2016 -0700
+
+    Added Serial/RS232 object
+    
+    Only supports write since this would only be used for debug on bench.
+    You can pass a string to SerialManager_Send() and the message should
+    appear on e.g. Hercules on your PC.
+
+[33mcommit eba229429751698f095bc008df073947c886e82e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 08:07:57 2016 -0700
+
+    Commit from Rabeel
+    
+    Note: calculations need to be corrected for new can parameters for MCM
+    and BMS
+
+[33mcommit 9c6c05753a0d94947ffa11808c5198dabb831a45[m
+Merge: 3da52ab 6705db5
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 06:56:19 2016 -0700
+
+    Remove VCU header files from project folder
+    
+    These go in the Environment\inc folder.  They were only copied to the
+    project folder for Rusty's Visual Studio project.  They do not belong
+    inside this folder.
+
+[33mcommit 3da52abc53987e958da82fa049c5bd09e32ca963[m
+Merge: 9503971 73cee0e
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 22 05:35:24 2016 -0700
+
+    Merge branch 'Rusty_Dev'
+
+[33mcommit 6705db53e8ad895e03f10e58e9b18a7e017b93dc[m[33m ([m[1;31morigin/Rabeel_Dev[m[33m)[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Sat May 21 16:11:53 2016 -0700
+
+    Fixed mulitplier/overflow issues
+
+[33mcommit f7f149cf6a5dd861d3e813d74c220fc5d091d2ff[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Sat May 21 16:09:19 2016 -0700
+
+    Fixed multiplier/overflow issues
+
+[33mcommit bc1e60f65998d4b015843754e6bae5c671cc6093[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Sat May 21 16:08:36 2016 -0700
+
+    Fixed multiplier/overflow issues
+
+[33mcommit add425154032e2b5180a0ec1604dab460f93cc9e[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Sat May 21 16:03:17 2016 -0700
+
+    Fixed mulitplier/overflow issues
+
+[33mcommit 4395caf92bb9ba41f9477322e49cfa19dfb49917[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Sat May 21 15:59:23 2016 -0700
+
+    Fixed mulitplier/overflow issues
+
+[33mcommit 73cee0e1acee91e50e2017d90da733d5a6886800[m[33m ([m[1;31morigin/Vinay_Dev[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 15 03:44:06 2016 -0700
+
+    Pedal calibration deadzones added
+    
+    Added 2% deadzone to top of pedal, 5% at bottom of pedal (making
+    calibrated range slightly smaller than actual calibration).
+
+[33mcommit 998c037b67f73ae48c480e02139824057aa6bc18[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sun May 15 03:42:32 2016 -0700
+
+    Reorganized main, updated naming conventions.  BMS, MCM, SafetyChecker updates for 80kw limit.
+    
+    New naming convention change: Acronyms at the beginning of function
+    names are capitalized (MCM, BMS..).  Note that object names are still in
+    lowercase.
+    Removed _commands_ from accessor function names that access statuses
+    instead of commands
+    Renamed getPower functions to getPowerKw
+    Fixed typos in includes
+    Fixed missing includes
+    
+    Known defects:
+    BMS data from high priority message (0x629) is not being recorded
+    BMS high priority message must be used for all calculations using BMS
+    data
+    MCM, BMS: voltage and amperage stored incorrectly (values are off by
+    some multiplier - see Rinehart, BMS documentation).  Suggest checking
+    ALL values coming in over CAN for correctness.
+    MCM_getPower and BMS_getPower: incorrect values are returned due to
+    issue above.  Even if values are corrected, ubyte2 will overflow.  The
+    return type must be changed to ubyte4.
+
+[33mcommit c087b8c797e59567a49f76d176914905bd8c6c6e[m
+Merge: 81c020a f8fb715
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat May 14 19:33:54 2016 -0700
+
+    80 kW Limit Code, BMS Fan Control
+    
+    rabeelio  wants to merge 11 commits into Rusty_Dev from Rabeel_Dev
+
+[33mcommit 81c020a328a045863b182613473dee00e8d3f3d5[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat May 14 19:17:28 2016 -0700
+
+    CanManager: Updated debug messages
+
+[33mcommit 2d8734bf933dce1532ff8321c9e91332643978c4[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat May 14 18:42:33 2016 -0700
+
+    Sensors / Bench: Tie TCS LED to TPS
+    
+    Temporarily made TCS light brighten with TPS percent so that it's easier
+    to visualize plausibility check
+
+[33mcommit 2017514fcfc65e806a6d657cec1c064cf0835f0e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat May 14 18:09:56 2016 -0700
+
+    Sensors: Changed bench TPS from resistive to ratiometric, cleaned up bench/car mode stuff
+    
+    Analog TPS tested, confirmed working.
+
+[33mcommit f8fb715d3d2be327281615b0cc273fc8b6d4fc4f[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri May 13 22:51:30 2016 -0700
+
+    Added checkPower & checkBattTemp functions
+
+[33mcommit 5e7999fba363e2594a0ad1adaf0a64fb0e76b361[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri May 13 22:51:09 2016 -0700
+
+    Added checkPower & checkBattTemp functions
+
+[33mcommit efaee449849343728bd71c53ca599791f585e75e[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri May 13 22:50:01 2016 -0700
+
+    Added more command functions
+
+[33mcommit d025f7379c2d9f5175b56bb12e612c18a3d62d18[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri May 13 22:49:15 2016 -0700
+
+    Added more command functions
+
+[33mcommit 24f759bf8bdb5c67e12adc94dc0726886a781119[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri May 13 22:47:12 2016 -0700
+
+    Added more command functions
+
+[33mcommit 144a34ecf8c851d6df9a078cfc81cd740f3fbd57[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:29:36 2016 -0700
+
+    Added checkPowerDraw()
+
+[33mcommit 9a6c94b2a780882741545032a552a200b05486d6[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:28:53 2016 -0700
+
+    Added checkPowerDraw()
+
+[33mcommit ec1eb759b31fa2081c4511f9e083ed6a8484cbe6[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:26:09 2016 -0700
+
+    Added get power & torque functions
+
+[33mcommit 3461ec1cc50f99b6ea5d06dfdd445577ab21cc3e[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:25:29 2016 -0700
+
+    Added get power & torque functions
+
+[33mcommit a2758c2bc69a640406d211b37dcecd553231df1f[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:22:56 2016 -0700
+
+    Added bms_commands_getPower()
+
+[33mcommit 625e22f89320a73f48e9eaacd57a8999fb572507[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed May 11 22:22:00 2016 -0700
+
+    Added bms_commands_getPower()
+
+[33mcommit aa7bc9de630dafdd9e2bcbe21dba30b57796d28c[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed May 11 21:06:53 2016 -0700
+
+    CanManager: Timing updates
+    
+    Changed some timing variables/formats around, trying to fix bug causing
+    messages to be sent every cycle instead of delaying.
+
+[33mcommit 295cb4548a588fd5480ff567e325ce3758c3c5ad[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 10 00:20:19 2016 -0700
+
+    CanManager compiled, messages only send once
+    
+    Probable defect in checking AVL tree - needs debugging.
+
+[33mcommit 929393e0664fcd38a457f6b789d1c0183bd74cb5[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 10 00:19:20 2016 -0700
+
+    Change TPS to PulseGet instead of FreqGet
+
+[33mcommit 16e6a78a29d08d7698f9590995502bec898b2c07[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 10 00:18:35 2016 -0700
+
+    BMS, MCM fixes
+
+[33mcommit 209be7e31ac4fa9e9d6a7399cb7ed4f08c9216bf[m
+Merge: d2efef5 be39440
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon May 9 19:18:45 2016 -0700
+
+    Merge from Rabeel_Dev
+    
+    Resolved conflicts
+
+[33mcommit d2efef531cbd927658e296a318531521459aa6c8[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon May 9 18:38:19 2016 -0700
+
+    CanManager now compiles
+    
+    Needs Motor Controller code next
+
+[33mcommit be39440269c0d0ea27cb80b4b929c6dc963992df[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Mon May 9 18:35:54 2016 -0700
+
+    Added CAN parse function and cases
+
+[33mcommit ee447e057e230446c725bc7628c34dcb7131a691[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Mon May 9 18:35:02 2016 -0700
+
+    Added CAN parse function and cases
+
+[33mcommit f6b15f53b61f6d3301b9647ff8658d18d9acf079[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon May 9 17:41:59 2016 -0700
+
+    CanManager read/write updates
+
+[33mcommit 9503971a5ad05468cb3e0b7360eac69fb447bfc0[m
+Merge: fe9d1ac 8d620c1
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Mon May 9 17:22:12 2016 -0700
+
+    Merge pull request #71 from spartanracingelectric/Rabeel_Dev
+    
+    BMS
+    Minor Changes/Added parse function
+
+[33mcommit 7266fdb43cd9835699f68193778f0a0ff5370a70[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu May 5 00:13:05 2016 -0700
+
+    CanManager compile error fixes
+
+[33mcommit 8cf1ee51cfc6dec98fa40b7cbf1a6929dac3d747[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed May 4 02:59:13 2016 -0700
+
+    CanManager: First draft complete
+    
+    First pass at writing can i/o manager is done.  Many defects will need
+    to be fixed, and some experimental code will need to be tested/resolved
+    if nonfunctional.
+
+[33mcommit ed225f8c7a50f7ca0529c2e05171b54fab350c01[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue May 3 00:05:13 2016 -0700
+
+    CanManager write function updates
+    
+    Almost done with write function.  Needs some work on updating message
+    sent timestamps, then can read functions are next.
+
+[33mcommit af244071290913505994e14f03070c91ac10a101[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Apr 29 13:18:47 2016 -0700
+
+    canManager updates
+    
+    Replaced AVL tree structure with implementation from a different source.
+    Moved CAN dataframe stuff out of its struct and directly into the AVL
+    node
+
+[33mcommit 8d620c1690635b351af4384149801f6c7ca6a814[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed Apr 20 20:55:58 2016 -0700
+
+    Minor Changes/Added parse function
+
+[33mcommit 25e3b995baa8c41aec3111b32d45348c9429e2c2[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Wed Apr 20 20:49:09 2016 -0700
+
+    Minor Changes/Added parse function
+
+[33mcommit 82dbe2d16af818a97e6da4ebc6a3a395dd893d3e[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Apr 14 23:36:23 2016 -0700
+
+    Started work on canManager.c
+    
+    Added canManager files with AVL tree data structure for storing CAN
+    messages.
+
+[33mcommit 3a7a19bc4ecddcd870181f1271d5a0b01ac564e0[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Apr 14 23:33:30 2016 -0700
+
+    VCU debug messages changed
+    
+    Re-organized can output messages
+
+[33mcommit 6601236896046914fa0e405f606e58c23392fb98[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Apr 14 23:30:41 2016 -0700
+
+    BPS bench mode, safety.c TPS/BPS IO
+    
+    Added TPS/BPS power/signal init/get/set checking to safety.c
+    
+    Fixed BPS bench mode param missing from .h
+
+[33mcommit b25c0b7c37103eb72816b1d26cf6974154fdf695[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Sat Apr 9 15:59:15 2016 -0700
+
+    Add bench mode to BPS
+    
+    Bench mode determines brake light function:
+    Car = on/off
+    Bench = multiple brightnesses for (1) off, (2) on, but below below
+    TPS/BPS Plausibility Check threshold, (3) on, and brightness changes
+    with brake pedal percent
+
+[33mcommit fe9d1ac401e0b57a6a8bf48e5e67306aa10d7b11[m
+Merge: 1549053 df85e13
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Sat Apr 9 15:52:00 2016 -0700
+
+    Merge pull request #66 from spartanracingelectric/Rabeel_Dev
+    
+    Moved cases/functions + updated variable types
+
+[33mcommit 0f09b2be652172c13bd9537d06459a6f520ac5e9[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Fri Apr 8 23:59:13 2016 -0700
+
+    Updated Light functions (dash/brake)
+    
+    Cleaned up some brake calibration code.
+    Renamed dashLight to Light.
+    Fixed Light PWM Inits.
+    Changed Light from on/off to percent (between 0 and 1).
+    Added brake light to brakePressureSensor.
+    Added RTD light to motorController.
+
+[33mcommit df85e13b6ccb7dff2e01014a2a03e3d1ab05e056[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Fri Apr 8 17:33:18 2016 -0700
+
+    Moved cases/functions + updated variable types
+
+[33mcommit cfd7706410b728a107a11884b1e4badd0c4a9315[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Fri Apr 8 04:41:57 2016 -0700
+
+    BMS object fixes, BMS CAN inputs
+    
+    Minor BMS fixes.
+    Added BMS to main.
+    Added BMS to canInput, updated BMS canInput function.
+    Added ADC benchmode param
+    Added BMS power output to ADC initialization
+
+[33mcommit e2ef51e8fd7b703644c3b4fabd8c852602d3e2cc[m
+Merge: e2452a9 1549053
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Fri Apr 8 02:19:33 2016 -0700
+
+    Merge remote-tracking branch 'refs/remotes/origin/master' into Rusty_Dev
+
+[33mcommit e2452a92528f3f280c728a876f7f73857ed46355[m
+Merge: f7c1626 bb8228b
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Fri Apr 8 02:16:59 2016 -0700
+
+    Merge remote-tracking branch 'refs/remotes/origin/master' into Rusty_Dev
+
+[33mcommit 154905373f9215e72bcff8bd7be3e548db3ef33a[m
+Merge: bb8228b f337de8
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Fri Apr 8 02:16:20 2016 -0700
+
+    Merge pull request #62 from spartanracingelectric/Rabeel_Dev
+    
+    BMS object definitions
+
+[33mcommit bb8228bbb9ddaa185ed93804cbbf743887c61c44[m
+Merge: cf1e617 f7c1626
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Fri Apr 8 00:54:20 2016 -0700
+
+    Merge pull request #65 from spartanracingelectric/Rusty_Dev
+    
+    Updated pedal safety checks, MCM handshake, debug messages.
+
+[33mcommit f7c1626e400ebe754c1868530cc0f5cabe6bbf7d[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Fri Apr 8 00:27:34 2016 -0700
+
+    Sensor error types changed, Fixed TPS/BPS error handling
+    
+    Added init and set/get errors for Power and Signal.
+    Fixed logic errors in pedal plausibility/range checks.
+
+[33mcommit f337de8d28ce70cb6e2427e2f30f533fca5c0c4e[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Thu Apr 7 14:55:59 2016 -0700
+
+    Added bms.c
+
+[33mcommit a6f6e019de2ab97111a9c8904e083b8d6ff088fa[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Thu Apr 7 00:12:12 2016 -0700
+
+    Added BMS data struct and constructor
+
+[33mcommit 973a93a44fd3cb3ca22fddc9e8800f7e30ea148d[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Wed Apr 6 23:24:54 2016 -0700
+
+    Pedal Updates
+    
+    Added BPS to debug output.
+    Changed BPS to resistance sensor (pot measurement) until correct part
+    arrives.
+    Changed TPS/BPS SpecMin/SpecMax - these also will change when parts
+    arrive from BPS.
+    Fixed defect in BPS calibration function.
+    Tested TPS/BPS Plausibility Check succesfully: Closes #49.
+
+[33mcommit 6e14f517ba76eb2afffd3c6680c27147b91842f0[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Tue Apr 5 22:17:06 2016 -0700
+
+    Minor stuff
+    
+    Moved calibration to eco light
+    Added IO_ErrorType variable for power, init, and signal to Sensor
+    object.  Need to split to powerInit and SignalInit.
+    Added Safety Error Byte function for easy CAN output
+
+[33mcommit 53339179a80cf00f467c09959e1fc0e57b762864[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Mar 31 17:28:27 2016 -0700
+
+    Added more SafetyChecks + CanOutput
+    
+    More work on safety checker stuff.  Still need to read VCU error states
+
+[33mcommit 596b060e1e649430f0f312b8699cca759ace7fe7[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Mar 31 06:31:50 2016 -0700
+
+    Turned on WSS power pins, added calibation check to SafetyChecker
+
+[33mcommit 21fce9ac8ea944279a2eb9720cbca9ea2b7ac8fc[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Thu Mar 31 03:06:03 2016 -0700
+
+    Added wss object.  Add bps object.  Add SafetyChecker (sc) object.  Moved plausibility checks to sc object.
+    
+    Added WheelSpeeds object to support coming TCS functions.  BPS added to
+    mirror TCS.  Plausibility checks moved to SafetyChecker object, called
+    by main.
+
+[33mcommit 7aee12b73526fac7f42c7dbce9b669d4d401a346[m
+Author: Rabeel Elahi <Rabeel Elahi>
+Date:   Mon Mar 28 20:43:21 2016 -0700
+
+    Added bms.h
+
+[33mcommit cf1e617f8c571d10f3a5d6fa1512a294124c52ad[m
+Merge: 3853d62 d367474
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Sun Mar 20 16:10:43 2016 -0700
+
+    Merge pull request #58 from spartanracingelectric/Rusty_Dev
+    
+    Merging Rusty_Dev into master with known defect in handshake procedure.
+
+[33mcommit d36747479ff94947f19745d3a9f5cadd50eb7ce0[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Sun Mar 20 15:57:29 2016 -0700
+
+    Update debug CAN message.  Handshake broken
+    
+    Added CAN message 0x508 data 4-7 (repeated 4 times) for tracking MCM
+    startup process.  Flag is jumping to random values for some reason -
+    something wrong with startup process causing inverter to turn off
+    immediately after RTD button is pressed.  Commented out code that
+    controls inverter directly from switch works fine.
+
+[33mcommit 9b3bd1a08585f00c2feb82dd466d18bfe5a604fa[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Sun Mar 20 03:49:36 2016 -0700
+
+    Comment
+
+[33mcommit a5a2f7961f36277c409bd72eb763c697908a90b0[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Sun Mar 20 03:01:30 2016 -0700
+
+    MCM Startup Fixes
+    
+    Updated MotorControllerPowerManagement() to use new TorqueEncoder
+    object.
+    TEMPORARY: Added requirement that MCM will not turn on until calibration
+    has been done.
+
+[33mcommit 73a2815da02db7e6c33588653b724dd9a2825cf2[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Sun Mar 20 02:55:32 2016 -0700
+
+    torqueEncoder calibration + other fixes, Dash LED control, other TPS support
+    
+    Torque encoder calibration works now.  Some temporary code still needs
+    cleanup but opposing TPS sensor with plausibility check is working now.
+    Using Eco LED for calibration status.  Press eco button to begin
+    calibration.  Calibration is now required before torque can be set.
+    Currently, MCM handshake is not possible.  Probably need to move
+    switches around.
+
+[33mcommit 43a9160b4f812de153a4b45f16f6bde4c86bb7fd[m
+Author: Rusty.P <rusty@pedrosatech.com>
+Date:   Mon Mar 14 18:17:25 2016 -0700
+
+    Moved TPS to torqueEncoder.c
+    
+    Moved tps object code
+    More calibration function work
+    Changing extra canOutput stuff to reusable debug messages
+    Added dash ADC inits + control functions (temporarily in sensors.c)
+
+[33mcommit 88aed54938e17748203b2538f86c7b2bcb715b56[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Mar 2 00:33:03 2016 -0800
+
+    TPS changes
+    
+    Removed calibration variables from Sensor object
+    Created new TorqueEncoder object
+    Working on pedal percent calculations, calibration function
+
+[33mcommit a245d0f34b1a152de967e011dcc12089d8d89bc4[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Feb 27 04:22:25 2016 -0800
+
+    Beginning implementation of bench TPS, calibration functions
+    
+    Added bench TPS using opposing sides of pot.
+    % travel calculation NOT working
+    Calibration funtion needs time/loop management to be written
+    Added max torque setting to motor controller constructor
+
+[33mcommit ba91b43821d3db4af1bbca5b646684edb6e52b67[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Feb 26 18:54:25 2016 -0800
+
+    Major I/O Changes
+    
+    Moved around many inputs and outputs...
+    RTD, Eco, TCSx2, HVIL term digital inputs redone.
+    Added BenchTPS resistive sensors (x2)
+    Changed regular TPS to PWM inputs
+    Implemented HVIL Term Sense (currently tied to Bat+.. need switch) -
+    replaces temp braking switch
+    Fixed bad logic in handshake.  Using switch instead of if
+    Added water pump and motor fan relay DO's
+    Changed around debug CAN message (0x508)
+
+[33mcommit 33dafa3c2bdd366613a7ee1ba1b63aea095469cd[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 25 23:22:54 2016 -0800
+
+    Startup Sequence Fixes
+    
+    Swapped lockout status 0/1 enabled/disabled
+    Added (temporary?) CAN message for Startup sequence
+    Added startup stage accessor function
+    Added motor controller relay to ADC Inits, but no object yet
+    Added motor controller ADC on/off function (temporary - not an object)
+    Added HVIL shutdown relay to ADC Inits, but no object yet
+    Added HVIL term sense sensor object
+    Removed eco switch (pretend brake pedal) from startup sequence
+
+[33mcommit f4a2ffdf0c1fc26beab302c1af0c0dc069400546[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 24 04:04:40 2016 -0800
+
+    Add MCM relay and HVIL shutdown relay to inits + waste loop
+
+[33mcommit 7bdc7745f3ea738e33d63882c1f4d9184bfb4676[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 24 03:49:39 2016 -0800
+
+    Update ADC Waste Loop
+    
+    Make two calls to IO_Driver_TaskEnd per loop (only 2 should be needed
+    without loop)
+
+[33mcommit 51e45abfb65b3d9213d9b2adf047ea2d9264c140[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 24 03:40:01 2016 -0800
+
+    Restore original handshake w/updates
+    
+    Slightly modified handshake process (always disable lockout
+    immediately).
+
+[33mcommit a597b58f500c73a418f901ca66e3290a722f6647[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 24 03:31:29 2016 -0800
+
+    Finished changing motorController object to OOP
+    
+    Abandoned function pointers inside of struct and created mcm_blaBla
+    functions instead.
+    Created all necessary accessor/mutator functions.  Note: mcm_command
+    functions are for outgoing CAN commands.  mcm_get/set update the motor
+    controller object (for incoming CAN messages)
+    Split command and handshake into separate functions, temporarily living
+    in motorController.c (even though they're not part of the mcm object).
+    Initialization function no longer needed for motor controller (mcm0
+    object is created in main).
+    TEMPORARY: Flip Eco switch on and off to enable inverter.  RTD button
+    ignored.
+
+[33mcommit 789bee70eede23febd7623dbf236ac20309c4af3[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 17 22:26:39 2016 -0800
+
+    WIP: Changing implementation of motorController to OOP
+    
+    Note: Could not get nested struct to work.  Temporarily moved command
+    variables up with prefix "commands_"
+    To do: Rewrite interface between sensors and commands
+    To do: Rewrite interface between commands and canOutput.c
+
+[33mcommit dae0d9ddd024fc44f60bffbd7e7a2e8c0a46e3f6[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 17 01:46:45 2016 -0800
+
+    Removed startup sound, handshake fix, rtds fix
+    
+    Fixed some bad logic in handshake sequence.  Moved inverter timestamp up
+    from command struct to MCM struct.
+    CAN message is being corrupted
+
+[33mcommit 9880d2fa9a8ed818d69e9aac28ab2ef634366f97[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Feb 16 19:49:25 2016 -0800
+
+    Add UNKNOWN to Status enum
+
+[33mcommit c0f0d37bddb7aad83f22351564c4c00930ea07c9[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 22:10:24 2016 -0800
+
+    Added startRTDS flag
+    
+    RTDS should not sound until MCU is actually enabled
+
+[33mcommit 5e765f386071d4ea262256961b4391fe1a8b8105[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 22:00:41 2016 -0800
+
+    Reduce RTDS time
+
+[33mcommit 76ac0227d5abfffd464acf3d9917d0920cca2a6e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 21:52:33 2016 -0800
+
+    Nothing
+
+[33mcommit cd413e98247862ba09fc6a4fdcd1cbba5d6a181b[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 21:19:33 2016 -0800
+
+    Restored ADC Waste Loop
+
+[33mcommit 8fe12e1d25aed9fd0615272ceadec2329f233f10[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 21:10:40 2016 -0800
+
+    Nothing
+    
+    No change
+
+[33mcommit 043f0ef5f066cb77552f104a41750b6fed9d4985[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 20:59:35 2016 -0800
+
+    Removed ADCWasteLoop
+    
+    Testing stuff
+
+[33mcommit 3853d626344df39b00ce0fde10b1d3a60dd2a72e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Feb 11 20:48:08 2016 -0800
+
+    Removed old handshake.  Moved RTDS
+    
+    RTDS should only sound after enabling inverter.  Needs to only sound
+    after inverter is successfully enabled.
+
+[33mcommit fbf5611bb388d9276671bf37259524c7011d86c6[m[33m ([m[1;31morigin/wheel-speed-sensor[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Feb 10 00:14:21 2016 -0800
+
+    ADC Waste Loop, Temporary Beep Button
+    
+    Added loop to waste CPU cycles while ADC is outputting garbage.
+    
+    Set up RTD button (DI_04) to beep while switch (DI_05) is on.  Part of
+    upcoming RTDS / startup procedure code.
+
+[33mcommit ed9994919f3b031de30e574b3879e1ec48caddab[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Feb 5 20:29:26 2016 -0800
+
+    Implemented OOP RTDS Startup sound
+    
+    Fixed RTDS time-to-play
+    Added shutdown helper function to main
+    Started working on new handshake procedure with RTDS
+
+[33mcommit dbafc24a62814d157db0ee6be1a5aea45a3ffa26[m
+Author: vinayponnaganti <vinay.ponnaganti@gmail.com>
+Date:   Wed Feb 3 16:32:05 2016 -0800
+
+    fixed the error with the ready to drive file.
+
+[33mcommit 4d33ac9616493b5134729ede409fc81ef3316009[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 21 03:26:34 2015 -0800
+
+    RTDS updates
+    
+    Added volume control (PWM pin).  Other fixes
+
+[33mcommit 405ce829fb5d69ffad8e064775fdbecb6ed64958[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 21 00:53:37 2015 -0800
+
+    Added RTDS object
+    
+    Created object for ready-to-drive sound.  Needs testing.
+
+[33mcommit 60f1334e9f206dc42e721ff003fa51c636942679[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Dec 19 17:16:16 2015 -0800
+
+    Changed MCU inverter/discharge command from boolean to Status
+    
+    Renamed from MCU.commands.enableInverter to MCU.commands.setInverter.
+    Same for Discharge.
+    Removed some old commented out code that we don't need anymore.
+    Added empty switch cases for BMS CAN messages.
+
+[33mcommit ecb8feb5acee7d374709910568351c5dffbbfcc7[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Fri Dec 18 01:50:58 2015 -0800
+
+    Heartbeat
+    
+    Changed heartbeat message to send every 1/8 second (125ms) if no inputs
+    change.
+    Using MCU.commands.direction to set motor direction.  Was hardcoded in
+    can message.  Still hardcoded, but now in motorcontroller_setCommands
+    Temporarily disabled sensor CAN messages.
+    Torque is now set to 0 Nm for 1 second after the inverter is enabled.
+    This prevents CAN network from crashing.  New variables were added to
+    support this, and RTC functions have been added to motorController.c
+    Torque limit is currently set to 100 Nm
+    Changed lockout bypass method: Pot must be set to BELOW 400 ohms to
+    disable the MCU's inverter lockout.  After that, torque can be commanded
+    (at > 500 ohms).  The motor control function continuously checks if the
+    MCU is in lockout (in case of e.g. MCU reboot) and will not bypass
+    lockout unless the pot is set to < 400 ohms.
+
+[33mcommit 81abdbff72311ddf9359b43fb9c9586a49b5b0fd[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Thu Dec 17 19:41:22 2015 -0800
+
+    Only send MCU control if needed
+    
+    Added timestamp check and value update check before sending MCU control
+    CAN Message
+
+[33mcommit 9ceb0f07c5abad55015e8387fccd4cbc821e3bf4[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Dec 16 13:45:25 2015 -0800
+
+    Remove extraneous lines
+    
+    Some extra lines appeared in between #includes in this file for some
+    reason...  Commenting them out for now.
+
+[33mcommit a2e467d91ccf56efc99138044b4bf3d06df43bf7[m
+Merge: c065a40 2335fb1
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Dec 16 13:43:46 2015 -0800
+
+    Merge branch 'refs/heads/StatusEnum'
+    
+    # Conflicts:
+    #       build/main.hex
+    #       sensorCalculations.c
+
+[33mcommit 2335fb1abfdc146fc764384913f34405e49d4741[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Dec 16 13:32:51 2015 -0800
+
+    Started work on preventing repeating of CAN messages if no changed data.  Small bugfix
+    
+    Added variables to MCU.command to hold timestamp of last message sent
+    and whether or not any variables have been updated since then.
+    Also was having an issue with torque command not being sent (stuck at
+    0).  Not sure why, but I shuffled around a couple lines and the problem
+    is fixed.
+
+[33mcommit c065a403c9a166059b54a3a30df654418de847d7[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Dec 16 12:29:32 2015 -0800
+
+    Fixed sensorCalculations missing reference
+    
+    Added missing #include "mathFunctions.h" needed for getPercent
+
+[33mcommit 1eb1beab17c38ba1718539eaa76db3249ca112e3[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Wed Dec 16 12:25:58 2015 -0800
+
+    Bitmasking, Status enum, #include fixes
+    
+    Changed MCU inverter/lockout status bits to a new Status enum.
+    Using bitmasking to check for MCU status bits (lockout/inverter
+    handshake) instead of a bunch of if statements.
+
+[33mcommit 7c1e5654c9d8ab1e32c10ab21e9d4dbad550c93b[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 15 18:53:50 2015 -0800
+
+    No major changes
+    
+    Set task cycle back to 5ms.
+
+[33mcommit 7ed2992c33dd9606a4e21335df5f2b345245c47c[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 15 03:03:54 2015 -0800
+
+    Reduced motor torque limit to 3Nm
+    
+    Lowered torque range due to instability of CAN.
+    Updated repo readme.
+
+[33mcommit 5fe0c17dc138091d7bae36d443bb2aead8a9cca6[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 14 19:53:42 2015 -0800
+
+    Include fixes
+    
+    Fixed #include statements pointing to mathFuntions.h
+
+[33mcommit 9d2483ea72417d9ab1cd07e41fa1fa335b270107[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 14 18:47:53 2015 -0800
+
+    Minor changes/fixes in math/CAN
+    
+    Moved getPercent to new file, mathFunctions.c/.h
+    Renamed outputCalculations to sensorCalculations.
+    Now reading both CAN channels in canInput.c
+
+[33mcommit 698836b674439c6913dd5b325d7de4d6c4d8a5cb[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Dec 12 03:56:18 2015 -0800
+
+    Revert "Revert "Motor turning!""
+    
+    This reverts commit 46d48285053ec3e3d7b8752dbe54e20b82967ca6.
+
+[33mcommit 46d48285053ec3e3d7b8752dbe54e20b82967ca6[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Dec 12 03:54:32 2015 -0800
+
+    Revert "Motor turning!"
+    
+    This reverts commit 90e1513f3f7a0b3ec0e18f5b587caf5231db762e.
+
+[33mcommit 90e1513f3f7a0b3ec0e18f5b587caf5231db762e[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Sat Dec 12 03:54:25 2015 -0800
+
+    Motor turning!
+    
+    Successfully turned motor (controlled by pot).  After some successful
+    tests, CAN began cuting out immediately after handshake.  Believed to be
+    code problem.
+
+[33mcommit 814e17e47d14fa99e14c6af7bfc8594ae7ad80a8[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 8 22:44:47 2015 -0800
+
+    Added build folder
+    
+    Added build folder (needed for make.exe to run).  Added build files to
+    .gitignore but allowed main.hex to stay, as well as make.exe.
+
+[33mcommit add09b233320570306af48b5c7e272d885984ec5[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 8 22:37:08 2015 -0800
+
+    Moved all files out of the SRE-2_VCU folder and up into the root folder.
+
+[33mcommit a65a8de3ff4430977a2e798dd1bc685d11f0f8ae[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 8 22:14:43 2015 -0800
+
+    Removed Rusty's Visual Studio stuff and TTTech make stuff.  To build this code, drop the SRE-2 VCU folder into the VCU examples folder and run make.
+
+[33mcommit b240fa8151d5e7e712b5beade664ac6cea8a4d51[m
+Merge: acc731f 269efa5
+Author: Rusty <GuySmily@users.noreply.github.com>
+Date:   Tue Dec 8 21:59:20 2015 -0800
+
+    Merge pull request #16 from spartanracingelectric/extern
+    
+    Bringing the extern stuff into the main branch.
+
+[33mcommit 269efa54e7e509a42654bfd55cac2a2c1fcdfa17[m[33m ([m[1;31morigin/extern[m[33m)[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 8 03:43:26 2015 -0800
+
+    Re-committing extern changes
+    
+    Had a problem with previous commit.  This commit contains the new code
+    changes trying to get global variables to work.
+
+[33mcommit 9f334a4e1bab3e2b1f5ad64b29489890173346cd[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Tue Dec 8 03:40:15 2015 -0800
+
+    Figuring out externs (global variables)
+    
+    Trying to handle errors with "multiple definitions" - will require
+    changes to the way defaults/instantiations are done.
+
+[33mcommit acc731fb3f1145fe626cfc94e10d534bd71052f9[m
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 7 16:11:55 2015 -0800
+
+    More work on new code structure
+    
+    Added new general can header (can.h) for common items used in both can
+    reads and writes.
+    Added MCU files/object structure (not complete) - stores MCU state and
+    current control parameters.
+    Added VCU files/object structure (not complete) - handles VCU Init
+    functions.
+    Lots of other minor updates to code organization (moving
+    variables/functions around, etc)
+
+[33mcommit 4a0ffb936d00252f22d8d00d2b32bdf72f79998d[m
+Merge: 6a4ad3e d854b06
+Author: Rusty.P <rusty@guysmily.com>
+Date:   Mon Dec 7 16:05:05 2015 -0800
+
+    Merge branch 'master' of https://github.com/spartanracingelectric/SRE-2
+
+[33mcommit d854b06093ebcffcf93c57b644f5eaa8f178889f[m
+Author: Rabeel <elahi.rabeel@yahoo.com>
+Date:   Mon Dec 7 09:24:05 2015 -0800
+
+    Handshake - Lockout disable working
+    
+    - Lockout disable command working
+    - Torque command working
+    - Added
+    periodic timer for disable lockout message
+    - CAN baud rate set to 500
+
+[33mcommit 6a4ad3e3b46e219ec842e59067d00e8928522c0c[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Wed Dec 2 21:57:55 2015 -0800
+
+    More work on code organization (split up files) - WIP
+    
+    Almost done writing .h files, populating .c files, and adding function
+    calls to main.  Also rewrote some code for constructing sensor CAN
+    messages.
+
+[33mcommit 6caf7140b673fde4ad692eb78ce0c6add27480e7[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Wed Dec 2 03:55:28 2015 -0800
+
+    CAN updates.  More file splitting/workflow stuff
+    
+    Changed VCU CAN messages to start at address 0x500.
+    WIP: Moving sensor CAN message construction into a loop with switch
+    statement.
+    WIP: Continued work dividing up code into proper chunks.  Still need to
+    write function declarations and include guards in header files.  main.c
+    needs updates.  Rabeel also investigating periodic function handling
+    provided by VCU in IO_RTC.h which may change the way we call functions
+    from main.
+
+[33mcommit 871a3b080863bb022a26f63dc05148ca599504a1[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Tue Dec 1 17:07:08 2015 -0800
+
+    Split main.c into separate files
+    
+    Moved sensor code and motor controller code into their own files.
+    Removed some unneeded test code
+
+[33mcommit e1ec246a9438b2fe32875f0af1b78173ac7ddc9e[m
+Author: Rabeel <elahi.rabeel@yahoo.com>
+Date:   Mon Nov 30 21:06:28 2015 -0800
+
+    Hand Shake Code Testing/Debugging
+    
+    - Flashed code to VCU; started debugging code
+    - The "create_CAN_frame"
+    function is working
+    - The "hand_shake" function is working up to line
+    242
+    - Fixed compiler errors
+    - Fixed some code logic
+
+[33mcommit 946849941b3e69dc2eb0bb26b3599aff94ce88a9[m
+Author: Rabeel <elahi.rabeel@yahoo.com>
+Date:   Mon Nov 30 21:00:38 2015 -0800
+
+    Initial Upload of Hand Shake Code
+
+[33mcommit 6d49740bcac58de266329e1718d6b8e2c30d0ad8[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Wed Nov 18 03:39:13 2015 -0800
+
+    More PWM RTDS fixes, added MCU CAN message.
+    
+    - Fixed RTDS PWM % calculation typecasting bug
+    - Changed RTDS test pins around
+    - RTDS code tested successfully - PWM control works!
+    - Added CAN message definition for Rinehart
+    - Added TPS calibration check to GetThrottlePosition
+    - Fixed some comments
+
+[33mcommit 57b0a7132b19f747fc1d386dd45706a7cce8ca43[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Wed Nov 18 00:27:25 2015 -0800
+
+    PWM-controlled RTDS working
+    
+    Removed extra RTDS tests.
+    Left IO_DO (4A digital output) and IO_PWM (2A) examples in place.
+    Note: The old RTDS device still makes sound when "off" but the new one
+    works as expected.  Investigation required.
+
+[33mcommit 46260221679da6d63cc3bfee3bf3968f45418b0f[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Mon Nov 16 23:22:09 2015 -0800
+
+    Added more RTDS tests
+    
+    Added additional RTDS test pins (temporary): 103-106, 115-118, 144 -
+    some fixed on/off, some variable (PWM)
+    Added missing VCU header file: ptypes_xe167.h
+
+[33mcommit f4754b82cd2a891f360ac44e9da8bc3712fe8da6[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Mon Nov 16 22:12:58 2015 -0800
+
+    Ready-to-drive-sound (RTDS) test code
+    
+    Added code to test RTDS output at IO_DO_00 (Pin 144, 4A power output).
+    Output turns on/off (true = "high" / false = "low") when front right
+    shockpot (IO_ADC_5V_05) passes 1000 ohms (or whatever resistance is
+    represented by "1000").
+    Fixed IO_ADC_Get channel numbers (was only refreshing channel 04, FL
+    shockpot).
+    Updated some comments.
+
+[33mcommit 677516c6ed981042f8ca7a2c384de2a533b5061d[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Sun Nov 15 19:11:22 2015 -0800
+
+    Added CAN_FIFO and fixed can message byte splitting
+    
+    This commit has a lot of commented chunks of code while I experiment
+    with new CAN messages and such.
+
+[33mcommit 9c2fee8dec9b88a8f392d5a73efaafc78e9a2eaf[m
+Author: Rusty <rusty@pedrosatech.com>
+Date:   Tue Nov 10 21:43:33 2015 -0800
+
+    Initial upload of VCU project
+    
+    This is Rusty's VS2015 project folder.  My goal is to have a standalone
+    Visual Studio project (complete with the TASKING C166 compiler).  Our
+    VCU code is in main.c.  main.c is not complete.  Large chunks of code
+    are commented out because I could not get CAN FIFO to work, so I am
+    trying to report only WPS data via IO_CAN_WriteMsg.
+
+[33mcommit d0eb41795a6707a463e355fcde669f40d62d77da[m
+Author: alexsternberg <alexbsternberg@gmail.com>
+Date:   Tue Oct 20 22:00:08 2015 -0700
+
+    Initial commit

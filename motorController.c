@@ -15,6 +15,7 @@
 #include "serial.h"
 
 #include "canManager.h"
+#include "TractionControl.h"
 
 extern Sensor Sensor_BenchTPS0;
 extern Sensor Sensor_BenchTPS1;
@@ -184,7 +185,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
     {
     case REGENMODE_FORMULAE: //Position 1 = Coasting mode (Formula E mode)
         me->regen_mode = 1;
-        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+        me->regen_torqueLimitDNm = me->torqueMaximumDN\m * 0.5;
         me->regen_torqueAtZeroPedalDNm = 0;
         me->regen_percentAPPSForCoasting = 0;
         me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
@@ -200,7 +201,15 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 
     case REGENMODE_TESLA: //Position 3 = One pedal driving (Tesla mode)
         me->regen_mode = 3;
-        me->regen_torqueLimitDNm = 1000;
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * .5;
+        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
+        me->regen_percentAPPSForCoasting = .1;
+        me->regen_percentBPSForMaxRegen = 0;
+        break;
+
+    case REGENMODE_FIXED: //Position 4 = Fixed Regen
+        me->regen_mode = 4;
+        me->regen_torqueLimitDNm = 250; //1000 = 100Nm
         me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
         me->regen_percentAPPSForCoasting = .05;
         me->regen_percentBPSForMaxRegen = 0;
@@ -218,7 +227,6 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
     case REGENMODE_OFF:
     default:
         me->regen_mode = REGENMODE_OFF;
-
         me->regen_torqueLimitDNm = 0;
         me->regen_torqueAtZeroPedalDNm = 0;
         me->regen_percentAPPSForCoasting = 0;
@@ -267,10 +275,11 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
 
+    
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    torqueOutput = appsTorque + bpsTorque - TCTorque;
+    torqueOutput = appsTorque + bpsTorque + tcTorque;
     //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
@@ -728,8 +737,8 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
-    sbyte2 wheelRPM = me->motorRPM / 3.6; //needs to be changed to Gear Ratio variable instead of hard code
-    float4 tireCircumference = 3.141592653589 * 18 * .0254; // (pi * diameter * in to m) = circumference in meters
+    sbyte2 wheelRPM = me->motorRPM / 3.6; //Adjust by gear ratio
+    float4 tireCircumference = 3.141592653589 * 16 * .0254; // (pi * diameter * in to m) = circumference in meters
     sbyte2 groundKPH = wheelRPM / 60 * tireCircumference;
     return groundKPH;
 }
