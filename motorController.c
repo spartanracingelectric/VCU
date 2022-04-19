@@ -279,7 +279,11 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
+<<<<<<< HEAD
     torqueOutput = appsTorque + bpsTorque + tcTorque;
+=======
+    torqueOutput = appsTorque + bpsTorque // - TCTorque; //needs fixing, also need to call out tractionControl
+>>>>>>> 076c53a1462aa72a5e2f480a7b31dfbe6c604ac3
     //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
