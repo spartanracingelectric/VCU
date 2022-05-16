@@ -416,7 +416,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->notices &= ~N_HVILTermSenseLost;
     }
 
-    if (BMS_getPower(bms) > 75000)
+    if (BMS_getPower_W(bms) > 75000)
     {
         me->notices |= N_Over75kW_BMS;
     }
