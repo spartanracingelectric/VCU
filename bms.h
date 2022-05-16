@@ -1,24 +1,6 @@
 #ifndef _BATTERYMANAGEMENTSYSTEM_H
 #define _BATTERYMANAGEMENTSYSTEM_H
 
-/**************************************************************************
- * 	REVISION HISTORY:
- *
- *	2016-5-11 - Rabeel Elahi - Added bms_commands_getPower();
- *							 - Added bms_commands_getPackTemp();
- *
- *	2016-4-6  - Rabeel Elahi - Added constructor and BMS data struct
- *							 - Initially added helper functions to update variables,
- *							   but decided to update variables by passing BMS pointer to
- *							   canInput_readMesagges(BMS* bms). Commented out for future use.
- *							 - Added functions to help with endian conversion.
- *							   Possibly move to mathFunctions?
- *
- *	2016-3-28 - Rabeel Elahi - Created this file.
- *
- *
- **************************************************************************/
-
 #include <stdio.h>
 #include <stdint.h>
 
@@ -137,73 +119,6 @@ typedef enum LimitCause{
 } LimitCause;
 
 #define ERROR_READING_LIMIT_VALUE = -1
-
-
-
-
-
-
-//
-//// ELITHION BMS OPTIONS //
-//
-//ubyte1  updateState();
-//ubyte2 updateTimer();
-//ubyte1  updateFlags();
-//ubyte1  updateFaultCode();
-//ubyte1  updateLevelFaults();
-//
-//// PACK //
-//
-//ubyte2 updatePackVoltage(); 	// volts
-//ubyte1  updateMinVtg(); 		// volts; individual cell voltage
-//ubyte1  updateMaxVtg();
-//ubyte1  updateMinVtgCell();
-//ubyte1  updateMaxVtgCell();
-//
-//
-//// CURRENT //
-//
-//sbyte2  updatePackCurrent(); 	 			// amps
-//ubyte2 updateChargeLimit();				// 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//ubyte2 updateDischargeLimit();			// 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//
-//// BATTERY //
-//
-//ubyte4 batteryEnergyIn();
-//ubyte4 batteryEnergyOut();
-//
-//
-//ubyte1  updateSOC();
-//ubyte2 updateDOD();
-//ubyte2 updateCapacity();
-//ubyte1  updateSOH();
-//
-//// TEMP //
-//
-//sbyte1  updatePackTemp();			     // average pack temperature
-//sbyte1  updateMinTemp();			     // Temperature of coldest sensor
-//sbyte1  updateMinTempCell(); 		     // ID of cell with lowest temperature
-//sbyte1  updateMaxTemp();			     // Temperature of hottest sensor
-//sbyte1  updateMaxTempCell(); 		     // ID of cell with highest temperature
-//
-//
-//// RESISTANCE //
-//
-//ubyte2 updatePackRes();				// resistance of entire pack
-//ubyte1  updateMinRes();  			// resistance of lowest resistance cells
-//ubyte1  updateMinResCell();          // ID of cell with lowest resistance
-//ubyte1  updateMaxRes();				// resistance of highest resistance cells
-//ubyte1  updateMaxResCell();			// ID of cell with highest resistance
-//
-//LimitCause updateChargeLimitCause();
-//LimitCause updateDischargeLimitCause();
-
-//
-////void getFaults(FaultOptions *presentFaults, StoredFault *storedFault, FaultOptions *presentWarnings);
-//void clearStoredFault();
-//
-//IOFlags getIOFlags();
-//
 
 
 #endif // _BATTERYMANAGEMENTSYSTEM_H

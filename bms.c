@@ -7,34 +7,11 @@
 #include "serial.h"
 #include "mathFunctions.h"
 
-/**************************************************************************
- *     REVISION HISTORY:
- *    2016-5-11 - Rabeel Elahi - Added bms_commands_getPower();
- *                             - Added bms_commands_getPackTemp();
- *                             
- *  2016-4-20 - Rabeel Elahi - Added bms_parseCANMessage()
- *                             - Moved cases back to bms.c
- *                             - Added #includes
- *                             - Leaving endian conversion functions until new CAN manager complete
- *
- *     2016-4-8 - Rabeel Elahi - Moved cases to canInput.c
- *                            - Moved endian conversion functions to canInput.c
- *                            - Changed uints to ubytes
- *
- *    2016-4-7 - Rabeel Elahi - Created this file.
- *                            - Defined cases for BMS can messages
- *                            - TODO: Rename variable types to VCU types
- *                            - TODO: Move canInput_readMesagges to caninput.c
- *                            - TODO: Move ENDIAN conversion helper functions to caninput.c?
- *
- *
- **************************************************************************/
-
-/**********************************************************
- *               *********** CAUTION ***********              *
- * MULTI-BYTE VALUES FOR THE ELITHION BMS ARE BIG-ENDIAN  *
- *                                                          *
- **********************************************************/
+/*********************************************************
+ *            *********** CAUTION ***********            *
+ * MULTI-BYTE VALUES FOR THE STAFL BMS ARE LITTLE-ENDIAN *
+ *                                                       *
+ *********************************************************/
 
 struct _BatteryManagementSystem
 {
@@ -289,54 +266,3 @@ ubyte1 BMS_getDCL(BatteryManagementSystem *me)
     //return me->DCL;
     return me->dischargeLimit;
 }
-
-// ELITHION BMS OPTIONS //
-
-//ubyte1  updateState(BMS*);
-//ubyte2 updateTimer();
-//ubyte1  updateFlags();
-//ubyte1  updateFaultCode();
-//ubyte1  updateLevelFaults();
-//
-//// PACK //
-//
-//ubyte2 updatePackVoltage();     // volts
-//ubyte1  updateMinVtg();         // volts; individual cell voltage
-//ubyte1  updateMaxVtg();
-//ubyte1  updateMinVtgCell();
-//ubyte1  updateMaxVtgCell();
-//
-//// CURRENT //
-//
-//sbyte2  updatePackCurrent();                  // amps
-//ubyte2 updateChargeLimit();                // 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//ubyte2 updateDischargeLimit();            // 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//
-//ubyte1  updateSOC();            // Returns a value from 0-100
-//ubyte2 updateDOD();            // (Ah)
-//ubyte2 updateCapacity();
-//ubyte1  updateSOH();
-//
-//// TEMP //
-//
-//sbyte1  updatePackTemp();            // average pack temperature
-//sbyte1  updateMinTemp();                // Temperature of coldest sensor
-//sbyte1  updateMinTempCell();         // ID of cell with lowest temperature
-//sbyte1  updateMaxTemp();                // Temperature of hottest sensor
-//sbyte1  updateMaxTempCell();         // ID of cell with highest temperature
-//
-//ubyte2 updatePackRes();                // resistance of entire pack
-//ubyte1  updateMinRes();              // resistance of lowest resistance cells
-//ubyte1  updateMinResCell();          // ID of cell with lowest resistance
-//ubyte1  updateMaxRes();                // resistance of highest resistance cells
-//ubyte1  updateMaxResCell();            // ID of cell with highest resistance
-//
-//
-//LimitCause updateChargeLimitCause();
-//LimitCause updateDischargeLimitCause();
-//
-//
-////void getFaults(FaultOptions *presentFaults, StoredFault *storedFault, FaultOptions *presentWarnings);
-//void clearStoredFault();
-//
-//IOFlags getIOFlags();
