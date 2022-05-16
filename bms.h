@@ -8,6 +8,38 @@
 #include "IO_CAN.h"
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// STAFL BMS CAN PROTOCOL CONSTANTS, offsets from base address                   //
+// Ex: canMessageBaseId + BMS_MASTER_FAULTS = Address 0x(canMessageBaseId+0x002) //
+// CAN Protocol datasheet can be found in:                                       //
+// SRE drive -> SRE Software -> Documentation -> Datasheets -> BMS -> Stafl      //
+///////////////////////////////////////////////////////////////////////////////////
+
+// BMS Received Messages (VCU --> BMS)
+#define BMS_STATE_COMMAND                   0x000   //2 bytes, Control BMS state transition
+#define BMS_CHARGER_COMMAND                 0x008   //4 bytes, Control BMS charging behavior
+
+// BMS Transmitted Messages (BMS --> VCU)
+#define BMS_MASTER_FAULTS                   0x002   //4 bytes
+#define BMS_MASTER_WARNINGS                 0x004   //4 bytes 
+#define BMS_MASTER_SYSTEM_STATUS            0x010   //8 bytes
+#define BMS_PACK_SAFE_OPERATING_ENVELOPE    0x011   //8 bytes
+#define BMS_MASTER_LOCAL_BOARD_MEASUREMENTS 0x012   //8 bytes
+#define BMS_DIGITAL_INPUTS_AND_OUTPUTS      0x013   //2 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_1       0x020   //8 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_2       0x021   //8 bytes
+#define BMS_CELL_VOLTAGE_SUMMARY            0x022   //8 bytes
+#define BMS_CELL_TEMPERATURE_SUMMARY        0x023   //8 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_3       0x024   //8 bytes
+#define BMS_CELL_VOLTAGE_DATA               0x030   //8 bytes
+#define BMS_CELL_TEMPERATURE_DATA           0x080   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_1          0x0D0   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_2          0x0D1   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_3          0x0D2   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_4          0x0D3   //8 bytes
+#define BMS_CONFIGUATION_INFORMATION        0x0FC   //8 bytes
+#define BMS_FIRMWARE_VERSION_INFORMATION    0x0FE   //4 bytes
+
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
 BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
