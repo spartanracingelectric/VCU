@@ -323,7 +323,7 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getMaxTemp(bms));
+        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms));
         //CoolingSystem_calculations(cs, 20, 20, 20);
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
