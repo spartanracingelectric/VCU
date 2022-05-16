@@ -40,6 +40,15 @@
 #define BMS_CONFIGUATION_INFORMATION        0x0FC   //8 bytes
 #define BMS_FIRMWARE_VERSION_INFORMATION    0x0FE   //4 bytes
 
+// BMS Scaling factors
+// X/SCALE
+#define BMS_VOLTAGE_SCALE                   1000    //V*1000, milliVolts to Volts
+#define BMS_CURRENT_SCALE                   1000    //A*1000, milliAmps to Amps
+#define BMS_POWER_SCALE                     BMS_VOLTAGE_SCALE*BMS_CURRENT_SCALE //(V*1000)*(A*1000), microWatts to Watts
+#define BMS_TEMPERATURE_SCALE               10      //degC*10, deciCelsius to Celsius
+#define BMS_PERCENT_SCALE                   10      //%*10, percent*10 to percent
+#define BMS_AMP_HOURS_SCALE                 10      //Ah*10, deciAmpHours to AmpHours
+
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
 BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
@@ -48,10 +57,12 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 // BMS COMMANDS // 
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
-sbyte4 BMS_getPower(BatteryManagementSystem* me);
+sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts (higher resolution)
+sbyte4 BMS_getPower_W(BatteryManagementSystem* me);                 //Watts
 ubyte2 BMS_getPackTemp(BatteryManagementSystem* me);
 sbyte1 BMS_getAvgTemp(BatteryManagementSystem* me);
-sbyte1 BMS_getMaxTemp(BatteryManagementSystem* me);
+sbyte1 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
+sbyte1 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
 
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);
