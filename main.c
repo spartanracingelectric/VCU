@@ -209,7 +209,7 @@ void main(void)
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
-    BatteryManagementSystem *bms = BMS_new(serialMan, 0x620);
+    BatteryManagementSystem *bms = BMS_new(serialMan, 0x600);
     CoolingSystem *cs = CoolingSystem_new(serialMan);
 
     //----------------------------------------------------------------------------
