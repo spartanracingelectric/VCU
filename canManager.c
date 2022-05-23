@@ -364,10 +364,13 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         //-------------------------------------------------------------------------
         //BMS
         //-------------------------------------------------------------------------
+        case 0x623:
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
         case 0x620:
         case 0x621:
         case 0x622:
-        case 0x623:
+        //case 0x623:
         case 0x624:
         case 0x625:
         case 0x626:
