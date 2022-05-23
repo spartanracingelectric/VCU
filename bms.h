@@ -15,6 +15,9 @@
 // SRE drive -> SRE Software -> Documentation -> Datasheets -> BMS -> Stafl      //
 ///////////////////////////////////////////////////////////////////////////////////
 
+// BMS Base Address
+#define BMS_BASE_ADDRESS                    0x600
+
 // BMS Received Messages (VCU --> BMS)
 #define BMS_STATE_COMMAND                   0x000   //2 bytes, Control BMS state transition
 #define BMS_CHARGER_COMMAND                 0x008   //4 bytes, Control BMS charging behavior
