@@ -78,8 +78,8 @@ struct _BatteryManagementSystem
     ubyte2 lowestCellVoltagePos;                //1:0, 1-N
 
     // BMS_CELL_TEMPERATURE_SUMMARY //
-    ubyte2 highestCellTemperature;              //7:6, degC*10
-    ubyte2 lowestCellTemperature;               //5:4, degC*10
+    sbyte2 highestCellTemperature;              //7:6, degC*10
+    sbyte2 lowestCellTemperature;               //5:4, degC*10
     ubyte2 highestCellTemperaturePos;           //3:2, 1-N
     ubyte2 lowestCellTemperaturePos;            //1:0, 1-N
 
@@ -399,7 +399,7 @@ sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
 }
 */
 //Split into
-sbyte1 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
+sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
 {
     char buffer[32];
     sprintf(buffer, "highestCellTemp (degC*10): %i\n", (me->highestCellTemperature));
@@ -408,7 +408,7 @@ sbyte1 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
     return (me->highestCellTemperature);
 }
 
-sbyte1 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
+sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
 {
     char buffer[32];
     sprintf(buffer, "highestCellTemp (degC): %i\n", (me->highestCellTemperature/BMS_TEMPERATURE_SCALE));
