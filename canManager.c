@@ -709,6 +709,23 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
+    
+    //50D: BMS Loopback Test
+    //canMessageCount++;
+    //byteNum = 0;
+    //canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    //canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    //canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
+    //canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    //canMessages[canMessageCount - 1].length = byteNum;
+    
+
     //511: SoftBSPD
     // ubyte1 flags = sc->softBSPD_bpsHigh;
     // flags |= sc->softBSPD_kwHigh << 1;
