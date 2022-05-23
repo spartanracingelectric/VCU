@@ -146,6 +146,8 @@ BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBase
 
     me->packCurrent = 0;
     me->packVoltage = 0;
+    //Repick a new value, maybe 0xFFFF?
+    me->highestCellTemperature = 0;
 
     return me;
 }
