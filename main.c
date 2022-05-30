@@ -46,6 +46,7 @@
 #include "sensorCalculations.h"
 #include "serial.h"
 #include "cooling.h"
+#include "TractionControl.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -115,7 +116,6 @@ extern Sensor Sensor_WPS_RL;
 extern Sensor Sensor_WPS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
-
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
@@ -207,6 +207,8 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     BatteryManagementSystem *bms = BMS_new(serialMan, 0x620);
     CoolingSystem *cs = CoolingSystem_new(serialMan);
+    PIDController *pid = PIDcontroller_init();
+    TractionControl *tc = TractionControl_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -268,7 +270,7 @@ void main(void)
         /*******************************************/
         /*          Perform Calculations           */
         /*******************************************/
-        //calculations - Now that we have local sensor data and external data from CAN, we can
+        //calculations - ensor data and external data from CAN, we canNow that we have local s
         //do actual processing work, from pedal travel calcs to traction control
         //calculations_calculateStuff();
 
@@ -305,10 +307,14 @@ void main(void)
         BrakePressureSensor_update(bps, bench);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
 
-        //TractionControl_update(tps, mcm0, wss, daq);
+ 
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
+
+        //TractionControl_update(tps, mcm0, wss, daq);
+        slipRatio_calc(wss);                    // Calculates current slip ratio after wheelspeed update 
+                                                            //****CHECK*** where does this need to be called out
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
@@ -327,8 +333,13 @@ void main(void)
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
         MCM_setRegenMode(mcm0, REGENMODE_TESLA); // TODO: Read regen mode from DCU CAN message - Issue #96
-        // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        MCM_calculateCommands(mcm0, tps, bps);
+        
+        //Read Traction Control settings
+        setTCPIDControlgains_slip(PIDController *pid);
+        TC_setMode(TCSMode);
+        MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
+
+        MCM_calculateCommands(mcm0, tps, bps, tc);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 
