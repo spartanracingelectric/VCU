@@ -20,13 +20,10 @@
 ****************************************************************************/
 
 /*
-                           
-//Do these need to be called here? isn't used here atm. Needs to be integrated into TCSMode switch
 
 ****** Unnecessary due to #include initializations.h"
 extern Sensor Sensor_TCSSwitchUp;   // used currently for regen 
-extern Sensor Sensor_TCSSwitchDown; // used curr\
-ently for regen
+extern Sensor Sensor_TCSSwitchDown; // used currently for regen
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 
 */
@@ -39,17 +36,19 @@ struct _TractionControl
     float slipAngle; //Need steering angle measurement fed through CAN to VCU
     float slipAim; 
     sbyte2 tcTorque;
+    bool tcStatus;
 };
 
 
 //Initialize the values of each element of struct tc
-TractionControl *TractionControl_new()
+TractionControl *TractionControl_new(void)
 {
     TractionControl *tc = (TractionControl *)malloc(sizeof(struct _TractionControl));
     tc->slipRatio = 0;
     tc->slipAngle = 0;
     tc->slipAim = 0;
     tc->tcTorque = 0;
+    tc->tcStatus = FALSE;
 
     return tc;
 }
@@ -72,7 +71,9 @@ void setTCPIDControlgains_slip(PIDController *pid)
 	pid->Ki = 0.0f
 	pid->Kd = 0.3f
 
-    pid->T = .00001f //Sampling Time of discrete controller in seconds //HY-TTC-60 10kHz Timer In *Is this the correct sampling time?
+    pid->T = .033f   //Sampling Time of discrete controller in seconds //HY-TTC-60 10kHz Timer In *Is this the correct sampling time?
+                     // main.c loop is running on 33ms cycle time (30hz). How fast are wheel speed sensors? 
+                     // Can only control Nyquist frequency for controller to 15hz?
     pid->tau = 0.0f
 }
 
@@ -86,15 +87,19 @@ void setTCPIDControlgains_slip(PIDController *pid)
     *  R_e = Effective Tire Radius
     *  V = Vehicle Speed (or belt surface speed)
     *  α = Slip Angle
-    // If Slip angle is set to 0, Slip ratio will be pure longitudinal slip    
+    // If Slip angle is set to 0, Slip ratio will be pure longitudinal slip. Slip Angle is not currently calculated
+    // Tire sees peak tractive forces from .1 to .15 slip ratio (RCVD pg37), and peak lateral forces at ~3-7 deg slipAngle RCVD(pg30)
+    // Read paper Slip Angle Estimation: Development and Experimental Evaluation Seung-Hi Lee   
 * Compares SlipActual calculations between motor speed, front wheel speeds, Rear Wheel Speeds and GPS speed(TBD) in the event a sensor may be in error
 **********************************************************************************************************************/
-void slipRatio_calc(WheelSpeeds *me, Tractioncontrol *tc) //Sensor_GPS?
+void slipRatio_calc(WheelSpeeds *me, TractionControl *tc) //Sensor_GPS?
 { 
         //Free Wheel vs Driven Wheel **(AWD will require some independent form of vehicle speed)** 
         
-        tc->slipRatio = (WheelSpeeds_getSlowestFront(me) / WheelSpeeds_getFastestRear(me)) - 1 ; 
+        tc->slipRatio = (WheelSpeeds_getSlowestFront(me) / (WheelSpeeds_getFastestRear(me))*cos(tc->slipAngle)) - 1 ; 
             //Is there an instance where you would want to choose the faster front? i.e. when there is steering angle
+            //slipRatio will turn negative when slip occurs under braking
+            
         
         /*
         //Front Wheel Speed vs Groundspeed (through MotorSpeed) 
@@ -110,9 +115,6 @@ void slipRatio_calc(WheelSpeeds *me, Tractioncontrol *tc) //Sensor_GPS?
         //Needs if statements for checks in case the sensors are broken
 }
 
-
-
-
 // If wheel speed differences between left and right exceed X amount, swap calculation method. Kalman Filter?
 // If front wheels are turned (i.e. SteeringAngle != 0), Front and Rear wheel speed differences will be non-zero 
 // If rear wheels are independently driven (inhub motors), wheel speed differences vs average?
@@ -127,13 +129,12 @@ void slipRatio_calc(WheelSpeeds *me, Tractioncontrol *tc) //Sensor_GPS?
  ** Slip generally does not exceed -.2 and +.2 within grip according to telemetry data
 
 *Slip Aim
-   //Allowable Slip Ratio Target (changes at different velocities due to downforce)
+    //Allowable Slip Ratio Target (changes at different velocities due to downforce) and slip angle see RCVD(pg42)
     //Can be made into a map/multidimensional array of velocity, slip angle, against slip target,
     //Value between between needs to be within the range of -slipAim < X < slipAim for both braking and acceleration
     //Slipratio of 1 is complete slippage
 
  **********************************************************************************/
-
 void TC_setTCMode(TCSMode) 
 {
     switch (TCSMode) 
@@ -152,7 +153,8 @@ void TC_setTCMode(TCSMode)
 
         case TC0: //Traction control OFF
         default:
-            tc->slipAim = 1.0;
+            //tc->slipAim = 9999999999.0;
+            tc->tcTorque = 0;
             break;
         
     }
@@ -167,68 +169,36 @@ Torque Reduction
 
 void tcTorqueReduction(PIDController *pid, TractionControl *tc)
 {       
-        if (tc->slipRatio > tc->slipAim)
+    if (TCSMode != TC0) //If traction control setting is not set to OFF
+    {
+        if (tc->slipRatio >= tc->slipAim)
         {
+            tc->tcStatus = TRUE; //TC active
             tc->tcTorque = PIDController_Update(PIDController *pid, tc->slipAim, tc->slipRatio); //**tcTorque is an sbyte2 but PIDController_Update is a float??
             //Apply traction control when slipRatio exceeds slipAim under Acceleration
         }
-        else if (tc->slipRatio < -1*tc->slipAim)
+        else if (tc->slipRatio <= -1*tc->slipAim)
         {
+            tc->tcStatus = TRUE; //TC active
             tc->tcTorque = PIDController_Update(PIDController *pid, -1*tc->slipAim, tc->slipRatio)
             //Apply traction control when slipRatio exceeds slipAim under Braking
         }
         else
         {
+            tc->tcStatus = FALSE; //TC off
             tc->tcTorque = 0;
             //If slipRatio is within slipAim bounds, do not apply torque reduction
         }
-}
-
-//NEEDS TO BE APPLIED TO MAIN LOOP, slipRatio_calc and tcTorque Reduction should be re-evaluated in every step
-
-
-
-/************************
- *POOR MAN's PID Control
- **********************
-
-void torqueTrim(MotorController *me, WheelSpeeds *me) { //need to call this out in motorcontroller (CODE WAS hanging without method)
- if (abs(SlipRatio(MotorController *me, WheelSpeeds *me)) > slipAim && ThrottlePos > 5); //Compares SlipActual value against SlipAim, is this right way to call out SlipActual? Checks if Throttle is actuated at 5%
-    {
-        for (i=0, abs(SlipRatio(MotorController *me, WheelSpeeds *me)) > slipAim ,i++)
-            me->TCTorque = TCMultiplier*i; //reduces TCMultiplier Nm of Toruqe for every instance it sees that SlipRatio > Slip Aim
-                                            //careful so that TorqueOutput does not become negative
-                                            //Does this keep recalculating SlipRatio through the for loop?
     }
-
-else
-    me->tcTorque = 0; //How does this pointer get stored?    
+    else if(TCSMode = TC0) //If traction control setting is set to OFF
+    {
+        tc->tcStatus = FALSE; //TC off
+        tc->tcTorque = 0;
+    }
 }
 
+//Display Traction Control Light active if tcStatus = TRUE
+//CAN message should be added to send 1 if tcStatus = TRUE and 0 if FALSE for DAQ logging
 
-*****************************/
-
-
-//TractionControl Function torqueTrim needs to be called out in motorController.c
-
-//need to add this TCTorque pointer element into motorcontroller
-
-//Currently poorman's control system, does not reduce torque relative to error 
-//Actual Control system will reduce torque until slip aim target is achieved
-//**For ABS, BPS needs to be triggered instead**
-
-//Display Traction Control Light active
-
-
-
-
-//if slip ratio exceed this amount, reduce max torque? or getTorquedemand, 
-//reduce by 5Nm, and then return back original value
-
-//how come the regen modes arent written as methods of an object i.e. regenmode.TorqueLimitDNm
-
-//maps of traction/torque against vehicle speed/slip ratio/steering angle
-
-
-//add include "TractionControl.h" to motorController for TCTorque
+//maps of traction/torque against vehicle speed/slip ratio/slip angle
 

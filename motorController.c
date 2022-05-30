@@ -275,8 +275,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
 
-    tcTorqueReduction(pid, tc); // Adjusts TC torque output modifier based on slip ratio error
-                                // Pulls PID gains, and traction control settings from struct pid and tc
+    tcTorqueReduction(pid, tc); //Adjusts traction Control torque output modifier based on slip ratio error
+                                // Pulls PID gains, and TC settings from struct pid
     
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
