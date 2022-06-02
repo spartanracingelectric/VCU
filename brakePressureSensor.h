@@ -12,7 +12,7 @@ typedef struct _BrakePressureSensor
     bool bench;
 
     Sensor *bps0;
-    //Sensor* bps1;
+    Sensor* bps1;
 
     ubyte2 bps0_calibMin; //2 bytes for ADC, 4 bytes if switch to digital/timer/PWM
     ubyte2 bps0_calibMax;
@@ -20,12 +20,12 @@ typedef struct _BrakePressureSensor
     ubyte2 bps0_value;
     float4 bps0_percent;
 
-    /*ubyte4 bps1_calibMin;
-    ubyte4 bps1_calibMax;
+    ubyte2 bps1_calibMin;
+    ubyte2 bps1_calibMax;
     bool bps1_reverse; 
-    ubyte4 bps1_value;
+    ubyte2 bps1_value;
     float4 bps1_percent;
-    */
+    
 
     bool runCalibration;
     ubyte4 timestamp_calibrationStart;
