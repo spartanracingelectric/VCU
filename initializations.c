@@ -64,8 +64,8 @@ void vcu_initializeADC(bool benchMode)
     IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL);
 
     //Accum fan signal
-    //IO_PWM_Init(IO_PWM_04, 100, TRUE, FALSE, 0, FALSE, NULL);
-    //IO_PWM_SetDuty(IO_PWM_04, .90 * 0xFFFF, NULL);
+    IO_PWM_Init(IO_PWM_04, 100, TRUE, FALSE, 0, FALSE, NULL);
+    IO_PWM_SetDuty(IO_PWM_04, 1.00 * 0xFFFF, NULL);    //Default 100%, build up momentum in fans or whatever? Lol
 
     //----------------------------------------------------------------------------
     //ADC channels
@@ -102,7 +102,7 @@ void vcu_initializeADC(bool benchMode)
     //Unused
     //IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
 
-    //Steering Angle Sensor
+    //Steering Angle Sensor for DRS
     //Sensor_SAS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
 
     //TCS Pot
