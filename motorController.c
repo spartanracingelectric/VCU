@@ -283,10 +283,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
-    //me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
+    me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
 
     //Temporarily disable MCM relay control via HVILOverride
-    me->HVILOverride = FALSE;
+    //me->HVILOverride = FALSE;
 
     // Inverter override
     if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
