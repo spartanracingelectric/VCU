@@ -132,6 +132,8 @@ struct _BatteryManagementSystem
     ubyte1 fwMinorVerNum;                       //1, , 0.X.0
     ubyte1 fwRevNum;                            //0, , 0.0.X
 
+    bool relayState;
+
     // signed = 2's complement: 0XfFF = -1, 0x00 = 0, 0x01 = 1
 };
 
@@ -153,6 +155,8 @@ BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBase
     me->faultFlags1 = 0;
     //me->faultFlags0 = 0xFF;
     //me->faultFlags1 = 0xFF;
+
+    me->relayState = FALSE;
 
     return me;
 }
@@ -397,6 +401,28 @@ void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCan
             break;
     }
 }
+
+void BMS_relayControl(BatteryManagementSystem *me)
+{
+    //////////////////////////////////////////////////////////////
+    // Digital output to drive a signal to the Shutdown signal  //
+    // based on AMS fault detection                             //
+    //////////////////////////////////////////////////////////////
+
+    //There is a fault
+    if (me->faultFlags0 || me->faultFlags1)
+    {
+        me->relayState = TRUE;
+        IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
+    }
+    //There is no fault
+    else
+    {
+        me->relayState = FALSE;
+        IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
+    }
+}
+
 /*
 sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
 {
@@ -468,23 +494,9 @@ ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
     return me->faultFlags1;
 }
 
-void BMS_relayControl(BatteryManagementSystem *me)
-{
-    //////////////////////////////////////////////////////////////
-    // Digital output to drive a signal to the Shutdown signal  //
-    // based on AMS fault detection                             //
-    //////////////////////////////////////////////////////////////
-
-    //There is a fault
-    if (me->faultFlags0 || me->faultFlags1)
-    {
-        IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
-    }
-    //There is no fault
-    else
-    {
-        IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
-    }
+bool BMS_getRelayState(BatteryManagementSystem *me) {
+    //Return state of shutdown board relay
+    return me->relayState;
 }
 
 /*

@@ -60,6 +60,7 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 // BMS COMMANDS // 
 
 void BMS_relayControl(BatteryManagementSystem *me);
+bool BMS_getRelayState(BatteryManagementSystem *me);
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts (higher resolution)
