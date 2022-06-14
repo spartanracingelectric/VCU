@@ -59,6 +59,8 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 
 // BMS COMMANDS // 
 
+void BMS_relayControl(BatteryManagementSystem *me);
+
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts (higher resolution)
 sbyte4 BMS_getPower_W(BatteryManagementSystem* me);                 //Watts
@@ -66,6 +68,8 @@ ubyte2 BMS_getPackTemp(BatteryManagementSystem* me);
 sbyte1 BMS_getAvgTemp(BatteryManagementSystem* me);
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
 
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);

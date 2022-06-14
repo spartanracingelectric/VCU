@@ -364,18 +364,48 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         //-------------------------------------------------------------------------
         //BMS
         //-------------------------------------------------------------------------
-        case 0x623:
+        case 0x600:
+        case 0x602: //Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
+        case 0x604:
+        case 0x608:
+        case 0x610:
+        case 0x611:
+        case 0x612:
+        case 0x613:
         case 0x620:
         case 0x621:
         case 0x622:
-        //case 0x623:
+        case 0x623:
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
         case 0x624:
-        case 0x625:
-        case 0x626:
-        case 0x627:
-        case 0x628:
+        //1st Module
+        case 0x630:
+        case 0x631:
+        case 0x632:
+        //2nd Module
+        case 0x633:
+        case 0x634:
+        case 0x635:
+        //3rd Module
+        case 0x636:
+        case 0x637:
+        case 0x638:
+        //4th Module
+        case 0x639:
+        case 0x63A:
+        case 0x63B:
+        //5th Module
+        case 0x63C:
+        case 0x63D:
+        case 0x63E:
+        //6th Module
+        case 0x63F:
+        case 0x640:
+        case 0x641:
+
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
@@ -731,20 +761,19 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 
     
     //50E: BMS Loopback Test
-    //canMessageCount++;
-    //byteNum = 0;
-    //canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    //canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    //canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
-    //canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    //canMessages[canMessageCount - 1].length = byteNum;
-    
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
+    canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = BMS_getFaultFlags0(bms);
+    canMessages[canMessageCount - 1].data[byteNum++] = BMS_getFaultFlags1(bms);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
 
     //511: SoftBSPD
     // ubyte1 flags = sc->softBSPD_bpsHigh;

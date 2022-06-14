@@ -149,6 +149,11 @@ BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBase
     //Repick a new value, maybe 0xFFFF?
     me->highestCellTemperature = 0;
 
+    me->faultFlags0 = 0;
+    me->faultFlags1 = 0;
+    //me->faultFlags0 = 0xFF;
+    //me->faultFlags1 = 0xFF;
+
     return me;
 }
 
@@ -438,6 +443,50 @@ sbyte4 BMS_getPower_W(BatteryManagementSystem *me)
     //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
     return ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE);
 }
+
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me) {
+    //Flag 0x01: Isolation Leakage Fault
+    //Flag 0x02: BMS Monitor Communication Fault
+    //Flag 0x04: Pre-charge Fault
+    //Flag 0x08: Pack Discharge Operating Envelope Exceeded
+    //Flag 0x10: Pack Charge Operating Envelope Exceeded
+    //Flag 0x20: Failed Thermistor Fault
+    //Flag 0x40: HVIL Fault
+    //Flag 0x80: Emergency Stop Fault
+    return me->faultFlags0;
+}
+
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
+    //Flag 0x01: Cell Over-Voltage Fault
+    //Flag 0x02: Cell Under-Voltage Fault
+    //Flag 0x04: Cell Over-Temperature Fault
+    //Flag 0x08: Cell Under-Temperature Fault
+    //Flag 0x10: Pack Over-Voltage Fault
+    //Flag 0x20: Pack Under-Voltage Fault
+    //Flag 0x40: Over-Current Discharge Fault
+    //Flag 0x80: Over-Current Charge Fault
+    return me->faultFlags1;
+}
+
+void BMS_relayControl(BatteryManagementSystem *me)
+{
+    //////////////////////////////////////////////////////////////
+    // Digital output to drive a signal to the Shutdown signal  //
+    // based on AMS fault detection                             //
+    //////////////////////////////////////////////////////////////
+
+    //There is a fault
+    if (me->faultFlags0 || me->faultFlags1)
+    {
+        IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
+    }
+    //There is no fault
+    else
+    {
+        IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
+    }
+}
+
 /*
 ubyte2 BMS_getPackTemp(BatteryManagementSystem *me)
 {

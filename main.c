@@ -350,6 +350,10 @@ void main(void)
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
         MCM_inverterControl(mcm0, tps, bps, rtds);
+
+        //Comment out to disable shutdown board control
+        BMS_relayControl(bms);
+
         //CanManager_sendMCMCommandMessage(mcm0, canMan, FALSE);
 
         //Drop the sensor readings into CAN (just raw data, not calculated stuff)

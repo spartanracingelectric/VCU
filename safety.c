@@ -51,6 +51,11 @@ static const ubyte4 F_lvsBatteryVeryLow = 0x10000;
 //static const ubyte4 F_ = 0x80000;
 
 //nibble 6
+static const ubyte4 F_anyBmsFault = 0x100000;
+//static const ubyte4 F_ = 0x20000;
+//static const ubyte4 F_ = 0x40000;
+//static const ubyte4 F_ = 0x80000;
+
 //nibble 7
 //nibble 8
 //                             nibble: 87654321
@@ -296,7 +301,33 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->faults &= ~(F_tpsbpsImplausible); //turn off the implausibility flag
     }
 
-    
+    //===================================================================
+    // 2022 EV.8.3 / Accumulator Management System Fault
+    //===================================================================
+    // EV.8.3.4 The AMS must monitor for:
+    //      a. Voltage values outside the allowable range EV.8.4.2              - Yup
+    //      b. Voltage sense Overcurrent Protection device(s) blown or tripped  - Yup?
+    //      c. Temperature values outside the allowable range EV.8.5.2          - Yup
+    //      d. Missing or interrupted voltage or temperature measurements       - Yup?
+    //      e. A fault in the AMS                                               - Yup
+    // EV.8.3.5 If the AMS detects one or more of the conditions of EV.8.3.4 above, the AMS must:
+    //      a. Open the Shutdown Circuit EV.8.2.2 (drive fault IO)              - TODO
+    //      b. Turn on the AMS Indicator Light (handled by Shutdown circuit)    - Handled by Shutdown Circuit
+    //-------------------------------------------------------------------
+
+    //If any sort of BMS fault detected (assuming 8.3.4 fulfilled by BMS)
+    if (BMS_getFaultFlags0(bms) || BMS_getFaultFlags1(bms))
+    {
+        me->faults |= F_anyBmsFault;
+        SerialManager_send(me->serialMan, "BMS fault detected.\n");
+    }
+    //Else, BMS reported faults over CAN are empty
+    else
+    {
+        me->faults &= ~(F_anyBmsFault);
+    }
+
+
 
     SerialManager_send(me->serialMan, "\n");
 
