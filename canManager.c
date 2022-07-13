@@ -376,8 +376,10 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x613:
         case 0x620:
         case 0x621:
-        case 0x622:
-        case 0x623:
+        case 0x622: //Cell Voltage Summary
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
+        case 0x623: //Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
         case 0x624:
