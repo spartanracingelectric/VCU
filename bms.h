@@ -7,6 +7,12 @@
 #include "serial.h"
 #include "IO_CAN.h"
 
+//Max mismatch voltage, in volts
+//To determine VCU-side fault
+#define BMS_MAX_CELL_MISMATCH_V 1.00f
+#define BMS_MIN_CELL_VOLTAGE_WARNING 3.35f
+#define BMS_MAX_CELL_TEMPERATURE_WARNING 50.0f
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 // STAFL BMS CAN PROTOCOL CONSTANTS, offsets from base address                   //
@@ -52,6 +58,11 @@
 #define BMS_PERCENT_SCALE                   10      //%*10, percent*10 to percent
 #define BMS_AMP_HOURS_SCALE                 10      //Ah*10, deciAmpHours to AmpHours
 
+// BMS Specific Fault Bits/Flags (within faultFlag0 and 1)
+#define BMS_CELL_OVER_VOLTAGE_FLAG          0x01
+#define BMS_CELL_UNDER_VOLTAGE_FLAG         0x02
+#define BMS_CELL_OVER_TEMPERATURE_FLAG      0x04
+
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
 BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
@@ -59,7 +70,7 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 
 // BMS COMMANDS // 
 
-void BMS_relayControl(BatteryManagementSystem *me);
+IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
 bool BMS_getRelayState(BatteryManagementSystem *me);
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed

@@ -32,7 +32,7 @@ void vcu_initializeADC(bool benchMode)
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
     IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
-    IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay - not used SRE-4, wire does go to penthouse, BMS
+    IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump relay - always on per RMS HW manual pg 7 - NOT USED
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
@@ -163,7 +163,7 @@ void vcu_ADCWasteLoop(void)
         IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
         IO_DO_Set(IO_DO_00, FALSE); //False = low
-        //IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
+        IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
         IO_DI_Get(IO_DI_04, &tempData);

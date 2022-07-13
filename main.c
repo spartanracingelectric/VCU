@@ -351,8 +351,9 @@ void main(void)
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
         MCM_inverterControl(mcm0, tps, bps, rtds);
 
+        IO_ErrorType err = 0;
         //Comment out to disable shutdown board control
-        BMS_relayControl(bms);
+        err = BMS_relayControl(bms);
 
         //CanManager_sendMCMCommandMessage(mcm0, canMan, FALSE);
 

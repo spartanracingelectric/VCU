@@ -405,25 +405,26 @@ void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCan
     }
 }
 
-void BMS_relayControl(BatteryManagementSystem *me)
+IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
 {
     //////////////////////////////////////////////////////////////
     // Digital output to drive a signal to the Shutdown signal  //
     // based on AMS fault detection                             //
     //////////////////////////////////////////////////////////////
-
+    IO_ErrorType err;
     //There is a fault
-    if (me->faultFlags0 || me->faultFlags1)
+    if (BMS_getFaultFlags0(me) || BMS_getFaultFlags1(me))
     {
         me->relayState = TRUE;
-        IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
+        err = IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
     }
     //There is no fault
     else
     {
         me->relayState = FALSE;
-        IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
+        err = IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
     }
+    return err;
 }
 
 /*
