@@ -294,7 +294,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //     This must be demonstrated at Technical Inspection
     // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
-    bool tpsAbove25Percent = (tps->travelPercent > .4);
+    bool tpsAbove25Percent = (tps->travelPercent > .25);
 
     //If mechanical brakes actuated && tps > 25%
     if (bps->brakesAreOn && tpsAbove25Percent)
