@@ -349,7 +349,9 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0xA4:
         case 0xA5:
         case 0xA6:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         case 0xA7:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         case 0xA8:
         case 0xA9:
         case 0xAA:
@@ -775,6 +777,21 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
+
+    //50F: MCM Power Debug
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 16);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 24);
+    canMessages[canMessageCount - 1].data[byteNum++] = SafetyChecker_getWarnings(sc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 16);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 24);
     canMessages[canMessageCount - 1].length = byteNum;
 
     //511: SoftBSPD
