@@ -202,7 +202,10 @@ void main(void)
     ReadyToDriveSound *rtds = RTDS_new();
     //BatteryManagementSystem* bms = BMS_new();
 
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    // 240 Nm
+    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    // 75 Nm
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     MCM_setRegenMode(mcm0, REGENMODE_OFF); // TODO: Read regen mode from DCU CAN message - Issue #96
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
