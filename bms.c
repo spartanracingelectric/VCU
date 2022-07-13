@@ -149,6 +149,8 @@ BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBase
     me->packCurrent = 0;
     me->packVoltage = 0;
     //Repick a new value, maybe 0xFFFF?
+    me->highestCellVoltage = 0;
+    me->lowestCellVoltage = 9999;
     me->highestCellTemperature = 0;
 
     me->faultFlags0 = 0;
@@ -431,6 +433,17 @@ sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
     return (me->avgTemp);
 }
 */
+
+ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
+{
+    return (me->highestCellVoltage);
+}
+
+ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
+{
+    return (me->lowestCellVoltage);
+}
+
 //Split into
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
 {
