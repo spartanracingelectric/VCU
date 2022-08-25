@@ -24,7 +24,7 @@
 extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BPS1;
+extern Sensor Sensor_BPS1;
 extern Sensor Sensor_WSS_FL;
 extern Sensor Sensor_WSS_FR;
 extern Sensor Sensor_WSS_RL;
@@ -71,12 +71,10 @@ void sensors_updateSensors(void)
 
     //Brake Position Sensor ---------------------------------------------------
     Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
+    Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
 
     //TCS Knob
     Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
-
-    //?? - For future use ---------------------------------------------------
-    //IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
 
     //Shock pots ---------------------------------------------------
     /*IO_ADC_Get(IO_ADC_5V_04, &Sensor_WPS_FL.sensorValue, &Sensor_WPS_FL.fresh);
@@ -84,12 +82,56 @@ void sensors_updateSensors(void)
     IO_ADC_Get(IO_ADC_5V_06, &Sensor_WPS_RL.sensorValue, &Sensor_WPS_RL.fresh);
     IO_ADC_Get(IO_ADC_5V_07, &Sensor_WPS_RR.sensorValue, &Sensor_WPS_RR.fresh);
     */
-
+   
     //Wheel speed sensors ---------------------------------------------------
-    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_08, &Sensor_WSS_FL.sensorValue);
-    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_09, &Sensor_WSS_FR.sensorValue);
-    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_10, &Sensor_WSS_RL.sensorValue);
-    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_FreqGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue);
+
+    //For input smoothing
+    if(Sensor_WSS_FL.sensorValue > 0) //If non-zero reading, update displayed val
+    { 
+        Sensor_WSS_FL.heldSensorValue=Sensor_WSS_FL.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_FL.timestamp); //Reset time
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    { 
+        Sensor_WSS_FL.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_FR.sensorValue > 0)
+    {
+        Sensor_WSS_FR.heldSensorValue=Sensor_WSS_FR.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_FR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    { 
+        Sensor_WSS_FR.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_RL.sensorValue > 0)
+    {
+        Sensor_WSS_RL.heldSensorValue=Sensor_WSS_RL.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_RL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    { 
+        Sensor_WSS_RL.heldSensorValue=0;
+    }
+
+    if(Sensor_WSS_RR.sensorValue > 0)
+    {
+        Sensor_WSS_RR.heldSensorValue=Sensor_WSS_RR.sensorValue;
+        IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
+    }
+    else if (IO_RTC_GetTimeUS(Sensor_WSS_RR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    { 
+        Sensor_WSS_RR.heldSensorValue=0;
+    }
+
+
+    ubyte4 pulseTrash;
+    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, &pulseTrash, NULL);
+    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, &pulseTrash, NULL);
+    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_09, &Sensor_WSS_RL.sensorValue, &pulseTrash, NULL);
+    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue, &pulseTrash, NULL);
 
     //Switches / Digital ---------------------------------------------------
     Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);

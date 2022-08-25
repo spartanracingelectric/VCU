@@ -1,30 +1,67 @@
 #ifndef _BATTERYMANAGEMENTSYSTEM_H
 #define _BATTERYMANAGEMENTSYSTEM_H
 
-/**************************************************************************
- * 	REVISION HISTORY:
- *
- *	2016-5-11 - Rabeel Elahi - Added bms_commands_getPower();
- *							 - Added bms_commands_getPackTemp();
- *
- *	2016-4-6  - Rabeel Elahi - Added constructor and BMS data struct
- *							 - Initially added helper functions to update variables,
- *							   but decided to update variables by passing BMS pointer to
- *							   canInput_readMesagges(BMS* bms). Commented out for future use.
- *							 - Added functions to help with endian conversion.
- *							   Possibly move to mathFunctions?
- *
- *	2016-3-28 - Rabeel Elahi - Created this file.
- *
- *
- **************************************************************************/
-
 #include <stdio.h>
 #include <stdint.h>
 
 #include "serial.h"
 #include "IO_CAN.h"
 
+//Max mismatch voltage, in volts
+//To determine VCU-side fault
+#define BMS_MAX_CELL_MISMATCH_V 1.00f
+#define BMS_MIN_CELL_VOLTAGE_WARNING 3.35f
+#define BMS_MAX_CELL_TEMPERATURE_WARNING 50.0f
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// STAFL BMS CAN PROTOCOL CONSTANTS, offsets from base address                   //
+// Ex: canMessageBaseId + BMS_MASTER_FAULTS = Address 0x(canMessageBaseId+0x002) //
+// CAN Protocol datasheet can be found in:                                       //
+// SRE drive -> SRE Software -> Documentation -> Datasheets -> BMS -> Stafl      //
+///////////////////////////////////////////////////////////////////////////////////
+
+// BMS Base Address
+#define BMS_BASE_ADDRESS                    0x600
+
+// BMS Received Messages (VCU --> BMS)
+#define BMS_STATE_COMMAND                   0x000   //2 bytes, Control BMS state transition
+#define BMS_CHARGER_COMMAND                 0x008   //4 bytes, Control BMS charging behavior
+
+// BMS Transmitted Messages (BMS --> VCU)
+#define BMS_MASTER_FAULTS                   0x002   //4 bytes
+#define BMS_MASTER_WARNINGS                 0x004   //4 bytes 
+#define BMS_MASTER_SYSTEM_STATUS            0x010   //8 bytes
+#define BMS_PACK_SAFE_OPERATING_ENVELOPE    0x011   //8 bytes
+#define BMS_MASTER_LOCAL_BOARD_MEASUREMENTS 0x012   //8 bytes
+#define BMS_DIGITAL_INPUTS_AND_OUTPUTS      0x013   //2 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_1       0x020   //8 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_2       0x021   //8 bytes
+#define BMS_CELL_VOLTAGE_SUMMARY            0x022   //8 bytes
+#define BMS_CELL_TEMPERATURE_SUMMARY        0x023   //8 bytes
+#define BMS_PACK_LEVEL_MEASUREMENTS_3       0x024   //8 bytes
+#define BMS_CELL_VOLTAGE_DATA               0x030   //8 bytes
+#define BMS_CELL_TEMPERATURE_DATA           0x080   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_1          0x0D0   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_2          0x0D1   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_3          0x0D2   //8 bytes
+#define BMS_CELL_SHUNTING_STATUS_4          0x0D3   //8 bytes
+#define BMS_CONFIGUATION_INFORMATION        0x0FC   //8 bytes
+#define BMS_FIRMWARE_VERSION_INFORMATION    0x0FE   //4 bytes
+
+// BMS Scaling factors
+// X/SCALE
+#define BMS_VOLTAGE_SCALE                   1000    //V*1000, milliVolts to Volts
+#define BMS_CURRENT_SCALE                   1000    //A*1000, milliAmps to Amps
+#define BMS_POWER_SCALE                     BMS_VOLTAGE_SCALE*BMS_CURRENT_SCALE //(V*1000)*(A*1000), microWatts to Watts
+#define BMS_TEMPERATURE_SCALE               10      //degC*10, deciCelsius to Celsius
+#define BMS_PERCENT_SCALE                   10      //%*10, percent*10 to percent
+#define BMS_AMP_HOURS_SCALE                 10      //Ah*10, deciAmpHours to AmpHours
+
+// BMS Specific Fault Bits/Flags (within faultFlag0 and 1)
+#define BMS_CELL_OVER_VOLTAGE_FLAG          0x01
+#define BMS_CELL_UNDER_VOLTAGE_FLAG         0x02
+#define BMS_CELL_OVER_TEMPERATURE_FLAG      0x04
 
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
@@ -33,11 +70,20 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 
 // BMS COMMANDS // 
 
+IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
+bool BMS_getRelayState(BatteryManagementSystem *me);
+
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
-sbyte4 BMS_getPower(BatteryManagementSystem* me);
+sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts (higher resolution)
+sbyte4 BMS_getPower_W(BatteryManagementSystem* me);                 //Watts
 ubyte2 BMS_getPackTemp(BatteryManagementSystem* me);
 sbyte1 BMS_getAvgTemp(BatteryManagementSystem* me);
-sbyte1 BMS_getMaxTemp(BatteryManagementSystem* me);
+ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
+ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
+sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
+sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
 
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);
@@ -137,73 +183,6 @@ typedef enum LimitCause{
 } LimitCause;
 
 #define ERROR_READING_LIMIT_VALUE = -1
-
-
-
-
-
-
-//
-//// ELITHION BMS OPTIONS //
-//
-//ubyte1  updateState();
-//ubyte2 updateTimer();
-//ubyte1  updateFlags();
-//ubyte1  updateFaultCode();
-//ubyte1  updateLevelFaults();
-//
-//// PACK //
-//
-//ubyte2 updatePackVoltage(); 	// volts
-//ubyte1  updateMinVtg(); 		// volts; individual cell voltage
-//ubyte1  updateMaxVtg();
-//ubyte1  updateMinVtgCell();
-//ubyte1  updateMaxVtgCell();
-//
-//
-//// CURRENT //
-//
-//sbyte2  updatePackCurrent(); 	 			// amps
-//ubyte2 updateChargeLimit();				// 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//ubyte2 updateDischargeLimit();			// 0-100 percent; returns EROR_READING_LIMIT_VALUE on error
-//
-//// BATTERY //
-//
-//ubyte4 batteryEnergyIn();
-//ubyte4 batteryEnergyOut();
-//
-//
-//ubyte1  updateSOC();
-//ubyte2 updateDOD();
-//ubyte2 updateCapacity();
-//ubyte1  updateSOH();
-//
-//// TEMP //
-//
-//sbyte1  updatePackTemp();			     // average pack temperature
-//sbyte1  updateMinTemp();			     // Temperature of coldest sensor
-//sbyte1  updateMinTempCell(); 		     // ID of cell with lowest temperature
-//sbyte1  updateMaxTemp();			     // Temperature of hottest sensor
-//sbyte1  updateMaxTempCell(); 		     // ID of cell with highest temperature
-//
-//
-//// RESISTANCE //
-//
-//ubyte2 updatePackRes();				// resistance of entire pack
-//ubyte1  updateMinRes();  			// resistance of lowest resistance cells
-//ubyte1  updateMinResCell();          // ID of cell with lowest resistance
-//ubyte1  updateMaxRes();				// resistance of highest resistance cells
-//ubyte1  updateMaxResCell();			// ID of cell with highest resistance
-//
-//LimitCause updateChargeLimitCause();
-//LimitCause updateDischargeLimitCause();
-
-//
-////void getFaults(FaultOptions *presentFaults, StoredFault *storedFault, FaultOptions *presentWarnings);
-//void clearStoredFault();
-//
-//IOFlags getIOFlags();
-//
 
 
 #endif // _BATTERYMANAGEMENTSYSTEM_H

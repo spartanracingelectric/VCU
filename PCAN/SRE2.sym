@@ -232,110 +232,110 @@ Var=D8_14V_Current_Monitor unsigned 48,7
 ID=500h
 DLC=8
 CycleTime=100
-Var="1- Throttle Percent (0-FF)" unsigned 0,8 /u:% /f:0.392156862746 /p:0
-Var="2- TPS0 Percent (0-FF)" unsigned 8,8 /u:% /f:0.392156862746
-Var="3- TPS0 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- TPS0 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- TPS0 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=ThrottlePercent0FF unsigned 0,8 /u:% /f:0.392156862746 /p:0
+Var=TPS0Percent0FF unsigned 8,8 /u:% /f:0.392156862746
+Var=TPS0Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=TPS0CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=TPS0CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V501_TPS1]
 ID=501h
 DLC=8
 CycleTime=100
-Var="1- Throttle Percent (0-FF)" unsigned 0,8 -h
-Var="2- TPS1 Percent (0-FF)" unsigned 8,8 -h /u:% /f:0.392156862746
-Var="3- TPS1 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- TPS1 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- TPS1 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=ThrottlePercent0FF unsigned 0,8 -h
+Var=TPS1Percent0FF unsigned 8,8 -h /u:% /f:0.392156862746
+Var=TPS1Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=TPS1CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=TPS1CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V502_BPS0]
 ID=502h
 DLC=8
 CycleTime=100
-Var="1- Brake Percent (0-FF)" unsigned 0,8 -h /u:% /f:0.392156862746
-Var="2- unused" unsigned 8,8 -h
-Var="3- BPS0 Voltage" unsigned 16,16 /u:V /f:0.001 /p:3
-Var="4- BPS0 CalibMin" unsigned 32,16 /u:V /f:0.001 /p:3
-Var="5- BPS0 CalibMax" unsigned 48,16 /u:V /f:0.001 /p:3
+Var=BrakePercent0FF unsigned 0,8 -h /u:% /f:0.392156862746
+Var=unused unsigned 8,8 -h
+Var=BPS0Voltage unsigned 16,16 /u:V /f:0.001 /p:3
+Var=BPS0CalibMin unsigned 32,16 /u:V /f:0.001 /p:3
+Var=BPS0CalibMax unsigned 48,16 /u:V /f:0.001 /p:3
 
 [V503_WheelSpeeds]
 ID=503h
 DLC=8
 CycleTime=100
-Var="1- WSS FL Ground Speed" unsigned 0,16 /u:m/s
-Var="2- WSS FR Ground Speed" unsigned 16,16 /u:m/s
-Var="3- WSS RL Ground Speed" unsigned 32,16 /u:m/s
-Var="4- WSS RR Ground Speed" unsigned 48,16 /u:m/s
+Var=WSSFLGroundSpeed unsigned 0,16 /u:m/s
+Var=WSSFRGroundSpeed unsigned 16,16 /u:m/s
+Var=WSSRLGroundSpeed unsigned 32,16 /u:m/s
+Var=WSSRRGroundSpeed unsigned 48,16 /u:m/s
 
 [V504_WSS_PulseWidth_Front]
 ID=504h
 DLC=8
 CycleTime=100
-Var="1- WSS FL Pulse" unsigned 0,32 /u:us
-Var="2- WSS FR Pulse" unsigned 32,32 /u:us
+Var=WSSFLPulse unsigned 0,32 /u:us
+Var=WSSFRPulse unsigned 32,32 /u:us
 
 [V505_WSS_PulseWidth_Rear]
 ID=505h
 DLC=8
 CycleTime=100
-Var="1- WSS RL Pulse" unsigned 0,32 /u:us
-Var="2- WSS RR Pulse" unsigned 32,32 /u:us
+Var=WSSRLPulse unsigned 0,32 /u:us
+Var=WSSRRPulse unsigned 32,32 /u:us
 
 [V506_VCU_Faults_and_Warnings]
 ID=506h
 DLC=8
 CycleTime=100
-Var="E-1 TPS Out of Range" unsigned 0,1
-Var="E-2 BPS Out of Range" unsigned 1,1
-Var="E-3 TPS Power Failure" unsigned 2,1
-Var="E-4 BPS Power Failure" unsigned 3,1
-Var="E-5 TPS Signal Failure" unsigned 4,1
-Var="E-6 BPS Signal Failure" unsigned 5,1
-Var="E-7 TPS Not Calibrated" unsigned 6,1
-Var="E-8 BPS Not Calibrated" unsigned 7,1
-Var="E-9 TPS Out of Sync" unsigned 8,1
-Var="E-10 BPS Out of Sync (unused)" unsigned 9,1
-Var="E-11 TPS-BPS Implausible" unsigned 10,1
-Var="E-12 (reserved)" unsigned 11,1
-Var="E-13 (unused)" unsigned 12,1
-Var="E-14 (unused)" unsigned 13,1
-Var="E-15 (unused)" unsigned 14,1
-Var="E-16 (unused)" unsigned 15,1
-Var="E-17 LVS Battery Empty" unsigned 16,1
-Var="W-1 LVS Battery Low" unsigned 32,1
-Var="W-8 Safety Disabled" unsigned 39,1
-Var="W-7 HVIL Override" unsigned 38,1
+Var=E1TPSOutofRange unsigned 0,1
+Var=E2BPSOutofRange unsigned 1,1
+Var=E3TPSPowerFailure unsigned 2,1
+Var=E4BPSPowerFailure unsigned 3,1
+Var=E5TPSSignalFailure unsigned 4,1
+Var=E6BPSSignalFailure unsigned 5,1
+Var=E7TPSNotCalibrated unsigned 6,1
+Var=E8BPSNotCalibrated unsigned 7,1
+Var=E9TPSOutofSync unsigned 8,1
+Var=E10BPSOutofSyncunused unsigned 9,1
+Var=E11TPSBPSImplausible unsigned 10,1
+Var=E12reserved unsigned 11,1
+Var=E13SoftBSPDFault bit 12,1
+Var=E14unused unsigned 13,1
+Var=E15unused unsigned 14,1
+Var=E16unused unsigned 15,1
+Var=E17LVSBatteryEmpty unsigned 16,1
+Var=W1LVSBatteryLow unsigned 32,1
+Var=W8SafetyDisabled unsigned 39,1
+Var=W7HVILOverride unsigned 38,1
 
-["V508_Regen Mode"]
+[V508_RegenMode]
 ID=508h
 DLC=8
-Var="Regen Torque Limit" unsigned 8,16 /u:Nm /f:0.1
-Var="Regen Mode" unsigned 0,8
-Var="Regen BPS% for full regen torque" unsigned 56,8 /u:% /f:0.392156862746
-Var="Regen At Zero Pedal" unsigned 24,16 /u:Nm /f:0.392156862746
-Var="Regen APPS% for coasting" unsigned 48,8 /u:% /f:0.392156862746
+Var=RegenTorqueLimit unsigned 8,16 /u:Nm /f:0.1
+Var=RegenMode unsigned 0,8
+Var=RegenBPSforfullregentorque unsigned 56,8 /u:% /f:0.392156862746
+Var=RegenAtZeroPedal unsigned 24,16 /u:Nm /f:0.392156862746
+Var=RegenAPPSforcoasting unsigned 48,8 /u:% /f:0.392156862746
 
-["V5FF VCU Debug"]
+[V5FFVCUDebug]
 ID=5FFh
 DLC=8
 CycleTime=100
-Var="VCU Safety Disable (0xC4)" unsigned 0,8
-Var="VCU MCM HVIL Override" unsigned 8,8
-Var="VCU MCM Force Enable (0x55)" unsigned 16,8 -b	// 01010101 (0x55) to Enable
-Var="VCU MCM Force Disable (>0)" unsigned 24,8 -b
+Var=VCUSafetyDisable0xC4 unsigned 0,8
+Var=VCUMCMHVILOverride unsigned 8,8
+Var=VCUMCMForceEnable0x55 unsigned 16,8 -b	// 01010101 (0x55) to Enable
+Var=VCUMCMForceDisable0 unsigned 24,8 -b
 
 [V507_LVS_Battery]
 ID=507h
-Var="LVS Battery Voltage" unsigned 0,16 /u:V /f:0.001 /p:3
-Var="LVS Battery SOC" signed 16,8 /u:%
+Var=LVSBatteryVoltage unsigned 0,16 /u:V /f:0.001 /p:3
+Var=LVSBatterySOC signed 16,8 /u:%
 
 [V509_DI_RTD_Status]
 ID=509h
 DLC=8
-Var="VCU HVIL Term Sense" unsigned 0,16
-Var="VCU HVIL Override Status" unsigned 16,8
-Var="V509-6" unsigned 48,8
-Var="V509-7" unsigned 56,8
+Var=VCUHVILTermSense unsigned 0,16
+Var=VCUHVILOverrideStatus unsigned 16,8
+Var=V5096 unsigned 48,8
+Var=V5097 unsigned 56,8
 
 [BMS620_Status]
 ID=620h	// BMS Status and Fault Message

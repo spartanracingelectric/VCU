@@ -134,6 +134,8 @@ typedef struct _Sensor {
 
     //ubyte2 calibratedValue;
     ubyte4 sensorValue;
+    ubyte4 heldSensorValue;
+    ubyte4 timestamp;
     bool fresh;
     //bool isCalibrated;
     IO_ErrorType ioErr_powerInit;
@@ -154,7 +156,7 @@ extern Sensor Sensor_TPS1;  // = { 0, 4.5, 0.5 };
 
 //Brake Position Sensors
 extern Sensor Sensor_BPS0;  // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
-//extern Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
+extern Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
 
 //Wheel Speed Sensors (like an ABS sensor)
 extern Sensor Sensor_WSS_FL;  // = { 2 };

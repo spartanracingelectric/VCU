@@ -19,7 +19,7 @@ typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction;
 
 // Regen mode
-typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA } RegenMode;
+typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA, REGENMODE_FIXED } RegenMode;
 
 typedef struct _MotorController MotorController;
 
@@ -47,6 +47,23 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController* me);
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);
 ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController* me);
+
+//----------------------------------------------------------------------------
+// Mutator Functions
+//----------------------------------------------------------------------------
+//Allow other object access to the private struct
+//Note: only added as needed, not necessarily comprehensive
+void MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 torque);
+void MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
+void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
+void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
+void MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
+
+ubyte2 MCM_getMaxTorqueDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
+ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
+float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);
+float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm);
 
 //----------------------------------------------------------------------------
 // Update Functions (CAN Inputs)

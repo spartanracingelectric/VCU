@@ -24,18 +24,23 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 
     //TODO: Make sure the main loop is running before doing this
     me->bps0 = &Sensor_BPS0;
+    //me->bps1 = &Sensor_BPS1;
     //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
 
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.
     // Accuracy below 100PSI is +/- 0.5% of the full scale span (4V), which is +/- 0.2V
-    Sensor_BPS0.specMin = 500 - (4000 * .005);
+    Sensor_BPS0.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+    //Sensor_BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
 
     // Accuracy above 100PSI is +/- 0.25% of the full scale span (4V), which is +/- 0.1V
     Sensor_BPS0.specMax = 4500 + (4000 * .0025);
+    //Sensor_BPS1.specMax = 4500 + (4000 * .0025);
 
     me->bps0_reverse = FALSE;
+    //me->bps1_reverse = FALSE;
 
+    //BPS0 only
     me->percent = 0;
     me->brakesAreOn = FALSE;
     me->runCalibration = FALSE; //Do not run the calibration at the next main loop cycle
@@ -50,18 +55,22 @@ BrakePressureSensor *BrakePressureSensor_new(void)
  void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
 {
     me->bps0_value = me->bps0->sensorValue;
+    //me->bps1_value = me->bps1->sensorValue;
 
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
     if (me->runCalibration == TRUE || me->calibrated == FALSE)
     {
         me->bps0_percent = 0;
+        //me->bps1_percent = 0;
         me->percent = 0;
         me->brakesAreOn = FALSE;  // Blocks Ready To Drive
     }
     else
     {
         me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
+        //me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
+        //BPS0 only
         me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
         me->brakesAreOn = me->percent > BRAKES_ON_PERCENT;
     }
@@ -98,6 +107,8 @@ void BrakePressureSensor_resetCalibration(BrakePressureSensor *me)
     me->calibrated = FALSE;
     me->bps0_calibMin = me->bps0->sensorValue;
     me->bps0_calibMax = me->bps0->sensorValue;
+    //me->bps1_calibMin = me->bps1->sensorValue;
+    //me->bps1_calibMax = me->bps1->sensorValue;
 }
 
 void BrakePressureSensor_saveCalibrationToEEPROM(BrakePressureSensor *me)
@@ -150,6 +161,16 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
             {
                 me->bps0_calibMax = me->bps0->sensorValue;
             }
+            /*
+            if (me->bps1->sensorValue < me->bps1_calibMin)
+            {
+                me->bps1_calibMin = me->bps1->sensorValue;
+            }
+            if (me->bps1->sensorValue > me->bps1_calibMax)
+            {
+                me->bps1_calibMax = me->bps1->sensorValue;
+            }
+            */
         }
         else //Calibration shutdown
         {
@@ -196,7 +217,7 @@ void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, uby
         //calMax = me->bps0_calibMax;
         break;
     case 1:
-        *percent = 0; //me->bps1_percent;
+        *percent = me->bps1_percent;
         //bps = me->bps1;
         //calMin = me->bps1_calibMin;
         //calMax = me->bps1_calibMax;

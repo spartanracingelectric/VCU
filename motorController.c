@@ -1,6 +1,6 @@
-#include <stdlib.h>  //Needed for malloc
+#include <stdlib.h> //Needed for malloc
 #include "IO_Driver.h"
-#include "IO_DIO.h"     //TEMPORARY - until MCM relay control  / ADC stuff gets its own object
+#include "IO_DIO.h" //TEMPORARY - until MCM relay control  / ADC stuff gets its own object
 #include "IO_RTC.h"
 #include "IO_CAN.h"
 
@@ -16,15 +16,14 @@
 
 #include "canManager.h"
 
-
 extern Sensor Sensor_BenchTPS0;
 extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_TCSSwitchUp; // used currently for regen
+extern Sensor Sensor_TCSSwitchUp;   // used currently for regen
 extern Sensor Sensor_TCSSwitchDown; // used currently for regen
-extern Sensor Sensor_TCSKnob;    // used currently for regen
+extern Sensor Sensor_TCSKnob;       // used currently for regen
 extern Sensor Sensor_HVILTerminationSense;
 
 /*****************************************************************************
@@ -32,29 +31,31 @@ extern Sensor Sensor_HVILTerminationSense;
  ******************************************************************************
  *
  ****************************************************************************/
-struct _MotorController {
-    SerialManager* serialMan;
+
+struct _MotorController
+{
+    SerialManager *serialMan;
     //----------------------------------------------------------------------------
     // Controller statuses/properties
     //----------------------------------------------------------------------------
     // These represent the state of the controller (set at run time, not compile
     // time.)  These are updated by canInput.c
     //----------------------------------------------------------------------------
-    ubyte2 canMessageBaseId;  //Starting message ID for messages that will come in from this controller
+    ubyte2 canMessageBaseId; //Starting message ID for messages that will come in from this controller
     ubyte4 timeStamp_inverterEnabled;
 
     //Motor controller torque units are in 10ths (500 = 50.0 Nm)
     //Positive = accel, negative = regen
     //Reverse not allowed
-    ubyte2 torqueMaximumDNm;  //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
-    
+    ubyte2 torqueMaximumDNm; //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
+
     //Regen torque calculations in whole Nm..?
-    RegenMode regen_mode;					  //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
-    ubyte2 regen_torqueLimitDNm;          //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
-    ubyte2 regen_torqueAtZeroPedalDNm;    //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel.  Positive value.
-    float4 regen_percentBPSForMaxRegen;   //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
-    float4 regen_percentAPPSForCoasting;  //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
-    sbyte1 regen_minimumSpeedKPH;  //Assigned by main
+    RegenMode regen_mode;                //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
+    ubyte2 regen_torqueLimitDNm;         //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
+    ubyte2 regen_torqueAtZeroPedalDNm;   //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel.  Positive value.
+    float4 regen_percentBPSForMaxRegen;  //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
+    float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
+    sbyte1 regen_minimumSpeedKPH;        //Assigned by main
     sbyte1 regen_SpeedRampStart;
 
     bool relayState;
@@ -95,8 +96,8 @@ struct _MotorController {
     // These are updated by ??? and will be sent to the MCM over CAN
     //----------------------------------------------------------------------------
     //struct _commands {
-    ubyte4 timeStamp_lastCommandSent;  //from IO_RTC_StartTime(&)
-    ubyte2 updateCount; //Number of updates since lastCommandSent
+    ubyte4 timeStamp_lastCommandSent; //from IO_RTC_StartTime(&)
+    ubyte2 updateCount;               //Number of updates since lastCommandSent
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
@@ -105,7 +106,7 @@ struct _MotorController {
     Status commands_discharge;
     Status commands_inverter;
     //ubyte1 controlSwitches; // example: 0b00000001 = inverter is enabled, discharge is disabled
-    
+
     /*
     //----------------------------------------------------------------------------
     // Control functions - for functions nested within struct
@@ -130,9 +131,9 @@ struct _MotorController {
     //};
 };
 
-MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
-    MotorController* me = (MotorController*)malloc(sizeof(struct _MotorController));
+    MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
     me->serialMan = sm;
 
     me->canMessageBaseId = canMessageBaseID;
@@ -155,13 +156,13 @@ MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID,
     me->regen_torqueAtZeroPedalDNm = 0;
     me->regen_percentBPSForMaxRegen = 1; //zero to one.. 1 = 100%
     me->regen_percentAPPSForCoasting = 0;
-    me->regen_minimumSpeedKPH = minRegenSpeedKPH;  //Assigned by main
-    me->regen_SpeedRampStart = regenRampdownStartSpeed;  //Assigned by main
+    me->regen_minimumSpeedKPH = minRegenSpeedKPH;       //Assigned by main
+    me->regen_SpeedRampStart = regenRampdownStartSpeed; //Assigned by main
 
     //me->faultHistory = { 0,0,0,0,0,0,0,0 };  //Todo: read from eeprom instead of defaulting to 0
 
     me->startupStage = 0; //Off
-    
+
     me->relayState = FALSE; //Low
 
     me->motor_temp = 99;
@@ -178,36 +179,44 @@ me->getInverterStatus = &getInverterStatus;
     return me;
 }
 
-void MCM_setRegenMode(MotorController* me, RegenMode regenMode)
-{	
+void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
+{
     switch (regenMode)
     {
-        case REGENMODE_FORMULAE:  //Position 1 = Coasting mode (Formula E mode)
-            me->regen_mode = 1;
-            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-            me->regen_torqueAtZeroPedalDNm = 0;
-            me->regen_percentAPPSForCoasting = 0;
-            me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
-            break;
+    case REGENMODE_FORMULAE: //Position 1 = Coasting mode (Formula E mode)
+        me->regen_mode = 1;
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+        me->regen_torqueAtZeroPedalDNm = 0;
+        me->regen_percentAPPSForCoasting = 0;
+        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+        break;
 
-        case REGENMODE_HYBRID: //Position 2 = light "engine braking" (Hybrid mode)
-            me->regen_mode = 2;
-            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-            me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm * 0.3;
-            me->regen_percentAPPSForCoasting = .2;
-            me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
-            break;
+    case REGENMODE_HYBRID: //Position 2 = light "engine braking" (Hybrid mode)
+        me->regen_mode = 2;
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm * 0.3;
+        me->regen_percentAPPSForCoasting = .2;
+        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+        break;
 
-        case REGENMODE_TESLA:  //Position 3 = One pedal driving (Tesla mode)
-            me->regen_mode = 3;
-            me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
-            me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
-            me->regen_percentAPPSForCoasting = .1;
-            me->regen_percentBPSForMaxRegen = 0;
-            break;
+    case REGENMODE_TESLA: //Position 3 = One pedal driving (Tesla mode)
+        me->regen_mode = 3;
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * .5;
+        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
+        me->regen_percentAPPSForCoasting = .1;
+        me->regen_percentBPSForMaxRegen = 0;
+        break;
+
+    case REGENMODE_FIXED: //Position 4 = Fixed Regen
+        me->regen_mode = 4;
+        me->regen_torqueLimitDNm = 250; //1000 = 100Nm
+        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm;
+        me->regen_percentAPPSForCoasting = .05;
+        me->regen_percentBPSForMaxRegen = 0;
+        break;
 
         // TODO:  User customizable regen settings - Issue #97
-        // case REGENMONDE_CUSTOM:  
+        // case REGENMONDE_CUSTOM:
         //     me->regen_mode = 4;
         //     me->regen_torqueLimitDNm = 0;
         //     me->regen_torqueAtZeroPedalDNm = 0;
@@ -215,17 +224,16 @@ void MCM_setRegenMode(MotorController* me, RegenMode regenMode)
         //     me->regen_percentAPPSForCoasting = 0;
         //     break;
 
-        case REGENMODE_OFF: default:
-            me->regen_mode = REGENMODE_OFF;
-
-            me->regen_torqueLimitDNm = 0;
-            me->regen_torqueAtZeroPedalDNm = 0;
-            me->regen_percentAPPSForCoasting = 0;
-            me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
-            break;
+    case REGENMODE_OFF:
+    default:
+        me->regen_mode = REGENMODE_OFF;
+        me->regen_torqueLimitDNm = 0;
+        me->regen_torqueAtZeroPedalDNm = 0;
+        me->regen_percentAPPSForCoasting = 0;
+        me->regen_percentBPSForMaxRegen = 0; //zero to one.. 1 = 100%
+        break;
     }
 }
-    
 
 /*****************************************************************************
 * Motor Control Functions
@@ -248,7 +256,7 @@ void MCM_setRegenMode(MotorController* me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressureSensor* bps)
+void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -258,7 +266,7 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
     //----------------------------------------------------------------------------
     MCM_commands_setDischarge(me, DISABLED);
     MCM_commands_setDirection(me, REVERSE); //1 = forwards for our car, 0 = reverse
-    
+
     sbyte2 torqueOutput = 0;
     sbyte2 appsTorque = 0;
     sbyte2 bpsTorque = 0;
@@ -269,12 +277,16 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
 
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-    
+
     torqueOutput = appsTorque + bpsTorque;
     //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
+    //Causes MCM relay to be driven after 30 seconds with TTC60?
     me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
+
+    //Temporarily disable MCM relay control via HVILOverride
+    //me->HVILOverride = FALSE;
 
     // Inverter override
     if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
@@ -285,8 +297,8 @@ void MCM_calculateCommands(MotorController* me, TorqueEncoder* tps, BrakePressur
         me->InverterOverride = UNKNOWN;
 }
 
-void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
-{    
+void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
+{
     //If HVIL Term Sense is low (HV is down)
     if (HVILTermSense->sensorValue == FALSE && me->HVILOverride == FALSE)
     {
@@ -304,7 +316,7 @@ void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_00, FALSE);  //Need MCM relay object
+                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
                 me->relayState = FALSE;
             }
             else
@@ -319,13 +331,16 @@ void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
 
         me->previousHVILState = FALSE;
     }
-    else  // HVILTermSense->sensorValue == TRUE || me->HVILOverride == TRUE
+    else // HVILTermSense->sensorValue == TRUE || me->HVILOverride == TRUE
     {
         //If HVIL just changed, send a message
         if (me->previousHVILState == FALSE)
         {
             SerialManager_send(me->serialMan, "Term sense went high\n");
-            if (MCM_getStartupStage(me) == 0) { MCM_setStartupStage(me, 1); }  //Reset the startup procedure because HV just went high and we are now turning on the MCM
+            if (MCM_getStartupStage(me) == 0)
+            {
+                MCM_setStartupStage(me, 1);
+            } //Reset the startup procedure because HV just went high and we are now turning on the MCM
         }
         me->previousHVILState = TRUE;
 
@@ -336,7 +351,7 @@ void MCM_relayControl(MotorController* me, Sensor* HVILTermSense)
 }
 
 //See diagram at https://onedrive.live.com/redir?resid=F9BB8F0F8FDB5CF8!30410&authkey=!ABSF-uVH-VxQRAs&ithint=file%2chtml
-void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds)
+void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
     float4 RTDPercent;
     RTDPercent = (Sensor_RTDButton.sensorValue == TRUE ? 1 : 0);
@@ -369,14 +384,10 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == TRUE 
-            && tps->calibrated == TRUE
-            && bps->calibrated == TRUE
-            && tps->travelPercent < .05
-            && bps->percent > .25         // Should be high enough to ensure driver is on the brakes reasonably hard 
-            )
+        if (Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
+        )
         {
-            MCM_commands_setInverter(me, ENABLED);  //Change the inverter command to enable
+            MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable
             SerialManager_send(me->serialMan, "Changed MCM inverter command to ENABLE.\n");
             MCM_setStartupStage(me, 3); // MCM_getStartupStage(me) + 1);
             //RTDPercent = 1; //This line is redundant
@@ -391,7 +402,7 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
         if (MCM_getInverterStatus(me) == ENABLED)
         {
             RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is driveable
-            SerialManager_send(me->serialMan, "Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
+            SerialManager_send(me->serialMan, "Inverter has been enabled.  S                                                    tarting RTDS.  Car is ready to drive.\n");
             RTDS_setVolume(rtds, 1, 1500000);
             MCM_setStartupStage(me, 4); //MCM_getStartupStage(me) + 1);  //leave this stage since we've already kicked off the RTDS
         }
@@ -399,8 +410,8 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
 
     case 4: //inverter=disabled, rtds=already started
         //Actions to perform upon entering this state ------------------------------------------------
-        SerialManager_send(me->serialMan, "RTD procedure complete.\n");  //Just send a message
-        RTDPercent = 1; //This line is redundant
+        SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
+        RTDPercent = 1;                                                 //This line is redundant
 
         //How to transition to next state ------------------------------------------------
         //Always do, since we sent a message.
@@ -411,42 +422,39 @@ void MCM_inverterControl(MotorController* me, TorqueEncoder* tps, BrakePressureS
         //What happens in this state ------------------------------------------------
         RTDPercent = 1; //This line is redundant
         //This case is here so we don't send a message anymore
-        
+
         //How to transition to next state ------------------------------------------------
         //Don't. //MCM_setStartupStage(me, MCM_getStartupStage(me) + 1);
         break;
-
 
     default:
         SerialManager_send(me->serialMan, "ERROR: Lost track of MCM startup status.\n");
         break;
     }
-    
+
     //----------------------------------------------------------
     //Inverter Command Overrides
     //----------------------------------------------------------
     switch (me->InverterOverride)
     {
-        case DISABLED:
-            MCM_commands_setInverter(me, DISABLED);
-            break;
-        case ENABLED:
-            MCM_commands_setInverter(me, DISABLED);
-            break;
-        case UNKNOWN:
-            break;
+    case DISABLED:
+        MCM_commands_setInverter(me, DISABLED);
+        break;
+    case ENABLED:
+        MCM_commands_setInverter(me, DISABLED);
+        break;
+    case UNKNOWN:
+        break;
     }
 
     //After all that, we can turn the RTD light on/off
     Light_set(Light_dashRTD, RTDPercent);
-
 }
 
-
-void MCM_parseCanMessage(MotorController* me, IO_CAN_DATA_FRAME* mcmCanMessage)
+void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 {
     //0xAA
-    static const ubyte1 bitInverter = 1; //bit 1
+    static const ubyte1 bitInverter = 1;  //bit 1
     static const ubyte1 bitLockout = 128; //bit 7
 
     switch (mcmCanMessage->id)
@@ -550,20 +558,17 @@ void MCM_parseCanMessage(MotorController* me, IO_CAN_DATA_FRAME* mcmCanMessage)
         //7   direction command
         break;
 
-
     case 0x0AB: //Faults
         //mcmCanMessage->data;
         //me->faultHistory |= data stuff //????????
 
         break;
 
-
     case 0x0AC:
         //0,1 Commanded Torque
         me->commandedTorque = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
         //2,3 Torque Feedback
         break;
-
 
     case 0x5FF:
         if (mcmCanMessage->data[1] > 0)
@@ -579,10 +584,8 @@ void MCM_parseCanMessage(MotorController* me, IO_CAN_DATA_FRAME* mcmCanMessage)
             IO_RTC_StartTime(&me->timeStamp_InverterDisableOverrideCommandReceived);
         }
         break;
-
     }
 }
-
 
 /*****************************************************************************
 * Accessors / Mutators (Set/Get)
@@ -590,13 +593,13 @@ void MCM_parseCanMessage(MotorController* me, IO_CAN_DATA_FRAME* mcmCanMessage)
 *
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
-void MCM_commands_setTorqueDNm(MotorController* me, sbyte2 newTorque)
+void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
 }
 
-void MCM_commands_setDirection(MotorController* me, Direction newDirection)
+void MCM_commands_setDirection(MotorController *me, Direction newDirection)
 {
     switch (newDirection)
     {
@@ -619,171 +622,212 @@ void MCM_commands_setDirection(MotorController* me, Direction newDirection)
         break;
     }
 }
-void MCM_commands_setInverter(MotorController* me, Status newInverterState)
+void MCM_commands_setInverter(MotorController *me, Status newInverterState)
 {
     me->updateCount += (me->commands_inverter == newInverterState) ? 0 : 1;
     me->commands_inverter = newInverterState;
 }
-void MCM_commands_setDischarge(MotorController* me, Status setDischargeTo)
+void MCM_commands_setDischarge(MotorController *me, Status setDischargeTo)
 {
     me->updateCount += (me->commands_discharge == setDischargeTo) ? 0 : 1;
     me->commands_discharge = setDischargeTo;
 }
-void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 newTorqueLimit)
+void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
 {
     me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     me->commands_torqueLimit = newTorqueLimit;
 }
-sbyte2 MCM_commands_getTorque(MotorController* me)
+sbyte2 MCM_commands_getTorque(MotorController *me)
 {
     return me->commands_torque;
 }
-Direction MCM_commands_getDirection(MotorController* me)
+Direction MCM_commands_getDirection(MotorController *me)
 {
     return me->commands_direction;
 }
-Status MCM_commands_getInverter(MotorController* me)
+Status MCM_commands_getInverter(MotorController *me)
 {
     return me->commands_inverter;
 }
-Status MCM_commands_getDischarge(MotorController* me)
+Status MCM_commands_getDischarge(MotorController *me)
 {
     return me->commands_discharge;
 }
-sbyte2 MCM_commands_getTorqueLimit(MotorController* me)
+sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
 
-void MCM_updateLockoutStatus(MotorController* me, Status newState)
+void MCM_updateLockoutStatus(MotorController *me, Status newState)
 {
     me->lockoutStatus = newState;
 }
-void MCM_updateInverterStatus(MotorController* me, Status newState)
+void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
 
-Status MCM_getLockoutStatus(MotorController* me)
+Status MCM_getLockoutStatus(MotorController *me)
 {
     return me->lockoutStatus;
 }
 
-Status MCM_getInverterStatus(MotorController* me)
+Status MCM_getInverterStatus(MotorController *me)
 {
     return me->inverterStatus;
 }
 
-bool MCM_getHvilOverrideStatus(MotorController* me)
+bool MCM_getHvilOverrideStatus(MotorController *me)
 {
     return me->HVILOverride;
 }
 
-Status MCM_getInverterOverrideStatus(MotorController* me)
+Status MCM_getInverterOverrideStatus(MotorController *me)
 {
     return me->InverterOverride;
 }
 
-void MCM_setRTDSFlag(MotorController* me, bool enableRTDS)
+void MCM_setRTDSFlag(MotorController *me, bool enableRTDS)
 {
     me->startRTDS = enableRTDS;
 }
-bool MCM_getRTDSFlag(MotorController* me)
+bool MCM_getRTDSFlag(MotorController *me)
 {
     //me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     return me->startRTDS;
     //return FALSE;
 }
 
-ubyte2 MCM_commands_getUpdateCount(MotorController* me)
+ubyte2 MCM_commands_getUpdateCount(MotorController *me)
 {
     return me->updateCount;
 }
 
-void MCM_commands_resetUpdateCountAndTime(MotorController* me)
+void MCM_commands_resetUpdateCountAndTime(MotorController *me)
 {
     me->updateCount = 0;
     IO_RTC_StartTime(&(me->timeStamp_lastCommandSent));
 }
 
-ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController* me)
+ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
 {
     return IO_RTC_GetTimeUS(me->timeStamp_lastCommandSent);
 }
 
-
-ubyte2 MCM_getTorqueMax(MotorController* me)
+ubyte2 MCM_getTorqueMax(MotorController *me)
 {
     return me->torqueMaximumDNm;
 }
 
-
-
-sbyte4 MCM_getPower(MotorController* me)
+sbyte4 MCM_getPower(MotorController *me)
 {
     return ((me->DC_Voltage) * (me->DC_Current));
 }
 
-ubyte2 MCM_getCommandedTorque(MotorController* me)
+ubyte2 MCM_getCommandedTorque(MotorController *me)
 {
     return me->commandedTorque;
 }
 
-
-sbyte2 MCM_getTemp(MotorController* me)
+sbyte2 MCM_getTemp(MotorController *me)
 {
-    return me->motor_temp;  //TODO: Figure out which temperature to return for Motor Controller
+    return me->motor_temp; //TODO: Figure out which temperature to return for Motor Controller
 }
-sbyte2 MCM_getMotorTemp(MotorController* me)
+sbyte2 MCM_getMotorTemp(MotorController *me)
 {
     return me->motor_temp;
 }
 
-sbyte2 MCM_getGroundSpeedKPH(MotorController* me)
+sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
     sbyte2 wheelRPM = me->motorRPM / 3;
     float4 tireCircumference = 3.141592653589 * 18 * .0254; // (pi * diameter * in to m) = circumference in meters
-    sbyte2 groundKPH = wheelRPM / 60 * tireCircumference;
+    sbyte2 groundKPH = -(wheelRPM / 60 * tireCircumference); // Negate value to obtain positive value (since motorRPM reading is flipped)
     return groundKPH;
 }
 
-ubyte1 MCM_getRegenMode(MotorController* me)
+ubyte1 MCM_getRegenMode(MotorController *me)
 {
     return me->regen_mode;
 }
-sbyte2 MCM_getRegenTorqueLimitDNm(MotorController* me)
+sbyte2 MCM_getRegenTorqueLimitDNm(MotorController *me)
 {
-    return 0xFF * me->regen_torqueLimitDNm;
+    return me->regen_torqueLimitDNm;
 }
-sbyte2 MCM_getRegenTorqueAtZeroPedalDNm(MotorController* me)
+sbyte2 MCM_getRegenTorqueAtZeroPedalDNm(MotorController *me)
 {
     return me->regen_torqueAtZeroPedalDNm;
 }
-sbyte2 MCM_getRegenBPSForMaxRegenZeroToFF(MotorController* me)
+sbyte2 MCM_getRegenBPSForMaxRegenZeroToFF(MotorController *me)
 {
     return 0xFF * me->regen_percentBPSForMaxRegen;
 }
-sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me)
+sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController *me)
 {
     return 0xFF * me->regen_percentAPPSForCoasting;
 }
 
-sbyte1 MCM_getRegenMinSpeed(MotorController* me)
+sbyte1 MCM_getRegenMinSpeed(MotorController *me)
 {
     return me->regen_minimumSpeedKPH;
 }
-sbyte1 MCM_getRegenRampdownStartSpeed(MotorController* me)
+sbyte1 MCM_getRegenRampdownStartSpeed(MotorController *me)
 {
     return me->regen_SpeedRampStart;
 }
 
-
-void MCM_setStartupStage(MotorController* me, ubyte1 stage)
+void MCM_setStartupStage(MotorController *me, ubyte1 stage)
 {
     me->startupStage = stage;
 }
 
-ubyte1 MCM_getStartupStage(MotorController* me)
+ubyte1 MCM_getStartupStage(MotorController *me)
 {
     return me->startupStage;
+}
+
+void MCM_setMaxTorqueDNm(MotorController* me, ubyte2 newTorque)
+{
+    me->torqueMaximumDNm = newTorque;
+}
+void MCM_setRegen_TorqueLimitDNm(MotorController* me, ubyte2 newTorqueLimit)
+{
+    if (newTorqueLimit >= 0)
+        me->regen_torqueLimitDNm = newTorqueLimit;
+}
+void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* me, ubyte2 newTorqueZero)
+{
+    if(newTorqueZero >= 0)
+        me->regen_torqueAtZeroPedalDNm = newTorqueZero;
+}
+void MCM_setRegen_PercentBPSForMaxRegen(MotorController* me, float4 percentBPS)
+{
+    if(percentBPS >=0 || percentBPS <= 1)
+        me->regen_percentBPSForMaxRegen = percentBPS;
+}
+void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS)
+{
+    if(percentAPPS >=0 || percentAPPS <= 1)
+        me->regen_percentAPPSForCoasting = percentAPPS;
+}
+
+ubyte2 MCM_getMaxTorqueDNm(MotorController* me)
+{
+    return me->torqueMaximumDNm;
+}
+ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* me)
+{
+    return me->regen_torqueLimitDNm;
+}
+ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* me)
+{
+    return me->regen_torqueAtZeroPedalDNm;
+}
+float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* me)
+{
+    return me->regen_percentBPSForMaxRegen;
+}
+float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* me)
+{
+    return me->regen_percentAPPSForCoasting;
 }

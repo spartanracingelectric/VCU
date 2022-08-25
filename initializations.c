@@ -24,7 +24,7 @@ void vcu_initializeADC(bool benchMode)
     //----------------------------------------------------------------------------
     //Analog sensor supplies
     Sensor_TPS0.ioErr_powerSet = Sensor_BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148 and 136
-    Sensor_TPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
+    Sensor_TPS1.ioErr_powerSet = Sensor_BPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
 
     //Variable power supply
     IO_POWER_Set(IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);    //IO_POWER_Set(IO_PIN_269, IO_POWER_8_5_V);
@@ -32,11 +32,13 @@ void vcu_initializeADC(bool benchMode)
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
     IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
-    IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay - not used SRE-4, wire does go to penthouse
+    IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump relay - always on per RMS HW manual pg 7 - NOT USED
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
+    //IO_DO_Init(IO_DO_06) //DRS Shift Up
+    //IO_DO_Init(IO_DO_07) //DRS Shift Down
 
     //Lowside outputs (connects to ground when on)
     IO_DO_Init(IO_ADC_CUR_00);    IO_DO_Set(IO_ADC_CUR_00, FALSE); //Brake light
@@ -45,7 +47,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_ADC_CUR_03);    IO_DO_Set(IO_ADC_CUR_03, FALSE); //RTD
 
     //Wheel Speed Sensor supplies
-    Sensor_WSS_FL.ioErr_powerInit = Sensor_WSS_FR.ioErr_powerInit = Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); // WSS power
+    //Sensor_WSS_FL.ioErr_powerInit = Sensor_WSS_FR.ioErr_powerInit = Sensor_WSS_RL.ioErr_powerInit = Sensor_WSS_RR.ioErr_powerInit = IO_DO_Init(IO_DO_07); // WSS power
     // IO_POWER_Set (IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);
 
     //Digital PWM outputs ---------------------------------------------------
@@ -61,6 +63,10 @@ void vcu_initializeADC(bool benchMode)
     IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL);
     IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL);
 
+    //Accum fan signal
+    IO_PWM_Init(IO_PWM_04, 100, TRUE, FALSE, 0, FALSE, NULL);
+    IO_PWM_SetDuty(IO_PWM_04, 1.00 * 0xFFFF, NULL);    //Default 100%, build up momentum in fans or whatever? Lol
+
     //----------------------------------------------------------------------------
     //ADC channels
     //----------------------------------------------------------------------------
@@ -75,25 +81,32 @@ void vcu_initializeADC(bool benchMode)
     //Sensor_BPS0.ioErr_init = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
     if (benchMode == TRUE)
     {
+        //Redo BPS ratiometric
         Sensor_TPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
         Sensor_TPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
         Sensor_BPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
+        Sensor_BPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
     }
     else //Not bench mode
     {
         //In the future, production TPS will be digital instead of analog (see PWD section, below)
         //Sensor_TPS0.ioErr_signalInit = IO_PWD_PulseInit(IO_PWM_00, IO_PWD_HIGH_TIME);
         //Sensor_TPS1.ioErr_signalInit = IO_PWD_PulseInit(IO_PWM_01, IO_PWD_HIGH_TIME);
+        //Redo BPS ratiometric
         Sensor_TPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
         Sensor_TPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
         Sensor_BPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
+        Sensor_BPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
     }
 
     //Unused
     //IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
 
+    //Steering Angle Sensor for DRS
+    //Sensor_SAS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+
     //TCS Pot
-    IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
+    //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
 
     //Unused
     //IO_ADC_ChannelInit(IO_ADC_5V_05, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
@@ -107,10 +120,19 @@ void vcu_initializeADC(bool benchMode)
     //MOVED TO TPS/BPS BLOCK ABOVE
 
     //Wheel Speed Sensors (Pulse Width Detection)
-    Sensor_WSS_FL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_06, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_FR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_04, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_RL.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_05, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
-    Sensor_WSS_RR.ioErr_signalInit = IO_PWD_FreqInit(IO_PWD_07, IO_PWD_FALLING_VAR); //Is there a reason to look for rising vs falling edge?
+
+    IO_RTC_StartTime(&Sensor_WSS_FL.timestamp);
+    IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
+    IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
+    IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
+
+    Sensor_WSS_FL.heldSensorValue = Sensor_WSS_FR.heldSensorValue = Sensor_WSS_RL.heldSensorValue = Sensor_WSS_RR.heldSensorValue = 0;
+
+    Sensor_WSS_FL.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_10, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P274
+    Sensor_WSS_FR.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_08, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P275
+    Sensor_WSS_RL.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_09, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P268
+    Sensor_WSS_RR.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_11, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P267
+    //Maybe look for falling edge because we're using NPN/sinking WSS? 
 
     //----------------------------------------------------------------------------
     //Switches
@@ -119,6 +141,8 @@ void vcu_initializeADC(bool benchMode)
     Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PD_10K);     //Eco Button
     Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K);   //TCS Switch A
     Sensor_TCSSwitchDown.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); //TCS Switch B
+    //Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //TCS Switch B
+
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
 }
@@ -139,7 +163,7 @@ void vcu_ADCWasteLoop(void)
         IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
         IO_DO_Set(IO_DO_00, FALSE); //False = low
-        //IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
+        IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
         IO_DI_Get(IO_DI_04, &tempData);
@@ -160,7 +184,7 @@ void vcu_ADCWasteLoop(void)
 Sensor Sensor_TPS0; // = { 0, 0.5, 4.5 };
 Sensor Sensor_TPS1; // = { 0, 4.5, 0.5 };
 Sensor Sensor_BPS0; // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
-//Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
+Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
 Sensor Sensor_WSS_FL; // = { 2 };
 Sensor Sensor_WSS_FR; // = { 2 };
 Sensor Sensor_WSS_RL; // = { 2 };

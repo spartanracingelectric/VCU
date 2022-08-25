@@ -35,7 +35,7 @@
 extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BPS1;
+extern Sensor Sensor_BPS1;
 extern Sensor Sensor_WSS_FL;
 extern Sensor Sensor_WSS_FR;
 extern Sensor Sensor_WSS_RL;
