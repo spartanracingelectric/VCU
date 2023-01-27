@@ -740,10 +740,8 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
-    sbyte2 wheelRPM = me->motorRPM / 3;
-    float4 tireCircumference = 3.141592653589 * 18 * .0254; // (pi * diameter * in to m) = circumference in meters
-    sbyte2 groundKPH = -(wheelRPM / 60 * tireCircumference); // Negate value to obtain positive value (since motorRPM reading is flipped)
-    return groundKPH;
+   sbyte2 groundKPH = -(((me->motorRPM/3.30) * 60 * 3.141592653589 * 0.4) / 1000);
+   return groundKPH;
 }
 
 ubyte1 MCM_getRegenMode(MotorController *me)
