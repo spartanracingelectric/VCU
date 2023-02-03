@@ -102,8 +102,9 @@ void vcu_initializeADC(bool benchMode)
     //Unused
     //IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
 
-    //Steering Angle Sensor for DRS
-    //Sensor_SAS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+    //Steering Angle Sensor 
+
+    Sensor_SAS.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
 
     //TCS Pot
     //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);

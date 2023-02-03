@@ -189,6 +189,9 @@ extern Sensor Sensor_HVILTerminationSense;
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
 
+//Steering 
+extern Sensor Sensor_SAS;
+
 
 //----------------------------------------------------------------------------
 // Sensor Functions
