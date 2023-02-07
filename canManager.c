@@ -736,18 +736,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50C: SAS (Steering Angle Sensor)
-    sbyte2 min_voltage = 0;
-    sbyte2 max_voltage = 5000;
-    sbyte2 min_angle = -90;
-    sbyte2 max_angle = 90;
-    sbyte2 deg = min_angle + (max_angle - min_angle) * (Sensor_SAS.sensorValue - min_voltage) / (max_voltage - min_voltage);
-    //sbyte2 used for CAN and memory saving
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = deg;
-    canMessages[canMessageCount - 1].data[byteNum++] = deg >> 8; 
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8; 
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;

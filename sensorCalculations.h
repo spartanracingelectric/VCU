@@ -125,6 +125,12 @@ double rpm_to_mph(double rpm);
 //Resistive range: 0.4 to 6.0 kohm
 //ShockPot.
 
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte2 steering_degrees();
 
 /*****************************************************************************
 * Doppler speed sensor functions
