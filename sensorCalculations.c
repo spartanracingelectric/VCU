@@ -303,7 +303,6 @@ double rpm_to_mph(double rpm) {
     return (double)((3.14159265*WHEEL_DIAMETER_D*rpm*60.0) / 63360.0);
 }
 
-
 /*****************************************************************************
 * Shock pot(iometer) functions - FOUR NEEDED
 * FR = Pin150 = Analog Input 4

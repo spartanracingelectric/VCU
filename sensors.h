@@ -170,7 +170,7 @@ extern Sensor Sensor_WPS_FR;  // = { 3 };
 extern Sensor Sensor_WPS_RL;  // = { 3 };
 extern Sensor Sensor_WPS_RR;  // = { 3 };
 
-//Steering position Sensor (SPS) - continuous rotation sensor, works like TPS, probably ratiometric
+//Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
 extern Sensor Sensor_SAS;  // = { 4 };
 
 //Switches
@@ -188,9 +188,6 @@ extern Sensor Sensor_HVILTerminationSense;
 
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
-
-//Steering 
-extern Sensor Sensor_SAS;
 
 
 //----------------------------------------------------------------------------
