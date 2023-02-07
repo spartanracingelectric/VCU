@@ -446,6 +446,11 @@ ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
     return (me->lowestCellVoltage);
 }
 
+ubyte2 BMS_getPackVoltage(BatteryManagementSystem *me)
+{
+    return (me->packVoltage); 
+}
+
 //Split into
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
 {

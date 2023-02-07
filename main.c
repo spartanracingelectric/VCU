@@ -47,6 +47,7 @@
 #include "sensorCalculations.h"
 #include "serial.h"
 #include "cooling.h"
+#include "bms.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -200,19 +201,26 @@ void main(void)
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
-    //BatteryManagementSystem* bms = BMS_new();
+    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
 
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    MCM_setRegenMode(mcm0, REGENMODE_OFF); // TODO: Read regen mode from DCU CAN message - Issue #96
+
+    // Regen mode is now set based on battery voltage to preserve overvoltage fault 
+    if(BMS_getPackVoltage(bms) >= 400000){ // Milivolts for pack voltage
+       MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
+    } else {
+       MCM_setRegenMode(mcm0, REGENMODE_FIXED); 
+    }
+    
+
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
-    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
     CoolingSystem *cs = CoolingSystem_new(serialMan);
 
     //----------------------------------------------------------------------------
