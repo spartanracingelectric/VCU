@@ -831,7 +831,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = getLaunchControlStatus(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; 
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getCalculatedTorque(); 
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;

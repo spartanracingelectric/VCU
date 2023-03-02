@@ -21,5 +21,6 @@ LaunchControl *LaunchControl_new();
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
 void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
 bool getLaunchControlStatus(LaunchControl *lc);
+float getCalculatedTorque();
 
 #endif
