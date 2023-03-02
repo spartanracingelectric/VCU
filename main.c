@@ -48,6 +48,7 @@
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
+#include "LaunchControl.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -222,6 +223,7 @@ void main(void)
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
+    LaunchControl *lc = LaunchControl_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -324,6 +326,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
+        slipRatioCalculation(wss, lc);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
@@ -343,7 +346,8 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        MCM_calculateCommands(mcm0, tps, bps);
+        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        MCM_calculateCommands(mcm0, tps, bps, lc);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 

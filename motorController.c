@@ -8,6 +8,7 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 #include "sensorCalculations.h"
+#include "LaunchControl.h"
 
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
@@ -256,7 +257,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
+void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, LaunchControl *lc)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -278,8 +279,15 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    torqueOutput = appsTorque + bpsTorque;
-    //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
+    if(getLaunchControlStatus() == TRUE){
+        torqueOutput = lc->lcTorque;
+    } else if (lc->lcTorque == 0){
+        torqueOutput = lc->lcTorque;
+    } else {
+        torqueOutput = appsTorque + bpsTorque;
+        //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
+    }
+    
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?

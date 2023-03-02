@@ -7,6 +7,7 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
+#include "LaunchControl.h"
 //#include "safety.h"
 #include "serial.h"
 
