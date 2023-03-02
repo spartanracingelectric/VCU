@@ -207,7 +207,7 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
 
     // Regen mode is now set based on battery voltage to preserve overvoltage fault 
     if(BMS_getPackVoltage(bms) >= 400000){ // Milivolts for pack voltage
@@ -347,7 +347,7 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
-        MCM_calculateCommands(mcm0, tps, bps, lc);
+        MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 
@@ -376,7 +376,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 

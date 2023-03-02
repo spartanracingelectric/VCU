@@ -8,7 +8,6 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 #include "sensorCalculations.h"
-#include "LaunchControl.h"
 
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
@@ -130,6 +129,10 @@ struct _MotorController
     */
     //_commands commands;
     //};
+
+    sbyte2 LaunchControl_TorqueLimit;
+    bool LCState;
+
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -167,6 +170,10 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->relayState = FALSE; //Low
 
     me->motor_temp = 99;
+
+    me->LaunchControl_TorqueLimit = 0;
+
+    me->LCState = FALSE;
     /*
 me->setTorque = &setTorque;
 me->setInverter = &setInverter;
@@ -257,7 +264,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, LaunchControl *lc)
+void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -279,10 +286,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    if(getLaunchControlStatus() == TRUE){
-        torqueOutput = lc->lcTorque;
-    } else if (lc->lcTorque == 0){
-        torqueOutput = lc->lcTorque;
+    if(me->LCState == TRUE){
+        torqueOutput = me->LaunchControl_TorqueLimit;
+    } else if (me->LaunchControl_TorqueLimit == 0){
+        torqueOutput = me->LaunchControl_TorqueLimit;
     } else {
         torqueOutput = appsTorque + bpsTorque;
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
@@ -673,6 +680,18 @@ void MCM_updateLockoutStatus(MotorController *me, Status newState)
 void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
+}
+
+void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
+
+     me->LaunchControl_TorqueLimit = lcTorqueLimit;
+
+}
+
+void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
+
+    me->LCState = newLCState;
+
 }
 
 Status MCM_getLockoutStatus(MotorController *me)
