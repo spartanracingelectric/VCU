@@ -38,6 +38,7 @@ float calculatePIDController(PIDController* controller, float target, float curr
     float error = target - current;
 
     // Add the current error to the running sum of errors for the integral term
+    // Time constant variance w/ System response (dt)
     controller->errorSum += error * dt;
 
     // Calculate the derivative of the error
@@ -50,13 +51,12 @@ float calculatePIDController(PIDController* controller, float target, float curr
 }
 
 /* The PID controller works by using three terms to calculate an output value that is used to control a system. The three terms are:
-
 Proportional: This term is proportional to the error between the target and current values. It is multiplied by a constant gain value (kp) that determines how much the controller responds to changes in the error.
 Integral: This term is proportional to the running sum of errors over time. It is multiplied by a constant gain value (ki) that determines how much the controller responds to steady-state errors.
 Derivative: This term is proportional to the rate of change of the error. It is multiplied by a constant gain value (kd) that determines how much the controller responds to changes in the rate of change of the error.
 By adjusting the values of the three gain constants (kp, ki, and kd), the controller can be tuned to respond differently to changes in the error, steady-state errors, and changes in the rate of change of the error. 
 Generally, higher values of kp will lead to faster response to changes in the error, while higher values of ki will lead to faster response to steady-state errors, and higher values of kd will lead to faster response to changes in the rate of change of the error.
-
+Conversion between SlipR and Torque -> kp
 */
 
 /* Start of Launch Control */
@@ -79,9 +79,9 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
 
     PIDController controller;
-    initPIDController(&controller, 0.1, 0.01, 0.001); // Set your PID values here to change various setpoints
+    initPIDController(&controller, 0.1, 0.01, 0.001); // Set your PID values here to change various setpoints /* Setting to 0 for off */
     float targetSlipRatio = 0.2; // Set your target slip ratio here
-    float dt = 0.01; // Set your derivative here
+    float dt = 0.01; // Set your delta time long enough for system response to previous change
 
     float bps0percent;
     BrakePressureSensor_getIndividualSensorPercent(bps, 0, &bps0percent);
@@ -104,7 +104,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->LCStatus = TRUE;
-        me->lcTorque = 180; 
+        me->lcTorque = 15; 
         if(groundSpeed > 3){
             Calctorque = calculatePIDController(&controller, targetSlipRatio, me->slipRatio, dt);
             if(Calctorque < mcm_Torque_max){
@@ -129,6 +129,3 @@ bool getLaunchControlStatus(LaunchControl *me){
 float getCalculatedTorque(){
     return Calctorque;
 }
-
-
-
