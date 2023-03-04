@@ -65,7 +65,7 @@ LaunchControl *LaunchControl_new(){
 
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->slipRatio = 0;
-    me->lcTorque = 0;
+    me->lcTorque = -1;
     me->LCReady = FALSE;
     me->LCStatus = FALSE; 
 
@@ -116,6 +116,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
      if(bps0percent > 0.05 || tpsPercentage < 0.80 || steeringAngle > 35 || steeringAngle < -35){
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
+        me->lcTorque = -1;
      }
 
     MCM_update_LaunchControl_State(mcm, me->LCStatus);
