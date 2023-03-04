@@ -94,7 +94,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     sbyte2 groundSpeed = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     
-     if(Sensor_LCButton.sensorValue == TRUE && groundSpeed < 5 && tpsPercentage > 0.95 && bps0percent < 0.35 && steeringAngle > -5 && steeringAngle < 5) {
+     if(Sensor_LCButton.sensorValue == TRUE && groundSpeed < 5 && bps0percent < 0.35 && steeringAngle > -5 && steeringAngle < 5) {
         me->LCReady = TRUE;
      }
      
@@ -113,7 +113,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         } 
      }
 
-     if(bps0percent > 0.05 || tpsPercentage < 0.80 || steeringAngle > 35 || steeringAngle < -35){
+     if(bps0percent > 0.10){ //tpsPercentage < 0.80 || steeringAngle > 35 || steeringAngle < -35
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;
