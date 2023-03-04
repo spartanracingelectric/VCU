@@ -102,9 +102,9 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
      }
 
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tpsPercentage > 0.95){
         me->LCStatus = TRUE;
-        me->lcTorque = 15; 
+        me->lcTorque = 30; 
         if(groundSpeed > 3){
             Calctorque = calculatePIDController(&controller, targetSlipRatio, me->slipRatio, dt);
             if(Calctorque < mcm_Torque_max){
