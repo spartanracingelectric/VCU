@@ -89,15 +89,15 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
     sbyte2 steeringAngle = steering_degrees();
     
-     if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
+     if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
         me->LCReady = TRUE;
      }
      
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
      }
 
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .95){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .95){
         me->LCStatus = TRUE;
         me->lcTorque = 30; 
         if(speedKph > 3){
@@ -108,11 +108,11 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         } 
      }
 
-     if(bps->percent > 0.10 || tps->travelPercent < 0.80 || steeringAngle > 35 || steeringAngle < -35){ 
-        me->LCStatus = FALSE;
-        me->LCReady = FALSE;
-        me->lcTorque = -1;
-     }
+    if(bps->percent > 0.10 || steeringAngle > 35 || steeringAngle < -35){ //tps->travelPercent < 0.80
+            me->LCStatus = FALSE;
+            me->LCReady = FALSE;
+            me->lcTorque = -1;
+    }
 
     // Update launch control state and torque limit
     MCM_update_LaunchControl_State(mcm, me->LCStatus);
