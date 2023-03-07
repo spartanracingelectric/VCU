@@ -114,9 +114,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             me->LCReady = FALSE;
             me->lcTorque = -1;
         }
-     } else {
-        me->LCReady = FALSE;
-     }
+     } 
 
     // Update launch control state and torque limit
     MCM_update_LaunchControl_State(mcm, me->LCStatus);
