@@ -89,15 +89,18 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
     sbyte2 steeringAngle = steering_degrees();
     
+    // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
         me->LCReady = TRUE;
+     } else {
+        me->LCReady = FALSE;
      }
      
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
      }
 
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .95){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         me->lcTorque = 30; 
         if(speedKph > 3){
@@ -105,14 +108,15 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             if(Calctorque < mcm_Torque_max){
                 //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
             }
-        } 
-     }
-
-    if(bps->percent > 0.10 || steeringAngle > 35 || steeringAngle < -35){ //tps->travelPercent < 0.80
+        }
+        if(bps->percent > 0.10 || steeringAngle > 35 || steeringAngle < -35 || tps->travelPercent < 0.80){ 
             me->LCStatus = FALSE;
             me->LCReady = FALSE;
             me->lcTorque = -1;
-    }
+        }
+     } else {
+        me->LCReady = FALSE;
+     }
 
     // Update launch control state and torque limit
     MCM_update_LaunchControl_State(mcm, me->LCStatus);
