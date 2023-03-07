@@ -110,17 +110,18 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
                 //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
             }
         }
-     } 
+     }
+
+    if(wasActive){
+        if(tps->travelPercent < 0.80){
+            me->LCStatus = FALSE;
+            me->LCReady = FALSE;
+            me->lcTorque = -1;
+            wasActive = FALSE;
+        }
+    } 
 
     if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35){ 
-        if(wasActive){
-            if(tps->travelPercent < 0.80){
-               me->LCStatus = FALSE;
-               me->LCReady = FALSE;
-               me->lcTorque = -1;
-               wasActive = FALSE;
-            }
-        }
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;
