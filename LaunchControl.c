@@ -88,8 +88,6 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
 
     sbyte2 steeringAngle = steering_degrees();
-
-    bool wasActive = FALSE;
     
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
@@ -102,7 +100,6 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
-        wasActive = TRUE;
         me->lcTorque = 30; 
         if(speedKph > 3){
             Calctorque = calculatePIDController(&controller, targetSlipRatio, me->slipRatio, dt);
@@ -110,18 +107,9 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
                 //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
             }
         }
-     }
+    }  
 
-    if(wasActive){
-        if(tps->travelPercent < 0.80){
-            me->LCStatus = FALSE;
-            me->LCReady = FALSE;
-            me->lcTorque = -1;
-            wasActive = FALSE;
-        }
-    } 
-
-    if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35){ 
+    if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){ 
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;
