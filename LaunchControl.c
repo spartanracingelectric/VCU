@@ -92,9 +92,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
         me->LCReady = TRUE;
-     } else {
-        me->LCReady = FALSE;
-     }
+     } 
      
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
