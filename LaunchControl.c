@@ -33,7 +33,7 @@ void initPIDController(PIDController* controller, float p, float i, float d) {
     controller->lastError = 0;
 }
 
-float calculatePIDController(PIDController* controller, float target, float current, float dt) {
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
     // Calculate the error between the target and current values
     float error = target - current;
 
@@ -47,6 +47,18 @@ float calculatePIDController(PIDController* controller, float target, float curr
 
     // Calculate the output of the PID controller using the three terms (proportional, integral, and derivative)
     float output = controller->kp * error + controller->ki * controller->errorSum + controller->kd * dError;
+
+    //Anti-Windup Calculation (needs to be done on integral controllers)
+    if (output > maxTorque){
+        output = maxTorque;
+        controller->errorSum = controller->errorSum - error * dt;
+    }
+
+    if (output < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
+        output = 0;
+        controller->errorSum = controller->errorSum - error * dt;
+    }
+
     return output;
 }
 
@@ -57,6 +69,8 @@ Derivative: This term is proportional to the rate of change of the error. It is 
 By adjusting the values of the three gain constants (kp, ki, and kd), the controller can be tuned to respond differently to changes in the error, steady-state errors, and changes in the rate of change of the error. 
 Generally, higher values of kp will lead to faster response to changes in the error, while higher values of ki will lead to faster response to steady-state errors, and higher values of kd will lead to faster response to changes in the rate of change of the error.
 Conversion between SlipR and Torque -> kp
+- Proportional test first with other output 0, get midway with target and then tune other items. There are many factors of noise. 
+- Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for kp to get target
 */
 
 /* Start of Launch Control */
@@ -78,16 +92,11 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
 
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
 
-    PIDController controller;
-    initPIDController(&controller, 0.1, 0.01, 0.001); // Set your PID values here to change various setpoints /* Setting to 0 for off */
-    float targetSlipRatio = 0.2; // Set your target slip ratio here
-    float dt = 0.01; // Set your delta time long enough for system response to previous change
-
-    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0);
-
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
 
     sbyte2 steeringAngle = steering_degrees();
+
+    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0);
     
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
@@ -100,12 +109,12 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
+        PIDController controller;
+        initPIDController(&controller, 0, 0, 0); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change 
         me->lcTorque = 30; 
         if(speedKph > 3){
-            Calctorque = calculatePIDController(&controller, targetSlipRatio, me->slipRatio, dt);
-            if(Calctorque < mcm_Torque_max){
-                //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
-            }
+            Calctorque = calculatePIDController(&controller, 0.2, me->slipRatio, 0.33, mcm_Torque_max); // Set your target, current, dt
+            //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
     }  
 
