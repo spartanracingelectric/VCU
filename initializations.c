@@ -33,7 +33,7 @@ void vcu_initializeADC(bool benchMode)
     //Relay power outputs
     IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
     IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
-    IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump relay - always on per RMS HW manual pg 7 - NOT USED
+    IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
@@ -59,7 +59,7 @@ void vcu_initializeADC(bool benchMode)
     IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL);
     IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);
     
-    //Water pump signal
+    //Water pump signal (No longer using in SR-14 Vehicle due to direct Signal)
     IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL);
     IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL);
 

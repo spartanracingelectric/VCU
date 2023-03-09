@@ -105,7 +105,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 //-------------------------------------------------------------------
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
-    //Send PWM control signal to water pump
+    //Send digital output control signal to water pump
     Light_set(Cooling_waterPump, me->waterPumpPercent);
 
     // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110

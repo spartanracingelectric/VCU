@@ -152,6 +152,9 @@ void Light_set(Light light, float4 percent)
     ubyte2 duty = 65535 * percent;
     bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
 
+    //For waterpump cooling
+    ubyte2 numOnPulses = percent * duty;
+
     switch (light)
     {
     //PWM devices
@@ -160,7 +163,13 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_waterPump:
-        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
+        for(int i = 0; i < duty; i++){
+            if(i < numOnPulses){
+                IO_DO_Set(IO_DO_02, TRUE);
+            } else {
+                IO_DO_Set(IO_DO_02, FALSE);
+            }
+        }
         break;
 
     case Cooling_motorFans:  // Powerpack fan(s)
