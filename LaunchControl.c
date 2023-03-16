@@ -29,34 +29,36 @@ void initPIDController(PIDController* controller, float p, float i, float d) {
     controller->kp = p;
     controller->ki = i;
     controller->kd = d;
-    controller->errorSum = 0;
+    controller->errorSum = 230; //Will be initial torque command close to 240 (need tuning for initial torque)
     controller->lastError = 0;
 }
 
 float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
     // Calculate the error between the target and current values
     float error = target - current;
+    
+    float propError = controller->kp * error;
 
     // Add the current error to the running sum of errors for the integral term
     // Time constant variance w/ System response (dt)
-    controller->errorSum += error * dt;
+    controller->errorSum += controller->ki * error * dt;
 
     // Calculate the derivative of the error
-    float dError = (error - controller->lastError) / dt;
-    controller->lastError = error;
+    float dError = ((error * controller->kd) - controller->lastError) / dt;
+    controller->lastError = error * controller->kd;
 
     // Calculate the output of the PID controller using the three terms (proportional, integral, and derivative)
-    float output = controller->kp * error + controller->ki * controller->errorSum + controller->kd * dError;
+    float output = propError + controller->errorSum + dError;
 
     //Anti-Windup Calculation (needs to be done on integral controllers)
     if (output > maxTorque){
         output = maxTorque;
-        controller->errorSum = controller->errorSum - error * dt;
+        controller->errorSum -= controller->ki * error * dt;
     }
 
     if (output < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
         output = 0;
-        controller->errorSum = controller->errorSum - error * dt;
+        //controller->errorSum = controller->errorSum - error * dt; Is this needed?
     }
 
     return output;
