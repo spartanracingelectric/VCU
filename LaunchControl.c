@@ -99,6 +99,8 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     sbyte2 steeringAngle = steering_degrees();
 
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0);
+
+    PIDController controller;
     
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
@@ -107,12 +109,11 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
      
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
+        initPIDController(&controller, 0, 0, 0); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change 
      }
 
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
-        PIDController controller;
-        initPIDController(&controller, 0, 0, 0); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change 
         me->lcTorque = 30; 
         if(speedKph > 3){
             Calctorque = calculatePIDController(&controller, 0.2, me->slipRatio, 0.33, mcm_Torque_max); // Set your target, current, dt
