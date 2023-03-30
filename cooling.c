@@ -97,6 +97,31 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
+
+    /*
+        temp numbers provided by Malek, subject to change
+        multiply fake duty by 10 to get actual duty
+        if (temp >= 65) {
+            fakeDuty = 10   
+        }
+        else if (temp >= 60) {
+            fakeDuty = 8
+        }
+        else if (temp >= 55) {
+            fakeDuty = 6
+        }
+        else if (temp >= 50) {
+            fakeDute = 4
+        }
+        else if (temp >= 45) {
+            fakeDuty = 2
+        }
+        else {
+            fakeDuty = 1
+        }
+        
+
+    */
 }
 
 //-------------------------------------------------------------------
@@ -107,6 +132,61 @@ void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
     Light_set(Cooling_waterPump, me->waterPumpPercent);
+
+    /*
+    Ajay psuedo code:
+    method 1: loop in function
+    -pro: easier
+    -con: bad design
+
+    for (int i = 0; i < fakeDuty; i++) {
+        light_set(water pump) to turn on
+    }
+    light_set(water pump) to turn off
+    for (int i = 0; i < 10 - fakeDuty; i++);
+
+
+
+    busy wait may not be necessary, since the main loop will spend time to execure all the other commands, so I need to incorporate that into the entire cycle. 
+    I could count up all the instruction inbetween executions enact cooling(I did), which will comes out to 25-30ms from instructions and the 33ms from the loop at the end
+    which would give around 59-64 ms of time inbetween executions. So to mimic a duty cycle at say 0.8%, assuming the water pump will be off while enactcooling
+    is not executing, would give roughly 310 ms for instruction, which isn't great.
+
+    So another idea is to leave it on while everything else is executing, then turn it off for a set a amount of time. 
+    method 2:
+    -pro: 
+        - techincally make more sense to work? but also allows more control
+        - I can work with Malek to come up with a better way to decide the duty. 
+    -con: 
+        - still bad design to have loop here
+        - above explanation and assumption could be completely wrong, which would mean this is also wrong. 
+        - also, when the temp is low, and we have a small duty cycle, we're going to be waiting a lot to set the duty properly. 
+
+    also, these math calculations have to be moved, but I like having them all in one place for now. 
+      temp numbers provided by Malek, subject to change
+        multiply fake duty by 10 to get actual duty
+        if (temp >= 65) {
+            fakeDuty = 0  
+        }
+        else if (temp >= 60) {
+            fakeDuty = 16
+        }
+        else if (temp >= 55) {
+            fakeDuty = 42
+        }
+        else if (temp >= 50) {
+            fakeDute = 62
+        }
+        else if (temp >= 45) {
+            fakeDuty = 310
+        }
+        else {
+            fakeDuty = 350
+        }
+
+    lightset(waterpump) to turn off
+    for (int i = 0; i < fakeDuty; i++);
+    */
 
     // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110
     // Relay wiring seems to be backwards for 2021 car: Fans are on while everything is cool,
