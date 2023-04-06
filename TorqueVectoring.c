@@ -8,8 +8,13 @@
 #include <math.h>
 #include "sensors.h"
 #include "motorcontroller.h"
-#include "TorqueVectoring.h"
+#include "TorqueVectoring.h"'
+#include "wheelSpeeds.h"
 
+#define FNUM_ROWS 7 //define array sizes for LUTs
+#define FNUM_COLS 6
+#define YNUM_ROWS 7
+#define YNUM_COLS 6
 
 /****************************
  * Torque Vectoring
@@ -24,37 +29,48 @@ struct _TorqueVectoring
 {
     float friction;
     ubyte2 Fz
-    float trim
+    float trim;
+    ubyte2 speed;
+    float slipRatio
     //check data types
 };
 
 //Initialize Tire values
-void TorqueVectoring *Tire_new(ubyte1 corner, float friction, ubyte2 Fz, float trim)
+    //TODO: Does Tractive force need to be a parameter of tire or just multiplied in calculation?
+void TorqueVectoring *Tire_new(float friction, ubyte2 Fz, float trim, ubyte2 speed, float slipRatio)
 {
     TorqueVectoring *tireFL = (TorqueVectoring *)malloc(sizeof(struct _TorqueVectoring));
         tireFL->friction = 0;
         tireFL->Fz = 0;
         tireFL->trim = 0;
+        tireFL->speed = 0;
+        tireFL->slipRatio = 0;
 
     TorqueVectoring *tireFR = (TorqueVectoring *)malloc(sizeof(struct _TorqueVectoring));
         tireFR->friction = 0;
         tireFR->Fz = 0;
         tireFR->trim = 0;
+        tireFR->speed = 0;
+        tireFR->slipRatio = 0;
 
     TorqueVectoring *tireFR = (TorqueVectoring *)malloc(sizeof(struct _TorqueVectoring));
         tireRL->friction = 0;
         tireRL->Fz = 0;
         tireRL->trim = 0;
+        tireRL->speed = 0;
+        tireRL->slipRatio = 0;
     
     TorqueVectoring *tireRR = (TorqueVectoring *)malloc(sizeof(struct _TorqueVectoring));
         tireRR->friction = 0;
         tireRR->Fz = 0;
         tireRR->trim = 0;
+        tireRR->speed = 0;
+        tireRR->slipRatio = 0;
 }
 
 
 
-/**************
+/****************
 Calculate Commands
 Retrieve Sensor Data and driver requested inputs
 Steering Angle, Load cells, Torque Request, Wheel Speeds (already evaluated in motor controller)
@@ -64,25 +80,58 @@ Slip Ratio
 **********************/
 
 
-void TVcalculateCommads()
+void calculateTVCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, Wheelspeeds *me)
 {
-                    //Call inverters 1,2,3,4 to get torques
+    /*
+    MotorController *me = new MotorController;
+    TorqueEncoder *me = new TorequeEncoder;
+    BrakePressureSensor *me = new BrakePressureSensor;
+    */
 
                      //TODO:Driver Throttle (Torque demand actually)
-
+    void MCM_calculateCommands(MotorController*me, TorqueEncoder *tps, BrakePressureSensor *bps)
                      //TODO:Add steering position angle
+                     //Add Shinika's Steering Angle Input
     sbyte2 steeringAngle = steering_degrees();
                      //TODO:slipRatio calculation
-    sbyte2 slipRatio = 
+    sbyte2 targetSlipRatio = 0.2;
 
-                     //TODO:add slip angle calculation, needs to calculate both front and rear
+    
+
+    float4 tireFL->speed = AMKWheelSpeeds_getWheelSpeed(me,FL); //FIXME: Wheel speeds need to be tied to motor Encoders, not WSS
+    float4 tireFR->speed = AMKWheelSpeeds_getWheelSpeed(me,FR);
+    float4 tireRL->speed = AMKWheelSpeeds_getWheelSpeed(me,RL);
+    float4 tireRR->speed = AMKWheelSpeeds_getWheelSpeed(me,RR);
+
+    float4 groundSpeed = AMKWheelSpeeds_getGroundSpeed(me, tire_config); //FIXME: is tire_config correct here?
+                    
+    sbyte2 tireFL->slipRatio = ((tireFL->speed/groundSpeed)-1);
+    sbyte2 tireFR->slipRatio = ((tireFR->speed/groundSpeed)-1);
+    sbyte2 tireRL->slipRatio = ((tireRL->speed/groundSpeed)-1);
+    sbyte2 tireRR->slipRatio = ((tireRR->speed/groundSpeed)-1);  
+
+
+
+    float lookuptable(yawRate, steeringAngle, groundSpeed); //Lookup desired yaw rate request dependent on steering angle and vehicle velocity
+
+
+                    
+                     //TODO:add slip angle calculation, if way to measure slip angle, calculate both front and rear
 
                      //needs to call the functions that use the calculations as inputs
+    
     
     tireLearn()
 
     torqueDistribution()
 }
+
+/***************************
+ * Vehicle and Wheel speeds*
+ * Read via CAN as 1/RPM
+ * Performs calculations to determine vehicle speed and wheel speeds in m/s
+ * *************************/
+//TODO: Calculations :(
 
 
 /***************************
@@ -99,8 +148,10 @@ void TVcalculateCommads()
 
 //TODO: Make function to add to trim and subtract trim; tire corner as input
 
-//
-void tireLearn(tire) //TODO: have input as a generic tire, not specific corner
+/************
+ * Tire Learn
+ *************/
+void tireLearn(tire) //FIXME: How to have input as generic tire, what variable type if 
 {
     if tc->tcStatus = TRUE 
     {
@@ -116,30 +167,115 @@ void tireLearn(tire) //TODO: have input as a generic tire, not specific corner
     }
 }
 
+
+
 /*********************************************************
 LookupTable - Reads look up table
-    Must specify the sensors available for use
     Table must be X by Y columns and rows
-    Ideally would be able to upload a lookup table instead of hard coding, but cannot upload CSV to VCU build.
+        Ideally would be able to upload a lookup table instead of hard coding, but cannot upload CSV to VCU build.
         Could potentially send table through CAN but less than ideal 
 *********************************************************/
 
-float lookupTable(table, x, y)  //Function to read lookupTable
-   {
-    //TODO: create 2D array Lookup Table for Long Friction
-    //TODO: create 2D array Lookup Table for Yaw Rate Request
+//Friction Lookup Table
+float longFric[FNUM_ROWS][FNUM_COLS] = {
+        { 0, 50, 100, 150, 200, 250}, 
+        { 2,  1,   2,   3,   4,   5}, 
+        { 4,  6,   7,   8,   9,  10},
+        { 6, 11,  12,  13,  14,  15},
+        { 8, 16,  17,  18,  19,  20},
+        {10, 21,  22,  23,  24,  25},
+        {12, 26,  27,  28,  29,  30}
+        };
 
-    return lookupValue 
+float lookupFric(float rowFricLookup, float columnFricLookup) {
+    int i = 0, j = 0;
+    int lookedupRow = 0;
+    int lookedupColumn = 0;
+
+    // Find the row and column indices for interpolation
+    for(i = 0; i < NUM_ROWS-1; i++) { 
+        if(longFric[i][0] > rowFricLookup) {
+             lookedupRow = i-1;
+             break;
+        }
     }
 
-/*
-    SlipAngleFz_Friction
-    SlipRatioFz_Friction
-    .csv filename
-    .csv needs an identifier if axes are in slipRatio, slipAngle, Fz, etc..
-*/
+    for(j = 0; j < NUM_COLS-1; j++) {
+        if (longFric[0][j] > columnFricLookup) {
+            lookedupColumn = j-1;
+            break;
+        }
+    }
+
+    // Bilinear interpolation
+    float x = rowFricLookup;
+    float x1 = longFric[i-1][0];
+    float x2 = longFric[i][0];
+    float y = columnFricLookup;
+    float y1 = longFric[0][j-1];
+    float y2 = longFric[0][j];
+    float Q11 = longFric[i-1][j-1];
+    float Q12 = longFric[i-1][j];
+    float Q21 = longFric[i][j-1];
+    float Q22 = longFric[i][j];
+    float R1 = Q11*(x2-rowFricLookup)/(x2-x1) + Q21*(rowFricLookup-x1)/(x2-x1);
+    float R2 = Q12*(x2-rowFricLookup)/(x2-x1) + Q22*(rowFricLookup-x1)/(x2-x1);
+    float P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
+    
+    return P;
+}
+
+//YawRate Lookup Table
+    float longYawR[YNUM_ROWS][YNUM_COLS] = {
+        { 0, 50, 100, 150, 200, 250}, 
+        { 2,  1,   2,   3,   4,   5}, 
+        { 4,  6,   7,   8,   9,  10},
+        { 6, 11,  12,  13,  14,  15},
+        { 8, 16,  17,  18,  19,  20},
+        {10, 21,  22,  23,  24,  25},
+        {12, 26,  27,  28,  29,  30}
+    };
+
+float lookupYawR(float rowYawRLookup, float columnYawRLookup) {
+    int i = 0, j = 0;
+    int lookedupRow = 0;
+    int lookedupColumn = 0;
+    int NUM_ROWS = 7;
+    int NUM_COLS = 6;
 
 
+    // Find the row and column indices for interpolation
+    for(i = 0; i < NUM_ROWS-1; i++) { 
+        if(longYawR[i][0] > rowYawRLookup) {
+             lookedupRow = i-1;
+             break;
+        }
+    }
+
+    for(j = 0; j < NUM_COLS-1; j++) {
+        if (longYawR[0][j] > columnYawRLookup) {
+            lookedupColumn = j-1;
+            break;
+        }
+    }
+
+    // Bilinear interpolation
+    float x = rowYawRLookup;
+    float x1 = longYawR[i-1][0];
+    float x2 = longYawR[i][0];
+    float y = columnYawRLookup;
+    float y1 = longYawR[0][j-1];
+    float y2 = longYawR[0][j];
+    float Q11 = longYawR[i-1][j-1];
+    float Q12 = longYawR[i-1][j];
+    float Q21 = longYawR[i][j-1];
+    float Q22 = longYawR[i][j];
+    float R1 = Q11*(x2-rowYawRLookup)/(x2-x1) + Q21*(rowYawRLookup-x1)/(x2-x1);
+    float R2 = Q12*(x2-rowYawRLookup)/(x2-x1) + Q22*(rowYawRLookup-x1)/(x2-x1);
+    float P = R1*(y2-columnYawRLookup)/(y2-y1) + R2*(columnYawRLookup-y1)/(y2-y1);
+    
+    return P;
+}
 
 /********************
 Assign Friction 
@@ -151,21 +287,21 @@ thru Lookup Tables
 // Provide requested torque as a percentage of peak motor torque
 //as long as friction limit is not exceeded with given parameters
     
-assignFriction(*tireFL, *tireFR, *tireRL, *tireRR) //TODO fix inputs to have inputs
+float assignFriction(*tireFL, *tireFR, *tireRL, *tireRR) //TODO fix inputs to have inputs
 {   
-    tireFL->Fric = lookupTable(SlipRatioFz_Friction,slipRatio, tireFL->Fz) + tireFL->trim//assign peak static friction available to each tire with trim applied
-    tireFR->LongFric = lookupTable(SlipRatioFz_Friction,slipRatio, tireFR->Fz)
-    tireRL->LongFric = lookupTable(SlipRatioFz_Friction,slipRatio, tireRL->Fz)
-    tireRR->LongFric = lookupTable(SlipRatioFz_Friction,slipRatio, tireRR->Fz)
+    tireFL->LongFric = lookupFric(slipRatio, tireFL->Fz) + tireFL->trim;//assign peak static friction available to each tire with trim applied
+    tireFR->LongFric = lookupFric(slipRatio, tireFR->Fz) + tireFL->trim;
+    tireRL->LongFric = lookupFric(slipRatio, tireRL->Fz) + tireFL->trim;
+    tireRR->LongFric = lookupFric(slipRatio, tireRR->Fz) + tireFL->trim;
 
-
-    //TODO make Tire struct where Tire corner is indicated by 1,2,3,4
 
     FzTotal = tireFL->Fz + tireFR->Fz + tireRL->Fz + tireRR->Fz; //Evaluate total weight on all 4 tires
     lambda = (tireFL->Fz + tireFR->Fz)/(FzTotal); //Front to Rear Bias %, lambda = 1 means full Front bias
     delta = (tireFL->Fz + tireRL->Fz)/(FzTotal);  //Left to Right Bias %, delta = 1 means full Left bias
 
 } 
+
+
 /*
     tireLF->LatFric = lookupTable(slipAngle, Fz)            //ignorning Lateral Friction due to lack of SA sensor
     tireLF->currentFriction = ((LatFric^2 + LongFric^2)^.5)   //long+lat friction magnitude
@@ -174,18 +310,56 @@ assignFriction(*tireFL, *tireFR, *tireRL, *tireRR) //TODO fix inputs to have inp
     tireL->cornerstiffNormal = lookupTable(CorneringStiffness,);
 */
 
+/*******************
+ Slip Control
+*******************/
 
+void setPIDgainsSlip(PIDController *pidSlip)  //set Slip Control gains
+{
+    /* Slip Controller Gains */
+
+	pidSlip->Kp = 180.0f
+	pidSlip->Ki = 0.0f
+	pidSlip->Kd = 0.3f
+    pidSlip->T = .033f   
+    pidSlip->tau = 0.0f
+                        //Sampling Time of discrete controller in seconds //HY-TTC-60 10kHz Timer In *Is this the correct sampling time?
+                        // main.c loop is running on 33ms cycle time (30hz). How fast are wheel speed sensors? MIT looped at 20Hz
+                        // Can only control Nyquist frequency for controller to 15hz?
+    
+}
+
+
+//TODO: Make PID object
 
 /*********************
+YAW CONTROL
 Assign Yaw Moment target based on yaw rate request from driver
 Uses PID controller to determine the Yaw Moment required to generate requested Yaw Rate
 **********************/
+
+void setPIDgainsYaw(PIDController *pidYaw)  //set Yaw Control gains
+{
+    /* Yaw Controller Gains */
+	pidYaw->Kp = 180.0f
+	pidYaw->Ki = 0.0f
+	pidYaw->Kd = 0.3f
+    pidYaw->T = .033f   
+    pidYaw->tau = 0.0f
+                        //Sampling Time of discrete controller in seconds //HY-TTC-60 10kHz Timer In *Is this the correct sampling time?
+                     // main.c loop is running on 33ms cycle time (30hz). How fast are wheel speed sensors? MIT looped at 20Hz
+                     // Can only control Nyquist frequency for controller to 15hz?
+
+}
+
+//TODO: Make PID object
+
+
 assignMz(yawRateReq )
 {
 if yawdd > setpoint value
 }
 
-alpha = 2*rw/tw; //Constants: rw = Effective tire radius, tw = track width (track width is assumed to be equivalent at front and rear axle)
 
 /********************
 Torque Distribution 
@@ -195,7 +369,8 @@ Torque Distribution
 //Yaw moment must come form yaw controller 
 //Slip control must feed tREF as a function of peak torque allowable and torque demand
 //Torque distribution without normal load sensors (but need normal load sensors for friction maps)
-//
+
+float alpha = 2*rw/tw; //Constants: rw = Effective tire radius, tw = track width (track width is assumed to be equivalent at front and rear axle)
 
 torqueDistribution(Mz,tREF,lambda,delta)                                  
 {
