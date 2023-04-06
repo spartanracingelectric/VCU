@@ -369,8 +369,8 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
     float4 RTDPercent;
-    RTDPercent = (Sensor_RTDButton.sensorValue == TRUE ? 1 : 0);
-
+    RTDPercent = (Sensor_RTDButton.sensorValue == FALSE ? 1 : 0);
+    //FALSE and TRUE for sensorValue's are reversed due to Pull Up Resistor
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (Sensor_RTDButton.sensorValue == FALSE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable

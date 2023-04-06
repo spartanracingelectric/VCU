@@ -291,7 +291,8 @@ void main(void)
 
         //Run calibration if commanded
         //if (IO_RTC_GetTimeUS(timestamp_calibStart) < (ubyte4)5000000)
-        if (Sensor_EcoButton.sensorValue == TRUE)
+        //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
+        if (Sensor_EcoButton.sensorValue == FALSE)
         {
             if (timestamp_EcoButton == 0)
             {
