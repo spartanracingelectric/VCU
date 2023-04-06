@@ -97,6 +97,34 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
+
+    me->invert = FALSE;
+    if (motorTemp >= 65)
+    {
+        me->fakeDuty = 0;
+    }
+    else if (motorTemp >= 60)
+    {
+        me->fakeDuty= 16;
+    }
+    else if (motorTemp >= 55)
+    {
+        me->fakeDuty = 42;
+    }
+    else if (motorTemp >= 50)
+    {
+        me->fakeDuty = 62;
+    }
+    else if (motorTemp >= 45)
+    {
+        me->fakeDuty = 42;
+        me->invert = TRUE;
+    }
+    else
+    {
+        me->fakeDuty = 16;
+        me->invert = TRUE;
+    }
 }
 
 //-------------------------------------------------------------------
@@ -106,7 +134,18 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    Light_set(Cooling_waterPump, me->waterPumpPercent);
+    //Light_set(Cooling_waterPump, me->waterPumpPercent);
+
+    if (me->invert) {
+        Light_set(Cooling_waterPump, 99.99);
+        for(int i = 0; i < me->fakeDuty; i++);
+        Light_set(Cooling_waterPump, 1.01);
+    }
+    else {
+        Light_set(Cooling_waterPump, 1.01);
+        for(int i = 0; i < me->fakeDuty; i++);
+        Light_set(Cooling_waterPump, 99.99);
+    }
 
     // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110
     // Relay wiring seems to be backwards for 2021 car: Fans are on while everything is cool,

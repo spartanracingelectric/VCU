@@ -169,7 +169,7 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_waterPump:
-        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
+        IO_DO_Set(IO_DO_02, power);
         break;
 
     case Cooling_motorFans:  // Powerpack fan(s)
