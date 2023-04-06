@@ -6,7 +6,7 @@
 ******************************************************************************
 * Files
 * The Git repository does not contain the complete firmware for SRE-2.  Modules
-* provided by TTTech can be found on the CD that accompanied the VCU. These 
+* provided by TTTech can be found on the CD that accompanied the VCU. These
 * files can be identified by our naming convetion: TTTech files start with a
 * prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
 * they also provided.
@@ -15,7 +15,7 @@
 ******************************************************************************
 * Organization
 * Our code is laid out in the following manner:
-* 
+*
 *****************************************************************************/
 
 //-------------------------------------------------------------------
@@ -47,6 +47,8 @@
 #include "sensorCalculations.h"
 #include "serial.h"
 #include "cooling.h"
+#include "bms.h"
+#include "drs.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -118,8 +120,10 @@ extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
 
 extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
+extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_TEMP_BrakingSwitch;
+
 
 /*****************************************************************************
 * Main!
@@ -200,20 +204,28 @@ void main(void)
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
     ReadyToDriveSound *rtds = RTDS_new();
-    //BatteryManagementSystem* bms = BMS_new();
+    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
 
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    MCM_setRegenMode(mcm0, REGENMODE_OFF); // TODO: Read regen mode from DCU CAN message - Issue #96
+
+    // Regen mode is now set based on battery voltage to preserve overvoltage fault 
+    if(BMS_getPackVoltage(bms) >= 400000){ // Milivolts for pack voltage
+       MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
+    } else {
+       MCM_setRegenMode(mcm0, REGENMODE_FIXED); 
+    }
+    
+
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
-    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
     CoolingSystem *cs = CoolingSystem_new(serialMan);
+    DRS *drs = DRS_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -223,9 +235,9 @@ void main(void)
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
     ubyte2 tps0_calibMin = 850;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 1650; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 3270; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 4300; //me->tps1->sensorValue;
+    ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
+    ubyte2 tps1_calibMin = 2700; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
@@ -316,6 +328,9 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
+
+        //Epic DRS stuff
+        update_DRS_mode(drs ,mcm0, tps, bps);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()

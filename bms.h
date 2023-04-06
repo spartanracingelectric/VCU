@@ -84,6 +84,7 @@ sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsiu
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
 ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
 ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
+ubyte2 BMS_getPackVoltage(BatteryManagementSystem *me); //Millivolts
 
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);

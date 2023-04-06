@@ -52,6 +52,8 @@ extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
+extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_DRSKnob;
 extern Sensor Sensor_TCSSwitchUp;
 extern Sensor Sensor_TCSSwitchDown;
 extern Sensor Sensor_HVILTerminationSense;
@@ -303,7 +305,6 @@ double rpm_to_mph(double rpm) {
     return (double)((3.14159265*WHEEL_DIAMETER_D*rpm*60.0) / 63360.0);
 }
 
-
 /*****************************************************************************
 * Shock pot(iometer) functions - FOUR NEEDED
 * FR = Pin150 = Analog Input 4
@@ -319,7 +320,30 @@ double rpm_to_mph(double rpm) {
 //Resistive range: 0.4 to 6.0 kohm
 //ShockPot.
 
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte2 steering_degrees(){
+    sbyte2 min_voltage = 0;
+    sbyte2 max_voltage = 5000;
+    sbyte2 min_angle = -90;
+    sbyte2 max_angle = 90;
+    sbyte2 deg = min_angle + (max_angle - min_angle) * (Sensor_SAS.sensorValue - min_voltage) / (max_voltage - min_voltage);
+    //sbyte2 used for CAN and memory saving
+    return deg;
+}
 
+float DRS_knob_value(){
+    float min_voltage = 0;
+    float max_voltage = 24000;
+    float min_angle = 0;
+    float max_angle = 1024;
+    float val = min_angle + (max_angle - min_angle) * (Sensor_DRSKnob.sensorValue - min_voltage) / (max_voltage - min_voltage);
+    //sbyte2 used for CAN and memory saving
+    return val;
+}
 /*****************************************************************************
 * Doppler speed sensor functions
 *

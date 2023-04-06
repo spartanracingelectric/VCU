@@ -26,10 +26,6 @@ typedef struct _CoolingSystem
     sbyte1 batteryFanHigh; // Turn on at this temperature
     bool batteryFanState;
     //float4 batteryFanPercent;
-
-    /*
-    
-    */
 } CoolingSystem;
 
 CoolingSystem *CoolingSystem_new(SerialManager *sm);
