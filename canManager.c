@@ -702,10 +702,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //Cooling?
-
-    //50A: GroundSpeedKPH
-
+    //50A: Launch Control and Ground Speed
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     canMessageCount++;
     byteNum = 0;
@@ -713,11 +710,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = speedKph;
     canMessages[canMessageCount - 1].data[byteNum++] = speedKph >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = getLaunchControlStatus(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)getCalculatedTorque(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (int8_t)(lc->slipRatio * 100);
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
