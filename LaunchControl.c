@@ -51,12 +51,12 @@ float calculatePIDController(PIDController* controller, float target, float curr
     float output = propError + controller->errorSum + dError;
 
     //Anti-Windup Calculation (needs to be done on integral controllers)
-    if (output > maxTorque){
+    if (output > maxTorque && (controller->ki * error * dt) > 0){
         output = maxTorque;
         controller->errorSum -= controller->ki * error * dt;
     }
 
-    if (output < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
+    if (output < 0 && (controller->ki * error * dt) < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
         output = 0;
         //controller->errorSum = controller->errorSum - error * dt; Is this needed?
     }
