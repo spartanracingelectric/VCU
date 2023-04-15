@@ -1185,7 +1185,7 @@ void canOutput_sendDebugMessage1(CanManager* me, TorqueEncoder* tps, BrakePressu
 
     //Place the can messsages into the FIFO queue ---------------------------------------------------
     //IO_CAN_WriteFIFO(canFifoHandle_HiPri_Write, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
-    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);  //Send messages to also CAN1 (CanManager_send will be seperated for CAN0 and 1 in future)
+    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);  //Send messages to CAN1
     //IO_CAN_WriteFIFO(canFifoHandle_LoPri_Write, canMessages, canMessageCount);  
 
 }

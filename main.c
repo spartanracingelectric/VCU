@@ -261,6 +261,7 @@ void main(void)
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+        CanManager_read(canMan, CAN1_LOPRI, mcm0, ic0, bms, sc);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
