@@ -185,6 +185,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
+    // Total CAN0 and CAN1 read & write 128 
     CanManager *canMan = CanManager_new(500, 40, 40, 500, 20, 20, 200000); //3rd param = messages per node (can0/can1; read/write)
     //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         
     //can0_read_messageLimit -----------------|   |   |    |   |     |         
@@ -259,8 +260,8 @@ void main(void)
 
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
-        CanManager_read0(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
-        CanManager_read1(canMan, CAN1_LOPRI, mcm0, ic0, bms, sc);
+        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+        CanManager_read(canMan, CAN1_LOPRI, mcm0, ic0, bms, sc);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
