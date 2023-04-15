@@ -322,7 +322,125 @@ bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bi
 /*****************************************************************************
 * read
 ****************************************************************************/
-void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
+void CanManager_read0(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
+{
+    IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
+    ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
+
+    //Read messages from hipri channel 
+    *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
+    IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle)
+                    , canMessages
+                    , (channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)
+                    , &canMessageCount);
+
+    //Determine message type based on ID
+    for (int currMessage = 0; currMessage < canMessageCount; currMessage++)
+    {
+        switch (canMessages[currMessage].id)
+        {
+        //-------------------------------------------------------------------------
+        //Motor controller
+        //-------------------------------------------------------------------------
+        case 0xA0:
+        case 0xA1:
+        case 0xA2:
+        case 0xA3:
+        case 0xA4:
+        case 0xA5:
+        case 0xA6:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+        case 0xA7:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+        case 0xA8:
+        case 0xA9:
+        case 0xAA:
+        case 0xAB:
+        case 0xAC:
+        case 0xAD:
+        case 0xAE:
+        case 0xAF:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
+
+        //-------------------------------------------------------------------------
+        //BMS
+        //-------------------------------------------------------------------------
+        case 0x600:
+        case 0x602: //Faults
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
+        case 0x604:
+        case 0x608:
+        case 0x610:
+        case 0x611:
+        case 0x612:
+        case 0x613:
+        case 0x620:
+        case 0x621:
+        case 0x622: //Cell Voltage Summary
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
+        case 0x623: //Cell Temperature Summary
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
+        case 0x624:
+        //1st Module
+        case 0x630:
+        case 0x631:
+        case 0x632:
+        //2nd Module
+        case 0x633:
+        case 0x634:
+        case 0x635:
+        //3rd Module
+        case 0x636:
+        case 0x637:
+        case 0x638:
+        //4th Module
+        case 0x639:
+        case 0x63A:
+        case 0x63B:
+        //5th Module
+        case 0x63C:
+        case 0x63D:
+        case 0x63E:
+        //6th Module
+        case 0x63F:
+        case 0x640:
+        case 0x641:
+
+        case 0x629:
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
+
+        case 0x702:
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            break;
+        case 0x703:
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            break;
+        case 0x704:
+            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            break;
+
+            
+            
+        //-------------------------------------------------------------------------
+        //VCU Debug Control
+        //-------------------------------------------------------------------------
+        case 0x5FF:
+            SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
+            //default:
+        }
+    }
+    //IO_CAN_WriteFIFO(me->can1_writeHandle, canMessages, messagesReceived);
+    //IO_CAN_WriteMsg(canFifoHandle_LoPri_Write, canMessages);
+}
+
+void CanManager_read1(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
@@ -990,36 +1108,13 @@ void canOutput_sendDebugMessage1(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = SafetyChecker_getNotices(sc) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //12v battery
-    float4 LVBatterySOC = 0;
-    if (Sensor_LVBattery.sensorValue < 12730)
-        LVBatterySOC = .0 + .1 * getPercent(Sensor_LVBattery.sensorValue, 9200, 12730, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 12866)
-        LVBatterySOC = .1 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12730, 12866, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 12996)
-        LVBatterySOC = .2 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12866, 12996, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13104)
-        LVBatterySOC = .3 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12996, 13104, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13116)
-        LVBatterySOC = .4 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13104, 13116, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13130)
-        LVBatterySOC = .5 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13116, 13130, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13160)
-        LVBatterySOC = .6 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13130, 13160, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13270)
-        LVBatterySOC = .7 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13160, 13270, FALSE);
-    else if (Sensor_LVBattery.sensorValue < 13300)
-        LVBatterySOC = .8 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE);
-    else //if (Sensor_LVBattery.sensorValue < 14340)
-        LVBatterySOC = .9 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE);
-
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)Sensor_LVBattery.sensorValue;
-    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LVBattery.sensorValue >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte1)(100 * LVBatterySOC);
+    canMessages[canMessageCount - 1].data[byteNum++] = 1;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
@@ -1165,20 +1260,6 @@ void canOutput_sendDebugMessage1(CanManager* me, TorqueEncoder* tps, BrakePressu
     // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
     // canMessages[canMessageCount - 1].length = byteNum;
 
-    //Motor controller command message
-    canMessageCount++;
-    byteNum = 0;
-    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id = 0xC0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorque(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorque(mcm) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getDirection(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
     //----------------------------------------------------------------------------
     //Additional sensors
     //----------------------------------------------------------------------------
