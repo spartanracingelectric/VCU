@@ -34,7 +34,6 @@ extern Sensor Sensor_HVILTerminationSense;
 
 struct _MotorController
 {
-    SerialManager *serialMan;
     //----------------------------------------------------------------------------
     // Controller statuses/properties
     //----------------------------------------------------------------------------
@@ -131,10 +130,9 @@ struct _MotorController
     //};
 };
 
-MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+MotorController *MotorController_new(ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
-    me->serialMan = sm;
 
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
@@ -305,7 +303,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
         {
-            SerialManager_send(me->serialMan, "Term sense went low\n");
+            //SerialManager_send(me->serialMan, "Term sense went low\n");
             IO_RTC_StartTime(&me->timeStamp_HVILLost);
         }
 
@@ -336,7 +334,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         //If HVIL just changed, send a message
         if (me->previousHVILState == FALSE)
         {
-            SerialManager_send(me->serialMan, "Term sense went high\n");
+            //SerialManager_send(me->serialMan, "Term sense went high\n");
             if (MCM_getStartupStage(me) == 0)
             {
                 MCM_setStartupStage(me, 1);
@@ -374,7 +372,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //How to transition to next state ------------------------------------------------
         if (MCM_getLockoutStatus(me) == DISABLED)
         {
-            SerialManager_send(me->serialMan, "MCM lockout has been disabled.\n");
+            //SerialManager_send(me->serialMan, "MCM lockout has been disabled.\n");
             MCM_setStartupStage(me, 2); //MCM_getStartupStage(me) + 1);
         }
         break;
@@ -388,7 +386,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable
-            SerialManager_send(me->serialMan, "Changed MCM inverter command to ENABLE.\n");
+            //SerialManager_send(me->serialMan, "Changed MCM inverter command to ENABLE.\n");
             MCM_setStartupStage(me, 3); // MCM_getStartupStage(me) + 1);
             //RTDPercent = 1; //This line is redundant
         }
@@ -402,7 +400,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         if (MCM_getInverterStatus(me) == ENABLED)
         {
             RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is driveable
-            SerialManager_send(me->serialMan, "Inverter has been enabled.  S                                                    tarting RTDS.  Car is ready to drive.\n");
+            //SerialManager_send(me->serialMan, "Inverter has been enabled.  S                                                    tarting RTDS.  Car is ready to drive.\n");
             RTDS_setVolume(rtds, 1, 1500000);
             MCM_setStartupStage(me, 4); //MCM_getStartupStage(me) + 1);  //leave this stage since we've already kicked off the RTDS
         }
@@ -410,7 +408,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
 
     case 4: //inverter=disabled, rtds=already started
         //Actions to perform upon entering this state ------------------------------------------------
-        SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
+        //SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
         RTDPercent = 1;                                                 //This line is redundant
 
         //How to transition to next state ------------------------------------------------
@@ -428,7 +426,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         break;
 
     default:
-        SerialManager_send(me->serialMan, "ERROR: Lost track of MCM startup status.\n");
+        //SerialManager_send(me->serialMan, "ERROR: Lost track of MCM startup status.\n");
         break;
     }
 

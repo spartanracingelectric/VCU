@@ -21,7 +21,7 @@ typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
 
 typedef struct _SafetyChecker SafetyChecker;
 
-SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
+SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery);
 void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMessage);
 bool SafetyChecker_allSafe(SafetyChecker *me);

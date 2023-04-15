@@ -138,10 +138,10 @@ void main(void)
     IO_Driver_Init(NULL); //Handles basic startup for all VCU subsystems
 
     //Initialize serial first so we can use it to debug init of other subsystems
-    SerialManager *serialMan = SerialManager_new();
+    //SerialManager *serialMan = SerialManager_new();
     IO_RTC_StartTime(&timestamp_startTime);
-    SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
-    SerialManager_send(serialMan, "VCU serial is online.\n");
+    //SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
+    //SerialManager_send(serialMan, "VCU serial is online.\n");
 
     //Read initial values from EEPROM
     //EEPROMManager* EEPROMManager_new();
@@ -169,14 +169,14 @@ void main(void)
             ; // wait until 10ms have passed
     }
     IO_DI_DeInit(IO_DI_06);
-    SerialManager_send(serialMan, bench == TRUE ? "VCU is in bench mode.\n" : "VCU is NOT in bench mode.\n");
+    //SerialManager_send(serialMan, bench == TRUE ? "VCU is in bench mode.\n" : "VCU is NOT in bench mode.\n");
 
     //----------------------------------------------------------------------------
     // VCU Subsystem Initializations
     // Eventually, all of these functions should be made obsolete by creating
     // objects instead, like the RTDS/MCM/TPS objects below
     //----------------------------------------------------------------------------
-    SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
+    //SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
     vcu_initializeADC(bench); //Configure and activate all I/O pins on the VCU
     //vcu_initializeCAN();
     //vcu_initializeMCU();
@@ -185,15 +185,14 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 40, 40, 500, 20, 20, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
-    //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         ^
-    //can0_read_messageLimit -----------------|   |   |    |   |     |         |
-    //can0_write_messageLimit---------------------+   |    |   |     |         |
-    //can1_busSpeed-----------------------------------+    |   |     |         |
-    //can1_read_messageLimit-------------------------------+   |     |         |
-    //can1_write_messageLimit----------------------------------+     |         |
-    //defaultSendDelayus---------------------------------------------+         |
-    //SerialManager* sm--------------------------------------------------------+
+    CanManager *canMan = CanManager_new(500, 40, 40, 500, 20, 20, 200000); //3rd param = messages per node (can0/can1; read/write)
+    //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         
+    //can0_read_messageLimit -----------------|   |   |    |   |     |         
+    //can0_write_messageLimit---------------------+   |    |   |     |         
+    //can1_busSpeed-----------------------------------+    |   |     |         
+    //can1_read_messageLimit-------------------------------+   |     |         
+    //can1_write_messageLimit----------------------------------+     |         
+    //defaultSendDelayus---------------------------------------------+         
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -205,15 +204,15 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     MCM_setRegenMode(mcm0, REGENMODE_OFF);
-    InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
+    InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
-    SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
-    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    CoolingSystem *cs = CoolingSystem_new(serialMan);
+    SafetyChecker *sc = SafetyChecker_new(320, 32); //Must match amp limits
+    BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
+    CoolingSystem *cs = CoolingSystem_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -236,7 +235,7 @@ void main(void)
     /* main loop, executed periodically with a defined cycle time (here: 5 ms) */
     ubyte4 timestamp_mainLoopStart = 0;
     //IO_RTC_StartTime(&timestamp_calibStart);
-    SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
+    //SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
     while (1)
     {
         //----------------------------------------------------------------------------
@@ -286,12 +285,12 @@ void main(void)
         {
             if (timestamp_EcoButton == 0)
             {
-                SerialManager_send(serialMan, "Eco button detected\n");
+                //SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
             else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
             {
-                SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
+                //SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
                 TorqueEncoder_startCalibration(tps, 5);
                 BrakePressureSensor_startCalibration(bps, 5);
@@ -303,7 +302,7 @@ void main(void)
         {
             if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000)
             {
-                SerialManager_send(serialMan, "Eco mode requested\n");
+                //SerialManager_send(serialMan, "Eco mode requested\n");
             }
             timestamp_EcoButton = 0;
         }

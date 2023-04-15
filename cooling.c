@@ -11,10 +11,10 @@
 #include "bms.h"
 
 //All temperatures in C
-CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
+CoolingSystem *CoolingSystem_new()
 {
     CoolingSystem *me = (CoolingSystem *)malloc(sizeof(struct _CoolingSystem));
-    SerialManager *sm = serialMan;
+    //SerialManager *sm = serialMan;
 
     //-------------------------------------------------------------------
     // Cooling System Configuration
@@ -67,7 +67,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         if ((motorControllerTemp >= me->motorFanHigh) || (motorTemp >= me->motorFanHigh))
         {
             me->motorFanState = TRUE;
-            SerialManager_send(me->sm, "Turning motor fans on.\n");
+            //SerialManager_send(me->sm, "Turning motor fans on.\n");
         }
     }
     else //motor fan is on
@@ -76,7 +76,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         // Shouldn't this be an || instead of an &&
         {
             me->motorFanState = FALSE;
-            SerialManager_send(me->sm, "Turning motor fans off.\n");
+            //SerialManager_send(me->sm, "Turning motor fans off.\n");
         }
     }
 
@@ -86,7 +86,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         if (batteryTemp < me->batteryFanLow)
         {
             me->batteryFanState = FALSE;
-            SerialManager_send(me->sm, "Turning battery fans off.\n");
+            //SerialManager_send(me->sm, "Turning battery fans off.\n");
         }
     }
     else //fans are off
@@ -94,7 +94,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         if (batteryTemp >= me->batteryFanHigh)
         {
             me->batteryFanState = TRUE;
-            SerialManager_send(me->sm, "Turning battery fans on.\n");
+            //SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
 }

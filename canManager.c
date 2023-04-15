@@ -20,9 +20,6 @@ struct _CanManager {
     //AVLNode* incomingTree;
     //AVLNode* outgoingTree;
 
-
-    SerialManager* sm;
-
     ubyte1 canMessageLimit;
     
     //These are our four FIFO queues.  All messages should come/go through one of these queues.
@@ -79,12 +76,12 @@ struct _CanMessageNode
 
 CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
                          , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
-                         , ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
+                         , ubyte4 defaultSendDelayus) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
 {
     CanManager* me = (CanManager*)malloc(sizeof(struct _CanManager));
 
-    me->sm = serialMan;
-    SerialManager_send(me->sm, "CanManager's reference to SerialManager was created.\n");
+    //me->sm = serialMan;
+    //SerialManager_send(me->sm, "CanManager's reference to SerialManager was created.\n");
     
     //create can history data structure (AVL tree?)
     //me->incomingTree = NULL;
@@ -275,7 +272,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         else
         {
             if (sendSerialDebug && (serialMessageID == outboundMessageID)) {
-                SerialManager_send(me->sm, "This message did not need to be sent.\n");
+                //SerialManager_send(me->sm, "This message did not need to be sent.\n");
             }
         }
     } //end of loop for each message in outgoing messages

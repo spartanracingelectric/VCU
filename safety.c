@@ -92,7 +92,6 @@ ubyte4 timestamp_SoftBSPD = 0;
 struct _SafetyChecker
 {
     //Problems that require motor torque to be disabled
-    SerialManager *serialMan;
     ubyte4 faults;
     ubyte2 warnings;
     ubyte2 notices;
@@ -114,11 +113,10 @@ struct _SafetyChecker
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
 {
     SafetyChecker *me = (SafetyChecker *)malloc(sizeof(struct _SafetyChecker));
 
-    me->serialMan = sm;
     me->faults = 0;
     me->warnings = 0;
 
@@ -198,7 +196,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (tps->tps0->ioErr_signalInit != IO_E_OK || tps->tps1->ioErr_signalInit != IO_E_OK || tps->tps0->ioErr_signalGet != IO_E_OK || tps->tps1->ioErr_signalGet != IO_E_OK)
     {
         //me->faults |= F_tpsSignalFailure;
-        SerialManager_send(me->serialMan, "TPS signal error\n");
+        //SerialManager_send(me->serialMan, "TPS signal error\n");
     }
     else
     {
@@ -301,7 +299,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     {
         // Set the TPS/BPS implaisibility VCU fault
         me->faults |= F_tpsbpsImplausible;
-        SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
+        //SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {
@@ -327,7 +325,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_VOLTAGE_FLAG)
     {
         //me->faults |= F_bmsOverVoltageFault;
-        SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
+        //SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
     }
     else
     {
@@ -338,7 +336,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_UNDER_VOLTAGE_FLAG)
     {
         me->faults |= F_bmsUnderVoltageFault;
-        SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
+        //SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
     }
     else
     {
@@ -349,7 +347,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
         me->faults |= F_bmsOverTemperatureFault;
-        SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
+        //SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
     }
     else
     {
@@ -361,7 +359,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if ( (BMS_getHighestCellVoltage_mV(bms)-BMS_getLowestCellVoltage_mV(bms)) > (BMS_MAX_CELL_MISMATCH_V*1000) )
     {
         //me->faults |= F_bmsCellMismatchFault;
-        SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
+        //SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
     }
     else
     {
@@ -382,7 +380,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
 
 
-    SerialManager_send(me->serialMan, "\n");
+    //SerialManager_send(me->serialMan, "\n");
 
     /*****************************************************************************
     * Warnings
@@ -397,14 +395,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->faults |= F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
         sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
+        //SerialManager_send(me->serialMan, message);
     }
     else if (LVBattery->sensorValue <= 12730) //13100 = Recharge percentage, per Shorai
     {
         me->faults &= ~F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
         sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
+        //SerialManager_send(me->serialMan, message);
     }
     else
     {
@@ -489,7 +487,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
     {
         me->warnings |= W_bmsUnderVoltageWarning;
-        SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
+        //SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
     }
     else
     {
@@ -500,7 +498,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getHighestCellTemp_d_degC(bms) > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
     {
         me->warnings |= W_bmsOverTemperatureWarning;
-        SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
+        //SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
     }
     else
     {
@@ -601,14 +599,14 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     if ((me->notices & N_HVILTermSenseLost) > 0)
     {
        multiplier = 0;
-       SerialManager_send(me->serialMan, "HVIL term sense low\n");
+       //SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }
 
     //No regen below 5kph
     
     if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
     {
-        SerialManager_send(me->serialMan, "Regen < 5kph\n");
+        //SerialManager_send(me->serialMan, "Regen < 5kph\n");
         multiplier = 0;
     }
     

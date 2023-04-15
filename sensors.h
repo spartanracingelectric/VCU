@@ -178,7 +178,7 @@ extern Sensor Sensor_SAS;  // = { 4 };
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;
-extern Sensor Sensor_TCSSwitchDown;
+extern Sensor Sensor_TVButton;
 extern Sensor Sensor_TCSKnob;
 //TEMP BENCH SWITCHES
 extern Sensor Sensor_TEMP_BrakingSwitch;

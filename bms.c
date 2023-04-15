@@ -19,7 +19,7 @@ struct _BatteryManagementSystem
 
     ubyte2 canMessageBaseId;
 
-    SerialManager *sm;
+    //SerialManager *sm;
 
     //BMS Member Variable format:
     //byte(s), scaling, add'l comments
@@ -138,13 +138,13 @@ struct _BatteryManagementSystem
     // signed = 2's complement: 0XfFF = -1, 0x00 = 0, 0x01 = 1
 };
 
-BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBaseID)
+BatteryManagementSystem *BMS_new(ubyte2 canMessageBaseID)
 {
 
     BatteryManagementSystem *me = (BatteryManagementSystem *)malloc(sizeof(struct _BatteryManagementSystem));
 
     me->canMessageBaseId = canMessageBaseID;
-    me->sm = serialMan;
+    //me->sm = serialMan;
     //me->maxTemp = 99;
 
     me->packCurrent = 0;
