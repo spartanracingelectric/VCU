@@ -324,9 +324,9 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
 
-    //Read messages from hipri channel 
+    //Read messages from hi/lopri channel 
     *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
-    IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle)
+    IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_readHandle)
                     , canMessages
                     , (channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)
                     , &canMessageCount);
@@ -334,6 +334,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
     //Determine message type based on ID
     for (int currMessage = 0; currMessage < canMessageCount; currMessage++)
     {
+        // Seperate based on CAN message
         switch (canMessages[currMessage].id)
         {
         //-------------------------------------------------------------------------
@@ -828,7 +829,7 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
 
 void canOutput_sendDebugMessage1(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc)
 {
-    IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit]; //CAN1 doesn't work here
+    IO_CAN_DATA_FRAME canMessages[me->can1_write_messageLimit]; 
     ubyte1 errorCount;
     float4 tempPedalPercent;   //Pedal percent float (a decimal between 0 and 1
     ubyte1 tps0Percent;  //Pedal percent int   (a number from 0 to 100)

@@ -42,10 +42,10 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
         //////////////////////////////////////////////////////////
         case 0x702:
         {
-            //Uncomment this LINE for future- turned off for SRE-7 -> MCM_setRegenMode(mcm, icCanMessage->data[0]);
+            MCM_setRegenMode(mcm, icCanMessage->data[0]);
             //MCM_setMaxTorqueDNm(mcm, (ubyte2)icCanMessage->data[1] << 8 | icCanMessage->data[0]);
             //me->torqueMapMode = icCanMessage->data[2];
-            // me->launchControlSensitivity = icCanMessage->data[3];    //unused
+            //me->launchControlSensitivity = icCanMessage->data[3];    //unused
             break;
         }
         
