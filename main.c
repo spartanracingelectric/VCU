@@ -1,25 +1,24 @@
 /*****************************************************************************
-* SRE-2 Vehicle Control Firmware for the TTTech HY-TTC 50 Controller (VCU)
+* SRE-7 Vehicle Control Firmware for the TTTech HY-TTC 60 Controller (VCU)
 ******************************************************************************
-* For project info and history, see https://github.com/spartanracingelectric/SRE-2
-* For software/development questions, email rusty@pedrosatech.com
+* For project info and history, see https://github.com/spartanracingelectric
+* For software/development questions, email rusty@pedrosatech.com or shinika.balasundar@yahoo.com
 ******************************************************************************
 * Files
-* The Git repository does not contain the complete firmware for SRE-2.  Modules
+* The Git repository does not contain the complete firmware for SRE-7.  Modules
 * provided by TTTech can be found on the CD that accompanied the VCU. These 
 * files can be identified by our naming convetion: TTTech files start with a
 * prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
 * they also provided.
 * For instructions on setting up a build environment, see the SRE-2 getting-
-* started document, Programming for the HY-TTC 50, at http://1drv.ms/1NQUppu
+* started document, Programming for the HY-TTC 60 on the WIKI
 ******************************************************************************
 * Organization
 * Our code is laid out in the following manner:
-* 
 *****************************************************************************/
 
 //-------------------------------------------------------------------
-//VCU Initialization Stuff
+//VCU Initialization 
 //-------------------------------------------------------------------
 
 //VCU/C headers
