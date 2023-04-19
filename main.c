@@ -37,6 +37,7 @@
 #include "sensors.h"
 #include "canManager.h"
 #include "motorController.h"
+#include "AMKdrive.h"
 #include "instrumentCluster.h"
 #include "readyToDriveSound.h"
 #include "torqueEncoder.h"
@@ -206,6 +207,10 @@ void main(void)
     // 75 Nm
     MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     MCM_setRegenMode(mcm0, REGENMODE_OFF);
+    _DriveInverter *InvFL = AmkDriver_new(FRONT_LEFT);
+    _DriveInverter *InvFR = AmkDriver_new(FRONT_RIGHT);
+    _DriveInverter *InvRL = AmkDriver_new(REAR_LEFT);
+    _DriveInverter *InvRR = AmkDriver_new(REAR_RIGHT);
     InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -336,6 +341,10 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         MCM_calculateCommands(mcm0, tps, bps);
+        DI_calculateCommands(InvFL, tps, bps);
+        DI_calculateCommands(InvFR, tps, bps);
+        DI_calculateCommands(InvRL, tps, bps);
+        DI_calculateCommands(InvRR, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 
@@ -352,7 +361,13 @@ void main(void)
         Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
+        DI_calculateRelay(&Sensor_HVILTerminationSense, tps, bps);
+
         MCM_inverterControl(mcm0, tps, bps, rtds);
+        DI_calculateInverterControl(InvFL, &Sensor_HVILTerminationSense, tps, bps, rtds);
+        DI_calculateInverterControl(InvFR, &Sensor_HVILTerminationSense, tps, bps, rtds);
+        DI_calculateInverterControl(InvRL, &Sensor_HVILTerminationSense, tps, bps, rtds);
+        DI_calculateInverterControl(InvRR, &Sensor_HVILTerminationSense, tps, bps, rtds);
 
         IO_ErrorType err = 0;
         //Comment out to disable shutdown board control
