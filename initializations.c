@@ -36,7 +36,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump relay - always on per RMS HW manual pg 7 - NOT USED
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
-    IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
+    //IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
     //IO_DO_Init(IO_DO_06) //DRS Shift Up
     //IO_DO_Init(IO_DO_07) //DRS Shift Down
 
@@ -56,8 +56,8 @@ void vcu_initializeADC(bool benchMode)
     IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
     //Bench LED 12V source
-    IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL);
-    IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);
+    //IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL);
+    //IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);
     
     //Water pump signal
     IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL);
@@ -121,12 +121,12 @@ void vcu_initializeADC(bool benchMode)
 
     //Wheel Speed Sensors (Pulse Width Detection)
 
-    IO_RTC_StartTime(&Sensor_WSS_FL.timestamp);
-    IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
-    IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
-    IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
+    //IO_RTC_StartTime(&Sensor_WSS_FL.timestamp);
+    //IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
+    //IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
+    //IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
 
-    Sensor_WSS_FL.heldSensorValue = Sensor_WSS_FR.heldSensorValue = Sensor_WSS_RL.heldSensorValue = Sensor_WSS_RR.heldSensorValue = 0;
+    //Sensor_WSS_FL.heldSensorValue = Sensor_WSS_FR.heldSensorValue = Sensor_WSS_RL.heldSensorValue = Sensor_WSS_RR.heldSensorValue = 0;
 
     //Sensor_WSS_FL.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_10, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P274
     //Sensor_WSS_FR.ioErr_signalInit = IO_PWD_ComplexInit(IO_PWD_08, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL); //P275
@@ -139,7 +139,7 @@ void vcu_initializeADC(bool benchMode)
     //----------------------------------------------------------------------------
     Sensor_RTDButton.ioErr_signalInit = IO_DI_Init(IO_DI_00, IO_DI_PD_10K);     //RTD Button
     Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PD_10K);     //Eco Button
-    Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K);   //TCS Switch A
+    //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K);   //TCS Switch A
     //Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //TCS Switch B
     Sensor_TVButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); // Launch Control Enable Button
 
@@ -200,8 +200,6 @@ Sensor Sensor_TCSKnob;
 
 Sensor Sensor_RTDButton;
 Sensor Sensor_EcoButton;
-Sensor Sensor_TCSSwitchUp;
-Sensor Sensor_TCSSwitchDown;
 Sensor Sensor_HVILTerminationSense;
 Sensor Sensor_TVButton;
 
