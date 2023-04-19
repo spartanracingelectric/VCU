@@ -239,7 +239,7 @@ void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
 }
 
 void DI_commandTorque(sbyte2 newTorque, _DriveInverter* me){
-     me->AMK_TorqueSetpoint = newTorque;
+     me->AMK_TorqueSetpoint = newTorque * 10; //since in 0.1 offset
 }
 
 sbyte2 DI_getCommandedTorque(_DriveInverter* me){
