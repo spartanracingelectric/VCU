@@ -140,16 +140,67 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     }
 
     //Incoming ----------------------------
-    messageID = 0xAA;  //MCM ______
+    messageID = 0x283;  //Inverter1FL
     me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
     me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
 
-    messageID = 0xAB;  //MCM ________
+    messageID = 0x285;  //Inverter1FL
     me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
     me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x284;   //Inverter2FR 1
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x286;   //Inverter2FR 2
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x287;   //Inverter3RL 1
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x289;   //Inverter3RL 2
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x288;   //Inverter3RR 1
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    messageID = 0x290;   //Inverter3RR 2
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->required = TRUE;
+    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
+    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+
+    //////////////////////////////////////////////////////////////////////////////////
+
+    messageID = 0x623;  //BMS faults
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 5000000;
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
@@ -319,7 +370,7 @@ bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bi
 /*****************************************************************************
 * read
 ****************************************************************************/
-void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
+void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
@@ -338,27 +389,32 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         switch (canMessages[currMessage].id)
         {
         //-------------------------------------------------------------------------
-        //Motor controller
+        //Inverters (Inverter FL and FR are together CAN0 and Inverter RL and RR are together CAN1)
         //-------------------------------------------------------------------------
-        case 0xA0:
-        case 0xA1:
-        case 0xA2:
-        case 0xA3:
-        case 0xA4:
-        case 0xA5:
-        case 0xA6:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
-        case 0xA7:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
-        case 0xA8:
-        case 0xA9:
-        case 0xAA:
-        case 0xAB:
-        case 0xAC:
-        case 0xAD:
-        case 0xAE:
-        case 0xAF:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+        case 0x283:
+            //Inverter FL 1 (CAN0)
+            DI_parseCanMessage(inv1, &canMessages[currMessage]);
+        case 0x284:
+            //Inverter FR 1 (CAN0)
+            DI_parseCanMessage(inv2, &canMessages[currMessage]);
+        case 0x285:
+            //Inverter FL 2 (CAN0)
+            DI_parseCanMessage(inv1, &canMessages[currMessage]);
+        case 0x286:
+            //Inverter FR 2 (CAN0)
+            DI_parseCanMessage(inv2, &canMessages[currMessage]);
+        case 0x287:
+            //Inverter RL 1 (CAN1)
+            DI_parseCanMessage(inv1, &canMessages[currMessage]);
+        case 0x288:
+            //Inverter RR 1 (CAN1)
+            DI_parseCanMessage(inv2, &canMessages[currMessage]);
+        case 0x289:
+            //Inverter RL 2 (CAN1)
+            DI_parseCanMessage(inv1, &canMessages[currMessage]);
+        case 0x290:
+            //Inverter RR 2 (CAN1)
+            DI_parseCanMessage(inv2, &canMessages[currMessage]);
             break;
 
         //-------------------------------------------------------------------------

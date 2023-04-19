@@ -10,6 +10,7 @@
 #include "bms.h"
 #include "wheelSpeeds.h"
 #include "safety.h"
+#include "AMKdrive.h"
 //#include "sensorCalculations.h"
 
 typedef enum
@@ -29,7 +30,7 @@ CanManager *CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
 IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount);
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves
-void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc);
+void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2);
 
 void canOutput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
