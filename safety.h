@@ -10,6 +10,7 @@
 #include "bms.h"
 #include "serial.h"
 #include "wheelSpeeds.h"
+#include "AMKdrive.h"
 
 /*
 typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
@@ -28,7 +29,7 @@ bool SafetyChecker_allSafe(SafetyChecker *me);
 ubyte4 SafetyChecker_getFaults(SafetyChecker *me);
 ubyte4 SafetyChecker_getWarnings(SafetyChecker *me);
 ubyte4 SafetyChecker_getNotices(SafetyChecker *me);
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
+void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4);
 //bool SafetyChecker_getError(SafetyChecker* me, SafetyCheck check);
 //bool SafetyChecker_getErrorByte(SafetyChecker* me, ubyte1* errorByte);
 

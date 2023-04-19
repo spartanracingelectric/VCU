@@ -144,6 +144,7 @@ void sensors_updateSensors(void)
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
     Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
+    Sensor_SAS.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_SAS.sensorValue, &Sensor_SAS.fresh);
 }
 
 void Light_set(Light light, float4 percent)

@@ -76,15 +76,27 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
     bpsTorque = 0 - (0 - 0) * getPercent(bps->percent, 0, 0, TRUE);
 
     torqueOutput = appsTorque + bpsTorque;
-    me->AMK_TorqueSetpoint = torqueOutput;
+
+    if(torqueOutput > 25){
+        torqueOutput = 25;
+    } else if (torqueOutput < 0){
+        torqueOutput = 0;
+    }
+    
+    if(me->startUpStage == 6){
+       DI_commandTorque(torqueOutput, me);
+       DI_getCommandedTorque(me);
+    }
 
 }
 
 void DI_calculateRelay(Sensor* HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps){
     // We want to turn on LV to the motor as soon as we are potentially ready to go into HV since we need to send and monitor CAN messages
-    if(tps->calibrated == TRUE && bps->calibrated == TRUE && IO_DO_00 == FALSE){
+    if(tps->calibrated == TRUE && bps->calibrated == TRUE){
         IO_DO_Set(IO_DO_00, TRUE);
-    } 
+    } else {
+        IO_DO_Set(IO_DO_00, TRUE);
+    }
 }
 
 void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds){
@@ -168,14 +180,13 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             }
         break;
         case 6:
-            DI_calculateCommands(me, tps, bps);
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
             me->AMK_TorqueLimitPositiv = 25 * 10; // 25Nm -> Will need to find a way to make this global for the future
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == TRUE){
-            me->startUpStage = 1;
+                me->startUpStage = 1;
             }
         break;
 
@@ -225,4 +236,12 @@ void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
         // Torque feedback
         me->AMK_TorqueFeedback = ((ubyte2)diCanMessage->data[7] << 8 | diCanMessage->data[6]) / 10.0 - 30.0;
     }
+}
+
+void DI_commandTorque(sbyte2 newTorque, _DriveInverter* me){
+     me->AMK_TorqueSetpoint = newTorque;
+}
+
+sbyte2 DI_getCommandedTorque(_DriveInverter* me){
+     return me->AMK_TorqueSetpoint;
 }

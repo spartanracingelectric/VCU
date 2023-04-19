@@ -88,4 +88,8 @@ void DI_calculateCommands(_DriveInverter* Idv, TorqueEncoder *tps, BrakePressure
 
 void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* Idv);
 
+void DI_commandTorque(sbyte2 newTorque, _DriveInverter* Idv);
+
+sbyte2 DI_getCommandedTorque(_DriveInverter* Idv);
+
 #endif

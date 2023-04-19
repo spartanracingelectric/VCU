@@ -567,7 +567,7 @@ ubyte4 SafetyChecker_getNotices(SafetyChecker *me)
     return (me->notices);
 }
 
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
+void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4)
 {
     float4 multiplier = 1;
     //float4 tempMultiplier = 1;
@@ -678,7 +678,12 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
         multiplier = 1;
     }
+
     MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+    DI_commandTorque(DI_getCommandedTorque(in1) * multiplier, in1);
+    DI_commandTorque(DI_getCommandedTorque(in2) * multiplier, in2);
+    DI_commandTorque(DI_getCommandedTorque(in3) * multiplier, in3);
+    DI_commandTorque(DI_getCommandedTorque(in4) * multiplier, in4);
 }
 
 //-------------------------------------------------------------------
