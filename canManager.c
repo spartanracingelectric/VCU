@@ -391,7 +391,7 @@ bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bi
 /*****************************************************************************
 * read
 ****************************************************************************/
-void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
+void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
@@ -490,13 +490,13 @@ void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, I
             break;
 
         case 0x702:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            //Need Updating: IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
         case 0x703:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            //Need Updating: IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
         case 0x704:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            //Need Updating: IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
 
             
@@ -506,7 +506,7 @@ void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, I
         //-------------------------------------------------------------------------
         case 0x5FF:
             SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //MCM_parseCanMessage(mcm, &canMessages[currMessage]);
             break;
             //default:
         }
@@ -543,7 +543,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, _DriveInverter *inv1, _DriveInverter *inv2)
+void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -741,19 +741,19 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //508: Regen settings
+    //508: Regen settings (Need to be updated for the future)
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getRegenMode(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getRegenMode(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getMaxTorqueDNm(mcm)/10;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getRegenTorqueLimitDNm(mcm)/10;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getRegenTorqueAtZeroPedalDNm(mcm)/10;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getMaxTorqueDNm(mcm)/10;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getRegenTorqueLimitDNm(mcm)/10;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getRegenTorqueAtZeroPedalDNm(mcm)/10;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
     canMessages[canMessageCount - 1].length = byteNum;
 
     //509: MCM RTD Status
@@ -847,15 +847,15 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50F: MCM Power Debug
+    //50F: Power Debug (Need adaption in the future)
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 16);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 24);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //MCM_getPower(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //(MCM_getPower(mcm) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //(MCM_getPower(mcm) >> 16);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //(MCM_getPower(mcm) >> 24);
     canMessages[canMessageCount - 1].data[byteNum++] = SafetyChecker_getWarnings(sc);
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 8);
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 16);
@@ -923,7 +923,7 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
 
 }
 
-void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
+void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[me->can1_write_messageLimit]; 
     ubyte1 errorCount;

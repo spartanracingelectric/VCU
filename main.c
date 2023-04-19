@@ -205,8 +205,8 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    MCM_setRegenMode(mcm0, REGENMODE_OFF);
+    //MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 750, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //MCM_setRegenMode(mcm0, REGENMODE_OFF);
     _DriveInverter *invFL = AmkDriver_new(FRONT_LEFT);
     _DriveInverter *invFR = AmkDriver_new(FRONT_RIGHT);
     _DriveInverter *invRL = AmkDriver_new(REAR_LEFT);
@@ -264,8 +264,8 @@ void main(void)
 
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
-        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc, invFL, invFR);
-        CanManager_read(canMan, CAN1_LOPRI, mcm0, ic0, bms, sc, invRL, invRR);
+        CanManager_read(canMan, CAN0_HIPRI, ic0, bms, sc, invFL, invFR);
+        CanManager_read(canMan, CAN1_LOPRI, ic0, bms, sc, invRL, invRR);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
@@ -331,7 +331,7 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms));
+        CoolingSystem_calculations(cs, invFL->AMK_TempInverter, invFR->AMK_TempMotor, BMS_getHighestCellTemp_degC(bms)); // Needs to be updated in future to cool based on inverters. Placeholder values are placed right now
         //CoolingSystem_calculations(cs, 20, 20, 20);
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
@@ -340,18 +340,19 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        MCM_calculateCommands(mcm0, tps, bps);
+        //MCM_calculateCommands(mcm0, tps, bps);
+
         DI_calculateCommands(invFL, tps, bps);
         DI_calculateCommands(invFR, tps, bps);
         DI_calculateCommands(invRL, tps, bps);
         DI_calculateCommands(invRR, tps, bps);
 
-        SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
+        SafetyChecker_update(sc, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
         /*******************************************/
-        SafetyChecker_reduceTorque(sc, mcm0, bms, wss, invFL, invFR, invRL, invRR);
+        SafetyChecker_reduceTorque(sc, bms, wss, invFL, invFR, invRL, invRR);
 
         /*******************************************/
         /*              Enact Outputs              */
@@ -360,10 +361,12 @@ void main(void)
         //SafetyChecker_setErrorLight(sc);
         Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
         //Handle motor controller startup procedures
-        MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
+        //MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
+
         DI_calculateRelay(&Sensor_HVILTerminationSense, tps, bps);
 
-        MCM_inverterControl(mcm0, tps, bps, rtds);
+        //MCM_inverterControl(mcm0, tps, bps, rtds);
+
         DI_calculateInverterControl(invFL, &Sensor_HVILTerminationSense, tps, bps, rtds);
         DI_calculateInverterControl(invFR, &Sensor_HVILTerminationSense, tps, bps, rtds);
         DI_calculateInverterControl(invRL, &Sensor_HVILTerminationSense, tps, bps, rtds);
@@ -379,8 +382,8 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage0(canMan, tps, bps, mcm0, ic0, bms, wss, sc, invFL, invFR);
-        canOutput_sendDebugMessage1(canMan, tps, bps, mcm0, ic0, bms, wss, sc, invRL, invRR);
+        canOutput_sendDebugMessage0(canMan, tps, bps, ic0, bms, wss, sc, invFL, invFR);
+        canOutput_sendDebugMessage1(canMan, tps, bps, ic0, bms, wss, sc, invRL, invRR);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 

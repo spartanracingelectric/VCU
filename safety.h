@@ -23,13 +23,13 @@ typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
 typedef struct _SafetyChecker SafetyChecker;
 
 SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
-void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery);
+void SafetyChecker_update(SafetyChecker *me, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery);
 void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMessage);
 bool SafetyChecker_allSafe(SafetyChecker *me);
 ubyte4 SafetyChecker_getFaults(SafetyChecker *me);
 ubyte4 SafetyChecker_getWarnings(SafetyChecker *me);
 ubyte4 SafetyChecker_getNotices(SafetyChecker *me);
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4);
+void SafetyChecker_reduceTorque(SafetyChecker *me, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4);
 //bool SafetyChecker_getError(SafetyChecker* me, SafetyCheck check);
 //bool SafetyChecker_getErrorByte(SafetyChecker* me, ubyte1* errorByte);
 

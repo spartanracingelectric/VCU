@@ -149,7 +149,7 @@ void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMess
 }
 
 //Updates all values based on sensor readings, safety checks, etc
-void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery)
+void SafetyChecker_update(SafetyChecker *me, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery)
 {
     ubyte1 *message[50]; //For sprintf'ing variables to print in serial
     //SerialManager_send(me->serialMan, "Entered SafetyChecker_update().\n");
@@ -432,7 +432,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
 
     me->softBSPD_bpsHigh = bps->bps0->sensorValue > 2500;
-    me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
+    //Need updating for future: me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
 
     // Note: this is using the FUTURE torque request with the PREVIOUS RPM
     if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh)
@@ -468,16 +468,16 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     }
 
     //===================================================================
-    // HVIL Override
+    // HVIL Override (Needs to be adapted for Future Inverters Control)
     //===================================================================
-    if (MCM_getHvilOverrideStatus(mcm) == TRUE)
-    {
-        me->warnings |= W_hvilOverrideEnabled;
-    }
-    else
-    {
-        me->warnings &= ~W_hvilOverrideEnabled;
-    }
+    //if (MCM_getHvilOverrideStatus(mcm) == TRUE)
+    //{
+    //    me->warnings |= W_hvilOverrideEnabled;
+    //}
+    //else
+    //{
+    //    me->warnings &= ~W_hvilOverrideEnabled;
+    //}
 
     //===================================================================
     // 2022 EV.8.3 / Accumulator Management System Warning
@@ -533,14 +533,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->notices &= ~N_Over75kW_BMS;
     }
 
-    if (MCM_getPower(mcm) > 75000)
-    {
-        me->notices |= N_Over75kW_MCM;
-    }
-    else
-    {
-        me->notices &= ~N_Over75kW_MCM;
-    }
+    //if (MCM_getPower(mcm) > 75000)
+    //{
+    //    me->notices |= N_Over75kW_MCM;
+    //}
+    //else
+    //{
+    //    me->notices &= ~N_Over75kW_MCM;
+    //}
 }
 
 //Updates all values based on sensor readings, safety checks, etc
@@ -567,13 +567,13 @@ ubyte4 SafetyChecker_getNotices(SafetyChecker *me)
     return (me->notices);
 }
 
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4)
+void SafetyChecker_reduceTorque(SafetyChecker *me, BatteryManagementSystem *bms, WheelSpeeds *wss, _DriveInverter *in1, _DriveInverter *in2, _DriveInverter *in3, _DriveInverter *in4)
 {
     float4 multiplier = 1;
     //float4 tempMultiplier = 1;
     //Get ground speed in KPH using only FL WSS
     //sbyte1 groundSpeedKPH = (sbyte1)WheelSpeeds_getGroundSpeedKPH(wss, 1);
-    sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+    //sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
 
 
     //-------------------------------------------------------------------
@@ -602,13 +602,12 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
        //SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }
 
-    //No regen below 5kph
-    
-    if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
-    {
+    //No regen below 5kph : Needs to be updated for Inverters in future Regen Control
+    //if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
+    //{
         //SerialManager_send(me->serialMan, "Regen < 5kph\n");
-        multiplier = 0;
-    }
+    //    multiplier = 0;
+    //}
     
 
     //-------------------------------------------------------------------
@@ -679,7 +678,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
         multiplier = 1;
     }
 
-    MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+    //MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
     DI_commandTorque(DI_getCommandedTorque(in1) * multiplier, in1);
     DI_commandTorque(DI_getCommandedTorque(in2) * multiplier, in2);
     DI_commandTorque(DI_getCommandedTorque(in3) * multiplier, in3);
