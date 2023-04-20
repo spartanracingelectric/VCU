@@ -708,12 +708,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = getLaunchControlStatus(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)speedKph;
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)(speedKph >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)getLaunchControlStatus(lc);
     canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)getCalculatedTorque(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatio;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)lc->slipRatio;
+    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)lc->LCReady;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
