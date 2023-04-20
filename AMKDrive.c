@@ -92,15 +92,17 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
 
 void DI_calculateRelay(Sensor* HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps){
     // We want to turn on LV to the motor as soon as we are potentially ready to go into HV since we need to send and monitor CAN messages
+    // Tie to RTD press for turning on LV
     if(tps->calibrated == TRUE && bps->calibrated == TRUE){
         IO_DO_Set(IO_DO_00, TRUE);
     } else {
-        IO_DO_Set(IO_DO_00, TRUE);
+        IO_DO_Set(IO_DO_00, FALSE);
     }
 }
 
 void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds){
      switch (me->startUpStage){
+        //Combine CalculateRelay function together for RTD press for state 1 // Change to 1 - 6 to ENUM
         case 0:
             if(IO_DO_00 == TRUE){
                 me->startUpStage = 1;
@@ -114,12 +116,12 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_bErrorReset = FALSE;
             me->AMK_TorqueSetpoint = 0;
             me->AMK_TorqueLimitPositiv = 0;
-            me->AMK_TorqueLimitNegativ = 0;
-            if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){
+            me->AMK_TorqueLimitNegativ = 0; //No changes until regen is present
+            if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){ //Add in safety.c?
                 me->startUpStage = 2;
             }
         break;
-        //Precharge needs to have occured to now send the new message
+        //Precharge needs to have occured to now send the new message (Keep delay +3 Second)
         case 2:
             if(HVILTermSense->sensorValue == TRUE){
                 me->AMK_bInverterOn = FALSE;
@@ -134,7 +136,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 me->AMK_bErrorReset = TRUE;
                 //Need a delay here since precharge was not done
                 me->AMK_bErrorReset = FALSE;
-                me->startUpStage = 1;
+                me->startUpStage = 1; //Jump to needed case
             }
             if(me->AMK_bDcOnVal == TRUE && me->AMK_bQuitDcOn == TRUE){
                 me->startUpStage = 3;
@@ -164,7 +166,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 if(me->AMK_bInverterOnVal == TRUE && me->AMK_bQuitInverterOnVal == TRUE){
                     me->startUpStage = 5;
                 } else {
-                    me->startUpStage = 1;
+                    me->startUpStage = 1; //Throw to CANbus
                 }
             }
         break;

@@ -682,7 +682,8 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, BatteryManagementSystem *bms,
     DI_commandTorque(DI_getCommandedTorque(in1) * multiplier, in1);
     DI_commandTorque(DI_getCommandedTorque(in2) * multiplier, in2);
     DI_commandTorque(DI_getCommandedTorque(in3) * multiplier, in3);
-    DI_commandTorque(DI_getCommandedTorque(in4) * multiplier, in4);
+    DI_commandTorque(DI_getCommandedTorque(in4) * multiplier, in4); 
+    //Any derating in the future (multiplier or reasonabily getting hot should be managed in Torque Vectoring) -> Hard limit safety.c and soft limit TV
 }
 
 //-------------------------------------------------------------------

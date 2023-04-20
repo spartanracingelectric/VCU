@@ -124,8 +124,8 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     ubyte2 messageID;
     //Outgoing ----------------------------
     messageID = 0x184;  //Inverter FL 1 Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
@@ -162,8 +162,8 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
 
     //Incoming ----------------------------
     messageID = 0x283;  //Inverter1FL
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
@@ -410,7 +410,8 @@ void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, 
         switch (canMessages[currMessage].id)
         {
         //-------------------------------------------------------------------------
-        //Inverters (Inverter FL and FR are together CAN0 and Inverter RL and RR are together CAN1)
+        //Inverters (Inverter FL and FR are together CAN0 and Inverter RL and RR are together CAN1) 
+        //This is to ensure better debug between the two busses
         //-------------------------------------------------------------------------
         case 0x283:
             //Inverter FL 1 (CAN0)
@@ -875,6 +876,7 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
     // canMessages[canMessageCount - 1].length = byteNum;
 
+    //Each set is a byte so NEEDS TO BE UPDATED
     //Inverter 1 FL Command Message
     canMessageCount++;
     byteNum = 0;
@@ -934,11 +936,12 @@ void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressu
     ubyte2 canMessageID = 0x500;
     ubyte1 byteNum;
 
+    //Each set is a byte so NEEDS TO BE UPDATED
     //Inverter 3 RL Command Message
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id = 0x188;
+    canMessages[canMessageCount - 1].id = 0x188; //Reference object's sending CAN
     canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
     canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bInverterOn == TRUE) ? 1 : 0;
     canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bDcOn == TRUE) ? 1 : 0;
