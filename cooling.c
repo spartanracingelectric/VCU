@@ -6,7 +6,6 @@
 #include "serial.h"
 #include "sensors.h"
 #include "cooling.h"
-#include "motorController.h"
 #include "mathFunctions.h"
 #include "bms.h"
 

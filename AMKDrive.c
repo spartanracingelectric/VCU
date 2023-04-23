@@ -97,10 +97,8 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
         torqueOutput = 0;
     }
     
-    if(me->startUpStage == 6){
-       DI_commandTorque(torqueOutput, me);
-       DI_getCommandedTorque(me);
-    }
+    DI_commandTorque(torqueOutput, me);
+    DI_getCommandedTorque(me);
 
 }
 

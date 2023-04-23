@@ -9,7 +9,6 @@
 #include "sensors.h"
 #include "canManager.h"
 #include "avlTree.h"
-#include "motorController.h"
 #include "bms.h"
 #include "safety.h"
 #include "wheelSpeeds.h"
@@ -161,14 +160,14 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     }
 
     //Incoming ----------------------------
-    messageID = 0x283;  //Inverter1FL
+    messageID = 0x283;  //Inverter1FL 1
     me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
     me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
 
-    messageID = 0x285;  //Inverter1FL
+    messageID = 0x285;  //Inverter1FL 2
     me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
     me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
     me->canMessageHistory[messageID]->required = TRUE;
