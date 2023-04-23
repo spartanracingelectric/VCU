@@ -13,7 +13,6 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 
-#include "motorController.h"
 #include "bms.h"
 #include "serial.h"
 

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include "IO_CAN.h"
 #include "IO_Driver.h"
-#include "motorController.h"
 #include "serial.h"
 
 //#include "canManager.h"
@@ -23,7 +22,7 @@ InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID);
 // Update Functions (CAN Inputs)
 //----------------------------------------------------------------------------
 
-void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA_FRAME* icCanMessage);
+void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage);
 //----------------------------------------------------------------------------
 // Status Functions (CAN Inputs)
 //----------------------------------------------------------------------------

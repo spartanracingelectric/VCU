@@ -19,6 +19,10 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "sensorCalculations.h"
+#include "readyToDriveSound.h"
+
+extern Sensor Sensor_RTDButton;
+ubyte4 timestamp_Precharge = 0;
 
 _DriveInverter* AmkDriver_new(DI_Location_Address location_address)
 {
@@ -62,6 +66,16 @@ _DriveInverter* AmkDriver_new(DI_Location_Address location_address)
     return me;
 }
 
+enum InverterStatus {
+    RELAY_OFF = 0,
+    RELAY_ON_SENDING_CAN = 1,
+    PRECHARGE_DC_ENABLE = 2,
+    DRIVER_ENABLE = 3,
+    READY_TO_DRIVE_INVERTER_ON = 4,
+    TORQUE_LIMIT_SET = 5,
+    TORQUE_SETPOINTS_ACTIVE = 6
+};
+
 void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureSensor *bps){
 
     sbyte2 torqueOutput = 0;
@@ -90,26 +104,19 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
 
 }
 
-void DI_calculateRelay(Sensor* HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps){
-    // We want to turn on LV to the motor as soon as we are potentially ready to go into HV since we need to send and monitor CAN messages
-    // Tie to RTD press for turning on LV
-    if(tps->calibrated == TRUE && bps->calibrated == TRUE){
-        IO_DO_Set(IO_DO_00, TRUE);
-    } else {
-        IO_DO_Set(IO_DO_00, FALSE);
-    }
-}
-
 void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds){
      switch (me->startUpStage){
-        //Combine CalculateRelay function together for RTD press for state 1 // Change to 1 - 6 to ENUM
-        case 0:
-            if(IO_DO_00 == TRUE){
+        case RELAY_OFF:
+            if(Sensor_RTDButton.sensorValue == TRUE && bps->percent > 0.10){
+                IO_DO_Set(IO_DO_00, TRUE);
                 me->startUpStage = 1;
+            } else {
+                IO_DO_Set(IO_DO_00, FALSE);
+                me->startUpStage = 0;
             }
         break;
         //MCM relay on, we can now start sending safe CAN messages
-        case 1:
+        case RELAY_ON_SENDING_CAN:
             me->AMK_bInverterOn = FALSE;
             me->AMK_bDcOn = FALSE;
             me->AMK_bEnable = FALSE;
@@ -117,13 +124,14 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_TorqueSetpoint = 0;
             me->AMK_TorqueLimitPositiv = 0;
             me->AMK_TorqueLimitNegativ = 0; //No changes until regen is present
-            if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){ //Add in safety.c?
+            if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){ 
                 me->startUpStage = 2;
+                IO_RTC_StartTime(&timestamp_Precharge);
             }
         break;
-        //Precharge needs to have occured to now send the new message (Keep delay +3 Second)
-        case 2:
-            if(HVILTermSense->sensorValue == TRUE){
+        //Precharge needs to have occured to now send the new message 
+        case PRECHARGE_DC_ENABLE:
+            if(HVILTermSense->sensorValue == TRUE && IO_RTC_GetTimeUS(timestamp_Precharge) >= 10000000){ // After 10 Seconds
                 me->AMK_bInverterOn = FALSE;
                 me->AMK_bDcOn = TRUE;
                 me->AMK_bEnable = FALSE;
@@ -133,16 +141,19 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 me->AMK_TorqueLimitNegativ = 0;
             }
             if(me->AMK_bQuitDcOn == FALSE && HVILTermSense->sensorValue == TRUE){
+                timestamp_Precharge = 0;
                 me->AMK_bErrorReset = TRUE;
-                //Need a delay here since precharge was not done
-                me->AMK_bErrorReset = FALSE;
-                me->startUpStage = 1; //Jump to needed case
+                if(IO_RTC_GetTimeUS(timestamp_Precharge) >= 5000000) // After 5 Seconds)
+                {
+                    me->AMK_bErrorReset = FALSE; //We need to retry the sequence
+                    me->startUpStage = 1; //Jump after LV
+                }
             }
             if(me->AMK_bDcOnVal == TRUE && me->AMK_bQuitDcOn == TRUE){
                 me->startUpStage = 3;
             }
         break;
-        case 3: 
+        case DRIVER_ENABLE: 
             if(Sensor_RTDButton.sensorValue == FALSE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25){
                 me->AMK_bInverterOn = FALSE;
                 me->AMK_bDcOn = TRUE;
@@ -154,7 +165,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 me->startUpStage = 4;
             }
         break;
-        case 4:
+        case READY_TO_DRIVE_INVERTER_ON:
             if(Sensor_RTDButton.sensorValue == TRUE && me->AMK_bEnable == TRUE){
                 me->AMK_bInverterOn = TRUE;
                 me->AMK_bDcOn = TRUE;
@@ -170,7 +181,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 }
             }
         break;
-        case 5: 
+        case TORQUE_LIMIT_SET: 
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
@@ -178,10 +189,10 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_TorqueLimitPositiv = 25 * 10; // 25Nm -> Will need to find a way to make this global for the future
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == FALSE){
-            me->startUpStage = 6;
+                me->startUpStage = 6;
             }
         break;
-        case 6:
+        case TORQUE_SETPOINTS_ACTIVE:
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
@@ -197,7 +208,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
         me->startUpStage = 0;
         break;
      }
-}
+}  
 
 void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
 

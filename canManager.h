@@ -5,7 +5,6 @@
 #include "IO_CAN.h"
 
 #include "avlTree.h"
-#include "motorController.h"
 #include "instrumentCluster.h"
 #include "bms.h"
 #include "wheelSpeeds.h"

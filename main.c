@@ -2,7 +2,7 @@
 * SRE-7 Vehicle Control Firmware for the TTTech HY-TTC 60 Controller (VCU)
 ******************************************************************************
 * For project info and history, see https://github.com/spartanracingelectric
-* For software/development questions, email rusty@pedrosatech.com or shinika.balasundar@yahoo.com
+* For software/development questions, email shinika.balasundar@yahoo.com or rusty@pedrosatech.com
 ******************************************************************************
 * Files
 * The Git repository does not contain the complete firmware for SRE-7.  Modules
@@ -36,7 +36,6 @@
 #include "initializations.h"
 #include "sensors.h"
 #include "canManager.h"
-#include "motorController.h"
 #include "AMKdrive.h"
 #include "instrumentCluster.h"
 #include "readyToDriveSound.h"
@@ -362,8 +361,6 @@ void main(void)
         Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
         //Handle motor controller startup procedures
         //MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
-
-        DI_calculateRelay(&Sensor_HVILTerminationSense, tps, bps);
 
         //MCM_inverterControl(mcm0, tps, bps, rtds);
 

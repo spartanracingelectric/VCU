@@ -12,7 +12,7 @@
 #include "sensors.h"
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
-#include "motorController.h"
+#include "readyToDriveSound.h"
 
 // Base CAN message ID for "setpoint" message - outgoing to inverter
 #define DI_BASE_CAN_ID_OUTGOING 0x183
@@ -82,7 +82,6 @@ typedef struct _DriveInverter {
 _DriveInverter* AmkDriver_new(DI_Location_Address location_address);
 
 void DI_calculateInverterControl(_DriveInverter* Idv, Sensor *HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds);
-void DI_calculateRelay(Sensor* HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps);
 
 void DI_calculateCommands(_DriveInverter* Idv, TorqueEncoder *tps, BrakePressureSensor *bps);
 

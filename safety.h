@@ -6,7 +6,6 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "sensors.h"
-#include "motorController.h"
 #include "bms.h"
 #include "serial.h"
 #include "wheelSpeeds.h"
@@ -35,6 +34,6 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, BatteryManagementSystem *bms,
 
 //ubyte2 checkPowerDraw(BatteryManagementSystem* bms, MotorController* mcm);
 void checkBatteryPackTemp(BatteryManagementSystem *bms);
-ubyte2 checkPowerDraw(BatteryManagementSystem *bms, MotorController *mcm);
+ubyte2 checkPowerDraw(BatteryManagementSystem *bms);
 
 #endif //  _SAFETY_H
