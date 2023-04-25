@@ -98,7 +98,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
     sbyte2 steeringAngle = steering_degrees();
 
-    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0);
+    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
 
     PIDController controller;
     
