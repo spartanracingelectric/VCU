@@ -136,6 +136,6 @@ bool getLaunchControlStatus(LaunchControl *me){
     return me->LCStatus;
 }
 
-float getCalculatedTorque(){
+sbyte2 getCalculatedTorque(){
     return Calctorque;
 }
