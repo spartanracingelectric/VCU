@@ -116,7 +116,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         me->LCStatus = TRUE;
         me->lcTorque = 30; 
         if(speedKph > 3){
-            Calctorque = calculatePIDController(&controller, 0.2, me->slipRatio, 0.33, mcm_Torque_max); // Set your target, current, dt
+            Calctorque = calculatePIDController(&controller, 0.2, me->slipRatio, 0.10, mcm_Torque_max); // Set your target, current, dt
             //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
     }  
