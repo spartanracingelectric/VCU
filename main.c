@@ -187,7 +187,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 40, 40, 500, 20, 20, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
+    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
     //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         ^
     //can0_read_messageLimit -----------------|   |   |    |   |     |         |
     //can0_write_messageLimit---------------------+   |    |   |     |         |
@@ -215,7 +215,6 @@ void main(void)
     } else {
        MCM_setRegenMode(mcm0, REGENMODE_FIXED); 
     }
-    
 
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
@@ -339,7 +338,7 @@ void main(void)
         */
 
         CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms));
-        //CoolingSystem_calculations(cs, 20, 20, 20);
+        CoolingSystem_calculations(cs, 20, 20, 20);
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
         //Assign motor controls to MCM command message
@@ -389,7 +388,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 33000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
