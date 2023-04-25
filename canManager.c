@@ -119,33 +119,34 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     //-------------------------------------------------------------------
     //AVLNode* insertedMessage;
     //insertedMessage = AVL_insert(me->canMessageHistory, 0x0C0, 0, 50000, 125000, TRUE); //MCM command message
-    
+
+
     ubyte2 messageID;
     //Outgoing ----------------------------
     messageID = 0x184;  //Inverter FL 1 Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; // us (microseconds)
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 8000; 
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
 
     messageID = 0x185;  //Inverter FR 2 Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 8000;
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
 
     messageID = 0x188;  //Inverter RL 1 Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 8000;
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
 
     messageID = 0x189;  //Inverter RR 2 Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 8000;
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
@@ -160,9 +161,10 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     }
 
     //Incoming ----------------------------
+    /* Currently unused for any timeout errors on VCU side
     messageID = 0x283;  //Inverter1FL 1
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000; //Remove this timestamps giant IF statement -> declares timeBetweenMessages
+    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; 
+    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000; 
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
@@ -238,6 +240,7 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     me->canMessageHistory[messageID]->required = TRUE;
     for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
     IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+    */
 
     return me;
 }
@@ -282,7 +285,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // Check if this message exists in the array
         //----------------------------------------------------------------------------
-        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  //############################## ALWAYS FALSE? ##############################
+        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  
         if (firstTimeMessage)
         {
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Min = 25000;
@@ -875,44 +878,35 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
     // canMessages[canMessageCount - 1].length = byteNum;
 
-    //Each set is a byte so NEEDS TO BE UPDATED
     //Inverter 1 FL Command Message
     canMessageCount++;
-    byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = 0x184;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bInverterOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bDcOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bEnable == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bErrorReset == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueSetpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueSetpoint >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueLimitPositiv;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueLimitPositiv >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueLimitNegativ;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueLimitNegativ >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1].data[0] = 0; //ReservedIgnore1
+    canMessages[canMessageCount - 1].data[1] = inv1->AMK_bInverterOn << 7 | inv1->AMK_bDcOn << 6 | inv1->AMK_bEnable << 5 | inv1->AMK_bErrorReset;
+    canMessages[canMessageCount - 1].data[1] &= 0xF0;  //ReservedIgnore2
+    canMessages[canMessageCount - 1].data[2] = inv1->AMK_TorqueSetpoint;
+    canMessages[canMessageCount - 1].data[3] = inv1->AMK_TorqueSetpoint >> 8;
+    canMessages[canMessageCount - 1].data[4] = inv1->AMK_TorqueLimitPositiv;
+    canMessages[canMessageCount - 1].data[5] = inv1->AMK_TorqueLimitPositiv >> 8;
+    canMessages[canMessageCount - 1].data[6] = inv1->AMK_TorqueLimitNegativ;
+    canMessages[canMessageCount - 1].data[7] = inv1->AMK_TorqueLimitNegativ >> 8;
+    canMessages[canMessageCount - 1].length = 8;
 
     //Inverter 2 FR Command Message
     canMessageCount++;
-    byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = 0x185;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bInverterOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bDcOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bEnable == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bErrorReset == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueSetpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueSetpoint >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueLimitPositiv;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueLimitPositiv >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueLimitNegativ;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueLimitNegativ >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1].data[0] = 0; //ReservedIgnore1
+    canMessages[canMessageCount - 1].data[1] = inv2->AMK_bInverterOn << 7 | inv2->AMK_bDcOn << 6 | inv2->AMK_bEnable << 5 | inv2->AMK_bErrorReset;
+    canMessages[canMessageCount - 1].data[1] &= 0xF0; //ReservedIgnore2
+    canMessages[canMessageCount - 1].data[2] = inv2->AMK_TorqueSetpoint;
+    canMessages[canMessageCount - 1].data[3] = inv2->AMK_TorqueSetpoint >> 8;
+    canMessages[canMessageCount - 1].data[4] = inv2->AMK_TorqueLimitPositiv;
+    canMessages[canMessageCount - 1].data[5] = inv2->AMK_TorqueLimitPositiv >> 8;
+    canMessages[canMessageCount - 1].data[6] = inv2->AMK_TorqueLimitNegativ;
+    canMessages[canMessageCount - 1].data[7] = inv2->AMK_TorqueLimitNegativ >> 8;
+    canMessages[canMessageCount - 1].length = 8;
     //----------------------------------------------------------------------------
     //Additional sensors
     //----------------------------------------------------------------------------
@@ -935,44 +929,35 @@ void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressu
     ubyte2 canMessageID = 0x500;
     ubyte1 byteNum;
 
-    //Each set is a byte so NEEDS TO BE UPDATED
     //Inverter 3 RL Command Message
     canMessageCount++;
-    byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id = 0x188; //Reference object's sending CAN
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bInverterOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bDcOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bEnable == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv1->AMK_bErrorReset == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueSetpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueSetpoint >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueLimitPositiv;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueLimitPositiv >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv1->AMK_TorqueLimitNegativ;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv1->AMK_TorqueLimitNegativ >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1].id = 0x188;
+    canMessages[canMessageCount - 1].data[0] = 0; //ReservedIgnore1
+    canMessages[canMessageCount - 1].data[1] = inv1->AMK_bInverterOn << 7 | inv1->AMK_bDcOn << 6 | inv1->AMK_bEnable << 5 | inv1->AMK_bErrorReset;
+    canMessages[canMessageCount - 1].data[1] &= 0xF0; //ReservedIgnore2
+    canMessages[canMessageCount - 1].data[2] = inv1->AMK_TorqueSetpoint;
+    canMessages[canMessageCount - 1].data[3] = inv1->AMK_TorqueSetpoint >> 8;
+    canMessages[canMessageCount - 1].data[4] = inv1->AMK_TorqueLimitPositiv;
+    canMessages[canMessageCount - 1].data[5] = inv1->AMK_TorqueLimitPositiv >> 8;
+    canMessages[canMessageCount - 1].data[6] = inv1->AMK_TorqueLimitNegativ;
+    canMessages[canMessageCount - 1].data[7] = inv1->AMK_TorqueLimitNegativ >> 8;
+    canMessages[canMessageCount - 1].length = 8;
 
     //Inverter 4 RR Command Message
     canMessageCount++;
-    byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = 0x189;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bInverterOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bDcOn == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bEnable == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (inv2->AMK_bErrorReset == TRUE) ? 1 : 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //ReservedIgnore
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueSetpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueSetpoint >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueLimitPositiv;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueLimitPositiv >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)inv2->AMK_TorqueLimitNegativ;
-    canMessages[canMessageCount - 1].data[byteNum++] = inv2->AMK_TorqueLimitNegativ >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1].data[0] = 0; //ReservedIgnore1
+    canMessages[canMessageCount - 1].data[1] = inv2->AMK_bInverterOn << 7 | inv2->AMK_bDcOn << 6 | inv2->AMK_bEnable << 5 | inv2->AMK_bErrorReset;
+    canMessages[canMessageCount - 1].data[1] &= 0xF0; //ReservedIgnore2
+    canMessages[canMessageCount - 1].data[2] = inv2->AMK_TorqueSetpoint;
+    canMessages[canMessageCount - 1].data[3] = inv2->AMK_TorqueSetpoint >> 8;
+    canMessages[canMessageCount - 1].data[4] = inv2->AMK_TorqueLimitPositiv;
+    canMessages[canMessageCount - 1].data[5] = inv2->AMK_TorqueLimitPositiv >> 8;
+    canMessages[canMessageCount - 1].data[6] = inv2->AMK_TorqueLimitNegativ;
+    canMessages[canMessageCount - 1].data[7] = inv2->AMK_TorqueLimitNegativ >> 8;
+    canMessages[canMessageCount - 1].length = 8;
 
     //Place the can messsages into the FIFO queue ---------------------------------------------------
     //IO_CAN_WriteFIFO(canFifoHandle_HiPri_Write, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)

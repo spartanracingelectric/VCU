@@ -23,6 +23,7 @@
 
 extern Sensor Sensor_RTDButton;
 ubyte4 timestamp_Precharge = 0;
+bool prevHVILState = FALSE;
 
 _DriveInverter* AmkDriver_new(DI_Location_Address location_address)
 {
@@ -105,7 +106,7 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
 void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds){
      switch (me->startUpStage){
         case RELAY_OFF:
-            if(Sensor_RTDButton.sensorValue == TRUE && bps->percent > 0.10){
+            if(Sensor_RTDButton.sensorValue == TRUE){
                 IO_DO_Set(IO_DO_00, TRUE);
                 me->startUpStage = 1;
             } else {
@@ -124,11 +125,17 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_TorqueLimitNegativ = 0; //No changes until regen is present
             if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){ 
                 me->startUpStage = 2;
-                IO_RTC_StartTime(&timestamp_Precharge);
             }
         break;
         //Precharge needs to have occured to now send the new message 
         case PRECHARGE_DC_ENABLE:
+            if(HVILTermSense->sensorValue == FALSE){
+                prevHVILState = FALSE;
+                timestamp_Precharge = 0;
+            } else if (prevHVILState == FALSE && HVILTermSense->sensorValue == TRUE){
+                IO_RTC_StartTime(&timestamp_Precharge);
+                prevHVILState = TRUE;
+            }
             if(HVILTermSense->sensorValue == TRUE && IO_RTC_GetTimeUS(timestamp_Precharge) >= 10000000){ // After 10 Seconds
                 me->AMK_bInverterOn = FALSE;
                 me->AMK_bDcOn = TRUE;
@@ -215,21 +222,21 @@ void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
 
     if(diCanMessage->id == address1) {
         // System ready status
-        me->AMK_bSystemReady = diCanMessage->data[1] >> 0 & 0x01;
+        me->AMK_bSystemReady = diCanMessage->data[1] >> 0 & 1;
         // Error status
-        me->AMK_bError = diCanMessage->data[1] >> 1 & 0x01;
+        me->AMK_bError = diCanMessage->data[1] >> 1 & 1;
         // Warnings status
-        me->AMK_bWarn = diCanMessage->data[1] >> 2 & 0x01;
+        me->AMK_bWarn = diCanMessage->data[1] >> 2 & 1;
         // Quit DC on status
-        me->AMK_bQuitDcOn = diCanMessage->data[1] >> 3 & 0x01;
+        me->AMK_bQuitDcOn = diCanMessage->data[1] >> 3 & 1;
         // DC on status
-        me->AMK_bDcOnVal = diCanMessage->data[1] >> 4 & 0x01;
+        me->AMK_bDcOnVal = diCanMessage->data[1] >> 4 & 1;
         // Quit inverter on status
-        me->AMK_bQuitInverterOnVal = diCanMessage->data[1] >> 5 & 0x01;
+        me->AMK_bQuitInverterOnVal = diCanMessage->data[1] >> 5 & 1;
         // Inverter on status
-        me->AMK_bInverterOnVal = diCanMessage->data[1] >> 6 & 0x01;
+        me->AMK_bInverterOnVal = diCanMessage->data[1] >> 6 & 1;
         // Derating value
-        me->AMK_bDerating = diCanMessage->data[1] >> 7 & 0x01;
+        me->AMK_bDerating = diCanMessage->data[1] >> 7 & 1;
         // Speed value
         me->AMK_ActualVelocity = (ubyte2)(diCanMessage->data[3] << 8 | diCanMessage->data[2]);
         me->AMK_ActualVelocity = (ubyte2)me->AMK_ActualVelocity * 0.01;

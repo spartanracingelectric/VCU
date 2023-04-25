@@ -192,7 +192,7 @@ void main(void)
     //can1_busSpeed-----------------------------------+    |   |     |         
     //can1_read_messageLimit-------------------------------+   |     |         
     //can1_write_messageLimit----------------------------------+     |         
-    //defaultSendDelayus---------------------------------------------+         
+    //defaultSendDelayus (Not being used currently) -----------------+         
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -392,7 +392,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 33000) // 1000 = 1ms (AMKs can respond to < 50ms cycle time) 
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 33000) // 1000 = 1ms 
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
