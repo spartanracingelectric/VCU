@@ -702,32 +702,33 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50A: Launch Control and Ground Speed
+    //50A: Ground Speed
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)speedKph;
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)(speedKph >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)getLaunchControlStatus(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)getCalculatedTorque(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)lc->slipRatio;
-    canMessages[canMessageCount - 1].data[byteNum++] = (uint8_t)lc->LCReady;
+    canMessages[canMessageCount - 1].data[byteNum++] = speedKph;
+    canMessages[canMessageCount - 1].data[byteNum++] = speedKph >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50B: Regen mode loopback (50A without SoftBSPD or Regen Ground Spd)
+    //50B: Launch Control
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = IC_getTorqueMapMode(ic);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCStatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)getCalculatedTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)getCalculatedTorque >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
