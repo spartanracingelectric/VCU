@@ -14,7 +14,6 @@
 #include "brakePressureSensor.h"
 
 #include "bms.h"
-#include "serial.h"
 
 //----------------------------------------------------------------------------
 //Faults

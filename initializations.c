@@ -141,7 +141,7 @@ void vcu_initializeADC(bool benchMode)
     Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PD_10K);     //Eco Button
     //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K);   //TCS Switch A
     //Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //TCS Switch B
-    Sensor_TVButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); // Launch Control Enable Button
+    Sensor_TVButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); // Torque Control Enable Button
 
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present

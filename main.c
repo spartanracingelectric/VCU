@@ -44,7 +44,6 @@
 #include "wheelSpeeds.h"
 #include "safety.h"
 #include "sensorCalculations.h"
-#include "serial.h"
 #include "cooling.h"
 
 //Application Database, needed for TTC-Downloader

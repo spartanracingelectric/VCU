@@ -3,7 +3,6 @@
 //#include "IO_DIO.h"
 //#include "IO_PWM.h"
 
-#include "serial.h"
 #include "sensors.h"
 #include "cooling.h"
 #include "mathFunctions.h"

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include "IO_CAN.h"
 #include "IO_Driver.h"
-#include "serial.h"
 
 //#include "canManager.h"
 

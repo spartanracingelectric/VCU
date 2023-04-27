@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "serial.h"
 #include "IO_CAN.h"
 
 //Max mismatch voltage, in volts
