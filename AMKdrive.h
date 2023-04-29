@@ -68,15 +68,15 @@ typedef struct _DriveInverter {
     bool AMK_bQuitInverterOnVal;
     bool AMK_bInverterOnVal;
     bool AMK_bDerating;
-    sbyte2 AMK_ActualVelocity;  // RPM
-    sbyte2 AMK_TorqueCurrent;
-    sbyte2 AMK_MagnetizingCurrent;
+    float4 AMK_ActualVelocity;  // RPM
+    float4 AMK_TorqueCurrent;
+    float4 AMK_MagnetizingCurrent;
 
     // Actual Values 2 (incoming: 0x284 + offset)
-    sbyte2 AMK_TempMotor;       // 0.1degC
-    sbyte2 AMK_TempInverter;    // 0.1degC
+    float4 AMK_TempMotor;       // 0.1degC
+    float4 AMK_TempInverter;    // 0.1degC
     ubyte2 AMK_ErrorInfo;       
-    sbyte2 AMK_TorqueFeedback;        // 0.1degC
+    float4 AMK_TorqueFeedback;        // 0.1degC
 } _DriveInverter;
 
 _DriveInverter* AmkDriver_new(DI_Location_Address location_address);
