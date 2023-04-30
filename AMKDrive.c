@@ -91,8 +91,9 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
     bpsTorque = 0 - (0 - 0) * getPercent(bps->percent, 0, 0, TRUE);
 
     torqueOutput = appsTorque + bpsTorque;
+    torqueOutput = torqueOutput / 100;
     
-    DI_commandTorque(torqueOutput, me);
+    DI_commandTorque(me, torqueOutput);
     DI_getCommandedTorque(me);
 
 }
@@ -118,19 +119,16 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_TorqueLimitPositiv = 0;
             me->AMK_TorqueLimitNegativ = 0; //No changes until regen is present
             if(me->AMK_bSystemReady == TRUE && me->AMK_bError == FALSE){ 
+                timestamp_Precharge = 0;
                 me->startUpStage = 2;
             }
         break;
         //Precharge needs to have occured to now send the new message 
         case PRECHARGE_DC_ENABLE:
-            if(HVILTermSense->sensorValue == TRUE){
-                prevHVILState = FALSE;
-                timestamp_Precharge = 0;
-            } else if (prevHVILState == FALSE && HVILTermSense->sensorValue == TRUE){
+            if (HVILTermSense->sensorValue == TRUE && timestamp_Precharge == 0){
                 IO_RTC_StartTime(&timestamp_Precharge);
-                prevHVILState = TRUE;
-            }
-            if(HVILTermSense->sensorValue == FALSE && IO_RTC_GetTimeUS(timestamp_Precharge) >= 10000000){ // After 10 Seconds
+            } 
+            if(HVILTermSense->sensorValue == TRUE && IO_RTC_GetTimeUS(timestamp_Precharge) >= 10000000){ // After 10 Seconds
                 me->AMK_bInverterOn = FALSE;
                 me->AMK_bDcOn = TRUE;
                 me->AMK_bEnable = FALSE;
@@ -138,7 +136,8 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 me->AMK_TorqueSetpoint = 0;
                 me->AMK_TorqueLimitPositiv = 0;
                 me->AMK_TorqueLimitNegativ = 0;
-            }
+            }  
+            /* Need validation regarding switch to 1
             if(me->AMK_bQuitDcOn == FALSE && HVILTermSense->sensorValue == FALSE){
                 timestamp_Precharge = 0;
                 me->AMK_bErrorReset = TRUE;
@@ -148,12 +147,13 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                     me->startUpStage = 1; //Jump after LV
                 }
             }
+            */
             if(me->AMK_bDcOnVal == TRUE && me->AMK_bQuitDcOn == TRUE){
                 me->startUpStage = 3;
             }
         break;
         case DRIVER_ENABLE: 
-            if(Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25){
+            if(Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && tps->travelPercent < .05){
                 me->AMK_bInverterOn = FALSE;
                 me->AMK_bDcOn = TRUE;
                 me->AMK_bEnable = TRUE;
@@ -172,20 +172,18 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
                 me->AMK_TorqueSetpoint = 0;
                 me->AMK_TorqueLimitPositiv = 0;
                 me->AMK_TorqueLimitNegativ = 0;
-                RTDS_setVolume(rtds, 1, 1500000);
-                if(me->AMK_bInverterOnVal == TRUE && me->AMK_bQuitInverterOnVal == TRUE){
-                    me->startUpStage = 5;
-                } else {
-                    me->startUpStage = 1; //Throw to CANbus
-                }
             }
+            if(me->AMK_bInverterOnVal == TRUE && me->AMK_bQuitInverterOnVal == TRUE){
+                RTDS_setVolume(rtds, 1, 1500000);
+                me->startUpStage = 5;
+            } 
         break;
         case TORQUE_LIMIT_SET: 
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
             me->AMK_TorqueSetpoint = 0;
-            me->AMK_TorqueLimitPositiv = 25 * 10; // 25Nm -> Will need to find a way to make this global for the future
+            me->AMK_TorqueLimitPositiv = 2500; // 25Nm -> Will need to find a way to make this global for the future
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == FALSE){
                 me->startUpStage = 6;
@@ -195,7 +193,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
-            me->AMK_TorqueLimitPositiv = 25 * 10; // 25Nm -> Will need to find a way to make this global for the future
+            me->AMK_TorqueLimitPositiv = 2500; // 25Nm -> Will need to find a way to make this global for the future
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == TRUE){
                 me->startUpStage = 1;
@@ -209,37 +207,45 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
      }
 }  
 
-void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
+void DI_parseCanMessage(_DriveInverter* me, IO_CAN_DATA_FRAME* diCanMessage){
+
+    //safety.c ubyte4 flags merge together -> enhancement
 
     int address1 = me->canIdIncoming;
     int address2 = me->canIdIncoming + 2;
 
+    ubyte1 systemReadyBitMask = 1;
+    ubyte1 errorBitMask = 2;
+    ubyte1 warningBitMask = 4;
+    ubyte1 quitDcOnBitMask = 8;
+    ubyte1 quitDcOnValBitMask = 0x10;
+    ubyte1 quitInverterOnBitMask = 0x20;
+    ubyte1 inverterOnBitMask = 0x40;
+    ubyte1 deratingBitMask = 0x80;
+
     if(diCanMessage->id == address1) {
         // System ready status
-        me->AMK_bSystemReady = (bool)diCanMessage->data[1] >> 0 & 1;
+        me->AMK_bSystemReady = ((diCanMessage->data[1] & systemReadyBitMask) > 0);
         // Error status
-        me->AMK_bError = (bool)diCanMessage->data[1] >> 1 & 1;
+        me->AMK_bError = ((diCanMessage->data[1] & errorBitMask) > 0);
         // Warnings status
-        me->AMK_bWarn = (bool)diCanMessage->data[1] >> 2 & 1;
+        me->AMK_bWarn = ((diCanMessage->data[1] & warningBitMask) > 0);
         // Quit DC on status
-        me->AMK_bQuitDcOn = (bool)diCanMessage->data[1] >> 3 & 1;
+        me->AMK_bQuitDcOn = ((diCanMessage->data[1] & quitDcOnBitMask) > 0);
         // DC on status
-        me->AMK_bDcOnVal = (bool)diCanMessage->data[1] >> 4 & 1;
+        me->AMK_bDcOnVal = ((diCanMessage->data[1] & quitDcOnValBitMask) > 0);
         // Quit inverter on status
-        me->AMK_bQuitInverterOnVal = (bool)diCanMessage->data[1] >> 5 & 1;
+        me->AMK_bQuitInverterOnVal = ((diCanMessage->data[1] & quitInverterOnBitMask) > 0);
         // Inverter on status
-        me->AMK_bInverterOnVal = (bool)diCanMessage->data[1] >> 6 & 1;
+        me->AMK_bInverterOnVal = ((diCanMessage->data[1] & inverterOnBitMask) > 0);
         // Derating value
-        me->AMK_bDerating = (bool)diCanMessage->data[1] >> 7 & 1;
+        me->AMK_bDerating = ((diCanMessage->data[1] & deratingBitMask) > 0);
         // Speed value
-        me->AMK_ActualVelocity = (float4)(diCanMessage->data[3] << 8 | diCanMessage->data[2]);
-        me->AMK_ActualVelocity = (float4)me->AMK_ActualVelocity * 0.01;
+        me->AMK_ActualVelocity = 0.01 * (diCanMessage->data[3] << 8 | diCanMessage->data[2]);
         // Torque current
-        me->AMK_TorqueCurrent = (float4)(diCanMessage->data[5] << 8 | diCanMessage->data[4]);
-        me->AMK_TorqueCurrent = (float4) me->AMK_TorqueCurrent * 0.01;
+        me->AMK_TorqueCurrent = 0.01 * (diCanMessage->data[5] << 8 | diCanMessage->data[4]);
         // Magnetized current
-        me->AMK_MagnetizingCurrent = (float4)(diCanMessage->data[7] << 8 | diCanMessage->data[6]);
-        me->AMK_MagnetizingCurrent = (float4) me->AMK_MagnetizingCurrent * 0.01;
+        me->AMK_MagnetizingCurrent = 0.01 * (diCanMessage->data[7] << 8 | diCanMessage->data[6]);
         
     } else if(diCanMessage->id == address2) {
          // Motor temperature
@@ -253,7 +259,7 @@ void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* me){
     }
 }
 
-void DI_commandTorque(sbyte2 newTorque, _DriveInverter* me){
+void DI_commandTorque(_DriveInverter* me, sbyte2 newTorque){
      me->AMK_TorqueSetpoint = newTorque;
 }
 

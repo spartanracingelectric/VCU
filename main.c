@@ -225,9 +225,9 @@ void main(void)
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
     ubyte2 tps0_calibMin = 850;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 1650; //me->tps0->sensorValue;
+    ubyte2 tps0_calibMax = 5000; //me->tps0->sensorValue;
     ubyte2 tps1_calibMin = 3270; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 4300; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMax = 4900; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
@@ -284,7 +284,7 @@ void main(void)
 
         //Run calibration if commanded
         //if (IO_RTC_GetTimeUS(timestamp_calibStart) < (ubyte4)5000000)
-        if (Sensor_EcoButton.sensorValue == TRUE)
+        if (Sensor_EcoButton.sensorValue == FALSE)
         {
             if (timestamp_EcoButton == 0)
             {

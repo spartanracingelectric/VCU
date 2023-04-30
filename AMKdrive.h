@@ -77,6 +77,7 @@ typedef struct _DriveInverter {
     float4 AMK_TempInverter;    // 0.1degC
     ubyte2 AMK_ErrorInfo;       
     float4 AMK_TorqueFeedback;        // 0.1degC
+
 } _DriveInverter;
 
 _DriveInverter* AmkDriver_new(DI_Location_Address location_address);
@@ -85,9 +86,9 @@ void DI_calculateInverterControl(_DriveInverter* Idv, Sensor *HVILTermSense, Tor
 
 void DI_calculateCommands(_DriveInverter* Idv, TorqueEncoder *tps, BrakePressureSensor *bps);
 
-void DI_parseCanMessage(IO_CAN_DATA_FRAME* diCanMessage, _DriveInverter* Idv);
+void DI_parseCanMessage(_DriveInverter* Idv, IO_CAN_DATA_FRAME* diCanMessage);
 
-void DI_commandTorque(sbyte2 newTorque, _DriveInverter* Idv);
+void DI_commandTorque(_DriveInverter* Idv, sbyte2 newTorque);
 
 sbyte2 DI_getCommandedTorque(_DriveInverter* Idv);
 

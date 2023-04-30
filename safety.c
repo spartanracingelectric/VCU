@@ -169,10 +169,10 @@ void SafetyChecker_update(SafetyChecker *me, BatteryManagementSystem *bms, Torqu
     {
         me->faults &= ~F_tpsNotCalibrated;
     }
-
+    bps->calibrated == TRUE; // Remove later with BPS. Dont keep
     if (bps->calibrated == FALSE)
     {
-        me->faults |= F_bpsNotCalibrated;
+        //me->faults |= F_bpsNotCalibrated;
     }
     else
     {
@@ -232,7 +232,7 @@ void SafetyChecker_update(SafetyChecker *me, BatteryManagementSystem *bms, Torqu
     //-------------------------------------------------------------------
     if (tps->tps0->sensorValue < tps->tps0->specMin || tps->tps0->sensorValue > tps->tps0->specMax || tps->tps1->sensorValue < tps->tps1->specMin || tps->tps1->sensorValue > tps->tps1->specMax)
     {
-        me->faults |= F_tpsOutOfRange;
+        //me->faults |= F_tpsOutOfRange;
     }
     else
     {
@@ -244,7 +244,7 @@ void SafetyChecker_update(SafetyChecker *me, BatteryManagementSystem *bms, Torqu
     //-------------------------------------------------------------------
     if (bps->bps0->sensorValue < bps->bps0->specMin || bps->bps0->sensorValue > bps->bps0->specMax)
     {
-        me->faults |= F_bpsOutOfRange;
+        //me->faults |= F_bpsOutOfRange;
     }
     else
     {
@@ -677,10 +677,10 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, BatteryManagementSystem *bms,
     }
 
     //MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
-    DI_commandTorque(DI_getCommandedTorque(in1) * multiplier, in1);
-    DI_commandTorque(DI_getCommandedTorque(in2) * multiplier, in2);
-    DI_commandTorque(DI_getCommandedTorque(in3) * multiplier, in3);
-    DI_commandTorque(DI_getCommandedTorque(in4) * multiplier, in4); 
+    DI_commandTorque(in1, DI_getCommandedTorque(in1) * multiplier);
+    DI_commandTorque(in2, DI_getCommandedTorque(in1) * multiplier);
+    DI_commandTorque(in3, DI_getCommandedTorque(in1) * multiplier);
+    DI_commandTorque(in4, DI_getCommandedTorque(in1) * multiplier); 
     // Derating features regarding close temperature will be managed within TV. These derates set on safety.c is for hard limit faulting
 }
 
