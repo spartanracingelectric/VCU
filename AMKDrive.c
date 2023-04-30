@@ -92,6 +92,9 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
 
     torqueOutput = appsTorque + bpsTorque;
     torqueOutput = torqueOutput / 100;
+    if(torqueOutput < 0.10){
+        torqueOutput = 0.10; //Change since we cant send 0.4
+    }
     
     DI_commandTorque(me, torqueOutput);
     DI_getCommandedTorque(me);
