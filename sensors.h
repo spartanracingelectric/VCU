@@ -180,6 +180,8 @@ extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;
 extern Sensor Sensor_LCButton;
 extern Sensor Sensor_TCSKnob;
+extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_DRSKnob;
 //TEMP BENCH SWITCHES
 extern Sensor Sensor_TEMP_BrakingSwitch;
 

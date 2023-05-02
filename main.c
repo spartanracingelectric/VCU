@@ -49,6 +49,7 @@
 #include "cooling.h"
 #include "bms.h"
 #include "LaunchControl.h"
+#include "drs.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -122,6 +123,7 @@ extern Sensor Sensor_TCSKnob;
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
+extern Sensor Sensor_DRSButton;
 
 /*****************************************************************************
 * Main!
@@ -210,7 +212,7 @@ void main(void)
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
 
     // Regen mode is now set based on battery voltage to preserve overvoltage fault 
-    if(BMS_getPackVoltage(bms) >= 400000){ // Milivolts for pack voltage
+    if(BMS_getPackVoltage(bms) >= 395000){ // Milivolts for pack voltage
        MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
     } else {
        MCM_setRegenMode(mcm0, REGENMODE_FIXED); 
@@ -223,6 +225,7 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
+    DRS *drs = DRS_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -328,6 +331,9 @@ void main(void)
         WheelSpeeds_update(wss, TRUE);
         slipRatioCalculation(wss, lc);
 
+        //Cool DRS things
+        DRS_update(drs, mcm0, tps, bps);
+
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
         //ControlLaw_update();
@@ -376,7 +382,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 

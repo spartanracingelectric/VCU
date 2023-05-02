@@ -97,7 +97,7 @@ void GetBrakePosition(void);
 ****************************************************************************/
 //Inputs: Wheel speed sensor frequency
 //Outputs: 4 speeds, RPM, ground speed
-//4 funcs, one to get each wheel�s speed
+//4 funcs, one to get each wheel's speed
 //16 bumps per rotation, 16 hz = 1 rotation per second
 #define NUM_BUMPS 16
 #define WHEEL_DIAMETER 16 //Inches
@@ -131,6 +131,13 @@ Input: Voltage
 Output: Degrees
 ****************************************************************************/
 sbyte2 steering_degrees();
+
+/*****************************************************************************
+* DRS Selection Knob (SAS)
+Input: Voltage
+Output: Float (Int)
+****************************************************************************/
+float DRS_knob_value();
 
 /*****************************************************************************
 * Doppler speed sensor functions

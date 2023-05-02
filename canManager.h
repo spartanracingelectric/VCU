@@ -11,6 +11,7 @@
 #include "wheelSpeeds.h"
 #include "safety.h"
 #include "LaunchControl.h"
+#include "drs.h"
 //#include "sensorCalculations.h"
 
 typedef enum
@@ -34,7 +35,7 @@ void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, I
 
 void canOutput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
-void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc);
+void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc, DRS *drs);
 
 ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel);
 

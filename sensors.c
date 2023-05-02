@@ -41,8 +41,8 @@ extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
-// extern Sensor Sensor_TCSKnob;
-// extern Sensor Sensor_TCSSwitchUp;
+extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_DRSKnob;
 extern Sensor Sensor_LCButton;
 extern Sensor Sensor_HVILTerminationSense;
 
@@ -75,6 +75,9 @@ void sensors_updateSensors(void)
 
     //TCS Knob
     // Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
+
+    //DRS Knob
+    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
 
     //Shock pots ---------------------------------------------------
     /*IO_ADC_Get(IO_ADC_5V_04, &Sensor_WPS_FL.sensorValue, &Sensor_WPS_FL.fresh);
@@ -139,6 +142,7 @@ void sensors_updateSensors(void)
     // Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
     Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_LCButton.sensorValue);
     Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
+    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_DRSButton.sensorValue);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)

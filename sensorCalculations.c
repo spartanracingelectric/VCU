@@ -52,6 +52,8 @@ extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
+extern Sensor Sensor_DRSKnob;
+extern Sensor Sensor_DRSButton;
 extern Sensor Sensor_TCSSwitchUp;
 extern Sensor Sensor_TCSSwitchDown;
 extern Sensor Sensor_HVILTerminationSense;
@@ -331,6 +333,21 @@ sbyte2 steering_degrees(){
     sbyte2 deg = min_angle + (max_angle - min_angle) * (Sensor_SAS.sensorValue - min_voltage) / (max_voltage - min_voltage);
     //sbyte2 used for CAN and memory saving
     return deg;
+}
+
+/*****************************************************************************
+* DRS Selection Knob (SAS)
+Input: Voltage
+Output: Float (Int)
+****************************************************************************/
+float DRS_knob_value(){
+    float min_voltage = 0;
+    float max_voltage = 24000;
+    float min_angle = 0;
+    float max_angle = 1024;
+    float val = min_angle + (max_angle - min_angle) * (Sensor_DRSKnob.sensorValue - min_voltage) / (max_voltage - min_voltage);
+    //sbyte2 used for CAN and memory saving
+    return val;
 }
 
 /*****************************************************************************

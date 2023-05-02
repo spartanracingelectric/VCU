@@ -37,8 +37,8 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
-    //IO_DO_Init(IO_DO_06) //DRS Shift Up
-    //IO_DO_Init(IO_DO_07) //DRS Shift Down
+    IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
+    IO_DO_Init(IO_DO_07);    IO_DO_Set(IO_DO_07, FALSE); //DRS Close
 
     //Lowside outputs (connects to ground when on)
     IO_DO_Init(IO_ADC_CUR_00);    IO_DO_Set(IO_ADC_CUR_00, FALSE); //Brake light
@@ -106,6 +106,10 @@ void vcu_initializeADC(bool benchMode)
     Sensor_SAS.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
     // Using absolute due to the external 5V supply
 
+    // DRS
+    //Sensor_DRSRotary.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_32V_00, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL); // IO_ADC_ABSOLUTE / IO_ADC_RATIO..
+    Sensor_DRSKnob.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_VAR_00 , IO_ADC_ABSOLUTE , IO_ADC_RANGE_32V, 0, 0, NULL );
+
     //TCS Pot
     //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
 
@@ -142,7 +146,7 @@ void vcu_initializeADC(bool benchMode)
     Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PU_10K);     //Eco Button
     //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PU_10K);   //TCS Switch A
     Sensor_LCButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PU_10K); // Launch Control Enable Button
-    //Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //TCS Switch B
+    Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PU_10K); //DRS Button
 
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
@@ -198,13 +202,14 @@ Sensor Sensor_SAS;    // = { 4 };
 Sensor Sensor_LVBattery;
 
 Sensor Sensor_TCSKnob;
-
 Sensor Sensor_RTDButton;
 Sensor Sensor_EcoButton;
 Sensor Sensor_TCSSwitchUp;
 Sensor Sensor_LCButton;
 Sensor Sensor_HVILTerminationSense;
 
+Sensor Sensor_DRSButton;
+Sensor Sensor_DRSKnob;
 //Switches
 //precharge failure
 
