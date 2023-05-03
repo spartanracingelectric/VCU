@@ -91,10 +91,9 @@ void DI_calculateCommands(_DriveInverter* me, TorqueEncoder *tps, BrakePressureS
     bpsTorque = 0 - (0 - 0) * getPercent(bps->percent, 0, 0, TRUE);
 
     torqueOutput = appsTorque + bpsTorque;
-    torqueOutput = torqueOutput / 100;
-    if(torqueOutput < 0.10){
-        torqueOutput = 0.10; //Change since we cant send 0.4
-    }
+
+    // To send 25nm you need to send a torque setpoint of 2500
+    torqueOutput = torqueOutput * 100;
     
     DI_commandTorque(me, torqueOutput);
     DI_getCommandedTorque(me);
@@ -186,7 +185,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
             me->AMK_TorqueSetpoint = 0;
-            me->AMK_TorqueLimitPositiv = 2500; // 25Nm -> Will need to find a way to make this global for the future
+            me->AMK_TorqueLimitPositiv = 25 * 100; // 25Nm -> Will need to find a way to make this global for the future (make sure correct on CAN)
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == FALSE){
                 me->startUpStage = 6;
@@ -196,7 +195,7 @@ void DI_calculateInverterControl(_DriveInverter* me, Sensor *HVILTermSense, Torq
             me->AMK_bInverterOn = TRUE;
             me->AMK_bDcOn = TRUE;
             me->AMK_bEnable = TRUE;
-            me->AMK_TorqueLimitPositiv = 2500; // 25Nm -> Will need to find a way to make this global for the future
+            me->AMK_TorqueLimitPositiv = 25 * 100; // 25Nm -> Will need to find a way to make this global for the future (make sure correct on CAN)
             me->AMK_TorqueLimitNegativ = 0;
             if(me->AMK_bError == TRUE){
                 me->startUpStage = 1;
