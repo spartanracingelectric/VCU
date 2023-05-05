@@ -177,7 +177,7 @@ void Light_set(Light light, float4 percent)
         }
         */ 
        //Verify if its 2 Amps
-        IO_DO_Set(IO_DO_02, power);
+        IO_DO_Set(IO_DO_02, TRUE);
         break;
 
     case Cooling_motorFans:  // Powerpack fan(s)
