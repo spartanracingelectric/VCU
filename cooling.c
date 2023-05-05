@@ -38,6 +38,9 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
     me->batteryFanHigh = 43;    //Turn on at this temperature
     me->batteryFanState = TRUE; //float4 batteryFanPercent;
 
+    me->invert = FALSE;
+    me->fakeDuty = 0;
+
     return me;
 }
 
@@ -49,6 +52,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 {
     //Water pump ------------------
     //Water pump PWM protocol unknown
+    /*
     if (motorControllerTemp >= me->waterPumpHigh || motorTemp >= me->waterPumpHigh)
     {
         me->waterPumpPercent = .9;
@@ -61,7 +65,7 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
     {
         me->waterPumpPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->waterPumpLow, me->waterPumpHigh, TRUE);
     }
-
+    */
     //Motor fan / rad fan
     if (me->motorFanState == FALSE)
     {
@@ -98,17 +102,11 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
+    
 
     //numbers should change
+    /*
     me->invert = FALSE;
-    if (motorTemp > 0) 
-    {
-        Light_set(Cooling_waterPump, TRUE);
-    }
-    else {
-        Light_set(Cooling_waterPump, TRUE);
-    }
-    
     if (motorTemp >= 65 || motorControllerTemp >= 65)
     {
         me->fakeDuty = 0;
@@ -135,6 +133,12 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         me->fakeDuty = 10;
         me->invert = TRUE;
     }
+    */
+    me->invert = TRUE;  //low temp
+    int thresh = 10;
+    if (motorTemp > thresh|| motorControllerTemp > thresh) {
+        me->invert = FALSE;   //high temp
+    }
     
     
 }
@@ -148,21 +152,26 @@ void CoolingSystem_enactCooling(CoolingSystem *me)
     //Send PWM control signal to water pump
     //Light_set(Cooling_waterPump, me->waterPumpPercent);
     
-    
+    /*
     ubyte4 timer = 0;
     if (me->invert) {
-        
         Light_set(Cooling_waterPump, 1);
-        IO_RTC_StartTime(&timer); 
+        IO_RTC_StartTime(&timer);   
         while( IO_RTC_GetTimeUS(timer) < (me->fakeDuty * 1000) );
         Light_set(Cooling_waterPump, 0);
     }
     else {
-        
         Light_set(Cooling_waterPump, 0);
         IO_RTC_StartTime(&timer); 
         while( IO_RTC_GetTimeUS(timer) < (me->fakeDuty * 1000) );
         Light_set(Cooling_waterPump, 1);
+    }
+    */
+    if (!me->invert) {
+        Light_set(Cooling_waterPump, 1);   //high temp
+    }
+    else {
+        Light_set(Cooling_waterPump, 0);   //low temp
     }
     
     // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110

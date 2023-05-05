@@ -355,6 +355,12 @@ void main(void)
         */
 
         CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms));
+        /*
+        testing
+        if (BMS_getHighestCellTemp_degC(bms) > 10 ) {
+            IO_DO_Set(IO_DO_02, 0);   
+        }
+        */
         //Cooling Testing: CoolingSystem_calculations(cs, 20, 20, 20);
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
