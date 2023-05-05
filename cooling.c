@@ -101,12 +101,12 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 
     //numbers should change
     me->invert = FALSE;
-    if (motorControllerTemp != 0) 
+    if (motorTemp > 0) 
     {
-        Light_set(Cooling_waterPump, 1);
+        Light_set(Cooling_waterPump, TRUE);
     }
     else {
-        Light_set(Cooling_waterPump, 0);
+        Light_set(Cooling_waterPump, TRUE);
     }
     
     if (motorTemp >= 65 || motorControllerTemp >= 65)
