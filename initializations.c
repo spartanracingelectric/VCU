@@ -59,9 +59,9 @@ void vcu_initializeADC(bool benchMode)
     IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL);
     IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);
     
-    //Water pump signal (No longer using in SR-14 Vehicle due to direct Signal)
-    //IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL);
-    //IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL);
+    // Rad Fans (SR-14 and above)
+    IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL); //Pin, Frequency Hz, Boolean for Pos polarity, Current measurement enabled bool, Weird other pin (current), No diag margin, Not safety Critical
+    IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL); //Pin, 0 - 65535, Feedback Measurement
 
     //Accum fan signal
     IO_PWM_Init(IO_PWM_04, 100, TRUE, FALSE, 0, FALSE, NULL);

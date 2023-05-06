@@ -108,7 +108,7 @@ typedef enum
     , Light_dashTCS        //on/off
     , Light_brake          //PWM
     , Cooling_waterPump    //PWM
-    , Cooling_motorFans    //on/off
+    , Cooling_RadFans      //PWM
     , Cooling_batteryFans  //on/off
 } Light;
 

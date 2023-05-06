@@ -21,13 +21,16 @@ typedef struct _CoolingSystem
     bool motorFanState;
     //float4 motorFanPercent;
 
+    float4 radFanMinPercent;
+    sbyte1 radFanLow; //Start ramping beyond min at this temp
+    sbyte1 radFanHigh;
+    float4 radFanPercent;
+
     //Battery fans (batteries) - Relay
     sbyte1 batteryFanLow;  //Turn off BELOW tuhis point
     sbyte1 batteryFanHigh; // Turn on at this temperature
     bool batteryFanState;
     //float4 batteryFanPercent;
-    sbyte1 fakeDuty;
-    bool invert;
     
 } CoolingSystem;
 

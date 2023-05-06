@@ -153,11 +153,9 @@ void sensors_updateSensors(void)
 
 void Light_set(Light light, float4 percent)
 {
-    ubyte2 duty = 65535 * percent;
-    bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
+    ubyte2 duty = 65535 * percent; //For Cooling_RadFans
 
-    //For waterpump cooling
-    ubyte2 numOnPulses = percent * duty;
+    bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
 
     switch (light)
     {
@@ -167,12 +165,11 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_waterPump:
-        //Verify if its 2 Amps
         IO_DO_Set(IO_DO_02, power);
         break;
 
-    case Cooling_motorFans:  // Powerpack fan(s)
-        IO_DO_Set(IO_DO_03, power);
+    case Cooling_RadFans:  // Radiator Fans
+        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
         break;
 
     case Cooling_batteryFans:
