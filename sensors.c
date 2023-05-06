@@ -167,17 +167,8 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_waterPump:
-        /*Remove
-        for(int i = 0; i < duty; i++){
-            if(i < numOnPulses){
-                IO_DO_Set(IO_DO_02, TRUE);
-            } else {
-                IO_DO_Set(IO_DO_02, FALSE);
-            }
-        }
-        */ 
-       //Verify if its 2 Amps
-        IO_DO_Set(IO_DO_02, percent);
+        //Verify if its 2 Amps
+        IO_DO_Set(IO_DO_02, power);
         break;
 
     case Cooling_motorFans:  // Powerpack fan(s)

@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "IO_Driver.h"
-#include "IO_RTC.h"
 //#include "IO_DIO.h"
 //#include "IO_PWM.h"
 
@@ -10,6 +9,8 @@
 #include "motorController.h"
 #include "mathFunctions.h"
 #include "bms.h"
+
+extern Sensor Sensor_HVILTerminationSense;
 
 //All temperatures in C
 CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
@@ -38,9 +39,6 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
     me->batteryFanHigh = 43;    //Turn on at this temperature
     me->batteryFanState = TRUE; //float4 batteryFanPercent;
 
-    me->invert = FALSE;
-    me->fakeDuty = 0;
-
     return me;
 }
 
@@ -48,24 +46,17 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
 // Cooling system calculations - turns fans on/off, sends water pump PWM control signal
 //Rinehart water temperature operating range: -30C to +80C before derating
 //-------------------------------------------------------------------
-void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp)
+void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
 {
     //Water pump ------------------
-    //Water pump PWM protocol unknown
-    /*
-    if (motorControllerTemp >= me->waterPumpHigh || motorTemp >= me->waterPumpHigh)
-    {
-        me->waterPumpPercent = .9;
+    if(HVILTermSense->sensorValue == TRUE){
+        me->waterPumpPercent = 1;
+    } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){
+        me->waterPumpPercent = 1;
+    } else {
+        me->waterPumpPercent = 0;
     }
-    else if (motorControllerTemp < me->waterPumpLow && motorTemp < me->waterPumpLow)
-    {
-        me->waterPumpPercent = .2;
-    }
-    else
-    {
-        me->waterPumpPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->waterPumpLow, me->waterPumpHigh, TRUE);
-    }
-    */
+
     //Motor fan / rad fan
     if (me->motorFanState == FALSE)
     {
@@ -102,45 +93,6 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
             SerialManager_send(me->sm, "Turning battery fans on.\n");
         }
     }
-    
-
-    //numbers should change
-    /*
-    me->invert = FALSE;
-    if (motorTemp >= 65 || motorControllerTemp >= 65)
-    {
-        me->fakeDuty = 0;
-    }
-    else if (motorTemp >= 60 || motorControllerTemp >= 60)
-    {
-        me->fakeDuty= 10;
-    }
-    else if (motorTemp >= 55 || motorControllerTemp >= 55)
-    {
-        me->fakeDuty = 15;
-    }
-    else if (motorTemp >= 50 || motorControllerTemp >= 50)
-    {
-        me->fakeDuty = 20;
-    }
-    else if (motorTemp >= 45 || motorControllerTemp >= 45)
-    {
-        me->fakeDuty = 15;
-        me->invert = TRUE;
-    }
-    else
-    {
-        me->fakeDuty = 10;
-        me->invert = TRUE;
-    }
-    */
-    me->invert = TRUE;  //low temp
-    int thresh = 10;
-    if (motorTemp > thresh|| motorControllerTemp > thresh) {
-        me->invert = FALSE;   //high temp
-    }
-    
-    
 }
 
 //-------------------------------------------------------------------
@@ -150,30 +102,8 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    //Light_set(Cooling_waterPump, me->waterPumpPercent);
-    
-    /*
-    ubyte4 timer = 0;
-    if (me->invert) {
-        Light_set(Cooling_waterPump, 1);
-        IO_RTC_StartTime(&timer);   
-        while( IO_RTC_GetTimeUS(timer) < (me->fakeDuty * 1000) );
-        Light_set(Cooling_waterPump, 0);
-    }
-    else {
-        Light_set(Cooling_waterPump, 0);
-        IO_RTC_StartTime(&timer); 
-        while( IO_RTC_GetTimeUS(timer) < (me->fakeDuty * 1000) );
-        Light_set(Cooling_waterPump, 1);
-    }
-    */
-    if (!me->invert) {
-        Light_set(Cooling_waterPump, 1);   //high temp
-    }
-    else {
-        Light_set(Cooling_waterPump, 0);   //low temp
-    }
-    
+    Light_set(Cooling_waterPump, me->waterPumpPercent);
+
     // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110
     // Relay wiring seems to be backwards for 2021 car: Fans are on while everything is cool,
     // and they turn OFF when systems get hot.  This boolean flips the software logic, but the
@@ -190,5 +120,4 @@ void CoolingSystem_enactCooling(CoolingSystem *me)
         Light_set(Cooling_motorFans, me->motorFanState == TRUE ? 1 : 0);
         Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 1 : 0);
     }
-    
 }
