@@ -108,7 +108,7 @@ void vcu_initializeADC(bool benchMode)
 
     // DRS
     //Sensor_DRSRotary.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_32V_00, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL); // IO_ADC_ABSOLUTE / IO_ADC_RATIO..
-    Sensor_DRSKnob.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_VAR_00 , IO_ADC_ABSOLUTE , IO_ADC_RANGE_32V, 0, 0, NULL );
+    Sensor_DRSKnob.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_VAR_00 , IO_ADC_ABSOLUTE , IO_ADC_RANGE_25V, 0, 0, NULL );
 
     //TCS Pot
     //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);

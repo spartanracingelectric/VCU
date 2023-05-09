@@ -76,9 +76,6 @@ void sensors_updateSensors(void)
     //TCS Knob
     // Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
 
-    //DRS Knob
-    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
-
     //Shock pots ---------------------------------------------------
     /*IO_ADC_Get(IO_ADC_5V_04, &Sensor_WPS_FL.sensorValue, &Sensor_WPS_FL.fresh);
     IO_ADC_Get(IO_ADC_5V_05, &Sensor_WPS_FR.sensorValue, &Sensor_WPS_FR.fresh);
@@ -149,6 +146,9 @@ void sensors_updateSensors(void)
     Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
     //Steering Angle Sensor
     Sensor_SAS.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_SAS.sensorValue, &Sensor_SAS.fresh);
+
+    //DRS Knob
+    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
 }
 
 void Light_set(Light light, float4 percent)

@@ -336,21 +336,6 @@ sbyte2 steering_degrees(){
 }
 
 /*****************************************************************************
-* DRS Selection Knob (SAS)
-Input: Voltage
-Output: Float (Int)
-****************************************************************************/
-float DRS_knob_value(){
-    float min_voltage = 0;
-    float max_voltage = 24000;
-    float min_angle = 0;
-    float max_angle = 1024;
-    float val = min_angle + (max_angle - min_angle) * (Sensor_DRSKnob.sensorValue - min_voltage) / (max_voltage - min_voltage);
-    //sbyte2 used for CAN and memory saving
-    return val;
-}
-
-/*****************************************************************************
 * Doppler speed sensor functions
 *
 ****************************************************************************/

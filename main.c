@@ -334,17 +334,6 @@ void main(void)
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
 
-        //DRS Testing 
-        /*
-        if(Sensor_DRSButton.sensorValue == FALSE) {
-            IO_DO_Set(IO_DO_06, TRUE);
-            IO_DO_Set(IO_DO_07, FALSE);
-        } else {
-            IO_DO_Set(IO_DO_06, FALSE);
-            IO_DO_Set(IO_DO_07, TRUE);
-        }
-        */
-
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
         //ControlLaw_update();

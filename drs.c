@@ -36,8 +36,8 @@ DRS *DRS_new()
 //
 // Auto Params:
 //    Enable: 
-//      Throttle Position > 90%
-//      Wheel Speed > 35 mph
+//      Throttle Position > 80%
+//      Wheel Speed > 30 mph
 //      Steering Angle < 5% off 0 degrees
 //      
 //    Disable:
@@ -49,21 +49,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
 
     // .sensorvalue true/false are switched to account for Pull Up
 
-    if(Sensor_DRSButton.sensorValue == FALSE) {
-        me->buttonPressed = TRUE;
-    } else {
-        me->buttonPressed = FALSE;
-    }
-
-    if(Sensor_DRSButton.sensorValue == FALSE) {
-        DRS_open(me);
-    } else {
-        DRS_close(me);
-    }
-
-
-    /*
-    me->currentDRSMode = MANUAL;
     switch(me->currentDRSMode)
     {
         case STAY_CLOSED:
@@ -73,9 +58,11 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
             DRS_open(me);           
             break;
         case MANUAL:
-            if(me->buttonPressed) {
+            if(Sensor_DRSButton.sensorValue == FALSE) {
+                me->buttonPressed = TRUE;
                 DRS_open(me);
             } else {
+                me->buttonPressed = FALSE;
                 DRS_close(me);
             }
             break;
@@ -85,7 +72,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
         default:
             break;
     }
-    */
 
 }
 
@@ -95,7 +81,7 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
     float4 brake_travel = bps->percent; // > 50%
     float4 throttle_travel = tps->travelPercent; // > 90%
 
-    if (vehicle_speed_mph > 30 && throttle_travel > .9 && curr_steer_angle > -20 && curr_steer_angle < 20 && brake_travel < .15) {
+    if (vehicle_speed_mph > 30 && throttle_travel > .8 && curr_steer_angle > -20 && curr_steer_angle < 20 && brake_travel < .10) {
         DRS_open(me);
     } else {
         DRS_close(me);
@@ -114,15 +100,14 @@ void DRS_close(DRS *me) {
 
 //based on guessed values about rotary input value range 
 void update_knob(DRS *me) {
-    int val = DRS_knob_value();
-        if (val < 1000)
+        if (Sensor_DRSKnob.sensorValue < 1000)
         {    me->currentDRSMode = STAY_CLOSED;}
-        else if (val < 6000)
+        else if (Sensor_DRSKnob.sensorValue < 6000)
         {    me->currentDRSMode = MANUAL;}
-        else if (val < 11000)
+        else if (Sensor_DRSKnob.sensorValue < 11000)
         {    me->currentDRSMode = AUTO;}
-        else if (val < 16000)
+        else if (Sensor_DRSKnob.sensorValue < 16000)
         {    me->currentDRSMode = STAY_OPEN;}
-        else if (val > 21000)
+        else if (Sensor_DRSKnob.sensorValue > 21000)
         {    me->currentDRSMode = STAY_CLOSED;}
 }
