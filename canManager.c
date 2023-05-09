@@ -799,6 +799,54 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
+/*
+    float longFric[30][30] = {
+    { 0, 50, 100, 150, 200, 250}, 
+    { 2,  1,   2,   3,   4,   5}, 
+    { 4,  6,   7,   8,   9,  10},
+    { 6, 11,  12,  13,  14,  15},
+    { 8, 16,  17,  18,  19,  20},
+    {10, 21,  22,  23,  24,  25},
+    {12, 26,  27,  28,  29,  30}
+};
+
+int i = 0, j = 0;
+int lookedupRow = 0;
+int lookedupColumn = 0;
+int rowFricLookup = LVBatterySOC;
+int columnFricLookup = LVBatterySOC;
+
+// Find the row and column indices for interpolation
+for(i = 0; i < 30; i++) { 
+    if(longFric[i][0] > rowFricLookup) {
+         lookedupRow = i-1;
+         break;
+    }
+}
+
+for(j = 0; j < 30; j++) {
+    if (longFric[0][j] > columnFricLookup) {
+        lookedupColumn = j-1;
+        break;
+    }
+}
+
+// Bilinear interpolation
+float x = rowFricLookup;
+float x1 = longFric[lookedupRow][0];
+float x2 = longFric[lookedupRow+1][0];
+float y = columnFricLookup;
+float y1 = longFric[0][lookedupColumn];
+float y2 = longFric[0][lookedupColumn+1];
+float Q11 = longFric[lookedupRow][lookedupColumn];
+float Q12 = longFric[lookedupRow][lookedupColumn+1];
+float Q21 = longFric[lookedupRow+1][lookedupColumn];
+float Q22 = longFric[i][j];
+float R1 = Q11*(x2-rowFricLookup)/(x2-x1) + Q21*(rowFricLookup-x1)/(x2-x1);
+float R2 = Q12*(x2-rowFricLookup)/(x2-x1) + Q22*(rowFricLookup-x1)/(x2-x1);
+float P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
+*/
+
     //50C: SAS (Steering Angle Sensor)
     canMessageCount++;
     byteNum = 0;
@@ -806,7 +854,7 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
     canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; //P
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
