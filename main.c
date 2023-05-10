@@ -135,7 +135,6 @@ void main(void)
     ubyte4 timestamp_startTime = 0;
     ubyte4 timestamp_EcoButton = 0;
     ubyte1 calibrationErrors; //NOT USED
-    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for Launch Control
 
     /*******************************************/
     /*        Low Level Initializations        */
@@ -204,6 +203,8 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
+    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for Launch Control - CHANGE HERE FOR POT MODE
+
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
 
@@ -225,7 +226,7 @@ void main(void)
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
-    LaunchControl *lc = LaunchControl_new();
+    LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
 
     //----------------------------------------------------------------------------

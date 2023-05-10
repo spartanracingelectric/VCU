@@ -14,6 +14,7 @@
 #include "sensorCalculations.h"
 
 extern Sensor Sensor_LCButton;
+extern Sensor Sensor_DRSKnob;
 float Calctorque;
 
 /* Start of PID Controller */
@@ -77,13 +78,14 @@ Conversion between SlipR and Torque -> kp
 
 /* Start of Launch Control */
 
-LaunchControl *LaunchControl_new(){
+LaunchControl *LaunchControl_new(ubyte1 potLC){
 
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->slipRatio = 0;
     me->lcTorque = -1;
     me->LCReady = FALSE;
     me->LCStatus = FALSE; 
+    me->potLC = potLC; 
 
     return me;
 }
@@ -113,12 +115,29 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
      }
 
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
+
         me->LCStatus = TRUE;
-        me->lcTorque = 30; 
+
+        if(me->potLC == 1){    
+            if (Sensor_DRSKnob.sensorValue < 1000)
+            {    me->lcTorque = 30; }
+            else if (Sensor_DRSKnob.sensorValue < 6000)
+            {    me->lcTorque = 30; }
+            else if (Sensor_DRSKnob.sensorValue < 11000)
+            {    me->lcTorque = 30; }
+            else if (Sensor_DRSKnob.sensorValue < 16000)
+            {    me->lcTorque = 30; }
+            else if (Sensor_DRSKnob.sensorValue > 21000)
+            {    me->lcTorque = 30; }
+        }  else {
+            me->lcTorque = 30; 
+        }  
+
         if(speedKph > 3){
             Calctorque = calculatePIDController(&controller, 0.2, me->slipRatio, 0.10, mcm_Torque_max); // Set your target, current, dt
             //me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
+        
     }  
 
     if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){ 
