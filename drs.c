@@ -45,33 +45,37 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
 
     // .sensorvalue true/false are switched to account for Pull Up
-
-    switch(me->currentDRSMode)
-    {
-        case STAY_CLOSED:
-            DRS_close(me);
-            break;
-        case STAY_OPEN:
-            DRS_open(me);           
-            break;
-        case MANUAL:
-            if(Sensor_DRSButton.sensorValue == FALSE) {
-                me->buttonPressed = TRUE;
-                DRS_open(me);
-            } else {
-                me->buttonPressed = FALSE;
+    if(pot_DRS_LC == 1 ) {
+        runAuto(me, mcm, tps, bps);
+    } else {
+        switch(me->currentDRSMode)
+        {
+            case STAY_CLOSED:
                 DRS_close(me);
-            }
-            break;
-        case AUTO:
-            runAuto(me, mcm, tps, bps);
-            break;
-        default:
-            break;
+                break;
+            case STAY_OPEN:
+                DRS_open(me);           
+                break;
+            case MANUAL:
+                if(Sensor_DRSButton.sensorValue == FALSE) {
+                    me->buttonPressed = TRUE;
+                    DRS_open(me);
+                } else {
+                    me->buttonPressed = FALSE;
+                    DRS_close(me);
+                }
+                break;
+            case AUTO:
+                runAuto(me, mcm, tps, bps);
+                break;
+            default:
+                break;
+        }
     }
+    
 
 }
 

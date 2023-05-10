@@ -333,7 +333,7 @@ void main(void)
         slipRatioCalculation(wss, lc);
 
         //Cool DRS things
-        DRS_update(drs, mcm0, tps, bps);
+        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
