@@ -135,6 +135,7 @@ void main(void)
     ubyte4 timestamp_startTime = 0;
     ubyte4 timestamp_EcoButton = 0;
     ubyte1 calibrationErrors; //NOT USED
+    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for Launch Control
 
     /*******************************************/
     /*        Low Level Initializations        */
