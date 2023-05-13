@@ -57,6 +57,7 @@ struct _CanManager {
     //pointers that have been previously assigned
     //AVLNode* canMessageHistory[0x7FF];
     AVLNode* canMessageHistory[0x7FF];
+    //Needs to change to the extended CAN limit
 };
 
 //Keep track of CAN message IDs, their data, and when they were last sent.
@@ -85,6 +86,7 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     //create can history data structure (AVL tree?)
     //me->incomingTree = NULL;
     //me->outgoingTree = NULL;
+    //Need to change to extended CAN limit
     for (ubyte4 id = 0; id <= 0x7FF; id++)
     {
         me->canMessageHistory[id] = 0;
@@ -105,7 +107,7 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     //, and other stuff?
     IO_CAN_ConfigFIFO(&me->can0_readHandle, IO_CAN_CHANNEL_0, can0_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
     IO_CAN_ConfigFIFO(&me->can0_writeHandle, IO_CAN_CHANNEL_0, can0_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
-    IO_CAN_ConfigFIFO(&me->can1_readHandle, IO_CAN_CHANNEL_1, can1_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
+    IO_CAN_ConfigFIFO(&me->can1_readHandle, IO_CAN_CHANNEL_1, can1_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0); //Only change for CAN1 Read for IMU
     IO_CAN_ConfigFIFO(&me->can1_writeHandle, IO_CAN_CHANNEL_1, can1_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
 
     //Assume read/write at error state until used
@@ -162,6 +164,7 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
 
     //Incoming ----------------------------
     /* Currently unused for any timeout errors on VCU side
+    //Look into this since the AMKs did timeout
     messageID = 0x283;  //Inverter1FL 1
     me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0; 
     me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000; 
@@ -508,6 +511,8 @@ void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, 
             break;
             //default:
         }
+
+        //Parse IMU here
     }
     //IO_CAN_WriteFIFO(me->can1_writeHandle, canMessages, messagesReceived);
     //IO_CAN_WriteMsg(canFifoHandle_LoPri_Write, canMessages);
@@ -799,8 +804,8 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-/*
-    float longFric[30][30] = {
+/* Testing
+    ubyte2 longFric[30][30] = {
     { 0, 50, 100, 150, 200, 250}, 
     { 2,  1,   2,   3,   4,   5}, 
     { 4,  6,   7,   8,   9,  10},
@@ -810,11 +815,11 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     {12, 26,  27,  28,  29,  30}
 };
 
-int i = 0, j = 0;
-int lookedupRow = 0;
-int lookedupColumn = 0;
-int rowFricLookup = LVBatterySOC;
-int columnFricLookup = LVBatterySOC;
+ubyte2 i = 0, j = 0;
+ubyte2 lookedupRow = 0;
+ubyte2 lookedupColumn = 0;
+ubyte2 rowFricLookup = LVBatterySOC;
+ubyte2 columnFricLookup = LVBatterySOC;
 
 // Find the row and column indices for interpolation
 for(i = 0; i < 30; i++) { 
@@ -832,19 +837,19 @@ for(j = 0; j < 30; j++) {
 }
 
 // Bilinear interpolation
-float x = rowFricLookup;
-float x1 = longFric[lookedupRow][0];
-float x2 = longFric[lookedupRow+1][0];
-float y = columnFricLookup;
-float y1 = longFric[0][lookedupColumn];
-float y2 = longFric[0][lookedupColumn+1];
-float Q11 = longFric[lookedupRow][lookedupColumn];
-float Q12 = longFric[lookedupRow][lookedupColumn+1];
-float Q21 = longFric[lookedupRow+1][lookedupColumn];
-float Q22 = longFric[i][j];
-float R1 = Q11*(x2-rowFricLookup)/(x2-x1) + Q21*(rowFricLookup-x1)/(x2-x1);
-float R2 = Q12*(x2-rowFricLookup)/(x2-x1) + Q22*(rowFricLookup-x1)/(x2-x1);
-float P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
+ubyte2 x = rowFricLookup;
+ubyte2 x1 = longFric[lookedupRow][0];
+ubyte2 x2 = longFric[lookedupRow+1][0];
+ubyte2 y = columnFricLookup;
+ubyte2 y1 = longFric[0][lookedupColumn];
+ubyte2 y2 = longFric[0][lookedupColumn+1];
+ubyte2 Q11 = longFric[lookedupRow][lookedupColumn];
+ubyte2 Q12 = longFric[lookedupRow][lookedupColumn+1];
+ubyte2 Q21 = longFric[lookedupRow+1][lookedupColumn];
+ubyte2 Q22 = longFric[i][j];
+ubyte2 R1 = Q11*(x2-rowFricLookup)/(x2-x1) + Q21*(rowFricLookup-x1)/(x2-x1);
+ubyte2 R2 = Q12*(x2-rowFricLookup)/(x2-x1) + Q22*(rowFricLookup-x1)/(x2-x1);
+ubyte2 P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
 */
 
     //50C: SAS (Steering Angle Sensor)
