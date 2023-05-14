@@ -45,6 +45,7 @@
 #include "safety.h"
 #include "sensorCalculations.h"
 #include "cooling.h"
+#include "daqSensors.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -216,6 +217,7 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(320, 32); //Must match amp limits
     BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
     CoolingSystem *cs = CoolingSystem_new();
+    _DAQSensors *d1 = DAQ_Sensor_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -261,9 +263,8 @@ void main(void)
         sensors_updateSensors();
 
         //Pull messages from CAN FIFO and update our object representations.
-        //Also echoes can0 messages to can1 for DAQ.
-        CanManager_read(canMan, CAN0_HIPRI, ic0, bms, sc, invFL, invFR);
-        CanManager_read(canMan, CAN1_LOPRI, ic0, bms, sc, invRL, invRR);
+        CanManager_read(canMan, CAN0_HIPRI, ic0, bms, sc, 0, invFL, invFR);
+        CanManager_read(canMan, CAN1_LOPRI, ic0, bms, sc, d1, invRL, invRR);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
@@ -379,7 +380,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage0(canMan, tps, bps, ic0, bms, wss, sc, invFL, invFR);
+        canOutput_sendDebugMessage0(canMan, tps, bps, ic0, bms, wss, sc, d1, invFL, invFR);
         canOutput_sendDebugMessage1(canMan, tps, bps, ic0, bms, wss, sc, invRL, invRR);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);

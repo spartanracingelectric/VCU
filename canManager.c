@@ -13,6 +13,7 @@
 #include "safety.h"
 #include "wheelSpeeds.h"
 #include "sensorCalculations.h"
+#include "daqSensors.h"
 
 
 struct _CanManager {
@@ -396,7 +397,7 @@ bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bi
 /*****************************************************************************
 * read
 ****************************************************************************/
-void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2)
+void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc, _DAQSensors *d1, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
@@ -546,7 +547,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, _DriveInverter *inv1, _DriveInverter *inv2)
+void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, _DAQSensors *d1, _DriveInverter *inv1, _DriveInverter *inv2)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
