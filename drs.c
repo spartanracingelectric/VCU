@@ -92,11 +92,11 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
     }
 }
 
-void DRS_open(DRS *me) {
+void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, TRUE);
     IO_DO_Set(IO_DO_07, FALSE);
 }
-void DRS_close(DRS *me) {
+void DRS_open(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
 
