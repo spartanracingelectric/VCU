@@ -54,15 +54,15 @@ _DriveInverter* AmkDriver_new(DI_Location_Address location_address)
         me->AMK_bQuitInverterOnVal = FALSE;
         me->AMK_bInverterOnVal = FALSE;
         me->AMK_bDerating = FALSE;
-        me->AMK_ActualVelocity = 0;
-        me->AMK_TorqueCurrent = 0;
-        me->AMK_MagnetizingCurrent = 0;
+        me->AMK_ActualVelocity = 0.0;
+        me->AMK_TorqueCurrent = 0.0;
+        me->AMK_MagnetizingCurrent = 0.0;
 
         // Actual Values 2 (incoming: 0x284 + offset)
-        me->AMK_TempMotor = 0; // 0.1degC
-        me->AMK_TempInverter = 0;
-        me->AMK_ErrorInfo = 0;
-        me->AMK_TorqueFeedback = 0; // % 0.1 Nm
+        me->AMK_TempMotor = 0.0; // 0.1degC
+        me->AMK_TempInverter = 0.0;
+        me->AMK_ErrorInfo = 0.0;
+        me->AMK_TorqueFeedback = 0.0; // % 0.1 Nm
 
     return me;
 }
@@ -243,21 +243,21 @@ void DI_parseCanMessage(_DriveInverter* me, IO_CAN_DATA_FRAME* diCanMessage){
         // Derating value
         me->AMK_bDerating = ((diCanMessage->data[1] & deratingBitMask) > 0);
         // Speed value
-        me->AMK_ActualVelocity = 0.01 * (diCanMessage->data[3] << 8 | diCanMessage->data[2]);
+        me->AMK_ActualVelocity = (diCanMessage->data[3] << 8 | diCanMessage->data[2]);
         // Torque current
-        me->AMK_TorqueCurrent = 0.01 * (diCanMessage->data[5] << 8 | diCanMessage->data[4]);
+        me->AMK_TorqueCurrent = (diCanMessage->data[5] << 8 | diCanMessage->data[4]);
         // Magnetized current
-        me->AMK_MagnetizingCurrent = 0.01 * (diCanMessage->data[7] << 8 | diCanMessage->data[6]);
+        me->AMK_MagnetizingCurrent = (diCanMessage->data[7] << 8 | diCanMessage->data[6]);
         
     } else if(diCanMessage->id == address2) {
          // Motor temperature
-        me->AMK_TempMotor = (float4)(diCanMessage->data[1] << 8 | diCanMessage->data[0]) / 10.0;
+        me->AMK_TempMotor = (float4)(diCanMessage->data[1] << 8 | diCanMessage->data[0]);
         // Inverter temperature
-        me->AMK_TempInverter = (float4)(diCanMessage->data[3] << 8 | diCanMessage->data[2]) / 10.0;
+        me->AMK_TempInverter = (float4)(diCanMessage->data[3] << 8 | diCanMessage->data[2]);
         // Diagnostic number
         me->AMK_ErrorInfo = (ubyte2)(diCanMessage->data[5] << 8 | diCanMessage->data[4]);
         // Torque feedback
-        me->AMK_TorqueFeedback = (float4)(diCanMessage->data[7] << 8 | diCanMessage->data[6]) / 10.0;
+        me->AMK_TorqueFeedback = (float4)(diCanMessage->data[7] << 8 | diCanMessage->data[6]);
     }
 }
 

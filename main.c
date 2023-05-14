@@ -350,6 +350,7 @@ void main(void)
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
         /*******************************************/
+        //Make sure to change for temp values etc
         SafetyChecker_reduceTorque(sc, bms, wss, invFL, invFR, invRL, invRR);
 
         /*******************************************/
