@@ -439,6 +439,16 @@ void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, 
             //Inverter RR 1 (CAN1)
             DI_parseCanMessage(inv2, &canMessages[currMessage]);
             break;
+        
+        //-------------------------------------------------------------------------
+        //IMU from DAQ
+        //-------------------------------------------------------------------------
+        case 0x400:
+            DAQ_parseCanMessage(d1, &canMessages[currMessage]);
+            break;
+        case 0x402:
+            DAQ_parseCanMessage(d1, &canMessages[currMessage]);
+            break;
 
         //-------------------------------------------------------------------------
         //BMS

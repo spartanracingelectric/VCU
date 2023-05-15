@@ -263,7 +263,8 @@ void main(void)
         sensors_updateSensors();
 
         //Pull messages from CAN FIFO and update our object representations.
-        CanManager_read(canMan, CAN0_HIPRI, ic0, bms, sc, 0, invFL, invFR);
+        //IMU DAQ will be sending to CAN1 so CAN0 is written incase there is necessity for it to be on that bus
+        CanManager_read(canMan, CAN0_HIPRI, ic0, bms, sc, d1, invFL, invFR);
         CanManager_read(canMan, CAN1_LOPRI, ic0, bms, sc, d1, invRL, invRR);
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {

@@ -10,13 +10,9 @@
 
 typedef struct DAQSensors {
     
-    float AccelX;
-    float AccelY;
-    float GyroZ;
-    float LoadCell_1;
-    float LoadCell_2;
-    float LoadCell_3;
-    float LoadCell_4;
+    ubyte4 AccelX;
+    ubyte4 AccelY;
+    ubyte4 GyroZ;
 
 } _DAQSensors;
 
