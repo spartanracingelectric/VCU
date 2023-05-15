@@ -815,54 +815,6 @@ void canOutput_sendDebugMessage0(CanManager* me, TorqueEncoder* tps, BrakePressu
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-/* Testing
-    ubyte2 longFric[30][30] = {
-    { 0, 50, 100, 150, 200, 250}, 
-    { 2,  1,   2,   3,   4,   5}, 
-    { 4,  6,   7,   8,   9,  10},
-    { 6, 11,  12,  13,  14,  15},
-    { 8, 16,  17,  18,  19,  20},
-    {10, 21,  22,  23,  24,  25},
-    {12, 26,  27,  28,  29,  30}
-};
-
-ubyte2 i = 0, j = 0;
-ubyte2 lookedupRow = 0;
-ubyte2 lookedupColumn = 0;
-ubyte2 rowFricLookup = LVBatterySOC;
-ubyte2 columnFricLookup = LVBatterySOC;
-
-// Find the row and column indices for interpolation
-for(i = 0; i < 30; i++) { 
-    if(longFric[i][0] > rowFricLookup) {
-         lookedupRow = i-1;
-         break;
-    }
-}
-
-for(j = 0; j < 30; j++) {
-    if (longFric[0][j] > columnFricLookup) {
-        lookedupColumn = j-1;
-        break;
-    }
-}
-
-// Bilinear interpolation
-ubyte2 x = rowFricLookup;
-ubyte2 x1 = longFric[lookedupRow][0];
-ubyte2 x2 = longFric[lookedupRow+1][0];
-ubyte2 y = columnFricLookup;
-ubyte2 y1 = longFric[0][lookedupColumn];
-ubyte2 y2 = longFric[0][lookedupColumn+1];
-ubyte2 Q11 = longFric[lookedupRow][lookedupColumn];
-ubyte2 Q12 = longFric[lookedupRow][lookedupColumn+1];
-ubyte2 Q21 = longFric[lookedupRow+1][lookedupColumn];
-ubyte2 Q22 = longFric[i][j];
-ubyte2 R1 = Q11*(x2-rowFricLookup)/(x2-x1) + Q21*(rowFricLookup-x1)/(x2-x1);
-ubyte2 R2 = Q12*(x2-rowFricLookup)/(x2-x1) + Q22*(rowFricLookup-x1)/(x2-x1);
-ubyte2 P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
-*/
-
     //50C: SAS (Steering Angle Sensor)
     canMessageCount++;
     byteNum = 0;
@@ -870,7 +822,7 @@ ubyte2 P = R1*(y2-columnFricLookup)/(y2-y1) + R2*(columnFricLookup-y1)/(y2-y1);
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
     canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0; //P
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
