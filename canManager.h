@@ -34,8 +34,8 @@ void CanManager_read(CanManager *me, CanChannel channel, InstrumentCluster *ic, 
 
 void canOutput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
-void canOutput_sendDebugMessage0(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DAQSensors *d1, _DriveInverter *inv1, _DriveInverter *inv2);
-void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2);
+void canOutput_sendDebugMessage0(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DriveInverter *inv1, _DriveInverter *inv2);
+void canOutput_sendDebugMessage1(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, _DAQSensors *d1, _DriveInverter *inv1, _DriveInverter *inv2);
 
 ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel);
 

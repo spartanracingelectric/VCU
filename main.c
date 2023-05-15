@@ -380,8 +380,8 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage0(canMan, tps, bps, ic0, bms, wss, sc, d1, invFL, invFR);
-        canOutput_sendDebugMessage1(canMan, tps, bps, ic0, bms, wss, sc, invRL, invRR);
+        canOutput_sendDebugMessage0(canMan, tps, bps, ic0, bms, wss, sc, invFL, invFR);
+        canOutput_sendDebugMessage1(canMan, tps, bps, ic0, bms, wss, sc, d1, invRL, invRR);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 
