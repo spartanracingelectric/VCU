@@ -767,7 +767,12 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
-   sbyte2 groundKPH = -(((me->motorRPM/3.30) * 60 * 3.141592653589 * 0.4) / 1000);
+   sbyte4 FD_Ratio = 3.30;
+   sbyte4 Revolutions = 60;
+   sbyte4 PI = 3.141592653589;
+   sbyte4 Diameter_Tire = 0.4;
+   sbyte4 KPH_Unit_Conversion = 1000;
+   sbyte2 groundKPH = -(((me->motorRPM/FD_Ratio) * Revolutions * PI * Diameter_Tire) / KPH_Unit_Conversion);
    return groundKPH;
 }
 

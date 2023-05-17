@@ -73,7 +73,7 @@ struct _BatteryManagementSystem
     //ubyte2 reserved                           //1:0
 
     // BMS_CELL_VOLTAGE_SUMMARY //
-    ubyte2 highestCellVoltage;                  //7:6, V*1000
+    ubyte4 highestCellVoltage;                  //7:6, V*1000
     ubyte2 lowestCellVoltage;                   //5:4, V*1000
     ubyte2 highestCellVoltagePos;               //3:2, 1-N
     ubyte2 lowestCellVoltagePos;                //1:0, 1-N
@@ -436,7 +436,7 @@ sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
 }
 */
 
-ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
+ubyte4 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
 {
     return (me->highestCellVoltage);
 }
@@ -446,7 +446,7 @@ ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
     return (me->lowestCellVoltage);
 }
 
-ubyte2 BMS_getPackVoltage(BatteryManagementSystem *me)
+ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me)
 {
     return (me->packVoltage); 
 }

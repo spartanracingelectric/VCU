@@ -78,13 +78,13 @@ sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts
 sbyte4 BMS_getPower_W(BatteryManagementSystem* me);                 //Watts
 ubyte2 BMS_getPackTemp(BatteryManagementSystem* me);
 sbyte1 BMS_getAvgTemp(BatteryManagementSystem* me);
-ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
+ubyte4 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
 ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
 ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
 ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
-ubyte2 BMS_getPackVoltage(BatteryManagementSystem *me); //Millivolts
+ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me); //Millivolts
 
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);

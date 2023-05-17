@@ -602,16 +602,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
        multiplier = 0;
        SerialManager_send(me->serialMan, "HVIL term sense low\n");
-    }
-
-    //No regen below 5kph
-    
-    if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
-    {
-        SerialManager_send(me->serialMan, "Regen < 5kph\n");
-        multiplier = 0;
-    }
-    
+    }    
 
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these

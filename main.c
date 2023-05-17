@@ -207,19 +207,10 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-
-    // Regen mode is now set based on battery voltage to preserve overvoltage fault 
-    if(BMS_getPackVoltage(bms) >= 395000){ // Milivolts for pack voltage
-       MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
-    } else {
-       MCM_setRegenMode(mcm0, REGENMODE_FIXED); 
-    }
-
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -295,7 +286,23 @@ void main(void)
 
         //Run calibration if commanded
         //if (IO_RTC_GetTimeUS(timestamp_calibStart) < (ubyte4)5000000)
+
         //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
+
+        //No regen below 5kph
+        sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
+        if (groundSpeedKPH < 15)
+        {
+            MCM_setRegenMode(mcm0, REGENMODE_OFF);
+        } else {
+            // Regen mode is now set based on battery voltage to preserve overvoltage fault 
+            if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
+                MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); 
+            } else {
+                MCM_setRegenMode(mcm0, REGENMODE_FIXED);
+            } 
+        }
+
         if (Sensor_EcoButton.sensorValue == FALSE)
         {
             if (timestamp_EcoButton == 0)
