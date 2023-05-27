@@ -262,6 +262,8 @@ void main(void)
         //----------------------------------------------------------------------------
         //Get readings from our sensors and other local devices (buttons, 12v battery, etc)
         sensors_updateSensors();
+        //Readings from DRS potentiometer
+        update_knob(drs);
 
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.

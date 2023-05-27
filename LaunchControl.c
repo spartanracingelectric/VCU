@@ -120,17 +120,17 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
         if(me->potLC == 1){    
             if (Sensor_DRSKnob.sensorValue < 1000)
-            {    me->lcTorque = 30; }
+            {    me->lcTorque = 0; }
             else if (Sensor_DRSKnob.sensorValue < 6000)
-            {    me->lcTorque = 30; }
+            {    me->lcTorque = 1; }
             else if (Sensor_DRSKnob.sensorValue < 11000)
-            {    me->lcTorque = 30; }
+            {    me->lcTorque = 2; }
             else if (Sensor_DRSKnob.sensorValue < 16000)
-            {    me->lcTorque = 30; }
+            {    me->lcTorque = 3; }
             else if (Sensor_DRSKnob.sensorValue > 21000)
-            {    me->lcTorque = 30; }
+            {    me->lcTorque = 4; }
         }  else {
-            me->lcTorque = 30; 
+            me->lcTorque = 5; 
         }  
 
         if(speedKph > 3){
