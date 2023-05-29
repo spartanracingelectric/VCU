@@ -48,7 +48,7 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
 }
 
 //-------------------------------------------------------------------
-// Cooling system calculations - turns fans on/off, sends water pump PWM control signal
+// Cooling system calculations - turns fans PWM, sends water pump DO control signal
 //Rinehart water temperature operating range: -30C to +80C before derating
 //-------------------------------------------------------------------
 void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
@@ -59,22 +59,22 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
     } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){
         me->waterPumpPercent = 1;
     } else {
-        me->waterPumpPercent = 0;
+        me->waterPumpPercent = 1;
     }
     //On the car- if pumps dont turn on with HV reverse TRUE/FALSE, if pumps dont turn on correctly with HV low then change waterPumpPercent 0/1
 
     if (motorControllerTemp >= me->radFanHigh || motorTemp >= me->radFanHigh)
     {
-        me->radFanPercent = 0.15;  //0.9
+        me->radFanPercent = 0.9;  //0.9
     }
     else if (motorControllerTemp < me->radFanLow && motorTemp < me->radFanLow)
     {
-        me->radFanPercent = 0.15; //0.2
+        me->radFanPercent = 0.2; //0.2
     }
     else
     {
-        //me->waterPumpPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->waterPumpLow, me->waterPumpHigh, TRUE);
-        me->radFanPercent = 0.15;
+        //me->radFanPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->radFanLow, me->radFanHigh, TRUE);
+        me->radFanPercent = 0.1;
     }
 
     /*
