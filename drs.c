@@ -48,10 +48,13 @@ DRS *DRS_new()
 void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
 
     // .sensorvalue true/false are switched to account for Pull Up
-    if(pot_DRS_LC == 1 ) {
-        runAuto(me, mcm, tps, bps);
+    if(pot_DRS_LC == 1) {
+        me->currentDRSMode = AUTO;
     } else {
-        switch(me->currentDRSMode)
+        update_knob(me);
+    }
+
+    switch(me->currentDRSMode)
         {
             case STAY_CLOSED:
                 DRS_close(me);
@@ -74,7 +77,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
             default:
                 break;
         }
-    }
     
 
 }
@@ -92,11 +94,11 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
     }
 }
 
-void DRS_close(DRS *me) {
+void DRS_open(DRS *me) {
     IO_DO_Set(IO_DO_06, TRUE);
     IO_DO_Set(IO_DO_07, FALSE);
 }
-void DRS_open(DRS *me) {
+void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
 
@@ -104,14 +106,14 @@ void DRS_open(DRS *me) {
 
 //based on guessed values about rotary input value range 
 void update_knob(DRS *me) {
-        if (Sensor_DRSKnob.sensorValue < 1000)
+        if (Sensor_DRSKnob.sensorValue == 0)
         {    me->currentDRSMode = STAY_CLOSED;}
-        else if (Sensor_DRSKnob.sensorValue < 6000)
+        else if (Sensor_DRSKnob.sensorValue <= 1.1)
         {    me->currentDRSMode = MANUAL;}
-        else if (Sensor_DRSKnob.sensorValue < 11000)
+        else if (Sensor_DRSKnob.sensorValue <= 2.2)
         {    me->currentDRSMode = AUTO;}
-        else if (Sensor_DRSKnob.sensorValue < 16000)
+        else if (Sensor_DRSKnob.sensorValue <= 3.3)
         {    me->currentDRSMode = STAY_OPEN;}
-        else if (Sensor_DRSKnob.sensorValue > 21000)
+        else if (Sensor_DRSKnob.sensorValue > 3.3)
         {    me->currentDRSMode = STAY_CLOSED;}
 }
