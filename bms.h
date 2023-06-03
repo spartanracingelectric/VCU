@@ -10,8 +10,8 @@
 //Max mismatch voltage, in volts
 //To determine VCU-side fault
 #define BMS_MAX_CELL_MISMATCH_V 1.00f
-#define BMS_MIN_CELL_VOLTAGE_WARNING 3.35f
-#define BMS_MAX_CELL_TEMPERATURE_WARNING 50.0f
+#define BMS_MIN_CELL_VOLTAGE_WARNING 3.20f
+#define BMS_MAX_CELL_TEMPERATURE_WARNING 55.0f
 
 
 ///////////////////////////////////////////////////////////////////////////////////

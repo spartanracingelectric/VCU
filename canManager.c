@@ -412,6 +412,14 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x63F:
         case 0x640:
         case 0x641:
+        //7th Module
+        case 0x642:
+        case 0x643:
+        case 0x644:
+        //8th Module
+        case 0x645:
+        case 0x646:
+        case 0x647:
 
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
