@@ -325,13 +325,17 @@ double rpm_to_mph(double rpm) {
 Input: Voltage
 Output: Degrees
 ****************************************************************************/
-sbyte2 steering_degrees(){
-    sbyte2 min_voltage = 0;
-    sbyte2 max_voltage = 5000;
-    sbyte2 min_angle = -90;
-    sbyte2 max_angle = 90;
-    sbyte2 deg = min_angle + (max_angle - min_angle) * (Sensor_SAS.sensorValue - min_voltage) / (max_voltage - min_voltage);
-    //sbyte2 used for CAN and memory saving
+sbyte4 steering_degrees(){
+    sbyte4 min_voltage = 960;    // Adjusted minimum voltage to 0 mV
+    sbyte4 max_voltage = 2560; // Adjusted maximum voltage to 5000 mV
+    sbyte4 min_angle = -90;
+    sbyte4 max_angle = 90;
+    
+    sbyte4 voltage_range = max_voltage - min_voltage;
+    sbyte4 angle_range = max_angle - min_angle;
+    sbyte4 voltage = Sensor_SAS.sensorValue;
+
+    sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
     return deg;
 }
 

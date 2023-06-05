@@ -227,9 +227,9 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 850;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 2700; //me->tps1->sensorValue;
+    ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
+    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
     ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?

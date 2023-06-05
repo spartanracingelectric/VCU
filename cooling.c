@@ -53,7 +53,7 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
 //-------------------------------------------------------------------
 void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
 {
-    //Water pump ------------------
+    //Water pump ------------------ ALWAYS ON
     if(HVILTermSense->sensorValue == TRUE){
         me->waterPumpPercent = 1;
     } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){

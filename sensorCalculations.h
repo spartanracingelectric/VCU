@@ -130,7 +130,7 @@ double rpm_to_mph(double rpm);
 Input: Voltage
 Output: Degrees
 ****************************************************************************/
-sbyte2 steering_degrees();
+sbyte4 steering_degrees();
 
 /*****************************************************************************
 * Doppler speed sensor functions
