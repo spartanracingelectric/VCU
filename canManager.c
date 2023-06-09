@@ -712,13 +712,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50A: Ground Speed
-    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte4)MCM_getGroundSpeedKPH(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte4)MCM_getGroundSpeedKPH(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;

@@ -273,7 +273,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     //Note: All stored torque values should be positive / unsigned
     //----------------------------------------------------------------------------
     MCM_commands_setDischarge(me, DISABLED);
-    MCM_commands_setDirection(me, REVERSE); //1 = forwards for our car, 0 = reverse
+    MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     sbyte2 torqueOutput = 0;
     sbyte2 appsTorque = 0;
@@ -767,7 +767,7 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte2 MCM_getGroundSpeedKPH(MotorController *me)
 {
-   sbyte4 FD_Ratio = 3.30;
+   sbyte4 FD_Ratio = 2.69;
    sbyte4 Revolutions = 60;
    sbyte4 PI = 3.141592653589;
    sbyte4 Diameter_Tire = 0.4;
