@@ -51,7 +51,8 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
     if(pot_DRS_LC == 1) {
         me->currentDRSMode = AUTO;
     } else {
-        update_knob(me);
+        //update_knob(me);
+        me->currentDRSMode = MANUAL;
     }
 
     switch(me->currentDRSMode)

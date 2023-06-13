@@ -65,16 +65,16 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 
     if (motorControllerTemp >= me->radFanHigh || motorTemp >= me->radFanHigh)
     {
-        me->radFanPercent = 0.9;  //0.9
+        me->radFanPercent = 1.0;  //0.9
     }
     else if (motorControllerTemp < me->radFanLow && motorTemp < me->radFanLow)
     {
-        me->radFanPercent = 0.2; //0.2
+        me->radFanPercent = 0.3; //0.2
     }
     else
     {
         //me->radFanPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->radFanLow, me->radFanHigh, TRUE);
-        me->radFanPercent = 0.1;
+        me->radFanPercent = 0.3;
     }
 
     /*
