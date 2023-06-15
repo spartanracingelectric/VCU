@@ -51,7 +51,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
     if(pot_DRS_LC == 1) {
         me->currentDRSMode = AUTO;
     } else {
-        //update_knob(me);
+        //update_knob(me); Change to when we have a working rotary
         me->currentDRSMode = MANUAL;
     }
 
@@ -105,7 +105,7 @@ void DRS_close(DRS *me) {
 
 }
 
-//based on guessed values about rotary input value range 
+//Change to future regarding rotary voltage values
 void update_knob(DRS *me) {
         if (Sensor_DRSKnob.sensorValue == 0)
         {    me->currentDRSMode = STAY_CLOSED;}
