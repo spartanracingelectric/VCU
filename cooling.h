@@ -21,15 +21,21 @@ typedef struct _CoolingSystem
     bool motorFanState;
     //float4 motorFanPercent;
 
+    float4 radFanMinPercent;
+    sbyte1 radFanLow; //Start ramping beyond min at this temp
+    sbyte1 radFanHigh;
+    float4 radFanPercent;
+
     //Battery fans (batteries) - Relay
     sbyte1 batteryFanLow;  //Turn off BELOW tuhis point
     sbyte1 batteryFanHigh; // Turn on at this temperature
     bool batteryFanState;
     //float4 batteryFanPercent;
+    
 } CoolingSystem;
 
 CoolingSystem *CoolingSystem_new(SerialManager *sm);
-void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp);
+void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
 void CoolingSystem_enactCooling(CoolingSystem *me);
 
 #endif

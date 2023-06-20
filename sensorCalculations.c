@@ -52,6 +52,8 @@ extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
+extern Sensor Sensor_DRSKnob;
+extern Sensor Sensor_DRSButton;
 extern Sensor Sensor_TCSSwitchUp;
 extern Sensor Sensor_TCSSwitchDown;
 extern Sensor Sensor_HVILTerminationSense;
@@ -303,7 +305,6 @@ double rpm_to_mph(double rpm) {
     return (double)((3.14159265*WHEEL_DIAMETER_D*rpm*60.0) / 63360.0);
 }
 
-
 /*****************************************************************************
 * Shock pot(iometer) functions - FOUR NEEDED
 * FR = Pin150 = Analog Input 4
@@ -319,6 +320,24 @@ double rpm_to_mph(double rpm) {
 //Resistive range: 0.4 to 6.0 kohm
 //ShockPot.
 
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte4 steering_degrees(){
+    sbyte4 min_voltage = 960;    // Adjusted minimum voltage to 0 mV
+    sbyte4 max_voltage = 2560; // Adjusted maximum voltage to 5000 mV
+    sbyte4 min_angle = -90;
+    sbyte4 max_angle = 90;
+    
+    sbyte4 voltage_range = max_voltage - min_voltage;
+    sbyte4 angle_range = max_angle - min_angle;
+    sbyte4 voltage = Sensor_SAS.sensorValue;
+
+    sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
+    return deg;
+}
 
 /*****************************************************************************
 * Doppler speed sensor functions

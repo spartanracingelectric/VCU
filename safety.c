@@ -294,7 +294,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //     This must be demonstrated at Technical Inspection
     // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
-    bool tpsAbove25Percent = (tps->travelPercent > .25);
+    bool tpsAbove25Percent = (tps->travelPercent > .25); //Rules is 25% this is a hack that is made to check
 
     //If mechanical brakes actuated && tps > 25%
     if (bps->brakesAreOn && tpsAbove25Percent)
@@ -433,7 +433,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // 40922 = 60227 <-- This discrepancy is because we don't get all of the requested torque 
 
 
-    me->softBSPD_bpsHigh = bps->bps0->sensorValue > 2500;
+    me->softBSPD_bpsHigh = bps->bps0->sensorValue > 1900;
     me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
 
     // Note: this is using the FUTURE torque request with the PREVIOUS RPM
@@ -602,16 +602,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
        multiplier = 0;
        SerialManager_send(me->serialMan, "HVIL term sense low\n");
-    }
-
-    //No regen below 5kph
-    
-    if (MCM_commands_getTorque(mcm) < 0 && groundSpeedKPH < 5)
-    {
-        SerialManager_send(me->serialMan, "Regen < 5kph\n");
-        multiplier = 0;
-    }
-    
+    }    
 
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these

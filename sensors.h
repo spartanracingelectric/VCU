@@ -108,7 +108,7 @@ typedef enum
     , Light_dashTCS        //on/off
     , Light_brake          //PWM
     , Cooling_waterPump    //PWM
-    , Cooling_motorFans    //on/off
+    , Cooling_RadFans      //PWM
     , Cooling_batteryFans  //on/off
 } Light;
 
@@ -170,7 +170,7 @@ extern Sensor Sensor_WPS_FR;  // = { 3 };
 extern Sensor Sensor_WPS_RL;  // = { 3 };
 extern Sensor Sensor_WPS_RR;  // = { 3 };
 
-//Steering position Sensor (SPS) - continuous rotation sensor, works like TPS, probably ratiometric
+//Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
 extern Sensor Sensor_SAS;  // = { 4 };
 
 //Switches
@@ -178,8 +178,10 @@ extern Sensor Sensor_SAS;  // = { 4 };
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;
-extern Sensor Sensor_TCSSwitchDown;
+extern Sensor Sensor_LCButton;
 extern Sensor Sensor_TCSKnob;
+extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_DRSKnob;
 //TEMP BENCH SWITCHES
 extern Sensor Sensor_TEMP_BrakingSwitch;
 

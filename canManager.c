@@ -14,6 +14,9 @@
 #include "safety.h"
 #include "wheelSpeeds.h"
 #include "serial.h"
+#include "sensorCalculations.h"
+#include "LaunchControl.h"
+#include "drs.h"
 
 
 struct _CanManager {
@@ -409,6 +412,14 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x63F:
         case 0x640:
         case 0x641:
+        //7th Module
+        case 0x642:
+        case 0x643:
+        case 0x644:
+        //8th Module
+        case 0x645:
+        case 0x646:
+        case 0x647:
 
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
@@ -471,7 +482,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -654,7 +665,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
         LVBatterySOC = .8 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE);
     else //if (Sensor_LVBattery.sensorValue < 14340)
         LVBatterySOC = .9 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE);
-
+    Sensor_LVBattery.sensorValue = Sensor_LVBattery.sensorValue + 0.46;
+    //Offset needed
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
@@ -699,17 +711,13 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //Cooling?
-
-    //50A: GroundSpeedKPH
-
-    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
+    //50A: Ground Speed
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph;
-    canMessages[canMessageCount - 1].data[byteNum++] = speedKph >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte4)MCM_getGroundSpeedKPH(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte4)MCM_getGroundSpeedKPH(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
@@ -718,30 +726,30 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50B: Regen mode loopback (50A without SoftBSPD or Regen Ground Spd)
+    //50B: Launch Control
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = IC_getTorqueMapMode(ic);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCStatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque();
+    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque() >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (10 * (ubyte2)lc->lcTorque);
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50C: Launch Control Sensitivity loopback (50B without SoftBSPD or Regen Ground Spd)
+    //50C: SAS (Steering Angle Sensor) and DRS
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = IC_getLaunchControlSensitivity(ic);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8; 
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->buttonPressed;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->currentDRSMode;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
@@ -821,6 +829,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
+    
     //----------------------------------------------------------------------------
     //Additional sensors
     //----------------------------------------------------------------------------
