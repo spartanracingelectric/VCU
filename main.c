@@ -290,7 +290,7 @@ void main(void)
         //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
 
         //No regen below 5kph
-        sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
+        sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
         if (groundSpeedKPH < 15)
         {
             MCM_setRegenMode(mcm0, REGENMODE_OFF);
