@@ -24,6 +24,7 @@ typedef struct _DRS
     //enum indicating current DRS mode selected based on rotaryswitch
     ubyte1 currentDRSMode;
     ubyte1 buttonPressed;
+    ubyte1 drsFlap;
 
 } DRS;
 //DRS is an instance of the _DRS struct

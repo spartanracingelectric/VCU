@@ -203,7 +203,7 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for Launch Control - CHANGE HERE FOR POT MODE
+    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for AUTO DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
@@ -296,11 +296,11 @@ void main(void)
             MCM_setRegenMode(mcm0, REGENMODE_OFF);
         } else {
             // Regen mode is now set based on battery voltage to preserve overvoltage fault 
-            if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
-                MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); 
-            } else {
-                MCM_setRegenMode(mcm0, REGENMODE_FIXED);
-            } 
+            // if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
+            //     MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); 
+            // } else {
+            //     MCM_setRegenMode(mcm0, REGENMODE_FIXED);
+            // } 
         }
 
         if (Sensor_EcoButton.sensorValue == FALSE)
