@@ -348,7 +348,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //If over temperature fault detected
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
-        me->faults |= F_bmsOverTemperatureFault;
+        // me->faults |= (F_bmsOverTemperatureFault);
         SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
     }
     else
