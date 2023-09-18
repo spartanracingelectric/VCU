@@ -12,7 +12,7 @@
 
 typedef struct _LaunchControl {
     float slipRatio;
-    sbyte2 lcTorque;
+    ubyte2 lcTorque;
     bool LCReady;
     bool LCStatus; // Just for CAN to showcase when enabled
     ubyte1 potLC;

@@ -767,18 +767,16 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
 {   
-    if (me->motorRPM & 0xA000 == 0xA000) {
-        return 0;
-    }
     sbyte4 FD_Ratio = 3.55; //divide # of rear teeth by number of front teeth
     sbyte4 Revolutions = 60; //this converts the rpm to rotations per hour
     //tireCirc does PI * Diameter_Tire because otherwise it doesn't work
     //for 16s set tireCirc to 1.295 for 18s set tireCirc to 1.395 
     //sbyte4 PI = 3.141592653589; 
     //sbyte4 Diameter_Tire = 0.4;
-    sbyte4 tireCirc = 1.295; //the actual average tire circumference in meters
+    sbyte4 tireCirc = 1.395; //the actual average tire circumference in meters
     sbyte4 KPH_Unit_Conversion = 1000.0;
     sbyte4 groundKPH = ((me->motorRPM/FD_Ratio) * Revolutions * tireCirc) / KPH_Unit_Conversion; 
+
     return groundKPH;
     
 }
