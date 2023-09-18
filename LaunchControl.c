@@ -15,13 +15,7 @@ extern Sensor Sensor_LCButton;
 extern Sensor Sensor_DRSKnob;
 float Calctorque;
 /* Start of PID Controller */
-typedef struct {
-    float kp;         // Proportional gain
-    float ki;         // Integral gain
-    float kd;         // Derivative gain
-    float errorSum;   // Running sum of errors for the integral term
-    float lastError;  // Previous error for the derivative term
-} PIDController;
+
 void initPIDController(PIDController* controller, float p, float i, float d, float initialTorque) {
     controller->kp = p;
     controller->ki = i;
@@ -42,11 +36,13 @@ float calculatePIDController(PIDController* controller, float target, float curr
     // Calculate the output of the PID controller using the three terms (proportional, integral, and derivative)
     float output = propError + controller->errorSum + dError;
     //Anti-Windup Calculation (needs to be done on integral controllers)
-    if (output > (float)maxTorque && (controller->ki * error * dt) > 0){
-        output = (float)maxTorque;
+    if (error > 0) {
         controller->errorSum -= controller->ki * error * dt;
     }
-    if (output < 0 && (controller->ki * error * dt) < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
+    if (output > (float)maxTorque){
+        output = (float)maxTorque;
+    }
+    if (output < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
         output = 0;
         //controller->errorSum = controller->errorSum - error * dt; Is this needed?
     }
@@ -70,6 +66,7 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     me->LCReady = FALSE;
     me->LCStatus = FALSE;
     me->potLC = potLC;
+    me->pidController = (PIDController*)malloc(sizeof(struct _PIDController));
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
@@ -80,9 +77,8 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
-    PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-     if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 /*&& bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35*/) {
+     if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
         me->LCReady = TRUE;
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
@@ -101,13 +97,13 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         // }  else {
         //     me->lcTorque = lcTest;
         // }
-        initPIDController(controller, 0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+        initPIDController(me->pidController, 0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
-        me->lcTorque = 170; //controller.errorSum; // Set to the initial torque
+        me->lcTorque = me->pidController->errorSum; // Set to the initial torque
         if(speedKph > 3){
-            Calctorque = calculatePIDController(controller, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
             me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
     }
