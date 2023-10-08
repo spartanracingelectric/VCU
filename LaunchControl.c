@@ -31,8 +31,8 @@ float calculatePIDController(PIDController* controller, float target, float curr
     // Time constant variance w/ System response (dt)
     controller->errorSum += controller->ki * error * dt;
     // Calculate the derivative of the error
-    float dError = ((error * controller->kd) - controller->lastError) / dt;
-    controller->lastError = error * controller->kd;
+    float dError = (error - controller->lastError) / dt * controller->kd;
+    controller->lastError = error;
     // Calculate the output of the PID controller using the three terms (proportional, integral, and derivative)
     float output = propError + controller->errorSum + dError;
     //Anti-Windup Calculation (needs to be done on integral controllers)
@@ -97,7 +97,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         // }  else {
         //     me->lcTorque = lcTest;
         // }
-        initPIDController(me->pidController, 0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+        initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
