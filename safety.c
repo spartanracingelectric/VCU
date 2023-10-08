@@ -17,6 +17,8 @@
 #include "bms.h"
 #include "serial.h"
 
+//TODO #162 Add in CAN Address to tell which Safeties are on or off
+
 //----------------------------------------------------------------------------
 //Faults
 //last flag is 0x 8000 0000 (32 flags, 8 hex characters)
@@ -348,7 +350,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //If over temperature fault detected
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
-        // me->faults |= (F_bmsOverTemperatureFault);
+        me->faults |= (F_bmsOverTemperatureFault);
         SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
     }
     else
@@ -488,7 +490,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //If under voltage fault detected
     if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
     {
-        me->warnings |= W_bmsUnderVoltageWarning;
+        // me->warnings |= W_bmsUnderVoltageWarning;
         SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
     }
     else
