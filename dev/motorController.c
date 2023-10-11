@@ -559,7 +559,7 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
 
 sbyte4 MCM_getPower(MotorController *me)
 {
-    return ((me->DC_Voltage) * (me->DC_Current));
+    return (me->DC_Voltage * me->DC_Current);
 }
 
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)

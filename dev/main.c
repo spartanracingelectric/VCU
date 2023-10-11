@@ -30,10 +30,9 @@
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_RTC.h"
 #include "IO_UART.h"
-//#include "IO_CAN.h"
-//#include "IO_PWM.h"
 
 //Our code
+#include "main.h"
 #include "initializations.h"
 #include "sensors.h"
 #include "canManager.h"
@@ -189,15 +188,15 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
-    //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         ^
-    //can0_read_messageLimit -----------------|   |   |    |   |     |         |
-    //can0_write_messageLimit---------------------+   |    |   |     |         |
-    //can1_busSpeed-----------------------------------+    |   |     |         |
-    //can1_read_messageLimit-------------------------------+   |     |         |
-    //can1_write_messageLimit----------------------------------+     |         |
-    //defaultSendDelayus---------------------------------------------+         |
-    //SerialManager* sm--------------------------------------------------------+
+    CanManager *canMan = CanManager_new(CAN_0_BAUD, 50, 50, CAN_1_BAUD, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
+    //can0_busSpeed ---------------------^          ^   ^       ^       ^   ^     ^         ^
+    //can0_read_messageLimit -----------------------|   |       |       |   |     |         |
+    //can0_write_messageLimit---------------------------+       |       |   |     |         |
+    //can1_busSpeed---------------------------------------------+       |   |     |         |
+    //can1_read_messageLimit--------------------------------------------+   |     |         |
+    //can1_write_messageLimit-----------------------------------------------+     |         |
+    //defaultSendDelayus----------------------------------------------------------+         |
+    //SerialManager* sm---------------------------------------------------------------------+
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -403,7 +402,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < CYCLE_TIME) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
