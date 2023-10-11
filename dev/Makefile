@@ -28,12 +28,12 @@ ifeq ($(origin TARGET), undefined)
     TARGET=TTC60
 endif
 
-IODRIVER_DIR = ..\..\..\Environment
+IODRIVER_DIR = ..
 
 #
 # Includes
 #
-include ../../build/settings.mk
+include ../build/settings.mk
 
 INCDIRS += -I"."
 

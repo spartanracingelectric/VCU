@@ -1,0 +1,57 @@
+ADD
+TOOLBAR
+(
+    SEPARATOR
+    TOOLITEM "TTC-50 Family In Target &Reset" 
+    (
+        SYStem.Up        
+        PER.S D:0xFE18 %WORD 6
+        go main
+        system.o.dualport on
+    )
+[
+RRRRRRRRR   
+RR     RRR 
+RR       RR
+RR       RR
+RR       RR
+RR     RRR
+RRRRRRRR
+RR RR
+RR  RR     
+RR   RR    
+RR    RR   
+RR     RR  
+RR      RR 
+RR       RR
+]
+)
+
+ADD
+TOOLBAR
+(
+    SEPARATOR
+    TOOLITEM "TTC-50 Family In Target &Reset and Run" 
+    (
+        SYStem.Up
+        PER.S D:0xFE18 %WORD 6
+        system.o.dualport on        
+        go
+    )
+[
+RRRRRRRRR    
+RR     RRR 
+RR       RR
+RR       RR
+RR       RR
+RR     RRR   RRR
+RRRRRRRR     R  R
+RR RR        RRR
+RR  RR       R R    
+RR   RR      R  R   
+RR    RR   
+RR     RR  
+RR      RR 
+RR       RR
+]
+)
