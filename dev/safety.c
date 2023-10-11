@@ -243,13 +243,8 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
     //Check for implausibility (discrepancy > 10%)
     //RULE: EV2.3.6 Implausibility is defined as a deviation of more than 10% pedal travel between the sensors.
-    float4 tps0Percent; //Pedal percent float (a decimal between 0 and 1
-    float4 tps1Percent;
 
-    TorqueEncoder_getIndividualSensorPercent(tps, 0, &tps0Percent); //borrow the pedal percent variable
-    TorqueEncoder_getIndividualSensorPercent(tps, 1, &tps1Percent);
-
-    if ((tps1Percent - tps0Percent) > .1 || (tps1Percent - tps0Percent) < -.1) //Note: Individual TPS readings don't go negative, otherwise this wouldn't work
+    if ((tps->tps1_percent - tps->tps0_percent) > .1 || (tps->tps1_percent - tps->tps0_percent) < -.1) //Note: Individual TPS readings don't go negative, otherwise this wouldn't work
     {
         me->faults |= F_tpsOutOfSync;
     }

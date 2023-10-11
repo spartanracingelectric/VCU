@@ -39,7 +39,6 @@ typedef struct _TorqueEncoder
 
 TorqueEncoder *TorqueEncoder_new(bool benchMode);
 void TorqueEncoder_update(TorqueEncoder *me);
-void TorqueEncoder_getIndividualSensorPercent(TorqueEncoder *me, ubyte1 sensorNumber, float4 *percent);
 void TorqueEncoder_resetCalibration(TorqueEncoder *me);
 void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder *me);
 void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder *me);

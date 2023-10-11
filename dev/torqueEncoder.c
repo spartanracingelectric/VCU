@@ -200,21 +200,6 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
 
 }
 
-
-void TorqueEncoder_getIndividualSensorPercent(TorqueEncoder* me, ubyte1 sensorNumber, float4* percent)
-{
-    switch (sensorNumber)
-    {
-    case 0:
-        *percent = me->tps0_percent;
-        break;
-    case 1:
-        *percent = me->tps1_percent;
-        break;
-    }
-}
-
-
 /*-------------------------------------------------------------------
 * GetThrottlePosition
 * Description: Reads TPS Pin voltages and returns % of throttle pedal travel.

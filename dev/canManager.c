@@ -18,9 +18,9 @@
 #include "LaunchControl.h"
 #include "drs.h"
 
-CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
-                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
-                         , ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit,
+                           ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit,
+                           ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
 {
     CanManager* me = (CanManager*)malloc(sizeof(struct _CanManager));
 
@@ -195,10 +195,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // If any criteria were exceeded, send the message out
         //----------------------------------------------------------------------------
-        if (  (firstTimeMessage)
-           || (dataChanged && minTimeExceeded)
-           || (!dataChanged && maxTimeExceeded)
-           )
+        if ((firstTimeMessage) || (dataChanged && minTimeExceeded) || (!dataChanged && maxTimeExceeded))
         {
             sendMessage = TRUE;
         }
