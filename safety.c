@@ -83,32 +83,6 @@ static const ubyte2 N_Over75kW_MCM = 0x20;
 ubyte4 timestamp_SoftBSPD = 0;
 
 /*****************************************************************************
-* SafetyChecker object
-******************************************************************************
-* ToDo: change to ubyte1[8] (64 flags possible)
-* 1 = fault
-* 0 = no fault
-****************************************************************************/
-struct _SafetyChecker
-{
-    //Problems that require motor torque to be disabled
-    SerialManager *serialMan;
-    ubyte4 faults;
-    ubyte2 warnings;
-    ubyte2 notices;
-    ubyte1 maxAmpsCharge;
-    ubyte1 maxAmpsDischarge;
-
-    bool softBSPD_bpsHigh;
-    bool softBSPD_kwHigh;
-    bool softBSPD_fault;
-
-    bool bypass;
-    ubyte4 timestamp_bypassSafetyChecks;
-    ubyte4 bypassSafetyChecksTimeout_us;
-};
-
-/*****************************************************************************
 * Torque Encoder (TPS) functions
 * RULE EV2.3.5:
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
@@ -324,7 +298,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //-------------------------------------------------------------------
 
     //If over voltage fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_VOLTAGE_FLAG)
+    if (bms->faultFlags1 & BMS_CELL_OVER_VOLTAGE_FLAG)
     {
         //me->faults |= F_bmsOverVoltageFault;
         SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
@@ -335,7 +309,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     }
 
     //If under voltage fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_UNDER_VOLTAGE_FLAG)
+    if (bms->faultFlags1 & BMS_CELL_UNDER_VOLTAGE_FLAG)
     {
         me->faults |= F_bmsUnderVoltageFault;
         SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
@@ -346,7 +320,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     }
 
     //If over temperature fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
+    if (bms->faultFlags1 & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
         // me->faults |= (F_bmsOverTemperatureFault);
         SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
@@ -358,7 +332,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
     //If mismatch greater than specified mismatch value
     //BMS cell voltage data members are in mV, 
-    if ( (BMS_getHighestCellVoltage_mV(bms)-BMS_getLowestCellVoltage_mV(bms)) > (BMS_MAX_CELL_MISMATCH_V*1000) )
+    if ((bms->highestCellVoltage-bms->lowestCellVoltage) > (BMS_MAX_CELL_MISMATCH_V*1000))
     {
         //me->faults |= F_bmsCellMismatchFault;
         SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
@@ -486,7 +460,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //===================================================================
 
     //If under voltage fault detected
-    if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
+    if (bms->lowestCellVoltage < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
     {
         me->warnings |= W_bmsUnderVoltageWarning;
         SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
@@ -497,7 +471,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     }
 
     //If over temperature fault detected
-    if (BMS_getHighestCellTemp_d_degC(bms) > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
+    if (bms->highestCellTemperature > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
     {
         me->warnings |= W_bmsOverTemperatureWarning;
         SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
@@ -549,24 +523,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 bool SafetyChecker_allSafe(SafetyChecker *me)
 {
     return (me->faults == 0);
-}
-
-//Updates all values based on sensor readings, safety checks, etc
-ubyte4 SafetyChecker_getFaults(SafetyChecker *me)
-{
-    return (me->faults);
-}
-
-//Updates all values based on sensor readings, safety checks, etc
-ubyte4 SafetyChecker_getWarnings(SafetyChecker *me)
-{
-    return (me->warnings);
-}
-
-//Updates all values based on sensor readings, safety checks, etc
-ubyte4 SafetyChecker_getNotices(SafetyChecker *me)
-{
-    return (me->notices);
 }
 
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)

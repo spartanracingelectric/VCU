@@ -22,7 +22,54 @@ typedef enum
 //CAN0: 48 messages per handle (48 read, 48 write)
 //CAN1: 16 messages per handle
 
-typedef struct _CanManager CanManager;
+
+
+typedef struct _CanManager {
+    //AVLNode* incomingTree;
+    //AVLNode* outgoingTree;
+
+
+    SerialManager* sm;
+
+    ubyte1 canMessageLimit;
+    
+    //These are our four FIFO queues.  All messages should come/go through one of these queues.
+    //Functions shall have a CanChannel enum (see header) parameter.  Direction (send/receive is not
+    //specified by this parameter.  The CAN0/CAN1 is selected based on the parameter passed in, and 
+    //Read/Write is selected based on the function that is being called (get/send)
+    ubyte1 can0_busSpeed;
+    ubyte1 can0_readHandle;
+    ubyte1 can0_read_messageLimit;
+    ubyte1 can0_writeHandle;
+    ubyte1 can0_write_messageLimit;
+
+    ubyte1 can1_busSpeed;
+    ubyte1 can1_readHandle;
+    ubyte1 can1_read_messageLimit;
+    ubyte1 can1_writeHandle;
+    ubyte1 can1_write_messageLimit;
+    
+    IO_ErrorType ioErr_can0_Init;
+    IO_ErrorType ioErr_can1_Init;
+
+    IO_ErrorType ioErr_can0_fifoInit_R;
+    IO_ErrorType ioErr_can0_fifoInit_W;
+    IO_ErrorType ioErr_can1_fifoInit_R;
+    IO_ErrorType ioErr_can1_fifoInit_W;
+
+    IO_ErrorType ioErr_can0_read;
+    IO_ErrorType ioErr_can0_write;
+    IO_ErrorType ioErr_can1_read;
+    IO_ErrorType ioErr_can1_write;
+
+    ubyte4 sendDelayus;
+
+
+    //WARNING: These values are not initialized - be careful to only access
+    //pointers that have been previously assigned
+    //AVLNode* canMessageHistory[0x7FF];
+    AVLNode* canMessageHistory[0x7FF];
+} CanManager;
 
 typedef struct _CanMessageNode CanMessageNode;
 

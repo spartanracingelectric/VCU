@@ -19,15 +19,37 @@ typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
              } SafetyCheck;
 */
 
-typedef struct _SafetyChecker SafetyChecker;
+/*****************************************************************************
+* SafetyChecker object
+******************************************************************************
+* ToDo: change to ubyte1[8] (64 flags possible)
+* 1 = fault
+* 0 = no fault
+****************************************************************************/
+
+typedef struct _SafetyChecker
+{
+    //Problems that require motor torque to be disabled
+    SerialManager *serialMan;
+    ubyte4 faults;
+    ubyte2 warnings;
+    ubyte2 notices;
+    ubyte1 maxAmpsCharge;
+    ubyte1 maxAmpsDischarge;
+
+    bool softBSPD_bpsHigh;
+    bool softBSPD_kwHigh;
+    bool softBSPD_fault;
+
+    bool bypass;
+    ubyte4 timestamp_bypassSafetyChecks;
+    ubyte4 bypassSafetyChecksTimeout_us;
+} SafetyChecker;
 
 SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery);
 void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMessage);
 bool SafetyChecker_allSafe(SafetyChecker *me);
-ubyte4 SafetyChecker_getFaults(SafetyChecker *me);
-ubyte4 SafetyChecker_getWarnings(SafetyChecker *me);
-ubyte4 SafetyChecker_getNotices(SafetyChecker *me);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
 //bool SafetyChecker_getError(SafetyChecker* me, SafetyCheck check);
 //bool SafetyChecker_getErrorByte(SafetyChecker* me, ubyte1* errorByte);
