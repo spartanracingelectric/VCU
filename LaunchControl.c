@@ -70,40 +70,32 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
-    me->slipRatio = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
-    //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
+    me->slipRatio = ((wss->speed_FL + wss->speed_FR) / (wss->speed_RL + wss->speed_RR)) - 1;
+    // limit the slip ratio to the range of -1 to 1
+    if (me->slipRatio > 1) {
+        me->slipRatio = 1;
+    }
+    if (me->slipRatio < -1) {
+        me->slipRatio = -1;
+    }
 }
+
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
-    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
         me->LCReady = TRUE;
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        // if(me->potLC == 1){
-        //     if (Sensor_DRSKnob.sensorValue == 0)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 1.1)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 2.2)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 3.3)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 4.4)
-        //     {    me->lcTorque = lcTest; }
-        // }  else {
-        //     me->lcTorque = lcTest;
-        // }
         initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         me->lcTorque = me->pidController->errorSum; // Set to the initial torque
         if(speedKph > 3){
-            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm->commands_torqueLimit / 10.0); // Set your target, current, dt
             me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
     }
@@ -113,8 +105,8 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         me->lcTorque = -1;
     }
     // Update launch control state and torque limit
-    MCM_update_LaunchControl_State(mcm, me->LCStatus);
-    MCM_update_LaunchControl_TorqueLimit(mcm, me->lcTorque * 10);
+    mcm->LCState = me->LCStatus; // this is kinda dumb and just duplicating the state value
+    mcm->LaunchControl_TorqueLimit = me->lcTorque * 10; // this is kinda dumb and just duplicating the torque value
 }
 bool getLaunchControlStatus(LaunchControl *me){
     return me->LCStatus;

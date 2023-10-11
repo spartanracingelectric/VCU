@@ -11,15 +11,15 @@
 #include "motorController.h"
 
 typedef struct _PIDController {
-    float kp;         // Proportional gain
-    float ki;         // Integral gain
-    float kd;         // Derivative gain
-    float errorSum;   // Running sum of errors for the integral term
-    float lastError;  // Previous error for the derivative term
+    float4 kp;         // Proportional gain
+    float4 ki;         // Integral gain
+    float4 kd;         // Derivative gain
+    float4 errorSum;   // Running sum of errors for the integral term
+    float4 lastError;  // Previous error for the derivative term
 } PIDController;
 
 typedef struct _LaunchControl {
-    float slipRatio;
+    float4 slipRatio;
     ubyte2 lcTorque;
     bool LCReady;
     bool LCStatus; // Just for CAN to showcase when enabled

@@ -7,27 +7,6 @@
 #include "mathFunctions.h"
 
 #include "sensors.h"
-//extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BenchTPS1;
-
-/*****************************************************************************
-* Wheel Speed object
-******************************************************************************
-* This object converts raw wheel speed sensor readings to usable formats
-* for i.e. traction control
-****************************************************************************/
-
-struct _WheelSpeeds
-{
-    float4 tireCircumferenceMeters_F; //calculated
-    float4 tireCircumferenceMeters_R; //calculated
-    float4 pulsesPerRotation_F;
-    float4 pulsesPerRotation_R;
-    float4 speed_FL;
-    float4 speed_FR;
-    float4 speed_RL;
-    float4 speed_RR;
-};
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -73,15 +52,6 @@ void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
         me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
     }
 }
-
-//Trash code
-//void WheelSpeed_UnitCorrection(WheelSpeeds *me)
-//{
-//    me->speed_FL = me->speed_FL * 3.6;
-//    me->speed_FR = me->speed_FR * 3.6;
-//    me->speed_RL = me->speed_RL * 3.6;
-//    me->speed_RR = me->speed_RR * 3.6;
-//}
 
 float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
 {

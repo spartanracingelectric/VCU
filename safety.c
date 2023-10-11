@@ -472,7 +472,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //===================================================================
     // HVIL Override
     //===================================================================
-    if (MCM_getHvilOverrideStatus(mcm) == TRUE)
+    if (mcm->HVILOverride == TRUE)
     {
         me->warnings |= W_hvilOverrideEnabled;
     }
@@ -671,7 +671,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
         multiplier = 1;
     }
-    MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+    MCM_commands_setTorqueDNm(mcm, mcm->commands_torque * multiplier);
 }
 
 //-------------------------------------------------------------------

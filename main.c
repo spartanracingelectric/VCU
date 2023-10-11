@@ -352,7 +352,7 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        CoolingSystem_calculations(cs, mcm0->motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm0->motor_temp, BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
