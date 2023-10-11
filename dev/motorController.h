@@ -98,7 +98,7 @@ bool MCM_getRTDSFlag(MotorController* me);
 sbyte2 MCM_getTemp(MotorController* me);
 sbyte2 MCM_getMotorTemp(MotorController* me);
 
-sbyte4 MCM_getGroundSpeedKPH(MotorController* me);
+sbyte2 MCM_getGroundSpeedKPH(MotorController* me);
 sbyte1 MCM_getRegenMinSpeed(MotorController* me);
 sbyte1 MCM_getRegenRampdownStartSpeed(MotorController* me);
 

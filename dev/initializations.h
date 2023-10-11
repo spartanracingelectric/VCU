@@ -17,7 +17,6 @@
 //Application Database, needed for TTC-Downloader
 //APDB appl_db;
 
-
 //Functions
 void vcu_initializeVCU(void);
 void vcu_initializeADC(bool benchMode);

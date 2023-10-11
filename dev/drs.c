@@ -18,9 +18,8 @@ DRS *DRS_new()
     DRS *me = (DRS *)malloc(sizeof(struct _DRS));
 
     //flags
-    me->AutoDRSActive = TRUE;
+    me->AutoDRSActive = FALSE;
     me->currentDRSMode = MANUAL; 
-    me->drsFlap = 0;
 
     return me;
 }
@@ -89,7 +88,7 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
     float4 brake_travel = bps->percent; // > 50%
     float4 throttle_travel = tps->travelPercent; // > 90%
 
-    if (vehicle_speed_mph > 5 && throttle_travel > .75 && curr_steer_angle > -15 && curr_steer_angle < 15 && brake_travel < .10) {
+    if (vehicle_speed_mph > 30 && throttle_travel > .8 && curr_steer_angle > -20 && curr_steer_angle < 20 && brake_travel < .10) {
         DRS_open(me);
     } else {
         DRS_close(me);
@@ -99,12 +98,10 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
 void DRS_open(DRS *me) {
     IO_DO_Set(IO_DO_06, TRUE);
     IO_DO_Set(IO_DO_07, FALSE);
-    me->drsFlap = 1;
 }
 void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
-    me->drsFlap = 0;
 
 }
 
