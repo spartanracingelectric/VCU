@@ -24,21 +24,21 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 
     //TODO: Make sure the main loop is running before doing this
     me->bps0 = &Sensor_BPS0;
-    //me->bps1 = &Sensor_BPS1;
+    me->bps1 = &Sensor_BPS1;
     //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
 
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.
     // Accuracy below 100PSI is +/- 0.5% of the full scale span (4V), which is +/- 0.2V
     Sensor_BPS0.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
-    //Sensor_BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+    Sensor_BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
 
     // Accuracy above 100PSI is +/- 0.25% of the full scale span (4V), which is +/- 0.1V
     Sensor_BPS0.specMax = 4500 + (4000 * .0025);
-    //Sensor_BPS1.specMax = 4500 + (4000 * .0025);
+    Sensor_BPS1.specMax = 4500 + (4000 * .0025);
 
     me->bps0_reverse = FALSE;
-    //me->bps1_reverse = FALSE;
+    me->bps1_reverse = FALSE;
 
     //BPS0 only
     me->percent = 0;
@@ -55,7 +55,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
  void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
 {
     me->bps0_value = me->bps0->sensorValue;
-    //me->bps1_value = me->bps1->sensorValue;
+    me->bps1_value = me->bps1->sensorValue;
 
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
