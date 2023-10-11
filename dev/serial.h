@@ -4,7 +4,16 @@
 #include "IO_Driver.h" 
 #include "IO_UART.h"
 
-typedef struct _SerialManager SerialManager;
+typedef struct _SerialManager
+{
+    //Init stuff
+    //speed
+    //packet size
+    //???
+
+    //More stuff
+    ubyte1 size; //This value is thrown away
+} SerialManager;
 
 //Make serialMan available globally
 //SerialManager* serialMan;

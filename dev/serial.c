@@ -5,17 +5,6 @@
 #include "IO_UART.h"
 #include "serial.h"
 
-struct _SerialManager
-{
-    //Init stuff
-    //speed
-    //packet size
-    //???
-
-    //More stuff
-    ubyte1 size; //This value is thrown away
-};
-
 SerialManager *SerialManager_new(void)
 {
     SerialManager *me = (SerialManager *)malloc(sizeof(struct _SerialManager));

@@ -11,7 +11,18 @@
 //#include "canManager.h"
 
 
-typedef struct _InstrumentCluster InstrumentCluster;
+typedef struct _InstrumentCluster
+{
+    SerialManager* serialMan;
+    
+    ubyte2 canMessageBaseId;  //Starting message ID for messages that will come in from this controller
+
+    ubyte1 torqueMapMode;
+
+    //0 = off. Default OFF
+    ubyte1 launchControlSensitivity;
+    
+} InstrumentCluster;
 
 InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBaseID);
 
