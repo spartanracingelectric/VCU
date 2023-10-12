@@ -1,4 +1,6 @@
+#include <IO_Driver.h>
 
-int CYCLE_TIME = 10000; // in microseconds
-int CAN_0_BAUD = 500; // in kbps
-int CAN_1_BAUD = 500; // in kbps
+#define CYCLE_TIME_US 10000 // in microseconds
+#define CYCLE_TIME (100000.0 / CYCLE_TIME_US) // in seconds
+#define CAN_0_BAUD 500 // in kbps
+#define CAN_1_BAUD 500 // in kbps
