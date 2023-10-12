@@ -85,16 +85,16 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
         switch (corner)
         {
             case FL:
-                speed = Sensor_WSS_FL.heldSensorValue;
+                speed = Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
                 break;
             case FR:
-                speed = Sensor_WSS_FR.heldSensorValue;
+                speed = Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
                 break;
             case RL:
-                speed = Sensor_WSS_RL.heldSensorValue;
+                speed = Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
                 break;
             case RR:
-                speed = Sensor_WSS_RR.heldSensorValue;
+                speed = Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
                 break;
             default:
                 speed = 0;
@@ -105,16 +105,16 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
         switch (corner)
         {
             case FL:
-                speed = Sensor_WSS_FL.sensorValue;
+                speed = Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
                 break;
             case FR:
-                speed = Sensor_WSS_FR.sensorValue;
+                speed = Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
                 break;
             case RL:
-                speed = Sensor_WSS_RL.sensorValue;
+                speed = Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
                 break;
             case RR:
-                speed = Sensor_WSS_RR.sensorValue;
+                speed = Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
                 break;
             default:
                 speed = 0;
@@ -122,7 +122,7 @@ float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
     }
 
     //Multiply sensorValue by 60 seconds to get RPM (1 Hz per bump)
-    return speed*60.0f/NUM_BUMPS;
+    return speed*60.0f;
 }
 
 //UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS

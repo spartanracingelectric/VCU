@@ -293,17 +293,6 @@ void GetBrakePosition(void)
 //Inputs: Wheel speed sensor frequency
 //Outputs: 4 speeds, RPM, ground speed
 //4 funcs, one to get each wheel�s speed
-//16 bumps per rotation, 16 hz = 1 rotation per second
-
-double freq_to_rpm(double freq) {
-    return (double)((freq / NUM_BUMPS_D)*60.0);
-}
-
-//Theoretical ground speed
-//63360 inches per mile. Wish we could use metric.
-double rpm_to_mph(double rpm) {
-    return (double)((3.14159265*WHEEL_DIAMETER_D*rpm*60.0) / 63360.0);
-}
 
 /*****************************************************************************
 * Shock pot(iometer) functions - FOUR NEEDED
