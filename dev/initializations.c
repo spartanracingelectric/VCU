@@ -194,10 +194,6 @@ Sensor Sensor_WSS_FL; // = { 2 };
 Sensor Sensor_WSS_FR; // = { 2 };
 Sensor Sensor_WSS_RL; // = { 2 };
 Sensor Sensor_WSS_RR; // = { 2 };
-Sensor Sensor_WPS_FL; // = { 3 };
-Sensor Sensor_WPS_FR; // = { 3 };
-Sensor Sensor_WPS_RL; // = { 3 };
-Sensor Sensor_WPS_RR; // = { 3 };
 Sensor Sensor_SAS;    // = { 4 };
 Sensor Sensor_LVBattery;
 

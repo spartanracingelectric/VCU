@@ -12,10 +12,6 @@
 * they also provided.
 * For instructions on setting up a build environment, see the SRE-2 getting-
 * started document, Programming for the HY-TTC 50, at http://1drv.ms/1NQUppu
-******************************************************************************
-* Organization
-* Our code is laid out in the following manner:
-* 
 *****************************************************************************/
 
 //-------------------------------------------------------------------
@@ -90,10 +86,6 @@ extern Sensor Sensor_WSS_FL;
 extern Sensor Sensor_WSS_FR;
 extern Sensor Sensor_WSS_RL;
 extern Sensor Sensor_WSS_RR;
-extern Sensor Sensor_WPS_FL;
-extern Sensor Sensor_WPS_FR;
-extern Sensor Sensor_WPS_RL;
-extern Sensor Sensor_WPS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
 

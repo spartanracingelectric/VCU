@@ -14,12 +14,6 @@
 * NOT update the sensor objects, but it would be acceptable for another 
 * function in this file to do so.
 *
-******************************************************************************
-* To-do:
-*
-******************************************************************************
-* Revision history:
-* 2015-11-16 - Rusty Pedrosa - 
 *****************************************************************************/
 
 //VCU/C headers
@@ -40,10 +34,6 @@ extern Sensor Sensor_WSS_FL;
 extern Sensor Sensor_WSS_FR;
 extern Sensor Sensor_WSS_RL;
 extern Sensor Sensor_WSS_RR;
-extern Sensor Sensor_WPS_FL;
-extern Sensor Sensor_WPS_FR;
-extern Sensor Sensor_WPS_RL;
-extern Sensor Sensor_WPS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
@@ -293,21 +283,6 @@ void GetBrakePosition(void)
 //Inputs: Wheel speed sensor frequency
 //Outputs: 4 speeds, RPM, ground speed
 //4 funcs, one to get each wheel�s speed
-
-/*****************************************************************************
-* Shock pot(iometer) functions - FOUR NEEDED
-* FR = Pin150 = Analog Input 4
-* FL = Pin138 = Analog Input 5
-* RR = Pin149 = Analog Input 6
-* RL = Pin137 = Analog Input 7
-* 0 = ride height
-****************************************************************************/
-//Input: Ohms
-//Outputs: ???
-//See VCU Manual section 5.8.8 - there are different outputs depending on sensor resistance
-//Example sensor: Active Sensors CLS0950
-//Resistive range: 0.4 to 6.0 kohm
-//ShockPot.
 
 /*****************************************************************************
 * Steering Angle Sensor (SAS)

@@ -1,15 +1,5 @@
 /*****************************************************************************
 * Sensors
-******************************************************************************
-* bla bla bla.
-*
-******************************************************************************
-* To-do:
-*
-******************************************************************************
-* Revision history:
-* 2015-12-01 - Rusty Pedrosa - Changed loading of sensor data to switch
-*                              statement inside of a loop
 *****************************************************************************/
 
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
@@ -29,10 +19,6 @@ extern Sensor Sensor_WSS_FL;
 extern Sensor Sensor_WSS_FR;
 extern Sensor Sensor_WSS_RL;
 extern Sensor Sensor_WSS_RR;
-extern Sensor Sensor_WPS_FL;
-extern Sensor Sensor_WPS_FR;
-extern Sensor Sensor_WPS_RL;
-extern Sensor Sensor_WPS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
@@ -57,31 +43,13 @@ extern Sensor Sensor_HVILTerminationSense;
 //----------------------------------------------------------------------------
 void sensors_updateSensors(void)
 {
-    //TODO: Handle errors (using the return values for these Get functions)
-
-    //TODO: RTDS
-
     //Torque Encoders ---------------------------------------------------
-    //Sensor_BenchTPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_BenchTPS0.sensorValue, &Sensor_BenchTPS0.fresh);
-    //Sensor_BenchTPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_BenchTPS1.sensorValue, &Sensor_BenchTPS1.fresh);
     Sensor_TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_TPS0.sensorValue, &Sensor_TPS0.fresh);
     Sensor_TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_TPS1.sensorValue, &Sensor_TPS1.fresh);
-    //Sensor_TPS0.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_00, &Sensor_TPS0.sensorValue);
-    //Sensor_TPS1.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_01, &Sensor_TPS1.sensorValue);
 
     //Brake Position Sensor ---------------------------------------------------
     Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
     Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
-
-    //TCS Knob
-    // Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
-
-    //Shock pots ---------------------------------------------------
-    /*IO_ADC_Get(IO_ADC_5V_04, &Sensor_WPS_FL.sensorValue, &Sensor_WPS_FL.fresh);
-    IO_ADC_Get(IO_ADC_5V_05, &Sensor_WPS_FR.sensorValue, &Sensor_WPS_FR.fresh);
-    IO_ADC_Get(IO_ADC_5V_06, &Sensor_WPS_RL.sensorValue, &Sensor_WPS_RL.fresh);
-    IO_ADC_Get(IO_ADC_5V_07, &Sensor_WPS_RR.sensorValue, &Sensor_WPS_RR.fresh);
-    */
    
     //Wheel speed sensors ---------------------------------------------------
 
