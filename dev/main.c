@@ -53,54 +53,32 @@
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
     {
-        0 /* ubyte4 versionAPDB        */
-        ,
-        {0} /* BL_T_DATE flashDate       */
-            /* BL_T_DATE buildDate                   */
-        ,
+        0, /* ubyte4 versionAPDB        */
+        {0}, /* BL_T_DATE flashDate       */
         {(ubyte4)(((((ubyte4)RTS_TTC_FLASH_DATE_YEAR) & 0x0FFF) << 0) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_MONTH) & 0x0F) << 12) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_DAY) & 0x1F) << 16) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_HOUR) & 0x1F) << 21) |
-                  ((((ubyte4)RTS_TTC_FLASH_DATE_MINUTE) & 0x3F) << 26))},
-        0 /* ubyte4 nodeType           */
-        ,
-        0 /* ubyte4 startAddress       */
-        ,
-        0 /* ubyte4 codeSize           */
-        ,
-        0 /* ubyte4 legacyAppCRC       */
-        ,
-        0 /* ubyte4 appCRC             */
-        ,
-        1 /* ubyte1 nodeNr             */
-        ,
-        0 /* ubyte4 CRCInit            */
-        ,
-        0 /* ubyte4 flags              */
-        ,
-        0 /* ubyte4 hook1              */
-        ,
-        0 /* ubyte4 hook2              */
-        ,
-        0 /* ubyte4 hook3              */
-        ,
-        APPL_START /* ubyte4 mainAddress        */
-        ,
-        {0, 1} /* BL_T_CAN_ID canDownloadID */
-        ,
-        {0, 2} /* BL_T_CAN_ID canUploadID   */
-        ,
-        0 /* ubyte4 legacyHeaderCRC    */
-        ,
-        0 /* ubyte4 version            */
-        ,
-        500 /* ubyte2 canBaudrate        */
-        ,
-        0 /* ubyte1 canChannel         */
-        ,
-        {0} /* ubyte1 reserved[8*4]      */
-        ,
+                  ((((ubyte4)RTS_TTC_FLASH_DATE_MINUTE) & 0x3F) << 26))}, /* BL_T_DATE buildDate                   */
+        0, /* ubyte4 nodeType           */
+        0, /* ubyte4 startAddress       */
+        0, /* ubyte4 codeSize           */
+        0, /* ubyte4 legacyAppCRC       */
+        0, /* ubyte4 appCRC             */
+        1, /* ubyte1 nodeNr             */
+        0, /* ubyte4 CRCInit            */
+        0, /* ubyte4 flags              */
+        0, /* ubyte4 hook1              */
+        0, /* ubyte4 hook2              */
+        0, /* ubyte4 hook3              */
+        APPL_START, /* ubyte4 mainAddress        */
+        {0, 1}, /* BL_T_CAN_ID canDownloadID */
+        {0, 2}, /* BL_T_CAN_ID canUploadID   */
+        0, /* ubyte4 legacyHeaderCRC    */
+        0, /* ubyte4 version            */
+        500, /* ubyte2 canBaudrate        */
+        0, /* ubyte1 canChannel         */
+        {0}, /* ubyte1 reserved[8*4]      */
         0 /* ubyte4 headerCRC          */
 };
 
@@ -181,22 +159,20 @@ void main(void)
     //----------------------------------------------------------------------------
     SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
     vcu_initializeADC(bench); //Configure and activate all I/O pins on the VCU
-    //vcu_initializeCAN();
-    //vcu_initializeMCU();
 
     //Do some loops until the ADC stops outputting garbage values
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
     CanManager *canMan = CanManager_new(CAN_0_BAUD, 50, 50, CAN_1_BAUD, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
-    //can0_busSpeed ---------------------^          ^   ^       ^       ^   ^     ^         ^
-    //can0_read_messageLimit -----------------------|   |       |       |   |     |         |
-    //can0_write_messageLimit---------------------------+       |       |   |     |         |
-    //can1_busSpeed---------------------------------------------+       |   |     |         |
-    //can1_read_messageLimit--------------------------------------------+   |     |         |
-    //can1_write_messageLimit-----------------------------------------------+     |         |
-    //defaultSendDelayus----------------------------------------------------------+         |
-    //SerialManager* sm---------------------------------------------------------------------+
+    //can0_busSpeed -------------------------^       ^   ^       ^       ^   ^     ^         ^
+    //can0_read_messageLimit ------------------------|   |       |       |   |     |         |
+    //can0_write_messageLimit----------------------------+       |       |   |     |         |
+    //can1_busSpeed----------------------------------------------+       |   |     |         |
+    //can1_read_messageLimit---------------------------------------------+   |     |         |
+    //can1_write_messageLimit------------------------------------------------+     |         |
+    //defaultSendDelayus-----------------------------------------------------------+         |
+    //SerialManager* sm----------------------------------------------------------------------+
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -206,9 +182,6 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    // 240 Nm
-    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    // 75 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
@@ -219,13 +192,6 @@ void main(void)
     LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
 
-    //----------------------------------------------------------------------------
-    // TODO: Additional Initial Power-up functions
-    // //----------------------------------------------------------------------------
-    // ubyte2 tps0_calibMin = 0xABCD;  //me->tps0->sensorValue;
-    // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
-    // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
-    // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
     ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
     ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
@@ -276,16 +242,6 @@ void main(void)
             default: SerialManager_send(serialMan, "Warning: Unknown CAN read status\n"); break;
         }*/
 
-        /*******************************************/
-        /*          Perform Calculations           */
-        /*******************************************/
-        //calculations - Now that we have local sensor data and external data from CAN, we can
-        //do actual processing work, from pedal travel calcs to traction control
-        //calculations_calculateStuff();
-
-        //Run calibration if commanded
-        //if (IO_RTC_GetTimeUS(timestamp_calibStart) < (ubyte4)5000000)
-
         //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
 
         //No regen below 5kph
@@ -333,8 +289,6 @@ void main(void)
         BrakePressureSensor_update(bps, bench);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
 
-        //TractionControl_update(tps, mcm0, wss, daq);
-
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
         slipRatioCalculation(wss, lc);
@@ -342,21 +296,11 @@ void main(void)
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
 
-        //DataAquisition_update(); //includes accelerometer
-        //TireModel_update()
-        //ControlLaw_update();
-        /*
-        ControlLaw //Tq command
-            TireModel //used by control law -> read from WSS, accelerometer
-            StateObserver //choose driver command or ctrl law
-        */
-
         CoolingSystem_calculations(cs, mcm0->motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm0->motor_temp, bms->highestCellTemperature/BMS_TEMPERATURE_SCALE, &Sensor_HVILTerminationSense);
         
         CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
         //Assign motor controls to MCM command message
-        //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
@@ -374,7 +318,6 @@ void main(void)
         /*              Enact Outputs              */
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
-        //SafetyChecker_setErrorLight(sc);
         Light_set(Light_dashError, (sc->faults == 0) ? 0 : 1);
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
@@ -384,15 +327,9 @@ void main(void)
         //Comment out to disable shutdown board control
         err = BMS_relayControl(bms);
 
-        //CanManager_sendMCMCommandMessage(mcm0, canMan, FALSE);
-
-        //Drop the sensor readings into CAN (just raw data, not calculated stuff)
-        //canOutput_sendMCUControl(mcm0, FALSE);
-
         //Send debug data
         canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
         //canOutput_sendSensorMessages();
-        //canOutput_sendStatusMessages(mcm0);
 
         //----------------------------------------------------------------------------
         // Task management stuff (end)
