@@ -36,130 +36,27 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
 
 void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
 {
+    me->speed_FL_RPM = Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM = Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM = Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM = Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
+    me->speed_FL_RPM_S = Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM_S = Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM_S = Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM_S = Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
     //speed (m/s) = m * pulses/sec / pulses
     if (interpolate)
     {
-        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
-        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
-        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
-        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * me->speed_FL_RPM_S;
+        me->speed_FR = me->tireCircumferenceMeters_F * me->speed_FR_RPM_S;
+        me->speed_RL = me->tireCircumferenceMeters_R * me->speed_RL_RPM_S;
+        me->speed_RR = me->tireCircumferenceMeters_R * me->speed_RR_RPM_S;
     }
     else
     {
-        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
-        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
-        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
-        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * me->speed_FL_RPM;
+        me->speed_FR = me->tireCircumferenceMeters_F * me->speed_FR_RPM;
+        me->speed_RL = me->tireCircumferenceMeters_R * me->speed_RL_RPM;
+        me->speed_RR = me->tireCircumferenceMeters_R * me->speed_RR_RPM;
     }
-}
-
-float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
-{
-    float4 speed;
-    switch (corner)
-    {
-    case FL:
-        speed = me->speed_FL;
-        break;
-    case FR:
-        speed = me->speed_FR;
-        break;
-    case RL:
-        speed = me->speed_RL;
-        break;
-    case RR:
-        speed = me->speed_RR;
-        break;
-    default:
-        speed = 0;
-    }
-
-    return speed;
-}
-
-float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
-{
-    ubyte4 speed;
-    if (interpolate)
-    {
-        switch (corner)
-        {
-            case FL:
-                speed = Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
-                break;
-            case FR:
-                speed = Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
-                break;
-            case RL:
-                speed = Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
-                break;
-            case RR:
-                speed = Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
-                break;
-            default:
-                speed = 0;
-        }
-    }
-    else
-    {
-        switch (corner)
-        {
-            case FL:
-                speed = Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
-                break;
-            case FR:
-                speed = Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
-                break;
-            case RL:
-                speed = Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
-                break;
-            case RR:
-                speed = Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
-                break;
-            default:
-                speed = 0;
-        }
-    }
-
-    //Multiply sensorValue by 60 seconds to get RPM (1 Hz per bump)
-    return speed*60.0f;
-}
-
-//UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
-{
-    return (me->speed_FL < me->speed_FR) ? me->speed_FL : me->speed_FR;
-}
-
-//UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-float4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
-{
-    return (me->speed_RL > me->speed_RR) ? me->speed_RL : me->speed_RR;
-}
-
-
-float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
-{
-    //Grab interpolated Wheel Speed
-    switch (tire_config)
-    {
-        //Use both
-        case 0:
-            return (me->speed_FL + me->speed_FR) / 2;
-
-        //Use only FL
-        case 1:
-            return me->speed_FL;
-
-        //Use only FR
-        case 2:
-            return me->speed_FR;
-    }
-
-    return 0;
-}
-
-float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config)
-{
-    return (WheelSpeeds_getGroundSpeed(me, tire_config) * 3.6); //m/s to kph
 }

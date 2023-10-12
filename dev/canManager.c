@@ -443,33 +443,11 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 
     //WSS RPM non-interpolated output
     canMessageCount++;
-    byteNum = 0;
-    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, FALSE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, FALSE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, FALSE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, FALSE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, FALSE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, FALSE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, FALSE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, FALSE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1] = get_wss_rpm1_can_message(wss);
 
     //WSS RPM interpolated output
     canMessageCount++;
-    byteNum = 0;
-    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, TRUE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, TRUE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, TRUE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, TRUE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5)) >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
+    canMessages[canMessageCount - 1] = get_wss_rpm2_can_message(wss);
 
     //506: Safety Checker
     canMessageCount++;
@@ -727,6 +705,38 @@ IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds* wss) {
     canMessage.data[5] = ((ubyte2)(wss->speed_RL + 0.5)) >> 8;
     canMessage.data[6] = (ubyte2)(wss->speed_RR + 0.5);
     canMessage.data[7] = ((ubyte2)(wss->speed_RR + 0.5)) >> 8;
+    canMessage.length = 8;
+    return canMessage;
+}
+
+IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss) {
+    IO_CAN_DATA_FRAME canMessage;
+    canMessage.id_format = IO_CAN_STD_FRAME;
+    canMessage.id = 0x504;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM*60.0f + 0.5);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM*60.0f + 0.5);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM*60.0f + 0.5);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM*60.0f + 0.5);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM*60.0f + 0.5)) >> 8;
+    canMessage.length = 8;
+    return canMessage;
+}
+
+IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss) {
+    IO_CAN_DATA_FRAME canMessage;
+    canMessage.id_format = IO_CAN_STD_FRAME;
+    canMessage.id = 0x505;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S*60.0f + 0.5);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S*60.0f + 0.5);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S*60.0f + 0.5);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S*60.0f + 0.5);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S*60.0f + 0.5)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
