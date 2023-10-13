@@ -23,13 +23,13 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
     //-------------------------------------------------------------------
 
     // Water pump PWM control (for motor and controller)
-    // Note: the water pump needs to receive a PWM singal within n seconds of being turned on
+    // Note: the water pump needs to receive a PWM signal within n seconds of being turned on
     me->waterPumpMinPercent = 0.2;
     me->waterPumpLow = 25; //Start ramping beyond min at this temp
     me->waterPumpHigh = 40;
     me->waterPumpPercent = 0.2;
 
-    // Power pack fan relay  (for 2021 3ator)
+    // Power pack fan relay  (for 2021 radiator)
     me->motorFanLow = 38;     //Turn off BELOW this point
     me->motorFanHigh = 43;    //Turn on at this temperature
     me->motorFanState = TRUE; //float4 motorFanPercent;

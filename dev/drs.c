@@ -47,7 +47,7 @@ DRS *DRS_new()
 
 void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
 
-    // .sensorvalue true/false are switched to account for Pull Up
+    // sensor value true/false are switched to account for Pull Up
     if(pot_DRS_LC == 1) {
         me->currentDRSMode = AUTO;
     } else {

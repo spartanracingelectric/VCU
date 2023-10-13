@@ -336,7 +336,7 @@ void main(void)
     } //end of main loop
 
     //----------------------------------------------------------------------------
-    // VCU Subsystem Deinitializations
+    // VCU Subsystem Deinitialization
     //----------------------------------------------------------------------------
     //IO_ADC_ChannelDeInit(IO_ADC_5V_00);
     //Free memory if object won't be used anymore

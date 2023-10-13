@@ -154,7 +154,7 @@ void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCan
             bms->cellShuntingStatusArray4_1   = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
-        case BMS_CONFIGUATION_INFORMATION:
+        case BMS_CONFIGURATION_INFORMATION:
             //bms->reserved                   = reasm_ubyte2(bmsCanMessage->data, 6);
             //bms->reserved                   = reasm_ubyte2(bmsCanMessage->data, 4);
             bms->numSeriesCells               = reasm_ubyte2(bmsCanMessage->data, 2);

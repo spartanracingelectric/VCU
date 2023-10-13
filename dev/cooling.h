@@ -16,7 +16,7 @@ typedef struct _CoolingSystem
 
     //PP fans (motor, radiator) - Relay
     //Motor fan + radiator on same circuit
-    sbyte1 motorFanLow;  //Turn off BELOW tuhis point
+    sbyte1 motorFanLow;  //Turn off BELOW this point
     sbyte1 motorFanHigh; // Turn on at this temperature
     bool motorFanState;
     //float4 motorFanPercent;
@@ -27,7 +27,7 @@ typedef struct _CoolingSystem
     float4 radFanPercent;
 
     //Battery fans (batteries) - Relay
-    sbyte1 batteryFanLow;  //Turn off BELOW tuhis point
+    sbyte1 batteryFanLow;  //Turn off BELOW this point
     sbyte1 batteryFanHigh; // Turn on at this temperature
     bool batteryFanState;
     //float4 batteryFanPercent;

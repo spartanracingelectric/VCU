@@ -294,7 +294,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //How to transition to next state ------------------------------------------------
         if (me->inverterStatus == ENABLED)
         {
-            RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is driveable
+            RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is drivable
             SerialManager_send(me->serialMan, "Inverter has been enabled.  S                                                    tarting RTDS.  Car is ready to drive.\n");
             RTDS_setVolume(rtds, 1, 1500000);
             me->startupStage = 4; //leave this stage since we've already kicked off the RTDS
@@ -311,7 +311,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         me->startupStage = 5;
         break;
 
-    case 5: //inverter=enabled, rtds=notstarted
+    case 5: //inverter=enabled, rtds=not_started
         //What happens in this state ------------------------------------------------
         RTDPercent = 1; //This line is redundant
         //This case is here so we don't send a message anymore

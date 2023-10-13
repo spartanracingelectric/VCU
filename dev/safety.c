@@ -107,7 +107,7 @@ SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2
 
     me->bypass = FALSE;
     me->timestamp_bypassSafetyChecks = 0;
-    me->bypassSafetyChecksTimeout_us = 500000; //If safety bypass command is not neceived in this time then safety is re-enabled
+    me->bypassSafetyChecksTimeout_us = 500000; //If safety bypass command is not received in this time then safety is re-enabled
     //Note: The safety bypass warning flag is the determining factor in bypassing the multiplier.
     return me;
 }
@@ -270,9 +270,9 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //If mechanical brakes actuated && tps > 25%
     if (bps->brakesAreOn && tpsAbove25Percent)
     {
-        // Set the TPS/BPS implaisibility VCU fault
+        // Set the TPS/BPS implausibility VCU fault
         //me->faults |= F_tpsbpsImplausible;
-        //SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
+        //SerialManager_send(me->serialMan, "TPS BPS implausibility detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {

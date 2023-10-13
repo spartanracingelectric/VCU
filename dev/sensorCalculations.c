@@ -80,10 +80,10 @@ extern Sensor Sensor_HVILTerminationSense;
 //    tps1->calibMax = tps1->specMin;
 //    tps1->isCalibrated = FALSE;
 //*/
-////    ubyte4 timestamp_calibrationstart = 0;
-////    IO_RTC_StartTime(&timestamp_calibrationstart);  //Get a timestamp of when this task started from the Real Time Clock
-////                                                    //TODO: Don't start coundown until values have been set
-////    while (IO_RTC_GetTimeUS(timestamp_calibrationstart) < (ubyte4)secondsToRunCalibration * 1000 * 1000)   // Give the user # seconds to do this
+////    ubyte4 timestamp_calibration_start = 0;
+////    IO_RTC_StartTime(&timestamp_calibration_start);  //Get a timestamp of when this task started from the Real Time Clock
+////                                                    //TODO: Don't start countdown until values have been set
+////    while (IO_RTC_GetTimeUS(timestamp_calibration_start) < (ubyte4)secondsToRunCalibration * 1000 * 1000)   // Give the user # seconds to do this
 ////    {
 //        //TODO: Do something on the display to show that voltages are being recorded
 //        //Idea: Display "bars" filling up on right segment (for gas pedal) _=E=_=E...
@@ -320,7 +320,6 @@ sbyte4 steering_degrees(){
 //TCS
 //ECO
 //RTD
-//blablalba
 
 
 

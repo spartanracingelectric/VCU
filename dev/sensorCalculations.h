@@ -92,21 +92,6 @@ void GetBrakePosition(void);
 //4 funcs, one to get each wheel's speed
 
 /*****************************************************************************
-* Shock pot(iometer) functions - FOUR NEEDED
-* FR = Pin150 = Analog Input 4
-* FL = Pin138 = Analog Input 5
-* RR = Pin149 = Analog Input 6
-* RL = Pin137 = Analog Input 7
-* 0 = ride height
-****************************************************************************/
-//Input: Ohms
-//Outputs: ???
-//See VCU Manual section 5.8.8 - there are different outputs depending on sensor resistance
-//Example sensor: Active Sensors CLS0950
-//Resistive range: 0.4 to 6.0 kohm
-//ShockPot.
-
-/*****************************************************************************
 * Steering Angle Sensor (SAS)
 Input: Voltage
 Output: Degrees
@@ -134,7 +119,6 @@ sbyte4 steering_degrees();
 //TCS
 //ECO
 //RTD
-//blablalba
 
 
 

@@ -156,9 +156,9 @@ void vcu_ADCWasteLoop(void)
 {
     bool tempFresh = FALSE;
     ubyte2 tempData;
-    ubyte4 timestamp_sensorpoll = 0;
-    IO_RTC_StartTime(&timestamp_sensorpoll);
-    while (IO_RTC_GetTimeUS(timestamp_sensorpoll) < 1000000)
+    ubyte4 timestamp_sensor_poll = 0;
+    IO_RTC_StartTime(&timestamp_sensor_poll);
+    while (IO_RTC_GetTimeUS(timestamp_sensor_poll) < 1000000)
     {
         IO_Driver_TaskBegin();
 
@@ -175,7 +175,7 @@ void vcu_ADCWasteLoop(void)
 
         IO_Driver_TaskEnd();
         //TODO: Find out if EACH pin needs 2 cycles or just the entire DIO unit
-        while (IO_RTC_GetTimeUS(timestamp_sensorpoll) < 12500)
+        while (IO_RTC_GetTimeUS(timestamp_sensor_poll) < 12500)
             ; // wait until 1/8/10s (125ms) have passed
     }
 }

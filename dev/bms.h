@@ -45,7 +45,7 @@
 #define BMS_CELL_SHUNTING_STATUS_2          0x0D1   //8 bytes
 #define BMS_CELL_SHUNTING_STATUS_3          0x0D2   //8 bytes
 #define BMS_CELL_SHUNTING_STATUS_4          0x0D3   //8 bytes
-#define BMS_CONFIGUATION_INFORMATION        0x0FC   //8 bytes
+#define BMS_CONFIGURATION_INFORMATION        0x0FC   //8 bytes
 #define BMS_FIRMWARE_VERSION_INFORMATION    0x0FE   //4 bytes
 
 // BMS Scaling factors
@@ -184,7 +184,7 @@ struct _BatteryManagementSystem
     ubyte4 cellShuntingStatusArray4_0;          //7:4, , bit0=1 - shunting active for cell 193 | bit31=1 - shunting active for cell 224
     ubyte4 cellShuntingStatusArray4_1;          //3:0, , bit0=1 - shunting active for cell 225 | bit31=1 - shunting active for cell 256 
 
-    // BMS_CONFIGUATION_INFORMATION //
+    // BMS_CONFIGURATION_INFORMATION //
     //ubyte2 reserved;                          //7:6
     //ubyte2 reserved;                          //5:4
     ubyte2 numSeriesCells;                      //3:2
@@ -227,10 +227,10 @@ typedef enum
 {
     DrivingOffWhilePluggedIn = 0x01,	// Driving off while plugged in
     InterlockTripped = 0x02,			// Inter-lock is tripped
-    CommuncationFault = 0x04,			// Communication fault with a bank or cell
+    CommunicationFault = 0x04,			// Communication fault with a bank or cell
     ChargeOverCurrent = 0x08,			// Charge over-current
     DischargeOverCurrent = 0x10,        // Discharge over-current
-    OverTemperture = 0x20,				// Over-temperature fault
+    OverTemperature = 0x20,				// Over-temperature fault
     UnderVoltage = 0x40,				// Under voltage
     OverVoltage = 0x80,					// Over voltage
 
@@ -245,11 +245,11 @@ typedef enum
 {
     StoredNoFault = 0x0,						// No fault
     StoredDrivingOffWhilePluggedIn = 0x01,		// Driving off while plugged in
-    StoredInterockTripped = 0x02,				// Interlock is tripped
+    StoredInterlockTripped = 0x02,				// Interlock is tripped
     StoredCommFault = 0x03,						// Communication fault with a bank or cell
     StoredChargeOverCurrent = 0x04,				// Charge over-current
-    StoredDischargeOverCurrent = 0x05,			// Dishcarge over-current
-    StoredOverTemperture = 0x06,				// Over-temperature fault
+    StoredDischargeOverCurrent = 0x05,			// Discharge over-current
+    StoredOverTemperature = 0x06,				// Over-temperature fault
     StoredUnderVoltage = 0x07,					// Under voltage
     StoredOverVoltage = 0x08,					// Over voltage
 
@@ -282,11 +282,11 @@ typedef enum {
 
 } IOFlags;
 
-typedef enum LimitCause{
+typedef enum {
     LimitCauseErrorReadingValue = -1,
     LimitCauseNone = 0,							// No limit
     LimitCausePackVoltageTooLow,				// Pack voltage too low
-    LimitCausePackVolageTooHigh,				// Pack voltage too high
+    LimitCausePackVoltageTooHigh,				// Pack voltage too high
     LimitCauseCellVoltageTooLow,				// Cell voltage too low
     LimitCauseCellVoltageTooHigh,				// Cell voltage too high
     LimitCauseTempTooHighToCharge,				// Temperature too high for charging

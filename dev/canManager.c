@@ -23,12 +23,10 @@ extern LUT* LV_BATT_SOC_LUT;
 
 CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit,
                            ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit,
-                           ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
+                           ubyte4 defaultSendDelayus, SerialManager* serialMan)
 {
     CanManager* me = (CanManager*)malloc(sizeof(struct _CanManager));
-
     me->sm = serialMan;
-    // SerialManager_send(me->sm, "CanManager's reference to SerialManager was created.\n");
 
     for (ubyte4 id = 0; id <= 0x7FF; id++)
     {
@@ -76,7 +74,7 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
 
     CAN_msg_insert(me->canMessageHistory, 0x623, emptyData, 0, 5000000, TRUE);  //BMS faults
     
-    CAN_msg_insert(me->canMessageHistory, 0x629, emptyData, 0, 1000000, TRUE);  //BMS detalis
+    CAN_msg_insert(me->canMessageHistory, 0x629, emptyData, 0, 1000000, TRUE);  //BMS details
 
     return me;
 }
@@ -453,7 +451,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_mcm_command_can_message(mcm);
     
-    //Place the can messsages into the FIFO queue ---------------------------------------------------
+    //Place the can messages into the FIFO queue ---------------------------------------------------
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
 
 }

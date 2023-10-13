@@ -21,7 +21,7 @@ typedef struct _DRS
     //flag indicating if DRS should be active or inactive based on inputs and mode
     bool AutoDRSActive;
 
-    //enum indicating current DRS mode selected based on rotaryswitch
+    //enum indicating current DRS mode selected based on rotary switch
     ubyte1 currentDRSMode;
     ubyte1 buttonPressed;
     ubyte1 drsFlap;
