@@ -11,7 +11,6 @@
 #include "safety.h"
 #include "LaunchControl.h"
 #include "drs.h"
-//#include "sensorCalculations.h"
 
 typedef enum
 {
@@ -21,13 +20,7 @@ typedef enum
 //CAN0: 48 messages per handle (48 read, 48 write)
 //CAN1: 16 messages per handle
 
-
-
 typedef struct _CanManager {
-    //AVLNode* incomingTree;
-    //AVLNode* outgoingTree;
-
-
     SerialManager* sm;
 
     ubyte1 canMessageLimit;
@@ -62,7 +55,6 @@ typedef struct _CanManager {
     IO_ErrorType ioErr_can1_write;
 
     ubyte4 sendDelayus;
-
 
     //WARNING: These values are not initialized - be careful to only access
     //pointers that have been previously assigned

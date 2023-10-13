@@ -1,7 +1,6 @@
 #ifndef _MATHFUNCTIONS_H
 #define _MATHFUNCTIONS_H
 
-
 #include "IO_Driver.h"  //Includes datatypes, constants, etc - should be included in every c file
 
 /*****************************************************************************
@@ -17,10 +16,7 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly);
 // A utility function to get maximum of two integers
 ubyte2 max(ubyte2 a, ubyte2 b);
 
-
-/*
-*  Functions for endian conversion
-*/
+//  Functions for endian conversion
 ubyte1 swap_uint8(ubyte1 val);
 sbyte1 swap_int8(sbyte1 val);
 ubyte2 swap_uint16(ubyte2 val);

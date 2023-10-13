@@ -4,8 +4,8 @@
 
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
-
 #include "sensors.h"
+
 extern Sensor Sensor_BenchTPS0;
 extern Sensor Sensor_BenchTPS1;
 
@@ -18,11 +18,6 @@ extern Sensor Sensor_BenchTPS1;
 TorqueEncoder* TorqueEncoder_new(bool benchMode)
 {
     TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
-    //me->bench = benchMode;
-    
-    //TODO: Make sure the main loop is running before doing this
-    //me->tps0 = (benchMode == TRUE) ? &Sensor_BenchTPS0 : &Sensor_TPS0;
-    //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
     me->tps0 = &Sensor_TPS0;
     me->tps1 = &Sensor_TPS1;
 

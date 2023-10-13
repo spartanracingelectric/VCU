@@ -28,8 +28,6 @@ extern Sensor Sensor_HVILTerminationSense;
 
 /*****************************************************************************
  * Motor Controller (MCM)
- ******************************************************************************
- *
  ****************************************************************************/
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -43,7 +41,6 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->lockoutStatus = UNKNOWN;
     me->inverterStatus = UNKNOWN;
-    //me->startRTDS = FALSE;
 
     me->motorRPM = 0;
     me->DC_Voltage = 0;
@@ -69,16 +66,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LaunchControl_TorqueLimit = 0;
 
     me->LCState = FALSE;
-    /*
-me->setTorque = &setTorque;
-me->setInverter = &setInverter;
-me->setDischarge = &setDischarge;
-me->setTorqueLimit = &setTorqueLimit;
-me->updateLockoutStatus = &updateLockoutStatus;
-me->updateInverterStatus = &updateInverterStatus;
-me->getLockoutStatus = &getLockoutStatus;
-me->getInverterStatus = &getInverterStatus;
-        */
+    
     return me;
 }
 
@@ -497,8 +485,6 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 
 /*****************************************************************************
 * Accessors / Mutators (Set/Get)
-******************************************************************************
-*
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)

@@ -272,7 +272,6 @@ void GetBrakePosition(void)
     //End If
 }
 
-
 /*****************************************************************************
 * Wheel Speed Sensor functions
 * FR = Pin275 = Digital Timer Input 0

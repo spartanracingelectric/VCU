@@ -16,7 +16,6 @@
 
 BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBaseID)
 {
-
     BatteryManagementSystem *me = (BatteryManagementSystem *)malloc(sizeof(struct _BatteryManagementSystem));
 
     me->canMessageBaseId = canMessageBaseID;
@@ -303,21 +302,9 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     return err;
 }
 
-/*
-sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
-{
-    char buffer[32];
-    sprintf(buffer, "AvgPackTemp: %i\n", me->avgTemp);
-    return (me->avgTemp);
-}
-*/
-
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
 {
-    //char buffer[32];
-    //sprintf(buffer, "power (uW): %f\n", (me->packCurrent * me->packVoltage));
-
     //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
     return (me->packCurrent * me->packVoltage);
 }
@@ -325,9 +312,6 @@ sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_W(BatteryManagementSystem *me)
 {
-    //char buffer[32];
-    //sprintf(buffer, "power (W): %f\n", ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE));
-
     //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
     return ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE);
 }

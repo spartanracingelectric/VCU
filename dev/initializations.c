@@ -11,7 +11,6 @@
 
 #include "sensors.h"
 #include "initializations.h"
-//#include "can.h"
 
 /*****************************************************************************
 * ADC

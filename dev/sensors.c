@@ -180,10 +180,4 @@ void Light_set(Light light, float4 percent)
 * NOT update the sensor objects, but it would be acceptable for another
 * function in this file to do so.
 *
-******************************************************************************
-* To-do:
-*
-******************************************************************************
-* Revision history:
-* 2015-11-16 - Rusty Pedrosa -
 *****************************************************************************/

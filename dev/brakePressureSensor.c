@@ -6,8 +6,6 @@
 #include "mathFunctions.h"
 
 #include "sensors.h"
-//extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BenchTPS1;
 
 /*****************************************************************************
 * Brake Pressure Sensor (BPS) functions
@@ -20,12 +18,10 @@
 BrakePressureSensor *BrakePressureSensor_new(void)
 {
     BrakePressureSensor *me = (BrakePressureSensor *)malloc(sizeof(struct _BrakePressureSensor));
-    //me->bench = benchMode;
 
     //TODO: Make sure the main loop is running before doing this
     me->bps0 = &Sensor_BPS0;
     me->bps1 = &Sensor_BPS1;
-    //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
 
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.

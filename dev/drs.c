@@ -45,7 +45,6 @@ DRS *DRS_new()
 //      Brake Pressure 
 //----------------------------------------------------------------------
 
-
 void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
 
     // .sensorvalue true/false are switched to account for Pull Up
@@ -79,8 +78,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
             default:
                 break;
         }
-    
-
 }
 
 void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
@@ -105,7 +102,6 @@ void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
     me->drsFlap = 0;
-
 }
 
 //Change to future regarding rotary voltage values

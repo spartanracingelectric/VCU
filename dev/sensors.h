@@ -9,7 +9,6 @@
  *
  **************************************************************************/
 
-
 //"Include guard" - prevents this file from being #included more than once
 #ifndef _SENSORS_H
 #define _SENSORS_H
@@ -94,7 +93,6 @@ extern Sensor Sensor_LCButton;
 extern Sensor Sensor_TCSKnob;
 extern Sensor Sensor_DRSButton;
 extern Sensor Sensor_DRSKnob;
-//TEMP BENCH SWITCHES
 extern Sensor Sensor_TEMP_BrakingSwitch;
 
 extern Sensor Sensor_HVILTerminationSense;

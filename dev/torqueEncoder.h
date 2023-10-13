@@ -44,7 +44,6 @@ void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder *me);
 void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder *me);
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);
 void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount);
-//void TorqueEncoder_plausibilityCheck(TorqueEncoder* me, ubyte1* errorCount, bool* isPlausible);
 void TorqueEncoder_getPedalTravel(TorqueEncoder *me, ubyte1 *errorCount, float4 *pedalPercent);
 void TorqueEncoder_getOutputPercent(TorqueEncoder *me, float4 *outputPercent);
 

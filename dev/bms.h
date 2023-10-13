@@ -13,7 +13,6 @@
 #define BMS_MIN_CELL_VOLTAGE_WARNING 3.20f
 #define BMS_MAX_CELL_TEMPERATURE_WARNING 55.0f
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // STAFL BMS CAN PROTOCOL CONSTANTS, offsets from base address                   //
 // Ex: canMessageBaseId + BMS_MASTER_FAULTS = Address 0x(canMessageBaseId+0x002) //
@@ -65,7 +64,6 @@
 
 struct _BatteryManagementSystem
 {
-
     ubyte2 canMessageBaseId;
 
     SerialManager *sm;
@@ -243,8 +241,6 @@ typedef enum
 
 } faultOptions;
 
-
-
 typedef enum
 {
     StoredNoFault = 0x0,						// No fault
@@ -270,10 +266,7 @@ typedef enum
 
 } storedFaults;
 
-
-
 typedef enum {
-
     /*
      * Using hex to represent each bit position
      */
@@ -289,11 +282,7 @@ typedef enum {
 
 } IOFlags;
 
-
-
-
 typedef enum LimitCause{
-
     LimitCauseErrorReadingValue = -1,
     LimitCauseNone = 0,							// No limit
     LimitCausePackVoltageTooLow,				// Pack voltage too low
@@ -310,7 +299,6 @@ typedef enum LimitCause{
 } LimitCause;
 
 #define ERROR_READING_LIMIT_VALUE = -1
-
 
 #endif // _BATTERYMANAGEMENTSYSTEM_H
 

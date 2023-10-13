@@ -4,12 +4,12 @@
 
 #include "IO_CAN.h"
 #include "IO_Driver.h"
+
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
 #include "serial.h"
 
-//typedef enum { TORQUE, DIRECTION, INVERTER, DISCHARGE, TORQUELIMIT} MCMCommand;
 typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 
 //Rotation direction as viewed from shaft end of motor
@@ -19,7 +19,6 @@ typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction
 
 // Regen mode
 typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA, REGENMODE_FIXED } RegenMode;
-
 
 typedef struct _MotorController
 {
