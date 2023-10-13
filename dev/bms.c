@@ -72,30 +72,16 @@ void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCan
             break;
 
         case BMS_PACK_SAFE_OPERATING_ENVELOPE:
-            bms->chargerConstVoltageSetPoint  = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->maxDischargeCurrentAllowed   = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->maxChargeCurrentAllowed      = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->chargerConstVoltageSetPoint  = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->maxDischargeCurrentAllowed   = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->maxChargeCurrentAllowed      = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
 
         case BMS_MASTER_LOCAL_BOARD_MEASUREMENTS:
-            bms->boardTemperature             = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->powerInputSense_12V_24V      = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->powerInputSense_HVIL         = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->internalRailSense_5V         = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->boardTemperature             = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->powerInputSense_12V_24V      = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->powerInputSense_HVIL         = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->internalRailSense_5V         = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
 
         case BMS_DIGITAL_INPUTS_AND_OUTPUTS:
@@ -104,171 +90,75 @@ void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCan
             break;
 
         case BMS_PACK_LEVEL_MEASUREMENTS_1:
-            bms->packVoltage                  = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                ) ;
-            bms->packCurrent                  = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );  
+            bms->packVoltage                  = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->packCurrent                  = reasm_ubyte4(bmsCanMessage->data, 0);  
             break;
 
         case BMS_PACK_LEVEL_MEASUREMENTS_2:
-            bms->packStateOfCharge            = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->packStateOfHealth            = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->packAmpHoursRemaining        = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            //bms->reserved                   = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-            //                                  | ((ubyte2)bmsCanMessage->data[0])
-            //                                  );
+            bms->packStateOfCharge            = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->packStateOfHealth            = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->packAmpHoursRemaining        = reasm_ubyte2(bmsCanMessage->data, 2);
+            //bms->reserved                   = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
         
         case BMS_CELL_VOLTAGE_SUMMARY:
-            bms->highestCellVoltage           = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->lowestCellVoltage            = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->highestCellVoltagePos        = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->lowestCellVoltagePos         = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->highestCellVoltage           = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->lowestCellVoltage            = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->highestCellVoltagePos        = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->lowestCellVoltagePos         = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
 
         case BMS_CELL_TEMPERATURE_SUMMARY:
-            bms->highestCellTemperature       = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->lowestCellTemperature        = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->highestCellTemperaturePos    = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->lowestCellTemperaturePos     = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->highestCellTemperature       = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->lowestCellTemperature        = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->highestCellTemperaturePos    = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->lowestCellTemperaturePos     = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
         
         case BMS_PACK_LEVEL_MEASUREMENTS_3:
-            bms->sumOfCellVoltages            = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                );
-            bms->preChargeVoltage             = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );
+            bms->sumOfCellVoltages            = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->preChargeVoltage             = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_VOLTAGE_DATA:
-            bms->cellVoltage_4X_1             = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->cellVoltage_4X_2             = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->cellVoltage_4X_3             = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->cellVoltage_4X_4             = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->cellVoltage_4X_1             = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->cellVoltage_4X_2             = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->cellVoltage_4X_3             = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->cellVoltage_4X_4             = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_TEMPERATURE_DATA:
-            bms->cellTemperature_4X_1         = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[6])
-                                                );
-            bms->cellTemperature_4X_2         = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[4])
-                                                );
-            bms->cellTemperature_4X_3         = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->cellTemperature_4X_4         = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            bms->cellTemperature_4X_1         = reasm_ubyte2(bmsCanMessage->data, 6);
+            bms->cellTemperature_4X_2         = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->cellTemperature_4X_3         = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->cellTemperature_4X_4         = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_SHUNTING_STATUS_1:
-            bms->cellShuntingStatusArray1_0   = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                );
-            bms->cellShuntingStatusArray1_1   = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );
+            bms->cellShuntingStatusArray1_0   = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->cellShuntingStatusArray1_1   = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_SHUNTING_STATUS_2:
-            bms->cellShuntingStatusArray2_0   = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                );
-            bms->cellShuntingStatusArray2_1   = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );
+            bms->cellShuntingStatusArray2_0   = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->cellShuntingStatusArray2_1   = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_SHUNTING_STATUS_3:
-            bms->cellShuntingStatusArray3_0   = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                );
-            bms->cellShuntingStatusArray3_1   = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );
+            bms->cellShuntingStatusArray3_0   = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->cellShuntingStatusArray3_1   = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
         case BMS_CELL_SHUNTING_STATUS_4:
-            bms->cellShuntingStatusArray4_0   = ( ((ubyte4)bmsCanMessage->data[7] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[6] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[5] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[4])
-                                                );
-            bms->cellShuntingStatusArray4_1   = ( ((ubyte4)bmsCanMessage->data[3] << 24)
-                                                | ((ubyte4)bmsCanMessage->data[2] << 16)
-                                                | ((ubyte4)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte4)bmsCanMessage->data[0])
-                                                );
+            bms->cellShuntingStatusArray4_0   = reasm_ubyte4(bmsCanMessage->data, 4);
+            bms->cellShuntingStatusArray4_1   = reasm_ubyte4(bmsCanMessage->data, 0);
             break;
             
         case BMS_CONFIGUATION_INFORMATION:
-            //bms->reserved                   = ( ((ubyte2)bmsCanMessage->data[7] << 8)
-            //                                  | ((ubyte2)bmsCanMessage->data[6])
-            //                                  );
-            //bms->reserved                   = ( ((ubyte2)bmsCanMessage->data[5] << 8)
-            //                                  | ((ubyte2)bmsCanMessage->data[4])
-            //                                  );
-            bms->numSeriesCells               = ( ((ubyte2)bmsCanMessage->data[3] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[2])
-                                                );
-            bms->numThermistors               = ( ((ubyte2)bmsCanMessage->data[1] << 8)
-                                                | ((ubyte2)bmsCanMessage->data[0])
-                                                );
+            //bms->reserved                   = reasm_ubyte2(bmsCanMessage->data, 6);
+            //bms->reserved                   = reasm_ubyte2(bmsCanMessage->data, 4);
+            bms->numSeriesCells               = reasm_ubyte2(bmsCanMessage->data, 2);
+            bms->numThermistors               = reasm_ubyte2(bmsCanMessage->data, 0);
             break;
             
         case BMS_FIRMWARE_VERSION_INFORMATION:

@@ -399,8 +399,7 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
         //0,1 motor angle (electrical)
         //2,3 motor speed*** // in rpms
         //Cast may be required - needs testing
-        me->motorRPM = (ubyte2)mcmCanMessage->data[3] << 8 | mcmCanMessage->data[2];
-        //me->motorRPM = ((mcmCanMessage->data[2] << 8) | (mcmCanMessage->data[3]));
+        me->motorRPM = reasm_ubyte2(mcmCanMessage->data, 2);
         //4,5 electrical output frequency
         //6,7 delta resolver filtered
         break;
@@ -410,14 +409,12 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
         //2,3 Phase B current
         //4,5 Phase C current
         //6,7 DC bus current
-        me->DC_Current = ((ubyte2)mcmCanMessage->data[7] << 8 | mcmCanMessage->data[6]) / 10;
-        //me->DC_Current = (((mcmCanMessage->data[6] << 8) | (mcmCanMessage->data[7])) / 10);
+        me->DC_Current = reasm_ubyte2(mcmCanMessage->data, 6) / 10;
         break;
 
     case 0x0A7:
         //0,1 DC bus voltage***
-        me->DC_Voltage = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
-        //me->DC_Voltage = (((mcmCanMessage->data[0] << 8) | (mcmCanMessage->data[1])) / 10);
+        me->DC_Voltage = reasm_ubyte2(mcmCanMessage->data, 0) / 10;
         //2,3 output voltage
         //4,5 Phase AB voltage
         //6,7 Phase BC voltage
@@ -462,7 +459,7 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 
     case 0x0AC:
         //0,1 Commanded Torque
-        me->commandedTorque = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
+        me->commandedTorque = reasm_ubyte2(mcmCanMessage->data, 0) / 10;
         //2,3 Torque Feedback
         break;
 

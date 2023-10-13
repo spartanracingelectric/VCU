@@ -61,22 +61,33 @@ ubyte2 min(ubyte2 a, ubyte2 b)
  * \retval TRUE      blink should be high
  * \retval FALSE     blink should be low
  *
- ***************************************************************************
- *
- * \remarks
- *   Blablabla
- *
  ***************************************************************************/
 bool blink(ubyte4 *clock, ubyte2 highPeriod)
 {
-    //time passed since the start of the blinks divided by the period to get
-    //count.
+    //time passed since the start of the blinks divided by the period to get count.
     //count % 2 gets the current state the blink should be in 0 or <0
     ubyte4 count = IO_RTC_GetTimeUS(*clock) / highPeriod;
     //removes decimal places. there may be a better way to do this but I got lazy
     count = count - count % 1;
 
     return !(count / highPeriod) % 2;
+}
+
+// for reading data in from CAN messages
+ubyte4 reasm_ubyte4(const ubyte1* data, int start_index) {
+    ubyte4 result = 0;
+    for (int i = 0; i < 4; i++) {
+        result |= ((ubyte4)data[start_index + i]) << (8 * (3 - i));
+    }
+    return result;
+}
+
+ubyte2 reasm_ubyte2(const ubyte1* data, int start_index) {
+    ubyte2 result = 0;
+    for (int i = 0; i < 2; i++) {
+        result |= ((ubyte2)data[start_index + i]) << (8 * (1 - i));
+    }
+    return result;
 }
 
 //byte swapping functions used by BMS
