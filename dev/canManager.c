@@ -8,7 +8,6 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 #include "canManager.h"
-#include "avlTree.h"
 #include "motorController.h"
 #include "bms.h"
 #include "safety.h"
@@ -58,63 +57,55 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     me->ioErr_can0_write = IO_E_CAN_BUS_OFF;
     me->ioErr_can1_read = IO_E_CAN_BUS_OFF;
     me->ioErr_can1_write = IO_E_CAN_BUS_OFF;
-
-    //-------------------------------------------------------------------
-    //Define default messages
-    //-------------------------------------------------------------------
-    //AVLNode* insertedMessage;
-    //insertedMessage = AVL_insert(me->canMessageHistory, 0x0C0, 0, 50000, 125000, TRUE); //MCM command message
     
     ubyte2 messageID;
+    ubyte1 emptyData[8] = { 0,0,0,0,0,0,0,0 };
     //Outgoing ----------------------------
-    messageID = 0xC0;  //MCM Command Message
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 25000;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 125000;
-    me->canMessageHistory[messageID]->required = TRUE;
-    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+    CAN_msg_insert(me->canMessageHistory, 0xC0, emptyData, 25000, 125000, TRUE);  //MCM Command Message
 
     for (messageID = 0x500; messageID <= 0x515; messageID++)
     {
-        me->canMessageHistory[messageID]->timeBetweenMessages_Min = 50000;
-        me->canMessageHistory[messageID]->timeBetweenMessages_Max = 250000;
-        me->canMessageHistory[messageID]->required = TRUE;
-        for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-        IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+        CAN_msg_insert(me->canMessageHistory, messageID, emptyData, 50000, 250000, TRUE);
     }
 
     //Incoming ----------------------------
-    messageID = 0xAA;  //MCM ______
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
-    me->canMessageHistory[messageID]->required = TRUE;
-    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+    CAN_msg_insert(me->canMessageHistory, 0xAA, emptyData, 0, 500000, TRUE);  //MCM ______
 
-    messageID = 0xAB;  //MCM ________
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 500000;
-    me->canMessageHistory[messageID]->required = TRUE;
-    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+    CAN_msg_insert(me->canMessageHistory, 0xAB, emptyData, 0, 500000, TRUE);  //MCM ______
 
-    messageID = 0x623;  //BMS faults
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 5000000;
-    me->canMessageHistory[messageID]->required = TRUE;
-    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
-
-    messageID = 0x629;  //BMS details
-    me->canMessageHistory[messageID]->timeBetweenMessages_Min = 0;
-    me->canMessageHistory[messageID]->timeBetweenMessages_Max = 1000000;
-    me->canMessageHistory[messageID]->required = TRUE;
-    for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[messageID]->data[i] = 0; }
-    IO_RTC_StartTime(&me->canMessageHistory[messageID]->lastMessage_timeStamp);
+    CAN_msg_insert(me->canMessageHistory, 0x623, emptyData, 0, 5000000, TRUE);  //BMS faults
+    
+    CAN_msg_insert(me->canMessageHistory, 0x629, emptyData, 0, 1000000, TRUE);  //BMS detalis
 
     return me;
 }
 
+CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+{
+    //This function has been hijacked for an emergency quick fix
+
+    CanMessageNode *message = (CanMessageNode *)malloc(sizeof(CanMessageNode));
+    if (message == NULL) //malloc failed
+    {
+        //fprintf(stderr, "Out of memory!!! (insert)\n");
+        //exit(1);
+    }
+    else
+    {
+        message->timeBetweenMessages_Min = minTime;
+        message->timeBetweenMessages_Max = maxTime;
+        IO_RTC_StartTime(&message->lastMessage_timeStamp);
+
+        //To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
+        memcpy(messageData, message->data, sizeof(messageData));
+
+        message->required = req;
+
+        messageHistoryArray[messageID] = message;
+    }
+    return message;
+
+}
 
 /*****************************************************************************
 * This function takes an array of messages, determines which messages to send
@@ -129,17 +120,16 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
 ****************************************************************************/
 IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount)
 {
-    //SerialManager_send(me->sm, "Do you even send?\n");
     bool sendSerialDebug = FALSE;
     ubyte2 serialMessageID = 0xC0;
     bool sendMessage = FALSE;
     ubyte1 messagesToSendCount = 0;
-    IO_CAN_DATA_FRAME messagesToSend[canMessageCount];//[channel == CAN0_HIPRI ? me->can0_write_messageLimit : me->can1_write_messageLimit];
+    IO_CAN_DATA_FRAME messagesToSend[canMessageCount];
 
     //----------------------------------------------------------------------------
     // Check if message exists in outgoing message history tree
     //----------------------------------------------------------------------------
-    AVLNode* lastMessage;  //replace with me->canMessageHistory[ID]
+    CanMessageNode* lastMessage;  //replace with me->canMessageHistory[ID]
     ubyte1 messagePosition; //used twice
     for (messagePosition = 0; messagePosition < canMessageCount; messagePosition++)
     {
@@ -162,7 +152,6 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Max = 125000;
             me->canMessageHistory[outboundMessageID]->required = TRUE;
             for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[outboundMessageID]->data[i] = 0; }
-            //IO_RTC_StartTime(&me->canMessageHistory[outboundMessageID]->lastMessage_timeStamp);
             me->canMessageHistory[outboundMessageID]->lastMessage_timeStamp = 0;
         }
 
@@ -190,7 +179,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         // Check if time has exceeded
         //----------------------------------------------------------------------------
         minTimeExceeded = ((IO_RTC_GetTimeUS(lastMessage->lastMessage_timeStamp) >= lastMessage->timeBetweenMessages_Min));
-        maxTimeExceeded = ((IO_RTC_GetTimeUS(lastMessage->lastMessage_timeStamp) >= 50000));//lastMessage->timeBetweenMessages_Max));
+        maxTimeExceeded = ((IO_RTC_GetTimeUS(lastMessage->lastMessage_timeStamp) >= 50000));
         
         //----------------------------------------------------------------------------
         // If any criteria were exceeded, send the message out
@@ -233,29 +222,14 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         if ((channel == CAN0_HIPRI ? me->ioErr_can0_write : me->ioErr_can1_write) == IO_E_OK)
         {
             //Loop through the messages that we sent...
-            ///////////AVLNode* messageToUpdate;
             for (messagePosition = 0; messagePosition < messagesToSendCount; messagePosition++)
             {
-                //...find the message ID in the outgoing message tree again (big inefficiency here)...
-                //////////messageToUpdate = AVL_find(me->outgoingTree, messagesToSend[messagePosition].id);
-
-                //and update the message sent timestamp
-                /////////////IO_RTC_GetTimeUS(messageToUpdate->lastMessage_timeStamp); //Update the timestamp for when the message was last sent
-                //IO_RTC_GetTimeUS(me->canMessageHistory[messagesToSend[messagePosition].id]->lastMessage_timeStamp);
-                IO_RTC_StartTime(&me->canMessageHistory[messagesToSend[messagePosition].id]->lastMessage_timeStamp);
+                IO_RTC_StartTime(&me->canMessageHistory[messagesToSend[messagePosition].id]->lastMessage_timeStamp); //Update the timestamp for when the message was last sent
             }
         }
     }
     return sendResult;
 }
-
-/*
-//Helper functions
-ubyte4 CanManager_timeSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage)  //Overflows/resets at 74 min
-bool CanManager_enoughTimeSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) // timesincelast > timeBetweenMessages_Min
-bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bitwise comparison for all data bytes
-*/
-
 
 /*****************************************************************************
 * read
@@ -566,7 +540,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50D: BPS1 (TEMPORARY ADDRESS)
+    //50D: BPS1
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_bps1_can_message(bps);
 

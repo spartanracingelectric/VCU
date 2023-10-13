@@ -4,7 +4,6 @@
 #include "IO_Driver.h"
 #include "IO_CAN.h"
 
-#include "avlTree.h"
 #include "motorController.h"
 #include "instrumentCluster.h"
 #include "bms.h"
@@ -67,21 +66,18 @@ typedef struct _CanManager {
 
     //WARNING: These values are not initialized - be careful to only access
     //pointers that have been previously assigned
-    //AVLNode* canMessageHistory[0x7FF];
-    AVLNode* canMessageHistory[0x7FF];
+    CanMessageNode* canMessageHistory[0x7FF];
 } CanManager;
 
 //Keep track of CAN message IDs, their data, and when they were last sent.
-// typedef struct _CanMessageNode
-// {
-//     IO_CAN_DATA_FRAME canMessage;
-//     ubyte4 timeBetweenMessages_Min;
-//     ubyte4 timeBetweenMessages_Max;
-//     ubyte1 lastMessage_data[8];
-//     ubyte4 lastMessage_timeStamp;
-//     canHistoryNode* left;
-//     canHistoryNode* right;
-// } CanMessageNode;
+typedef struct _CanMessageNode
+{
+    ubyte4 timeBetweenMessages_Min;
+    ubyte4 timeBetweenMessages_Max;
+    ubyte4 lastMessage_timeStamp;
+    ubyte1 data[8];
+    bool required;
+} CanMessageNode;
 
 //Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
 CanManager *CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit, ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit, ubyte4 defaultSendDelayus, SerialManager *sm);
