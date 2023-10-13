@@ -7,7 +7,7 @@
 * Files
 * The Git repository does not contain the complete firmware for SRE-2.  Modules
 * provided by TTTech can be found on the CD that accompanied the VCU. These 
-* files can be identified by our naming convetion: TTTech files start with a
+* files can be identified by our naming convention: TTTech files start with a
 * prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
 * they also provided.
 * For instructions on setting up a build environment, see the SRE-2 getting-
@@ -185,10 +185,6 @@ void main(void)
     DRS *drs = DRS_new();
     init_lv_battery_lut();
 
-    ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?

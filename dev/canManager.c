@@ -139,7 +139,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         sendMessage = FALSE;
 
         //----------------------------------------------------------------------------
-        // Check if this message exists in the array
+        // Check if this message exists in the array, if not init it
         //----------------------------------------------------------------------------
         firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  //############################## ALWAYS FALSE? ##############################
         if (firstTimeMessage)
@@ -157,19 +157,12 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //Check each data byte in the data array
         for (ubyte1 dataPosition = 0; dataPosition < 8; dataPosition++)
         {
-            ubyte1 oldData = lastMessage->data[dataPosition];
-            ubyte1 newData = canMessages[messagePosition].data[dataPosition];
             //if any data byte is changed, then probably want to send the message
-            if (oldData == newData)
-            {
-                //data has not changed.  No action required (DO NOT SET)
-                //dataChanged = FALSE;
-            }
-            else
+            if (lastMessage->data[dataPosition] != canMessages[messagePosition].data[dataPosition])
             {
                 dataChanged = TRUE; //ONLY MODIFY IF CHANGED
             }
-        }//end checking each byte in message
+        } // end checking each byte in message
 
         //----------------------------------------------------------------------------
         // Check if time has exceeded
@@ -201,7 +194,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
                 SerialManager_send(me->sm, "This message did not need to be sent.\n");
             }
         }
-    } //end of loop for each message in outgoing messages
+    } // end of loop for each message in outgoing messages
 
     IO_UART_Task();
     //----------------------------------------------------------------------------
@@ -210,17 +203,17 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
     IO_ErrorType sendResult = IO_E_OK;
     if (messagesToSendCount > 0)
     {
-        //Send the messages to send to the appropriate FIFO queue
+        // Send the messages to send to the appropriate FIFO queue
         sendResult = IO_CAN_WriteFIFO((channel == CAN0_HIPRI) ? me->can0_writeHandle : me->can1_writeHandle, messagesToSend, messagesToSendCount);
         *((channel == CAN0_HIPRI) ? &me->ioErr_can0_write : &me->ioErr_can1_write) = sendResult;
 
-        //Update the outgoing message tree with message sent timestamps
+        // Update the outgoing message tree with message sent timestamps
         if ((channel == CAN0_HIPRI ? me->ioErr_can0_write : me->ioErr_can1_write) == IO_E_OK)
         {
-            //Loop through the messages that we sent...
+            // Loop through the messages that we sent...
             for (messagePosition = 0; messagePosition < messagesToSendCount; messagePosition++)
             {
-                IO_RTC_StartTime(&me->canMessageHistory[messagesToSend[messagePosition].id]->lastMessage_timeStamp); //Update the timestamp for when the message was last sent
+                IO_RTC_StartTime(&me->canMessageHistory[messagesToSend[messagePosition].id]->lastMessage_timeStamp); // Update the timestamp for when the message was last sent
             }
         }
     }
@@ -233,22 +226,22 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
 void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
-    ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
+    ubyte1 canMessageCount;  // FIFO queue only holds 128 messages max
 
-    //Read messages from hipri channel 
+    // Read messages from hipri channel 
     *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
     IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle),
                     canMessages,
                     (channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit),
                     &canMessageCount);
 
-    //Determine message type based on ID
+    // Determine message type based on ID
     for (int currMessage = 0; currMessage < canMessageCount; currMessage++)
     {
         switch (canMessages[currMessage].id)
         {
         //-------------------------------------------------------------------------
-        //Motor controller
+        // Motor controller
         //-------------------------------------------------------------------------
         case 0xA0:
         case 0xA1:
@@ -272,10 +265,10 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             break;
 
         //-------------------------------------------------------------------------
-        //BMS
+        // BMS
         //-------------------------------------------------------------------------
         case 0x600:
-        case 0x602: //Faults
+        case 0x602: // Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
         case 0x604:
@@ -286,42 +279,42 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x613:
         case 0x620:
         case 0x621:
-        case 0x622: //Cell Voltage Summary
+        case 0x622: // Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
-        case 0x623: //Cell Temperature Summary
+        case 0x623: // Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
             break;
         case 0x624:
-        //1st Module
+        // 1st Module
         case 0x630:
         case 0x631:
         case 0x632:
-        //2nd Module
+        // 2nd Module
         case 0x633:
         case 0x634:
         case 0x635:
-        //3rd Module
+        // 3rd Module
         case 0x636:
         case 0x637:
         case 0x638:
-        //4th Module
+        // 4th Module
         case 0x639:
         case 0x63A:
         case 0x63B:
-        //5th Module
+        // 5th Module
         case 0x63C:
         case 0x63D:
         case 0x63E:
-        //6th Module
+        // 6th Module
         case 0x63F:
         case 0x640:
         case 0x641:
-        //7th Module
+        // 7th Module
         case 0x642:
         case 0x643:
         case 0x644:
-        //8th Module
+        // 8th Module
         case 0x645:
         case 0x646:
         case 0x647:
@@ -340,13 +333,13 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
             break;
         //-------------------------------------------------------------------------
-        //VCU Debug Control
+        // VCU Debug Control
         //-------------------------------------------------------------------------
         case 0x5FF:
             SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
             break;
-            //default:
+            // default:
         }
     }
 }
