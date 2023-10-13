@@ -23,4 +23,5 @@ void vcu_initializeADC(bool benchMode);
 void vcu_initializeCAN(void);
 void vcu_initializeMCU(void);
 void vcu_ADCWasteLoop(void);
+void init_lv_battery_lut(void);
 #endif //  _INITIALIZEVCU_H

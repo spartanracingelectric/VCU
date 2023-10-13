@@ -16,9 +16,6 @@
 
 #include "canManager.h"
 
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
-
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;   // used currently for regen

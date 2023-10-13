@@ -183,6 +183,7 @@ void main(void)
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
+    init_lv_battery_lut();
 
     ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;

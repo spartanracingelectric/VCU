@@ -37,9 +37,6 @@ extern Sensor Sensor_WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
-
 extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSKnob;

@@ -11,6 +11,7 @@
 
 #include "sensors.h"
 #include "initializations.h"
+#include "lut.h"
 
 /*****************************************************************************
 * ADC
@@ -69,9 +70,6 @@ void vcu_initializeADC(bool benchMode)
     //----------------------------------------------------------------------------
     //ADC channels
     //----------------------------------------------------------------------------
-    //TPS+BPS
-    extern Sensor Sensor_BenchTPS0; //wtf where are these even defined?
-    extern Sensor Sensor_BenchTPS1;
 
     //IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
     //IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
@@ -182,6 +180,12 @@ void vcu_ADCWasteLoop(void)
     }
 }
 
+void init_lv_battery_lut(void)
+{
+    float4 initialValues[] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+    LV_BATT_SOC_LUT = createLUT(2.8, 4.2, 10, initialValues);
+}
+
 /*****************************************************************************
 * Sensors
 ****************************************************************************/
@@ -207,6 +211,7 @@ Sensor Sensor_DRSButton;
 Sensor Sensor_DRSKnob;
 //Switches
 //precharge failure
+LUT* LV_BATT_SOC_LUT;
 
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"

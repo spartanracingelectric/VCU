@@ -6,9 +6,6 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
-
 /*****************************************************************************
 * Torque Encoder (TPS) functions
 * RULE EV2.3.5:
