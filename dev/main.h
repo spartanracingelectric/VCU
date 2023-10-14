@@ -9,3 +9,4 @@
 #define R_WSS_TICKS 22 // number of ticks on the tone wheel
 #define WHEEL_DIAMETER 18 //Inches
 #define LV_BATT_S 8 // number of cells in series for the LV Battery
+#define LC_STEERING_THRESHOLD 15.0f // in degrees

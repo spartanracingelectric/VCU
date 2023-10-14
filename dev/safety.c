@@ -1,5 +1,4 @@
 #include <stdlib.h> //malloc
-//#include <math.h>
 #include "IO_Driver.h"
 #include "IO_RTC.h"
 #include "IO_DIO.h"
@@ -108,7 +107,7 @@ SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2
     me->bypass = FALSE;
     me->timestamp_bypassSafetyChecks = 0;
     me->bypassSafetyChecksTimeout_us = 500000; //If safety bypass command is not received in this time then safety is re-enabled
-    //Note: The safety bypass warning flag is the determining factor in bypassing the multiplier.
+    // Note: The safety bypass warning flag is the determining factor in bypassing the multiplier.
     return me;
 }
 
@@ -117,7 +116,7 @@ void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMess
     switch (canMessage->id)
     {
     case 0x5FF:
-        //If the safety bypass code (0xC4) is received on the VCU debug address (0x5FF) at byte 0 (data[0])
+        // If the safety bypass code (0xC4) is received on the VCU debug address (0x5FF) at byte 0 (data[0])
         if (canMessage->data[0] == 0xC4)
         {
             IO_RTC_StartTime(&me->timestamp_bypassSafetyChecks);
@@ -126,7 +125,7 @@ void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMess
     }
 }
 
-//Updates all values based on sensor readings, safety checks, etc
+// Updates all values based on sensor readings, safety checks, etc
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery)
 {
     ubyte1 *message[50]; //For sprintf'ing variables to print in serial
@@ -384,7 +383,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
     }
 
-    
     //===================================================================
     // softBSPD - Software implementation of Brake System Plausibility Device
     //===================================================================
@@ -397,12 +395,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // We will use 2.0V (TBD) BPS voltage and even the tiniest amount of torque command
     
     // Formula for relating kW to Nm:
-    //(kW) = torque (Nm) x speed (RPM) / 9.5488
+    // (kW) = torque (Nm) x speed (RPM) / 9.5488
     
     // MCM readings <--> REQUESTED torque * rpm / 9.5488
     // 259*158 = 225 * 2556 / 9.5488
     // 40922 = 60227 <-- This discrepancy is because we don't get all of the requested torque 
-
 
     me->softBSPD_bpsHigh = bps->bps0->sensorValue > 1900;
     me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
@@ -413,16 +410,13 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         IO_RTC_StartTime(&timestamp_SoftBSPD);
         me->softBSPD_fault = FALSE;
         //me->faults |= F_softBSPDFault;
-        // Light_set(Light_dashEco, 1);  // For testing only
     }
     else if (IO_RTC_GetTimeUS(timestamp_SoftBSPD) >= 500000 || IO_RTC_GetTimeUS(timestamp_SoftBSPD) == 0)
     {
         timestamp_SoftBSPD = 0;
         me->softBSPD_fault = FALSE;
         me->faults &= ~F_softBSPDFault;
-        // Light_set(Light_dashEco, 0);  // For testing only
     }
-
 
     //===================================================================
     // Safety checker bypass
@@ -430,7 +424,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // The safety checker should only be bypassed by a CAN message sent by
     // the PCAN Explorer dashboard.  This is only used during debugging.
     //-------------------------------------------------------------------
-    //In case CAN communication is lost, the bypass should be disabled after some time,
+    // In case CAN communication is lost, the bypass should be disabled after some time,
     if (IO_RTC_GetTimeUS(me->timestamp_bypassSafetyChecks) < me->bypassSafetyChecksTimeout_us)
     {
         me->warnings |= W_safetyBypassEnabled;
