@@ -22,6 +22,7 @@ typedef enum
 
 typedef struct _CanManager {
     SerialManager* sm;
+    CanMessageNode* canMessageHistory[0x7FF];
 
     ubyte1 canMessageLimit;
     
@@ -58,7 +59,6 @@ typedef struct _CanManager {
 
     //WARNING: These values are not initialized - be careful to only access
     //pointers that have been previously assigned
-    CanMessageNode* canMessageHistory[0x7FF];
 } CanManager;
 
 //Keep track of CAN message IDs, their data, and when they were last sent.
