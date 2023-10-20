@@ -20,6 +20,16 @@ typedef enum
 //CAN0: 48 messages per handle (48 read, 48 write)
 //CAN1: 16 messages per handle
 
+//Keep track of CAN message IDs, their data, and when they were last sent.
+typedef struct _CanMessageNode
+{
+    ubyte4 timeBetweenMessages_Min;
+    ubyte4 timeBetweenMessages_Max;
+    ubyte4 lastMessage_timeStamp;
+    ubyte1 data[8];
+    bool required;
+} CanMessageNode;
+
 typedef struct _CanManager {
     SerialManager* sm;
     CanMessageNode* canMessageHistory[0x7FF];
@@ -60,16 +70,6 @@ typedef struct _CanManager {
     //WARNING: These values are not initialized - be careful to only access
     //pointers that have been previously assigned
 } CanManager;
-
-//Keep track of CAN message IDs, their data, and when they were last sent.
-typedef struct _CanMessageNode
-{
-    ubyte4 timeBetweenMessages_Min;
-    ubyte4 timeBetweenMessages_Max;
-    ubyte4 lastMessage_timeStamp;
-    ubyte1 data[8];
-    bool required;
-} CanMessageNode;
 
 //Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
 CanManager *CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit, ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit, ubyte4 defaultSendDelayus, SerialManager *sm);
