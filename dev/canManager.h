@@ -84,4 +84,24 @@ void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressur
 
 ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel);
 
+IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder* tps);
+IO_CAN_DATA_FRAME get_tps1_can_message(TorqueEncoder* tps);
+IO_CAN_DATA_FRAME get_bps0_can_message(BrakePressureSensor* bps);
+IO_CAN_DATA_FRAME get_bps1_can_message(BrakePressureSensor* bps);
+IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds* wss);
+IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss);
+IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss);
+IO_CAN_DATA_FRAME get_sc_can_message(SafetyChecker* sc);
+IO_CAN_DATA_FRAME get_lvb_can_message();
+IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm);
+IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm);
+IO_CAN_DATA_FRAME get_mcm_gsr_can_message(MotorController* mcm);
+IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl* lc);
+IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs);
+IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms);
+IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker* sc);
+IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc);
+IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm);
+float4 lv_battery_soc();
+
 #endif // _CANMANAGER_H is defined
