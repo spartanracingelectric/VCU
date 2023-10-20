@@ -74,7 +74,7 @@ bool blink(ubyte4 *clock, ubyte2 highPeriod)
 }
 
 // for reading data in from CAN messages
-ubyte4 reasm_ubyte4(const ubyte1* data, int start_index) {
+ubyte4 reasm_ubyte4(const ubyte1* data, ubyte1 start_index) {
     ubyte4 result = 0;
     for (int i = 0; i < 4; i++) {
         result |= ((ubyte4)data[start_index + i]) << (8 * (3 - i));
@@ -82,7 +82,7 @@ ubyte4 reasm_ubyte4(const ubyte1* data, int start_index) {
     return result;
 }
 
-ubyte2 reasm_ubyte2(const ubyte1* data, int start_index) {
+ubyte2 reasm_ubyte2(const ubyte1* data, ubyte1 start_index) {
     ubyte2 result = 0;
     for (int i = 0; i < 2; i++) {
         result |= ((ubyte2)data[start_index + i]) << (8 * (1 - i));
