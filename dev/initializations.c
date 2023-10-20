@@ -13,6 +13,9 @@
 #include "initializations.h"
 #include "lut.h"
 
+
+LUT* LV_BATT_SOC_LUT;
+
 /*****************************************************************************
 * ADC
 ****************************************************************************/
@@ -211,7 +214,6 @@ Sensor Sensor_DRSButton;
 Sensor Sensor_DRSKnob;
 //Switches
 //precharge failure
-LUT* LV_BATT_SOC_LUT;
 
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
