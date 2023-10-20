@@ -89,7 +89,7 @@ bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
 }
 
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
-    sbyte2 steeringAngle = steering_degrees();
+    sbyte2 steeringAngle = (sbyte2)steering_degrees();
     PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if (Sensor_LCButton.sensorValue == FALSE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
