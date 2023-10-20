@@ -77,7 +77,7 @@ IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRA
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves
 void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc);
-
+CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req);
 void canOutput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
 void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc, DRS *drs);
