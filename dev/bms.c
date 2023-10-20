@@ -192,6 +192,30 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     return err;
 }
 
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me) {
+    //Flag 0x01: Isolation Leakage Fault
+    //Flag 0x02: BMS Monitor Communication Fault
+    //Flag 0x04: Pre-charge Fault
+    //Flag 0x08: Pack Discharge Operating Envelope Exceeded
+    //Flag 0x10: Pack Charge Operating Envelope Exceeded
+    //Flag 0x20: Failed Thermistor Fault
+    //Flag 0x40: HVIL Fault
+    //Flag 0x80: Emergency Stop Fault
+    return me->faultFlags0;
+}
+
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
+    //Flag 0x01: Cell Over-Voltage Fault
+    //Flag 0x02: Cell Under-Voltage Fault
+    //Flag 0x04: Cell Over-Temperature Fault
+    //Flag 0x08: Cell Under-Temperature Fault
+    //Flag 0x10: Pack Over-Voltage Fault
+    //Flag 0x20: Pack Under-Voltage Fault
+    //Flag 0x40: Over-Current Discharge Fault
+    //Flag 0x80: Over-Current Charge Fault
+    return me->faultFlags1;
+}
+
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
 {

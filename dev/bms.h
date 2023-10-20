@@ -212,6 +212,8 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem* me);                //microWatts (higher resolution)
 sbyte4 BMS_getPower_W(BatteryManagementSystem* me);                 //Watts
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
 
 typedef enum
 {
