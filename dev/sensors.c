@@ -60,7 +60,7 @@ void sensors_updateSensors(void)
     //TODO: Handle errors (using the return values for these Get functions)
 
     //TODO: RTDS
-
+    
     //Torque Encoders ---------------------------------------------------
     //Sensor_BenchTPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_BenchTPS0.sensorValue, &Sensor_BenchTPS0.fresh);
     //Sensor_BenchTPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_BenchTPS1.sensorValue, &Sensor_BenchTPS1.fresh);

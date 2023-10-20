@@ -288,12 +288,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     me->faults &= ~F_bpsOutOfSync;
 
     //===================================================================
-    // 2021 EV.5.7 APPS / Brake Pedal Plausibility Check
+    // 2024 Rev 1 EV.4.7 APPS / Brake Pedal Plausibility Check
     //===================================================================
-    // EV.5.7.1 The power to the Motor(s) must be immediately and completely shut down when both of the following exist at the same time:
-    //     • The mechanical brakes are actuated
-    //     • The APPS signals more than 25% pedal travel
-    //     This must be demonstrated at Technical Inspection
+    // Must monitor for the two conditions:
+    //  • The mechanical brakes are engaged EV.4.6, T.3.2.4
+    //  • The APPS signals more than 25% Pedal Travel EV.4.5
+    //  EV.4.7.2 If the two conditions in EV.4.7.1 occur at the same time:
+    //      a. Power to the Motor(s) must be immediately and completely shut down
+    //      b. The Motor shut down must stay active until the APPS signals less than 5% Pedal Travel, with or without brake operation
     // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
     bool tpsAbove25Percent = (tps->travelPercent > .25); //Rules is 25% this is a hack that is made to check
@@ -302,7 +304,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (bps->brakesAreOn && tpsAbove25Percent)
     {
         // Set the TPS/BPS implaisibility VCU fault
-        //me->faults |= F_tpsbpsImplausible;
+        me->faults |= F_tpsbpsImplausible;
         //SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
