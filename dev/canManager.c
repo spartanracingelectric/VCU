@@ -246,18 +246,28 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0xA0:
         case 0xA1:
         case 0xA2:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA3:
         case 0xA4:
         case 0xA5:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA6:
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA7:
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA8:
         case 0xA9:
         case 0xAA:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xAB:
         case 0xAC:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xAD:
         case 0xAE:
         case 0xAF:
