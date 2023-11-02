@@ -640,7 +640,7 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     canMessage.data[3] = mcm->startupStage;
     canMessage.data[4] = Sensor_RTDButton.sensorValue;
     canMessage.data[5] = mcm->lockoutStatus;
-    canMessage.data[6] = 0;
+    canMessage.data[6] = mcm->inverterStatus;
     canMessage.data[7] = 0;
     canMessage.length = 8;
     return canMessage;
