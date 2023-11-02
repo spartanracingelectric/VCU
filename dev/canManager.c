@@ -119,6 +119,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
     bool sendMessage = FALSE;
     ubyte1 messagesToSendCount = 0;
     IO_CAN_DATA_FRAME messagesToSend[canMessageCount];
+    ubyte1 emptyData[8] = { 0,0,0,0,0,0,0,0 };
 
     //----------------------------------------------------------------------------
     // Check if message exists in outgoing message history tree
@@ -139,13 +140,14 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // Check if this message exists in the array, if not init it
         //----------------------------------------------------------------------------
-        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  //############################## ALWAYS FALSE? ##############################
+        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  // pointer is null
         if (firstTimeMessage)
         {
+            me->canMessageHistory[outboundMessageID] = (CanMessageNode*)malloc(sizeof(CanMessageNode));
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Min = 25000;
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Max = 125000;
-            me->canMessageHistory[outboundMessageID]->required = TRUE;
-            for (ubyte1 i = 0; i <= 7; i++) { me->canMessageHistory[outboundMessageID]->data[i] = 0; }
+            me->canMessageHistory[outboundMessageID]->required = FALSE;
+            memcpy(emptyData, me->canMessageHistory[outboundMessageID]->data, sizeof(emptyData));
             me->canMessageHistory[outboundMessageID]->lastMessage_timeStamp = 0;
         }
 
