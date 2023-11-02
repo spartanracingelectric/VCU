@@ -219,6 +219,10 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  // FIFO queue only holds 128 messages max
 
+    // 0x0AA
+    static const ubyte1 bitInverter = 1;  //bit 1
+    static const ubyte1 bitLockout = 128; //bit 7
+
     // Read messages from hipri channel 
     *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
     IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle),
@@ -304,8 +308,6 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             // 6,7 12V reference voltage
             break;
         case 0x0AA:
-            static const ubyte1 bitInverter = 1;  //bit 1
-            static const ubyte1 bitLockout = 128; //bit 7
             //0,1 VSM state
             //2   Inverter state
             //3   Relay State
