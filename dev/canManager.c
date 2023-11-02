@@ -67,15 +67,6 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
         CAN_msg_insert(me->canMessageHistory, messageID, emptyData, 50000, 250000, TRUE);
     }
 
-    //Incoming ----------------------------
-    CAN_msg_insert(me->canMessageHistory, 0xAA, emptyData, 0, 500000, TRUE);  //MCM ______
-
-    CAN_msg_insert(me->canMessageHistory, 0xAB, emptyData, 0, 500000, TRUE);  //MCM ______
-
-    CAN_msg_insert(me->canMessageHistory, 0x623, emptyData, 0, 5000000, TRUE);  //BMS faults
-    
-    CAN_msg_insert(me->canMessageHistory, 0x629, emptyData, 0, 1000000, TRUE);  //BMS details
-
     return me;
 }
 
@@ -244,35 +235,105 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         // Motor controller
         //-------------------------------------------------------------------------
         case 0x0A0:
+            //0,1 module A temperature
+            //2,3 module B temperature
+            //4,5 module C temperature
+            //6,7 gate driver board temperature
+            break;
         case 0x0A1:
+            //0,1 control board temp
+            //2,3 rtd 1 temp
+            //4,5 rtd 2 temp
+            //6,7 rtd 3 temp
+            break;
         case 0x0A2:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //0,1 rtd 4 temp
+            //2,3 rtd 5 temp
+            //4,5 motor temperature***
+            mcm->motor_temp = ((ubyte2)canMessages[currMessage].data[5] << 8 | canMessages[currMessage].data[4]) / 10;
+            //6,7 torque shudder
             break;
         case 0x0A3:
+            //0,1 voltage analog input #1
+            //2,3 voltage analog input #2
+            //4,5 voltage analog input #3
+            //6,7 voltage analog input #4
+            break;
         case 0x0A4:
+            // booleans //
+            // 0 digital input #1
+            // 1 digital input #2
+            // 2 digital input #3
+            // 4 digital input #5
+            // 5 digital input #6
+            // 6 digital input #7
+            // 7 digital input #8
+            break;
         case 0x0A5:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //0,1 motor angle (electrical)
+            //2,3 motor speed*** // in rpms
+            //Cast may be required - needs testing
+            mcm->motorRPM = reasm_ubyte2(canMessages[currMessage].data, 2);
+            //4,5 electrical output frequency
+            //6,7 delta resolver filtered
             break;
         case 0x0A6:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //0,1 Phase A current
+            //2,3 Phase B current
+            //4,5 Phase C current
+            //6,7 DC bus current
+            mcm->DC_Current = reasm_ubyte2(canMessages[currMessage].data, 6) / 10;
             break;
         case 0x0A7:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //0,1 DC bus voltage***
+            mcm->DC_Voltage = reasm_ubyte2(canMessages[currMessage].data, 0) / 10;
+            //2,3 output voltage
+            //4,5 Phase AB voltage
+            //6,7 Phase BC voltage
             break;
         case 0x0A8:
+            //0,1 Flux Command
+            //2,3 flux feedback
+            //4,5 id feedback
+            //6,7 iq feedback
+            break;
         case 0x0A9:
+            // 0,1 1.5V reference voltage
+            // 2,3 2.5V reference voltage
+            // 4,5 5.0V reference voltage
+            // 6,7 12V reference voltage
+            break;
         case 0x0AA:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            static const ubyte1 bitInverter = 1;  //bit 1
+            static const ubyte1 bitLockout = 128; //bit 7
+            //0,1 VSM state
+            //2   Inverter state
+            //3   Relay State
+            //4   bit-0 inverter run mode
+            //4   bit5-7 inverter active discharge state
+            //5   inverter command mode
+
+            //6   internal states
+            //    bit0 inverter enable state***
+            mcm->inverterStatus = (canMessages[currMessage].data[6] & bitInverter) > 0 ? ENABLED : DISABLED;
+            //    bit7 inverter enable lockout***
+            mcm->lockoutStatus = (canMessages[currMessage].data[6] & bitLockout) > 0 ? ENABLED : DISABLED;
+
+            //7   direction command
             break;
-        case 0x0AB:
+        case 0x0AB: //Faults
+            //mcmCanMessage->data;
+            //me->faultHistory |= data stuff //????????
+
+            break;
         case 0x0AC:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            //0,1 Commanded Torque
+            mcm->commandedTorque = reasm_ubyte2(canMessages[currMessage].data, 0) / 10;
+            //2,3 Torque Feedback
             break;
-        case 0x0AD:
-        case 0x0AE:
-        case 0x0AF:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
-            break;
+        // case 0x0AD:
+        // case 0x0AE:
+        // case 0x0AF:
 
         //-------------------------------------------------------------------------
         // BMS
@@ -347,11 +408,20 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         //-------------------------------------------------------------------------
         case 0x5FF:
             SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
-            break;
-        default:
-            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
-            break;
+            if (canMessages[currMessage].data[1] > 0)
+            {
+                IO_RTC_StartTime(&mcm->timeStamp_HVILOverrideCommandReceived);
+            }
+            if (canMessages[currMessage].data[2] == 55)
+            {
+                IO_RTC_StartTime(&mcm->timeStamp_InverterEnableOverrideCommandReceived);
+            }
+            if (canMessages[currMessage].data[3] > 0)
+            {
+                IO_RTC_StartTime(&mcm->timeStamp_InverterDisableOverrideCommandReceived);
+            }
+                break;
+        // default:
         }
     }
 }

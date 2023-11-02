@@ -141,6 +141,4 @@ void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressu
 void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
 
-void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage);
-
 #endif // _MOTORCONTROLLER_H
