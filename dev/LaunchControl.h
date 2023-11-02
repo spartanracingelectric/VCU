@@ -28,8 +28,8 @@ typedef struct _LaunchControl {
 } LaunchControl;
 
 LaunchControl *LaunchControl_new(ubyte1 potLC);
-void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
-void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
+bool slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
+void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, WheelSpeeds *wss);
 bool getLaunchControlStatus(LaunchControl *lc);
 sbyte2 getCalculatedTorque();
 

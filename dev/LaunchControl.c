@@ -69,8 +69,22 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     me->pidController = (PIDController*)malloc(sizeof(struct _PIDController));
     return me;
 }
-void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
-    float unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
+
+//will also temporarily return valid wheel speed 
+//valid wheel speed means slowest wheel speed is greater than 180
+bool slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
+    float4 slowestFront = WheelSpeeds_getSlowestFront(wss);
+    float4 currSlowest = WheelSpeeds_getSlowestRear(wss);  //init to slowest rear
+    me->slipRatio =(slowestFront / (WheelSpeeds_getFastestRear(wss))) - 1;
+    if (currSlowest > slowestFront) {
+        currSlowest = slowestFront;
+    }
+    if (currSlowest > 180) {
+        return TRUE;
+    }
+    return FALSE;
+    //float unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
+    /*
     float filt_speed = unfilt_speed;
     if (unfilt_speed > 1.0) {
         filt_speed = 1.0;
@@ -79,9 +93,12 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
         filt_speed = -1.0;
     }
     me->slipRatio = filt_speed;
+    */
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
+
+
+void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, WheelSpeeds *wss){
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
@@ -105,15 +122,23 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         // }  else {
         //     me->lcTorque = lcTest;
         // }
-        initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+        initPIDController(me->pidController, 0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         me->lcTorque = me->pidController->errorSum; // Set to the initial torque
+        //call slip ratio calc in here
+        bool validWSS = slipRatioCalculation(wss, me);
+        if (validWSS) {
+            Calctorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+            me->lcTorque = Calctorque; // Test PID Controller before uncommenting
+        }
+        /*
         if(speedKph > 3){
             Calctorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
             me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
+        */
     }
     if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
         me->LCStatus = FALSE;

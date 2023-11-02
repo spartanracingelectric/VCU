@@ -18,6 +18,7 @@ float4 WheelSpeeds_getWheelSpeed(WheelSpeeds* me, Wheel corner);
 float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds* me, Wheel corner, bool interpolate);
 float4 WheelSpeeds_getSlowestFront(WheelSpeeds* me);
 float4 WheelSpeeds_getFastestRear(WheelSpeeds* me);
+float4 WheelSpeeds_getSlowestRear(WheelSpeeds *me);
 float4 WheelSpeeds_getGroundSpeed(WheelSpeeds* me, ubyte1 tire_config);
 float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config);
 

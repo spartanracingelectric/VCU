@@ -203,7 +203,7 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
+    ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
@@ -338,7 +338,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        slipRatioCalculation(wss, lc);
+        //slipRatioCalculation(wss, lc);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
@@ -361,7 +361,7 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        launchControlTorqueCalculation(lc, tps, bps, mcm0, wss);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
