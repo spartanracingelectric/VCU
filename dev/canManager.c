@@ -349,7 +349,9 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
             break;
-            // default:
+        default:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         }
     }
 }
