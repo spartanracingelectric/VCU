@@ -94,13 +94,13 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
      if (Sensor_LCButton.sensorValue == TRUE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;
         me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        initPIDController(controller, 0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+        initPIDController(controller, 0.001, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if (me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;
         me->lcTorque = controller->errorSum; // Set to the initial torque
         if (me->sr_valid) {
-            me->lcTorque = calculatePIDController(controller, 0.2, me->slipRatio, mcm->LaunchControl_TorqueLimit/10.0); // Set your target, current, dt
+            me->lcTorque = calculatePIDController(controller, -0.2, me->slipRatio, mcm->LaunchControl_TorqueLimit/10.0); // Set your target, current, dt
         }
     }
     if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)) {
