@@ -30,20 +30,18 @@ extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
 extern Sensor Sensor_BPS1;
-extern Sensor Sensor_WSS_FL;
-extern Sensor Sensor_WSS_FR;
-extern Sensor Sensor_WSS_RL;
-extern Sensor Sensor_WSS_RR;
+extern PWDSensor Sensor_WSS_FL;
+extern PWDSensor Sensor_WSS_FR;
+extern PWDSensor Sensor_WSS_RL;
+extern PWDSensor Sensor_WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_DRSKnob;
-extern Sensor Sensor_DRSButton;
-extern Sensor Sensor_TCSSwitchUp;
-extern Sensor Sensor_TCSSwitchDown;
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_RTDButton;
+extern Button Sensor_EcoButton;
+extern Button Sensor_DRSKnob;
+extern Button Sensor_DRSButton;
+extern Button Sensor_HVILTerminationSense;
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions

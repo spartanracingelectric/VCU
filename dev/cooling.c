@@ -10,7 +10,7 @@
 #include "mathFunctions.h"
 #include "bms.h"
 
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_HVILTerminationSense;
 
 //All temperatures in C
 CoolingSystem *CoolingSystem_new(SerialManager *serialMan)

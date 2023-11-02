@@ -138,7 +138,7 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
 void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
 
-void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
+void MCM_relayControl(MotorController* mcm);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
 
 #endif // _MOTORCONTROLLER_H

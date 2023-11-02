@@ -38,7 +38,6 @@ typedef enum
 // specMin/Max values should come from each sensor's datasheets, but it is not
 // required for all sensors.
 //
-// TODO: What about having default calibration values?  (Probably useless)
 //----------------------------------------------------------------------------
 typedef struct _Sensor {
     //Sensor values / properties
@@ -53,6 +52,7 @@ typedef struct _Sensor {
     ubyte4 sensorValue;
     ubyte4 heldSensorValue;
     ubyte4 timestamp;
+    int sensorAddress;
     bool fresh;
     //bool isCalibrated;
     IO_ErrorType ioErr_powerInit;
@@ -60,6 +60,29 @@ typedef struct _Sensor {
     IO_ErrorType ioErr_signalInit;
     IO_ErrorType ioErr_signalGet;
 } Sensor;
+
+typedef struct _Button {
+    bool sensorValue;
+    bool heldSensorValue;
+    ubyte4 timestamp;
+    ubyte4 heldTime;
+    ubyte4 heldTimestamp;
+    int sensorAddress;
+    bool fresh;
+    bool inverted;
+    IO_ErrorType ioErr_signalInit;
+    IO_ErrorType ioErr_signalGet;
+} Button;
+
+typedef struct _PWDSensor {
+    ubyte4 sensorValue;
+    ubyte4 heldSensorValue;
+    ubyte4 timestamp;
+    int sensorAddress;
+    bool fresh;
+    IO_ErrorType ioErr_signalInit;
+    IO_ErrorType ioErr_signalGet;
+} PWDSensor;
 
 //----------------------------------------------------------------------------
 // Sensor Object Declarations
@@ -76,40 +99,43 @@ extern Sensor Sensor_BPS0;  // = { 1, 0.5, 4.5 };  //Brake system pressure (or f
 extern Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
 
 //Wheel Speed Sensors (like an ABS sensor)
-extern Sensor Sensor_WSS_FL;  // = { 2 };
-extern Sensor Sensor_WSS_FR;  // = { 2 };
-extern Sensor Sensor_WSS_RL;  // = { 2 };
-extern Sensor Sensor_WSS_RR;  // = { 2 };
+extern PWDSensor Sensor_WSS_FL;  // = { 2 };
+extern PWDSensor Sensor_WSS_FR;  // = { 2 };
+extern PWDSensor Sensor_WSS_RL;  // = { 2 };
+extern PWDSensor Sensor_WSS_RR;  // = { 2 };
 
 //Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
 extern Sensor Sensor_SAS;  // = { 4 };
 
 //Switches
 //precharge failure
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
+extern Button Sensor_RTDButton;
+extern Button Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;
-extern Sensor Sensor_LCButton;
+extern Button Sensor_LCButton;
 extern Sensor Sensor_TCSKnob;
-extern Sensor Sensor_DRSButton;
+extern Button Sensor_DRSButton;
 extern Sensor Sensor_DRSKnob;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_HVILTerminationSense;
 
 
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
 
+Button* Button_new(int pin, bool inverted);
+PWDSensor* PWDSensor_new(int pin);
 
 //----------------------------------------------------------------------------
 // Sensor Functions
 //----------------------------------------------------------------------------
 void sensors_updateSensors(void);
 
-
 void setMCMRelay(bool turnOn);
 
+void Button_read(Button* button);
+void PWDSensor_read(PWDSensor* sensor);
 
 //----------------------------------------------------------------------------
 // Outputs

@@ -83,6 +83,9 @@ static const ubyte2 N_Over75kW_MCM = 0x20;
 
 ubyte4 timestamp_SoftBSPD = 0;
 
+extern Sensor Sensor_LVBattery;
+extern Button Sensor_HVILTerminationSense;
+
 /*****************************************************************************
 * Torque Encoder (TPS) functions
 * RULE EV2.3.5:
@@ -126,7 +129,7 @@ void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMess
 }
 
 // Updates all values based on sensor readings, safety checks, etc
-void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery)
+void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
     ubyte1 *message[50]; //For sprintf'ing variables to print in serial
     //SerialManager_send(me->serialMan, "Entered SafetyChecker_update().\n");
@@ -362,25 +365,25 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //===================================================================
     //  IO_ADC_UBAT: 0..40106  (0V..40.106V)
     //-------------------------------------------------------------------
-    if (LVBattery->sensorValue <= 9200) //12730 = 10% SOC but hard to tell under load. 9200 = empty
+    if (Sensor_LVBattery.sensorValue <= 9200) //12730 = 10% SOC but hard to tell under load. 9200 = empty
     {
         me->faults |= F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
+        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)Sensor_LVBattery.sensorValue / 1000);
         SerialManager_send(me->serialMan, message);
     }
-    else if (LVBattery->sensorValue <= 12730) //13100 = Recharge percentage, per Shorai
+    else if (Sensor_LVBattery.sensorValue <= 12730) //13100 = Recharge percentage, per Shorai
     {
         me->faults &= ~F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
+        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)Sensor_LVBattery.sensorValue / 1000);
         SerialManager_send(me->serialMan, message);
     }
     else
     {
         me->warnings &= ~F_lvsBatteryVeryLow;
         me->warnings &= ~W_lvsBatteryLow;
-        //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
+        //sprintf(message, "LVS battery %.03fV good.\n", (float4)Sensor_LVBattery.sensorValue / 1000);
     }
 
     //===================================================================
@@ -482,7 +485,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // If HVIL term sense goes low (because HV went down), motor torque
     // command should be set to zero before turning off the controller
     //-------------------------------------------------------------------
-    if (HVILTermSense->sensorValue == FALSE)
+    if (Sensor_HVILTerminationSense.sensorValue == FALSE)
     {
         me->notices |= N_HVILTermSenseLost;
     }

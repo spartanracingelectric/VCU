@@ -82,17 +82,17 @@ extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
 extern Sensor Sensor_BPS1;
-extern Sensor Sensor_WSS_FL;
-extern Sensor Sensor_WSS_FR;
-extern Sensor Sensor_WSS_RL;
-extern Sensor Sensor_WSS_RR;
+extern PWDSensor Sensor_WSS_FL;
+extern PWDSensor Sensor_WSS_FR;
+extern PWDSensor Sensor_WSS_RL;
+extern PWDSensor Sensor_WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
 
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_TEMP_BrakingSwitch;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_DRSButton;
+extern Button Sensor_RTDButton;
+extern Button Sensor_TEMP_BrakingSwitch;
+extern Button Sensor_EcoButton;
+extern Button Sensor_DRSButton;
 
 /*****************************************************************************
 * Main!
@@ -231,8 +231,6 @@ void main(void)
             default: SerialManager_send(serialMan, "Warning: Unknown CAN read status\n"); break;
         }*/
 
-        //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
-
         //No regen below 5kph
         sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
         if (groundSpeedKPH < 15)
@@ -247,7 +245,7 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == FALSE)
+        if (Sensor_EcoButton.sensorValue == TRUE)
         {
             if (timestamp_EcoButton == 0)
             {
@@ -296,7 +294,7 @@ void main(void)
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
-        SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
+        SafetyChecker_update(sc, mcm0, bms, tps, bps);
 
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
@@ -309,7 +307,7 @@ void main(void)
         //MOVE INTO SAFETYCHECKER
         Light_set(Light_dashError, (sc->faults == 0) ? 0 : 1);
         //Handle motor controller startup procedures
-        MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
+        MCM_relayControl(mcm0);
         MCM_inverterControl(mcm0, tps, bps, rtds);
 
         IO_ErrorType err = 0;

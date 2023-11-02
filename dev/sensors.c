@@ -15,19 +15,19 @@ extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
 extern Sensor Sensor_BPS1;
-extern Sensor Sensor_WSS_FL;
-extern Sensor Sensor_WSS_FR;
-extern Sensor Sensor_WSS_RL;
-extern Sensor Sensor_WSS_RR;
+extern PWDSensor Sensor_WSS_FL;
+extern PWDSensor Sensor_WSS_FR;
+extern PWDSensor Sensor_WSS_RL;
+extern PWDSensor Sensor_WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_DRSButton;
+extern Button Sensor_RTDButton;
+extern Button Sensor_EcoButton;
+extern Button Sensor_DRSButton;
 extern Sensor Sensor_DRSKnob;
-extern Sensor Sensor_LCButton;
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_LCButton;
+extern Button Sensor_HVILTerminationSense;
 
 /*-------------------------------------------------------------------
 * getPercent
@@ -49,62 +49,17 @@ void sensors_updateSensors(void)
     Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
    
     //Wheel speed sensors ---------------------------------------------------
-
-    //For input smoothing
-    if(Sensor_WSS_FL.sensorValue > 0) //If non-zero reading, update displayed val
-    { 
-        Sensor_WSS_FL.heldSensorValue=Sensor_WSS_FL.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_FL.timestamp); //Reset time
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_FL.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_FR.sensorValue > 0)
-    {
-        Sensor_WSS_FR.heldSensorValue=Sensor_WSS_FR.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_FR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_FR.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_RL.sensorValue > 0)
-    {
-        Sensor_WSS_RL.heldSensorValue=Sensor_WSS_RL.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_RL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_RL.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_RR.sensorValue > 0)
-    {
-        Sensor_WSS_RR.heldSensorValue=Sensor_WSS_RR.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_RR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_RR.heldSensorValue=0;
-    }
-
-
-    ubyte4 pulseTrash;
-    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_09, &Sensor_WSS_RL.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue, &pulseTrash, NULL);
+    PWDSensor_read(&Sensor_WSS_FL);
+    PWDSensor_read(&Sensor_WSS_FR);
+    PWDSensor_read(&Sensor_WSS_RL);
+    PWDSensor_read(&Sensor_WSS_RR);
 
     //Switches / Digital ---------------------------------------------------
-    Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
-    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
-    // Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
-    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_LCButton.sensorValue);
-    Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
-    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_DRSButton.sensorValue);
+    Button_read(&Sensor_RTDButton);
+    Button_read(&Sensor_EcoButton);
+    Button_read(&Sensor_LCButton);
+    Button_read(&Sensor_HVILTerminationSense);
+    Button_read(&Sensor_DRSButton);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
@@ -114,6 +69,55 @@ void sensors_updateSensors(void)
 
     //DRS Knob
     Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
+}
+
+Button* Button_new(int pin, bool inverted) {
+    Button* button = malloc(sizeof(Button));
+    IO_RTC_StartTime(&button->timestamp);
+    IO_RTC_StartTime(&button->heldTimestamp);
+    button->sensorValue = 0;
+    button->heldSensorValue = 0;
+    button->sensorAddress = pin;
+    button->inverted = inverted;
+    button->ioErr_signalInit = IO_DI_Init(pin, IO_DI_PU_10K);
+    return button;
+}
+
+void Button_read(Button* button) {
+    button->ioErr_signalGet = IO_DI_Get(button->sensorAddress, &button->sensorValue);
+    IO_RTC_StartTime(&button->timestamp);
+    if (button->inverted) {
+        button->sensorValue = !button->sensorValue;
+    }
+    // Look and see if the button has changed state, if so calculate the time since the last change
+    if (button->sensorValue != button->heldSensorValue) {
+        button->heldSensorValue = button->sensorValue;
+        button->heldTime = button->timestamp - button->heldTimestamp;
+        IO_RTC_StartTime(&button->heldTimestamp);
+    }
+}
+
+PWDSensor* PWDSensor_new(int pin) {
+    PWDSensor* sensor = malloc(sizeof(PWDSensor));
+    IO_RTC_StartTime(&sensor->timestamp);
+    sensor->sensorAddress = pin;
+    sensor->heldSensorValue = 0;
+    sensor->ioErr_signalInit = IO_PWD_ComplexInit(pin, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL);
+    return sensor;
+}
+
+void PWDSensor_read(PWDSensor* sensor) {
+    if(sensor->sensorValue > 0) //If non-zero reading, update displayed val
+    { 
+        sensor->heldSensorValue = sensor->sensorValue;
+        IO_RTC_StartTime(&sensor->timestamp); //Reset time
+    }
+    else if (IO_RTC_GetTimeUS(sensor->timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    { 
+        sensor->heldSensorValue=0;
+    }
+    ubyte4 pulseTrash;
+    sensor->ioErr_signalGet = IO_PWD_ComplexGet(sensor->sensorAddress, &sensor->sensorValue, &pulseTrash, NULL);
 }
 
 void Light_set(Light light, float4 percent)

@@ -44,19 +44,18 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     me->can1_read_messageLimit = can1_read_messageLimit;
     me->can1_write_messageLimit = can1_write_messageLimit;
 
-    //Configure the FIFO queues
-    //This specifies: The handle names for the queues
-    //, which channel the queue belongs to
-    //, the # of messages (or maximum count?)
-    //, the direction of the queue (in/out)
-    //, the frame size
-    //, and other stuff?
+    // Configure the FIFO queues
+    // This specifies: The handle names for the queues
+    // which channel the queue belongs to
+    // the # of messages (or maximum count?)
+    // the direction of the queue (in/out)
+    // the frame size and other stuff?
     IO_CAN_ConfigFIFO(&me->can0_readHandle, IO_CAN_CHANNEL_0, can0_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
     IO_CAN_ConfigFIFO(&me->can0_writeHandle, IO_CAN_CHANNEL_0, can0_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
     IO_CAN_ConfigFIFO(&me->can1_readHandle, IO_CAN_CHANNEL_1, can1_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
     IO_CAN_ConfigFIFO(&me->can1_writeHandle, IO_CAN_CHANNEL_1, can1_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
 
-    //Assume read/write at error state until used
+    // Assume read/write at error state until used
     me->ioErr_can0_read = IO_E_CAN_BUS_OFF;
     me->ioErr_can0_write = IO_E_CAN_BUS_OFF;
     me->ioErr_can1_read = IO_E_CAN_BUS_OFF;
