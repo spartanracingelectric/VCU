@@ -15,7 +15,7 @@
 ******************************************************************************
 * Organization
 * Our code is laid out in the following manner:
-* hahahahah
+* 
 *****************************************************************************/
 
 //-------------------------------------------------------------------
@@ -203,7 +203,7 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
+    ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
