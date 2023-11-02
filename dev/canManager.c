@@ -131,7 +131,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // Check if this message exists in the array, if not init it
         //----------------------------------------------------------------------------
-        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == 0);  // pointer is null
+        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == NULL);  // pointer is null
         if (firstTimeMessage)
         {
             me->canMessageHistory[outboundMessageID] = (CanMessageNode*)malloc(sizeof(CanMessageNode));
