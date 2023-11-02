@@ -1,0 +1,1344 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<targets>
+    <version value="3.5" />
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 50                                                                           *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.0">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc50.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_50/index.htm" tooltip="TTControl" />
+        <cpu name="Infineon XC2287" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2287_2v0.hex" download="True" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <application name="flash" address="0xC10080" size="0xAFF80" />
+        <codesys address="0xC50000" size="0x70000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0xA000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x10000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x2000" protected="False" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd800K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.4">
+        <inherit hwtype="0x00000401" blversion="2.0" />
+        <secondStage file="bin\xc2287_2v4.hex" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+    </target>
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.6">
+        <inherit hwtype="0x00000401" blversion="2.4" />
+        <secondStage file="bin\xc2287_2v6.hex" />
+    </target>
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.7">
+        <inherit hwtype="0x00000401" blversion="2.6" />
+    </target>
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.8">
+        <inherit hwtype="0x00000401" blversion="2.7" />
+    </target>
+    <target name="TTC 50" hwtype="0x00000401" blversion="2.10">
+        <inherit hwtype="0x00000401" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 60                                                                           *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.0">
+        <inherit hwtype="0x00000401" blversion="2.0" />
+        <memory type="Ram" location="External" address="0x400000" size="0x80000" />
+        <icon path="bin\ttc60.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_60/index.htm" tooltip="TTControl" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.1">
+        <inherit hwtype="0x00000001" blversion="2.0" />
+        <secondStage file="bin\xc2287_2v1.hex" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.2">
+        <inherit hwtype="0x00000001" blversion="2.1" />
+        <secondStage file="bin\xc2287_2v2.hex" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.3">
+        <inherit hwtype="0x00000001" blversion="2.2" />
+        <secondStage file="bin\xc2287_2v3.hex" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.4">
+        <inherit hwtype="0x00000001" blversion="2.3" />
+        <secondStage file="bin\xc2287_2v4.hex" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.5">
+        <inherit hwtype="0x00000001" blversion="2.4" />
+        <secondStage file="bin\xc2287_2v4.hex" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.6">
+        <inherit hwtype="0x00000001" blversion="2.5" />
+        <secondStage file="bin\xc2287_2v6.hex" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.7">
+        <inherit hwtype="0x00000001" blversion="2.6" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.8">
+        <inherit hwtype="0x00000001" blversion="2.7" />
+    </target>
+    <target name="TTC 60" hwtype="0x00000001" blversion="2.10">
+        <inherit hwtype="0x00000001" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 77                                                                           *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC 77" hwtype="0x00000405" blversion="2.7">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <cpu name="Infineon XC2288H" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2288_2v7.hex" download="True" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <application name="flash" address="0xC10080" size="0x17FF80" />
+        <data name="flash_data" address="0xD80000" size="0x10000" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xCC0000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD00000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD80000" size="0x10000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0x8000" size="0x6000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x1C000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x8000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd800K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 77" hwtype="0x00000405" blversion="2.8">
+        <inherit hwtype="0x00000405" blversion="2.7" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2288_2v8.hex" download="True" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000405" blversion="2.10">
+        <inherit hwtype="0x00000405" blversion="2.8" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2288_2v10.hex" download="True" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000405" blversion="2.11">
+        <inherit hwtype="0x00000405" blversion="2.10" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2288_2v11.hex" download="True" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000405" blversion="2.12">
+        <inherit hwtype="0x00000405" blversion="2.11" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2288_2v12.hex" download="True" />
+    </target>
+    <!-- Note: HW-type 0x00000005 defines also TTC 77 (see issue63831) -->
+    <target name="TTC 77" hwtype="0x00000005" blversion="2.7">
+        <inherit hwtype="0x00000405" blversion="2.7" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000005" blversion="2.8">
+        <inherit hwtype="0x00000405" blversion="2.8" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000005" blversion="2.10">
+        <inherit hwtype="0x00000405" blversion="2.10" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000005" blversion="2.11">
+        <inherit hwtype="0x00000405" blversion="2.11" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 77" hwtype="0x00000005" blversion="2.12">
+        <inherit hwtype="0x00000405" blversion="2.12" />
+        <icon path="bin\ttc77.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 200                                                                          *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.0">
+        <general extension="s19" />
+        <production type="Eeprom" location="External" address="2000" size="48" serial0="1" serial1="2" serial2="3" serial3="35" serial4="36" serial5="37" serial6="38" serial7="39" serial8="40" serial9="41" serial10="42" serial11="43" serial12="44" serial13="45" />
+        <icon path="bin\ttc200.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_200/index.htm" tooltip="TTControl" />
+        <cpu name="Freescale MPC555" endianess="Big" bit="32" />
+        <bootloader address="0x000000" size="0x10000" bldb="0xFF80" bldbSize="128" safeDownload="True" />
+        <secondStage address="0x800100" size="0x20000" apdb="0x800100" apdbSize="128" ramBufferAddress="0x820100" ramBufferSize="0x10000" file="bin\mpc555_2v0.s19" download="True" />
+        <apdb application="default" address="0x10000" size="128" />
+        <application name="intflash" address="0x10080" size="0x5FF80" />
+        <application name="extflash" address="0x1000100" size="0x1C0000" />
+        <codesys address="0x1000000" size="0x180000" headerSize="0x10" format="Header" />
+        <memory type="Flash" location="Internal" address="0x00000000" size="0x10000" eraseBlocksize="32768" writeBlocksize="128" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x00010000" size="0x60000" eraseBlocksize="32768" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01000000" size="0x04000" eraseBlocksize="16384" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01004000" size="0x02000" eraseBlocksize="8192" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01006000" size="0x02000" eraseBlocksize="8192" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01008000" size="0x38000" eraseBlocksize="229376" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01040000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01080000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x010C0000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01100000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01140000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x01180000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="External" address="0x011C0000" size="0x40000" eraseBlocksize="262144" writeBlocksize="128" erasedValue="0xFF" protected="False" />
+        <memory type="Ram" location="Internal" address="0x003F9800" size="0x6800" />
+        <memory type="Ram" location="External" address="0x00800100" size="0x7FF00" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x7D0" protected="False" />
+        <memory type="Eeprom" location="External" address="0x07D0" size="0x030" protected="True" />
+        <feature name="ModifyFlashEeprom" isSupported="False" />
+        <feature name="CmdPassword" isSupported="False" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.4">
+        <inherit hwtype="0x00000002" blversion="2.0" />
+        <secondStage file="bin\mpc555_2v4.s19" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+    </target>
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.5">
+        <inherit hwtype="0x00000002" blversion="2.4" />
+        <secondStage file="bin\mpc555_2v4.s19" />
+    </target>
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.6">
+        <inherit hwtype="0x00000002" blversion="2.5" />
+        <secondStage file="bin\mpc555_2v6.s19" />
+    </target>
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.7">
+        <inherit hwtype="0x00000002" blversion="2.6" />
+    </target>
+    <target name="TTC 200" hwtype="0x00000002" blversion="2.8">
+        <inherit hwtype="0x00000002" blversion="2.7" />
+        <secondStage file="bin\mpc555_2v8.s19" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  Vision2                                                                          *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="Vision2" hwtype="0x00000200" blversion="2.6">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xE00000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\vision2.png" url="http://www.ttcontrol.com/products/" tooltip="TTControl" />
+        <cpu name="Infineon XC2287" endianess="Little" bit="16" />
+        <bootloader address="0xE00100" size="0x8000" bldb="0xE00000" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00100" size="0x8000" apdb="0xE00080" apdbSize="128" ramBufferAddress="0xE09000" ramBufferSize="0x7000" file="bin\xc2287_2v0.hex" download="False" />
+        <apdb application="default" address="0xC30000" size="128" />
+        <application name="flash" address="0xC00000" size="0x30000" />
+        <codesys address="0xC40000" size="0x10000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0xA000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x10000" />
+        <feature name="ModifyFlashEeprom" isSupported="False" />
+        <feature name="CmdPassword" isSupported="False" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC90EXCOR                                                                       *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC 90 EXCOR" hwtype="0x00000003" blversion="2.7">
+        <inherit hwtype="0x00000801" blversion="2.7" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="15" serial1="16" serial2="17" serial3="18" serial4="19" serial5="20" serial6="21" serial7="22" serial8="23" serial9="24" serial10="25" serial11="26" serial12="27" serial13="28" />
+        <secondStage ramBufferAddress="0xA000" ramBufferSize="0x4000" file="bin\xc2287_noK15_2v7.hex" />
+        <bootloader safeDownload="False" />
+        <icon path="bin\TTC90EXCOR.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <feature name="CmdPassword" isSupported="False" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTTech-ISU                                                                               *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTTech ISU" hwtype="0x00000004" blversion="2.7">
+        <inherit hwtype="0x00000801" blversion="2.7" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="15" serial1="16" serial2="17" serial3="18" serial4="19" serial5="20" serial6="21" serial7="22" serial8="23" serial9="24" serial10="25" serial11="26" serial12="27" serial13="28" />
+        <secondStage ramBufferAddress="0xA000" ramBufferSize="0x4000" file="bin\xc2287_noK15_2v7.hex" />
+        <bootloader safeDownload="False" />
+        <icon path="bin\TTTech-ISU.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  OTHER TYPES (TTC-x00)                                                            *** -->
+    <!-- ***************************************************************************************** -->
+    <!-- *** TTC 100 *** -->
+    <!-- *************** -->
+    <target name="TTC 100" hwtype="0x00000402" blversion="2.4">
+        <inherit hwtype="0x00000002" blversion="2.4" />
+        <icon path="bin\ttc100.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_100/index.htm" tooltip="TTControl" />
+    </target>
+    <target name="TTC 100" hwtype="0x00000402" blversion="2.6">
+        <inherit hwtype="0x00000402" blversion="2.4" />
+        <secondStage file="bin\mpc555_2v6.s19" />
+    </target>
+    <target name="TTC 100" hwtype="0x00000402" blversion="2.7">
+        <inherit hwtype="0x00000402" blversion="2.6" />
+    </target>
+    <target name="TTC 100" hwtype="0x00000402" blversion="2.8">
+        <inherit hwtype="0x00000402" blversion="2.7" />
+        <secondStage file="bin\mpc555_2v8.s19" />
+    </target>
+    <!-- *** TTC 110 *** -->
+    <!-- *************** -->
+    <target name="TTC 110" hwtype="0x00000802" blversion="2.4">
+        <inherit hwtype="0x00000002" blversion="2.4" />
+        <icon path="bin\ttc110.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_110/index.htm" tooltip="TTControl" />
+    </target>
+    <target name="TTC 110" hwtype="0x00000802" blversion="2.6">
+        <inherit hwtype="0x00000802" blversion="2.4" />
+        <secondStage file="bin\mpc555_2v6.s19" />
+    </target>
+    <target name="TTC 110" hwtype="0x00000802" blversion="2.7">
+        <inherit hwtype="0x00000802" blversion="2.6" />
+    </target>
+    <target name="TTC 110" hwtype="0x00000802" blversion="2.8">
+        <inherit hwtype="0x00000802" blversion="2.7" />
+        <secondStage file="bin\mpc555_2v8.s19" />
+    </target>
+    <!-- *** TTC 100X *** -->
+    <!-- **************** -->
+    <target name="TTC 100X" hwtype="0x00200402" blversion="2.4">
+        <inherit hwtype="0x00000002" blversion="2.4" />
+        <icon path="bin\ttc100x.png" url="http://www.ttcontrol.com/products/ecu/index.htm" tooltip="TTControl" />
+    </target>
+    <target name="TTC 100X" hwtype="0x00200402" blversion="2.6">
+        <inherit hwtype="0x00200402" blversion="2.4" />
+        <secondStage file="bin\mpc555_2v6.s19" />
+    </target>
+    <target name="TTC 100X" hwtype="0x00200402" blversion="2.7">
+        <inherit hwtype="0x00200402" blversion="2.6" />
+    </target>
+    <target name="TTC 100X" hwtype="0x00200402" blversion="2.8">
+        <inherit hwtype="0x00200402" blversion="2.7" />
+        <secondStage file="bin\mpc555_2v8.s19" />
+    </target>
+    <!-- *** TTC 200X *** -->
+    <!-- **************** -->
+    <target name="TTC 200X" hwtype="0x00200002" blversion="2.4">
+        <inherit hwtype="0x00000002" blversion="2.4" />
+        <icon path="bin\ttc200x.png" url="http://www.ttcontrol.com/products/ecu/index.htm" tooltip="TTControl" />
+    </target>
+    <target name="TTC 200X" hwtype="0x00200002" blversion="2.6">
+        <inherit hwtype="0x00200002" blversion="2.4" />
+        <secondStage file="bin\mpc555_2v6.s19" />
+    </target>
+    <target name="TTC 200X" hwtype="0x00200002" blversion="2.7">
+        <inherit hwtype="0x00200002" blversion="2.6" />
+    </target>
+    <target name="TTC 200X" hwtype="0x00200002" blversion="2.8">
+        <inherit hwtype="0x00200002" blversion="2.7" />
+        <secondStage file="bin\mpc555_2v8.s19" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  OTHER TYPES (TTC-x0)                                                             *** -->
+    <!-- ***************************************************************************************** -->
+    <!-- *** TTC 90 *** -->
+    <!-- ************** -->
+    <target name="TTC 90" hwtype="0x00000801" blversion="2.6">
+        <inherit hwtype="0x00000001" blversion="2.6" />
+        <cpu name="Infineon XC2287M" endianess="Little" bit="16" />
+        <secondStage ramBufferAddress="0x400000" ramBufferSize="0x8000" file="bin\xc2287_2v7.hex" />
+        <application name="flash" address="0xC10080" size="0xBFF80" />
+        <codesys address="0xC50000" size="0x80000" headerSize="0x00" format="None" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x8000" />
+        <memory type="Flash" location="Internal" address="0xCC0000" size="0x10000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <icon path="bin\ttc90.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_90/index.htm" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 90" hwtype="0x00000801" blversion="2.7">
+        <inherit hwtype="0x00000801" blversion="2.6" />
+    </target>
+    <target name="TTC 90" hwtype="0x00000801" blversion="2.8">
+        <inherit hwtype="0x00000801" blversion="2.7" />
+    </target>
+    <target name="TTC 90" hwtype="0x00000801" blversion="2.10">
+        <inherit hwtype="0x00000801" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- *** TTC 94 *** -->
+    <!-- ************** -->
+    <target name="TTC 94" hwtype="0x00200801" blversion="2.7">
+        <inherit hwtype="0x00000801" blversion="2.7" />
+        <icon path="bin\ttc94.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+            <channel name="ch2" isSupported="True" />
+            <channel name="ch3" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 94" hwtype="0x00200801" blversion="2.8">
+        <inherit hwtype="0x00200801" blversion="2.7" />
+    </target>
+    <target name="TTC 94" hwtype="0x00200801" blversion="2.10">
+        <inherit hwtype="0x00200801" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- *** TTC 94E *** -->
+    <!-- *************** -->
+    <target name="TTC 94E" hwtype="0x00800801" blversion="2.10">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc94e.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_90/index.htm" tooltip="TTControl" />
+        <cpu name="Infineon XC2289H" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2289H_2v10.hex" download="True" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <application name="flash" address="0xC10080" size="0x17FF80" />
+        <codesys address="0xC50000" size="0x70000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xCC0000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD00000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xD80000" size="0x10000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0x8000" size="0x6000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x1C000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x2000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+            <channel name="ch2" isSupported="True" />
+            <channel name="ch3" isSupported="True" />
+        </can>
+    </target>
+    <!-- *** TTC 94R *** -->
+    <!-- *************** -->
+    <target name="TTC 94R" hwtype="0x00A00801" blversion="2.10">
+        <inherit hwtype="0x00200801" blversion="2.10" />
+        <icon path="bin\ttc94r.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <codesys address="0xC70000" size="0x60000" headerSize="0x00" format="None" />
+        <application name="copd_bootloader" address="0xC10080" size="0x1EF80" />
+        <application name="copd_application" address="0xC2F000" size="0xA1000" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <apdb application="copd_application" address="0xC2F000" size="128" />
+    </target>
+    <!-- *** TTC 48XS *** -->
+    <!-- **************** -->
+    <target name="TTC 48XS" hwtype="0x00400801" blversion="2.10">
+        <inherit hwtype="0x00200801" blversion="2.10" />
+        <icon path="bin\ttc48xs.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+        </can>
+    </target>
+    <!-- *** TTC 36X *** -->
+    <!-- *************** -->
+    <target name="TTC 36X" hwtype="0x00600001" blversion="2.4">
+        <inherit hwtype="0x00000001" blversion="2.4" />
+        <icon path="bin\ttc36x.png" url="http://www.ttcontrol.com/products/ecu/mobile/ttc_36x/index.htm" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 36X" hwtype="0x00600001" blversion="2.6">
+        <inherit hwtype="0x00600001" blversion="2.4" />
+        <secondStage file="bin\xc2287_2v6.hex" />
+    </target>
+    <target name="TTC 36X" hwtype="0x00600001" blversion="2.7">
+        <inherit hwtype="0x00600001" blversion="2.6" />
+    </target>
+    <target name="TTC 36X" hwtype="0x00600001" blversion="2.8">
+        <inherit hwtype="0x00600001" blversion="2.7" />
+    </target>
+    <target name="TTC 36X" hwtype="0x00600001" blversion="2.10">
+        <inherit hwtype="0x00600001" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- *** TTC 48X *** -->
+    <!-- *************** -->
+    <target name="TTC 48X" hwtype="0x00400001" blversion="2.4">
+        <inherit hwtype="0x00000001" blversion="2.4" />
+        <icon path="bin\ttc48x.png" url="http://www.ttcontrol.com/products/ecu/index.htm" tooltip="TTControl" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 48X" hwtype="0x00400001" blversion="2.6">
+        <inherit hwtype="0x00400001" blversion="2.4" />
+        <secondStage file="bin\xc2287_2v6.hex" />
+    </target>
+    <target name="TTC 48X" hwtype="0x00400001" blversion="2.7">
+        <inherit hwtype="0x00400001" blversion="2.6" />
+    </target>
+    <target name="TTC 48X" hwtype="0x00400001" blversion="2.8">
+        <inherit hwtype="0x00400001" blversion="2.7" />
+    </target>
+    <target name="TTC 48X" hwtype="0x00400001" blversion="2.10">
+        <inherit hwtype="0x00400001" blversion="2.8" />
+        <secondStage file="bin\xc2287_2v10.hex" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 5xx                                                                          *** -->
+    <!-- ***************************************************************************************** -->
+    <!-- *************************** -->
+    <!-- ***  TTC 5xx (A-Sample) *** -->
+    <!-- *************************** -->
+    <target name="TTC 540" hwtype="0x00000007" blversion="0.1">
+        <general extension="hex" />
+        <production type="Eeprom" location="Internal" address="0xF0200000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+        <cpu name="TI TMS570" endianess="Big" bit="32" />
+        <bootloader address="0x00000000" size="0x20000" bldb="0x0001FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08001000" size="0xB080" apdb="0x08001000" apdbSize="0x80" ramBufferAddress="0x0800C080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v1.hex" download="True" />
+        <fpga address="0x00020000" size="0x080000" fidb="0x0009FF80 " fidbSize="0x80" />
+        <apdb application="default" address="0x000A0000" size="0x80" />
+        <application name="flash" address="0x000A0080" size="0x25FF80" />
+        <codesys address="0x00180000" size="0x180000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0x00000000" size="0x20000" eraseBlocksize="0x8000" writeBlocksize="0x1" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0x00020000" size="0x80000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0x000A0000" size="0xE0000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0x00180000" size="0x180000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0x08000000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08010000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08020000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08030000" size="0x10000" />
+        <memory type="Eeprom" location="Internal" address="0xF0200000" size="0x10000" protected="False" />
+        <memory type="Ram" location="External" address="0x60000000" size="0x200000" />
+        <memory type="Eeprom" location="External" address="0x00000000" size="0x8000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd50K" isSupported="True" />
+            <baudrate name="bd100K" isSupported="True" />
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+            <channel name="ch2" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 580" hwtype="0x00000407" blversion="0.1">
+        <inherit hwtype="0x00000007" blversion="0.1" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+        <memory type="Flash" location="External" address="0x64000000" size="0x10000" eraseBlocksize="0x2000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="External" address="0x64010000" size="0x7F0000" eraseBlocksize="0x10000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+    </target>
+    <target name="TTC 540" hwtype="0x00000007" blversion="0.2">
+        <inherit hwtype="0x00000007" blversion="0.1" />
+        <secondStage file="bin\ttc500_2nd_0v2.hex" />
+    </target>
+    <target name="TTC 580" hwtype="0x00000407" blversion="0.2">
+        <inherit hwtype="0x00000407" blversion="0.1" />
+        <secondStage file="bin\ttc500_2nd_0v2.hex" />
+    </target>
+    <target name="TTC 580" hwtype="0x00000407" blversion="0.3">
+        <inherit hwtype="0x00000407" blversion="0.1" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v3.hex" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="0.3">
+        <inherit hwtype="0x00000007" blversion="0.1" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v3.hex" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="0.3">
+        <inherit hwtype="0x00200807" blversion="0.3" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v3.hex" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+        <memory type="Flash" location="External" address="0x64000000" size="0x10000" eraseBlocksize="0x2000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="External" address="0x64010000" size="0x7F0000" eraseBlocksize="0x10000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="0.3">
+        <inherit hwtype="0x00200807" blversion="0.3" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v3.hex" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="0.4">
+        <inherit hwtype="0x00200807" blversion="0.3" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v4.hex" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="0.4">
+        <inherit hwtype="0x00400807" blversion="0.3" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v4.hex" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="0.4">
+        <inherit hwtype="0x00600807" blversion="0.3" />
+        <secondStage address="0x08003000" size="0x10080" apdb="0x08003000" ramBufferAddress="0x08013080" ramBufferSize="0x20000" file="bin\ttc500_2nd_0v4.hex" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <!-- *************************** -->
+    <!-- ***  TTC 5xx (B-Sample) *** -->
+    <!-- *************************** -->
+    <target name="TTC 500" hwtype="0x00200807" blversion="1.0">
+        <inherit hwtype="0x00200807" blversion="0.4" />
+        <production type="Flash" location="Internal" address="0x18000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <bootloader address="0x00000000" size="0x10000" bldb="0x0000FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v0.hex" download="True" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="1.0">
+        <inherit hwtype="0x00400807" blversion="0.4" />
+        <production type="Flash" location="Internal" address="0x18000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <bootloader address="0x00000000" size="0x10000" bldb="0x0000FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v0.hex" download="True" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="1.0">
+        <inherit hwtype="0x00600807" blversion="0.4" />
+        <production type="Flash" location="Internal" address="0x18000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <bootloader address="0x00000000" size="0x10000" bldb="0x0000FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v0.hex" download="True" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="1.1">
+        <inherit hwtype="0x00200807" blversion="1.0" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v1.hex" download="True" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="1.1">
+        <inherit hwtype="0x00400807" blversion="1.0" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v1.hex" download="True" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="1.1">
+        <inherit hwtype="0x00600807" blversion="1.0" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v1.hex" download="True" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="1.3">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0x18000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+        <cpu name="TI TMS570" endianess="Big" bit="32" />
+        <bootloader address="0x00000000" size="0x010000" bldb="0x0000FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08003000" size="0x018080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v3.hex" download="True" />
+        <fpga address="0x00020000" size="0x080000" fidb="0x0009FF80 " fidbSize="0x80" />
+        <apdb application="default" address="0x000A0000" size="0x80" />
+        <application name="flash" address="0x000A0080" size="0x25FF80" />
+        <codesys address="0x00180000" size="0x180000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0x00000000" size="0x020000" eraseBlocksize="0x08000" writeBlocksize="0x1" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x00020000" size="0x080000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x000A0000" size="0x0E0000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="Internal" address="0x00180000" size="0x180000" eraseBlocksize="0x20000" writeBlocksize="0x1" erasedValue="0xFF" protected="False" />
+        <memory type="Ram" location="Internal" address="0x08000000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08010000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08020000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08030000" size="0x10000" />
+        <memory type="Eeprom" location="Internal" address="0xF0200000" size="0x10000" protected="False" />
+        <memory type="Ram" location="External" address="0x60000000" size="0x200000" />
+        <memory type="Eeprom" location="External" address="0x00000000" size="0x8000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd50K" isSupported="True" />
+            <baudrate name="bd100K" isSupported="True" />
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+            <channel name="ch2" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="1.3">
+        <inherit hwtype="0x00200807" blversion="1.3" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v3.hex" download="True" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+        <memory type="Flash" location="External" address="0x64000000" size="0x010000" eraseBlocksize="0x02000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="External" address="0x64010000" size="0x7F0000" eraseBlocksize="0x10000" writeBlocksize="0x2" erasedValue="0x00" protected="False" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="1.3">
+        <inherit hwtype="0x00200807" blversion="1.3" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_1v3.hex" download="True" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <!-- **************************** -->
+    <!-- ***  TTC 5xx (B1-Sample) *** -->
+    <!-- **************************** -->
+    <target name="TTC 500" hwtype="0x00200807" blversion="2.0">
+        <inherit hwtype="0x00200807" blversion="1.3" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v0.hex" download="True" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="2.0">
+        <inherit hwtype="0x00400807" blversion="1.3" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v0.hex" download="True" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="2.0">
+        <inherit hwtype="0x00600807" blversion="1.3" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v0.hex" download="True" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="2.1">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0x18000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc500.png" tooltip="HY-TTC 500" />
+        <cpu name="TI TMS570" endianess="Big" bit="32" />
+        <bootloader address="0x00000000" size="0x010000" bldb="0x0000FF80" bldbSize="0x80" safeDownload="True" />
+        <secondStage address="0x08003000" size="0x018080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v1.hex" download="True" />
+        <fpga address="0x00020000" size="0x080000" fidb="0x0009FF80 " fidbSize="0x80" />
+        <apdb application="default" address="0x000A0000" size="0x80">
+            <flag name="CRC64Enable" value="True" />
+        </apdb>
+        <crcTable address="0x000A0080" size="0x80" />
+        <application name="intflash_bank0" address="0x000A0100" size="0x0DFF00" />
+        <application name="intflash_bank1" address="0x00180000" size="0x180000" />
+        <application name="extflash" address="0x64000000" size="0x800000" />
+        <data name="intflash_data" address="0xF0200000" size="0x10000" />
+        <codesys address="0x00180000" size="0x180000" headerSize="0x00" format="None" />
+        <memory type="Flash" location="Internal" address="0x00000000" size="0x020000" eraseBlocksize="0x08000" writeBlocksize="0x8" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x00020000" size="0x080000" eraseBlocksize="0x20000" writeBlocksize="0x8" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x000A0000" size="0x0E0000" eraseBlocksize="0x20000" writeBlocksize="0x8" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="Internal" address="0x00180000" size="0x180000" eraseBlocksize="0x20000" writeBlocksize="0x8" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="Internal" address="0xF0200000" size="0x10000" eraseBlocksize="0x4000" writeBlocksize="0x8" erasedValue="0xFF" protected="False" />
+        <memory type="Ram" location="Internal" address="0x08000000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08010000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08020000" size="0x10000" />
+        <memory type="Ram" location="Internal" address="0x08030000" size="0x10000" />
+        <memory type="Ram" location="External" address="0x60000000" size="0x200000" />
+        <memory type="Eeprom" location="External" address="0x00000000" size="0x8000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <feature name="CmdApplicationCRC" isSupported="True" />
+        <feature name="CmdSectorsComplete" isSupported="True" />
+        <feature name="MultiApps" isSupported="True" />
+        <feature name="CRC64" isSupported="True" />
+        <can>
+            <baudrate name="bd50K" isSupported="True" />
+            <baudrate name="bd100K" isSupported="True" />
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+            <channel name="ch2" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="2.1">
+        <inherit hwtype="0x00200807" blversion="2.1" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v1.hex" download="True" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+        <memory type="Flash" location="External" address="0x64000000" size="0x010000" eraseBlocksize="0x02000" writeBlocksize="0x8" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="External" address="0x64010000" size="0x7F0000" eraseBlocksize="0x10000" writeBlocksize="0x8" erasedValue="0x00" protected="False" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="2.1">
+        <inherit hwtype="0x00200807" blversion="2.1" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v1.hex" download="True" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <target name="TTC 500" hwtype="0x00200807" blversion="2.2">
+        <inherit hwtype="0x00200807" blversion="2.1" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v2.hex" download="True" />
+    </target>
+    <target name="TTC 580" hwtype="0x00400807" blversion="2.2">
+        <inherit hwtype="0x00400807" blversion="2.1" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v2.hex" download="True" />
+        <icon path="bin\ttc580.png" tooltip="HY-TTC 580" />
+    </target>
+    <target name="TTC 540" hwtype="0x00600807" blversion="2.2">
+        <inherit hwtype="0x00600807" blversion="2.1" />
+        <secondStage address="0x08003000" size="0x18080" apdb="0x08003000" apdbSize="0x80" ramBufferAddress="0x0801B080" ramBufferSize="0x10000" file="bin\ttc500_2nd_2v2.hex" download="True" />
+        <icon path="bin\ttc540.png" tooltip="HY-TTC 540" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC 30X Series                                                                   *** -->
+    <!-- ***************************************************************************************** -->
+    <!-- ************************** -->
+    <!-- *** TTC 30X (A-Sample) *** -->
+    <!-- ************************** -->
+    <target name="TTC 30X" hwtype="0x00000006" blversion="2.10">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <cpu name="Infineon XC2267" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2267_2v10.hex" download="True" />
+        <application name="flash" address="0xC10080" size="0xAFF80" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0xA000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x10000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x2000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd10K" isSupported="True" />
+            <baudrate name="bd20K" isSupported="True" />
+            <baudrate name="bd50K" isSupported="True" />
+            <baudrate name="bd100K" isSupported="True" />
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd800K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC 30X" hwtype="0x00000006" blversion="2.12">
+        <inherit hwtype="0x00000006" blversion="2.10" />
+        <secondStage file="bin\xc2267_2v12.hex" />
+    </target>
+    <target name="TTC 30X" hwtype="0x00000006" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <secondStage file="bin\xc2267_2v17.hex" />
+    </target>
+    <target name="TTC 30XH" hwtype="0x00001006" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 30XI" hwtype="0x00000406" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.17" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 30XO" hwtype="0x00000806" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.17" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 30XSH" hwtype="0x00001806" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.17" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <target name="TTC 30XSI" hwtype="0x00001C06" blversion="2.17">
+        <inherit hwtype="0x00000006" blversion="2.17" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+    </target>
+    <!-- ************************** -->
+    <!-- *** TTC 30X (B-Sample) *** -->
+    <!-- ************************** -->
+    <target name="TTC 30X-B" hwtype="0x00001406" blversion="2.14">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <secondStage file="bin\xc2267_2v14.hex" />
+    </target>
+    <target name="TTC 30X-B" hwtype="0x00001406" blversion="2.15">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <secondStage file="bin\xc2267_2v15.hex" />
+    </target>
+    <target name="TTC 30X-B" hwtype="0x00001406" blversion="2.16">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <secondStage file="bin\xc2267_2v16.hex" />
+    </target>
+    <!-- ******************************************************************************* -->
+    <!-- *** TTC 30X (C-Sample)                                                      *** -->
+    <!-- *** BL version 2.19                                                         *** -->
+    <!--     ***********************************************************************     -->
+    <!-- *** These entries are for those samples which are already delivered         *** -->
+    <!-- *** with a bootloader 2v19 first stage on the target. All newer samples     *** -->
+    <!-- *** are delivered with a bootloader 3v0, which is technically identical    *** -->
+    <!-- *** to bootloader 2v19.                                                     *** -->
+    <!-- *** Actually bootloader 2v19 was a mistaken version number, becuase         *** -->
+    <!-- *** this bootloader is not downwardly compatible to former                  *** -->
+    <!-- *** bootloader versions (due to the usage of autobaud detection).           *** -->
+    <!-- ******************************************************************************* -->
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="2.19">
+        <inherit hwtype="0x00000006" blversion="2.12" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_2v19.hex" />
+    </target>
+    <!-- ************************** -->
+    <!-- *** TTC 30X (C-Sample) *** -->
+    <!-- *** BL version 3.00    *** -->
+    <!-- ************************** -->
+    <target name="TTC 30X-C" hwtype="0x00000006" blversion="3.0">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <cpu name="Infineon XC2267" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="True" />
+        <secondStage address="0xE00000" size="0x8000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE08000" ramBufferSize="0x8000" file="bin\xc2267_3v0.hex" download="True" />
+        <application name="flash" address="0xC10080" size="0xAFF80" />
+        <apdb application="default" address="0xC10000" size="128" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x0F000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0xA000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x10000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x2000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd10K" isSupported="True" />
+            <baudrate name="bd20K" isSupported="True" />
+            <baudrate name="bd50K" isSupported="True" />
+            <baudrate name="bd100K" isSupported="True" />
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd800K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+        </can>
+    </target>
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="3.0">
+        <!-- TTC-30XSH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="3.0">
+        <!-- TTC-30XSI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="3.0">
+        <!-- TTC-30XH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="3.0">
+        <!-- TTC-30XO -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="3.0">
+        <!-- TTC-30XI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="3.0">
+        <!-- TTC-30SH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30JH" hwtype="0x00002806" blversion="3.0">
+        <!-- TTC-30JH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30jh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="3.0">
+        <!-- TTC-30H -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v0.hex" />
+    </target>
+    <!-- ************************** -->
+    <!-- *** TTC 30X (C-Sample) *** -->
+    <!-- *** BL version 3.01    *** -->
+    <!-- ************************** -->
+    <target name="TTC-30X" hwtype="0x00000006" blversion="3.1">
+        <!-- TTC-30X -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="3.1">
+        <!-- TTC-30XSH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="3.1">
+        <!-- TTC-30XSI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="3.1">
+        <!-- TTC-30XH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="3.1">
+        <!-- TTC-30XO -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="3.1">
+        <!-- TTC-30XI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="3.1">
+        <!-- TTC-30SH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30JH" hwtype="0x00002806" blversion="3.1">
+        <!-- TTC-30JH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30jh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="3.1">
+        <!-- TTC-30H -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v1.hex" />
+    </target>
+    <!-- ********************************************************** -->
+    <!-- *** TTC 30X (C-Sample)                                 *** -->
+    <!-- *** BL version 3.2 (using I/O driver version 1.0.0)    *** -->
+    <!-- ********************************************************** -->
+    <target name="TTC-30X" hwtype="0x00000006" blversion="3.2">
+        <!-- TTC-30X -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="3.2">
+        <!-- TTC-30XSH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="3.2">
+        <!-- TTC-30XSI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="3.2">
+        <!-- TTC-30XH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="3.2">
+        <!-- TTC-30XO -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="3.2">
+        <!-- TTC-30XI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="3.2">
+        <!-- TTC-30SH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30JH" hwtype="0x00002806" blversion="3.2">
+        <!-- TTC-30JH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30jh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="3.2">
+        <!-- TTC-30H -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v2.hex" />
+    </target>
+    <!-- ********************************************************** -->
+    <!-- *** TTC 30X (C-Sample)                                 *** -->
+    <!-- *** BL version 3.3 (uses second stage v3.4)            *** -->
+    <!-- ********************************************************** -->
+    <target name="TTC-30X" hwtype="0x00000006" blversion="3.3">
+        <!-- TTC-30X -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="3.3">
+        <!-- TTC-30XSH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="3.3">
+        <!-- TTC-30XSI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="3.3">
+        <!-- TTC-30XH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="3.3">
+        <!-- TTC-30XO -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="3.3">
+        <!-- TTC-30XI -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="3.3">
+        <!-- TTC-30SH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30JH" hwtype="0x00002806" blversion="3.3">
+        <!-- TTC-30JH -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30jh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="3.3">
+        <!-- TTC-30H -->
+        <inherit hwtype="0x00000006" blversion="3.0" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <!-- ********************************************************** -->
+    <!-- *** TTC 30X (C-Sample)                                 *** -->
+    <!-- *** BL version 3.4                                     *** -->
+    <!-- ********************************************************** -->
+    <target name="TTC-30X" hwtype="0x00000006" blversion="3.4">
+        <!-- TTC-30X -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30x.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XSH" hwtype="0x00001806" blversion="3.4">
+        <!-- TTC-30XSH -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30xsh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XSI" hwtype="0x00001C06" blversion="3.4">
+        <!-- TTC-30XSI -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30xsi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XH" hwtype="0x00001006" blversion="3.4">
+        <!-- TTC-30XH -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30xh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XO" hwtype="0x00000806" blversion="3.4">
+        <!-- TTC-30XO -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30xo.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30XI" hwtype="0x00000406" blversion="3.4">
+        <!-- TTC-30XI -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30xi.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30SH" hwtype="0x00002006" blversion="3.4">
+        <!-- TTC-30SH -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30sh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30JH" hwtype="0x00002806" blversion="3.4">
+        <!-- TTC-30JH -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30jh.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <target name="TTC-30H" hwtype="0x00002406" blversion="3.4">
+        <!-- TTC-30H -->
+        <inherit hwtype="0x00000006" blversion="3.3" />
+        <icon path="bin\ttc30h.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <secondStage file="bin\xc2267_3v4.hex" />
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  TTC Handheld Operator Terminal                                                   *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="TTC Handheld Operator Terminal" hwtype="0x00000008" blversion="1.0">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0x07000" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\handheld_operator_terminal.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <cpu name="NXP LPC1754" endianess="Little" bit="32" />
+        <bootloader address="0x00000" size="0x7000" bldb="0x06000" bldbSize="128" safeDownload="False" />
+        <secondStage address="0x2007c000" size="0x4000" apdb="0x2007FF80" apdbSize="128" ramBufferAddress="0x10000000" ramBufferSize="0x4000" file="bin\lpc1754_1v0.hex" download="True" />
+        <apdb application="default" address="0x08000" size="128" />
+        <application name="flash" address="0x08080" size="0x17F80" />
+        <memory type="Flash" location="Internal" address="0x00000" size="0x08000" eraseBlocksize="4096" writeBlocksize="256" erasedValue="0xFF" protected="True" />
+        <memory type="Flash" location="Internal" address="0x08000" size="0x08000" eraseBlocksize="4096" writeBlocksize="256" erasedValue="0xFF" protected="False" />
+        <memory type="Flash" location="Internal" address="0x10000" size="0x10000" eraseBlocksize="32768" writeBlocksize="256" erasedValue="0xFF" protected="False" />
+        <memory type="Ram" location="Internal" address="0x10000000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0x2007c000" size="0x4000" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <!-- ***************************************************************************************** -->
+    <!-- ***  Paltronic X (PAL-X)                                                              *** -->
+    <!-- ***************************************************************************************** -->
+    <target name="PAL-X" hwtype="0x00000009" blversion="1.2">
+        <general extension="hex" />
+        <production type="Flash" location="Internal" address="0xC07F80" size="0x80" serial0="1" serial1="2" serial2="3" serial3="4" serial4="5" serial5="6" serial6="7" serial7="8" serial8="9" serial9="10" serial10="11" serial11="12" serial12="13" serial13="14" />
+        <icon path="bin\palx.png" url="http://www.ttcontrol.com/" tooltip="TTControl" />
+        <cpu name="Infineon XC2287M" endianess="Little" bit="16" />
+        <bootloader address="0xC00000" size="0x7F80" bldb="0xC07F00" bldbSize="128" safeDownload="False" />
+        <secondStage address="0xE00000" size="0x6000" apdb="0xE00000" apdbSize="128" ramBufferAddress="0xE06000" ramBufferSize="0x2000" file="bin\xc2287m_palx_1v2.hex" download="True" />
+        <apdb application="default" address="0xC08000" size="128" />
+        <crcTable address="0xCCFF80" size="0x80" />
+        <application name="flash1" address="0xC08080" size="0x006F80" />
+        <application name="flash2" address="0xC10000" size="0x0BFF80" />
+        <memory type="Flash" location="Internal" address="0xC00000" size="0x08000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="True" />
+        <memory type="Flash" location="Internal" address="0xC08000" size="0x07000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC10000" size="0x30000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC40000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xC80000" size="0x40000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Flash" location="Internal" address="0xCC0000" size="0x10000" eraseBlocksize="128" writeBlocksize="128" erasedValue="0x00" protected="False" />
+        <memory type="Ram" location="Internal" address="0xA000" size="0x4000" />
+        <memory type="Ram" location="Internal" address="0xF600" size="0x800" />
+        <memory type="Ram" location="Internal" address="0xE00000" size="0x8000" />
+        <memory type="Eeprom" location="External" address="0x0000" size="0x8000" protected="False" />
+        <feature name="ModifyFlashEeprom" isSupported="True" />
+        <feature name="CmdPassword" isSupported="True" />
+        <feature name="MultiApps" isSupported="True" />
+        <can>
+            <baudrate name="bd125K" isSupported="True" />
+            <baudrate name="bd250K" isSupported="True" />
+            <baudrate name="bd500K" isSupported="True" />
+            <baudrate name="bd800K" isSupported="True" />
+            <baudrate name="bd1M" isSupported="True" />
+            <channel name="ch0" isSupported="True" />
+            <channel name="ch1" isSupported="True" />
+        </can>
+    </target>
+    <target name="PAL-X" hwtype="0x00000009" blversion="1.3">
+        <!-- PAL-X BL V1.3  (name changing EEPROM to NVM) -->
+        <inherit hwtype="0x00000009" blversion="1.2" />
+        <secondStage file="bin\xc2287m_palx_1v3.hex" />
+    </target>
+    <target name="PAL-X" hwtype="0x00000009" blversion="1.4">
+        <!-- PAL-X BL V1.4  ( NVM functionality with TTC Downloader enabled
+                            , CAN function calls adapted to new driver version ) -->
+        <inherit hwtype="0x00000009" blversion="1.3" />
+        <secondStage file="bin\xc2287m_palx_1v4.hex" />
+    </target>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+            <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+            <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+            <Reference URI="">
+                <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+                <DigestValue>SMBta50hf75t9Ty4CLKSkRk7AQc=</DigestValue>
+            </Reference>
+        </SignedInfo>
+        <SignatureValue>U/68XsIGOTXqDwn+xoLKISvjIjDu1rQ5OF617LLdMyu5NQXKXd5MuMntMeP4iW8aCYHXQwS1TrmDS4SHqk8V50N5HR6ytK0o7upE8CKzOdtifK3WrPRIX/s4TTEgDNWCMb8c4dB7KAVcSIidR88TkZOZ7XcfkogRlTvgvgVSe54=</SignatureValue>
+    </Signature>
+</targets>

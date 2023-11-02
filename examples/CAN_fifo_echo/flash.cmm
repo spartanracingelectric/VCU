@@ -1,0 +1,22 @@
+;change to current directory
+&workingdir=OS.PPD()
+cd "&workingdir"
+
+SYStem.Down
+SYStem.CPU XC2287-96F
+sys.u
+
+
+; Erase Flash. Note: Without bootloader
+flash.erase 0xC10000--0xCBFFFF
+
+
+; Flash program
+FLASH.Auto 0xC10000--0xCBFFFF
+Data.LOAD.auto .\build\main.hex /WORD
+Data.LOAD.auto .\build\main.elf /nocode
+FLASH.Auto OFF
+
+; Add reset toolbar
+menu.REPROGRAM "..\..\bsp\toolset\toolbar.men"
+

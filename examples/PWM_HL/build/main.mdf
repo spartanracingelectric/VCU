@@ -1,0 +1,46 @@
+# space <name> <id> <mau size>
+space	spe:xc16x:far	5	8
+space	spe:xc16x:shuge	6	8
+space	spe:xc16x:huge	7	8
+space	spe:xc16x:near	4	8
+space	spe:xc16x:code	8	8
+space	spe:xc16x:bit	1	1
+space	spe:xc16x:bita	2	8
+space	spe:xc16x:iram	3	8
+# chip <name> <id> <mau size> <size> <type>
+chip	spe:PSRAM	1	8	65536	ram
+chip	spe:DPRAM	3	8	2048	ram
+chip	spe:DSRAM	4	8	16384	ram
+chip	spe:Flash	2	8	786432	rom
+chip	xram	0	8	524288	ram
+# map <space id> <start in space> <size in space> <chip id> <start on chip>
+map	7	4194304	524288	0	0
+map	6	4194304	524288	0	0
+map	5	4194304	524288	0	0
+map	8	4194304	524288	0	0
+map	7	14680064	65536	1	0
+map	6	14680064	65536	1	0
+map	5	14680064	65536	1	0
+map	4	32768	16384	1	0
+map	8	14680064	65536	1	0
+map	7	15204352	65536	1	0
+map	6	15204352	65536	1	0
+map	5	15204352	65536	1	0
+map	8	15204352	65536	1	0
+map	7	12582912	786432	2	0
+map	6	12582912	786432	2	0
+map	5	12582912	786432	2	0
+map	4	0	16384	2	65536
+map	4	16384	16384	2	131072
+map	8	12582912	786432	2	0
+map	7	62976	2048	3	0
+map	6	62976	2048	3	0
+map	5	62976	2048	3	0
+map	4	62976	2048	3	0
+map	3	62976	2048	3	0
+map	2	64768	256	3	1792
+map	1	0	2048	3	1792
+map	7	40960	16384	4	0
+map	6	40960	16384	4	0
+map	5	40960	16384	4	0
+map	4	49152	8192	4	8192

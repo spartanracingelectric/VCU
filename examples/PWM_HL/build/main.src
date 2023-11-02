@@ -1,0 +1,3685 @@
+	; TASKING VX-toolset for C166: C compiler v4.0r1 Build 741 SN 07744515
+	; Options: -f cc8080a -c99 -Mh --fp-model=FT -Cxc2287 --core=xc16x -DTASKING_VIPER -D__USIC_MEM_TYPE=__PAGE_080_MEM_TYPE -D__MULTICAN_MEM_TYPE=__PAGE_080_MEM_TYPE -DTTC60 -DRTS_TTC_FLASH_DATE_YEAR=2016 -DRTS_TTC_FLASH_DATE_MONTH=9 -DRTS_TTC_FLASH_DATE_DAY=7 -DRTS_TTC_FLASH_DATE_HOUR=19 -DRTS_TTC_FLASH_DATE_MINUTE=8 -I..\..\..\Environment\inc -I..\..\..\Environment\inc_int -I..\..\..\Environment\bsp -I. --tradeoff=0 --no-tasking-sfr -ga --language=+cmp14,+div32,-gcc,-strings -O3 --source --mac -o build\main.src
+	; Module start
+	.source	'main.c'
+code_main	.section	code, cluster 'main', new
+	.global	_main
+
+; main.c	     1  #include <stdio.h>
+; main.c	     2  #include <string.h>
+; main.c	     3  #include "IO_Driver.h"
+; main.c	     4  #include "IO_PWM.h"
+; main.c	     5  #include "IO_RTC.h"
+; main.c	     6  #include "IO_UART.h"
+; main.c	     7  #include "APDB.h"
+; main.c	     8  
+; main.c	     9  APDB appl_db =
+; main.c	    10            { 0                      /* ubyte4 versionAPDB        */
+; main.c	    11            , {0}                    /* BL_T_DATE flashDate       */
+; main.c	    12                                     /* BL_T_DATE buildDate                   */
+; main.c	    13            , { (ubyte4) (((((ubyte4) RTS_TTC_FLASH_DATE_YEAR) & 0x0FFF) << 0) |
+; main.c	    14                          ((((ubyte4) RTS_TTC_FLASH_DATE_MONTH) & 0x0F) << 12) |
+; main.c	    15                          ((((ubyte4) RTS_TTC_FLASH_DATE_DAY) & 0x1F) << 16) |
+; main.c	    16                          ((((ubyte4) RTS_TTC_FLASH_DATE_HOUR) & 0x1F) << 21) |
+; main.c	    17                          ((((ubyte4) RTS_TTC_FLASH_DATE_MINUTE) & 0x3F) << 26)) }
+; main.c	    18            , 0                      /* ubyte4 nodeType           */
+; main.c	    19            , 0                      /* ubyte4 startAddress       */
+; main.c	    20            , 0                      /* ubyte4 codeSize           */
+; main.c	    21            , 0                      /* ubyte4 legacyAppCRC       */
+; main.c	    22            , 0                      /* ubyte4 appCRC             */
+; main.c	    23            , 1                      /* ubyte1 nodeNr             */
+; main.c	    24            , 0                      /* ubyte4 CRCInit            */
+; main.c	    25            , 0                      /* ubyte4 flags              */
+; main.c	    26            , 0                      /* ubyte4 hook1              */
+; main.c	    27            , 0                      /* ubyte4 hook2              */
+; main.c	    28            , 0                      /* ubyte4 hook3              */
+; main.c	    29            , APPL_START             /* ubyte4 mainAddress        */
+; main.c	    30            , {0, 1}                 /* BL_T_CAN_ID canDownloadID */
+; main.c	    31            , {0, 2}                 /* BL_T_CAN_ID canUploadID   */
+; main.c	    32            , 0                      /* ubyte4 legacyHeaderCRC    */
+; main.c	    33            , 0                      /* ubyte4 version            */
+; main.c	    34            , 500                    /* ubyte2 canBaudrate        */
+; main.c	    35            , 0                      /* ubyte1 canChannel         */
+; main.c	    36            , {0}                    /* ubyte1 reserved[8*4]      */
+; main.c	    37            , 0                      /* ubyte4 headerCRC          */
+; main.c	    38            };
+; main.c	    39  
+; main.c	    40  #define DUTY_LITTLE_STEP    0x100
+; main.c	    41  #define DUTY_BIG_STEP       0x2000
+; main.c	    42  
+; main.c	    43  volatile ubyte4 count = 0;
+; main.c	    44  volatile ubyte2 duty = 0;
+; main.c	    45  volatile ubyte2 dual_duty = 0x7FFF;
+; main.c	    46  volatile ubyte2 duty_step = 0;
+; main.c	    47  volatile sbyte2 dir = 0;
+; main.c	    48  ubyte4 timestamp = 0;
+; main.c	    49  
+; main.c	    50  void main(void)
+; Function _main
+_12:
+_main	.proc	far
+	subw	r15,#0xa4
+_70:
+
+; main.c	    51  {
+; main.c	    52      ubyte1 data[128] = {0};
+	movw	r2,r15
+_530:
+	movw	r4,#@sof(_$1$ini)
+	movw	r5,#@seg(_$1$ini)
+_531:
+	movw	r3,#0x80
+	call	__cphnb
+_532:
+
+; main.c	    53      ubyte1 size, len_tx;
+; main.c	    54      IO_ErrorType ret0, ret1, ret2, ret3, ret4, ret5;
+; main.c	    55      ubyte2 curr0, curr1, curr2, curr3;
+; main.c	    56      bool direction = TRUE;
+	movb	rh4,#0x1
+_490:
+	movb	[r15+#0xa2],rh4
+_492:
+
+; main.c	    57  
+; main.c	    58  
+; main.c	    59      IO_Driver_Init( NULL );
+	movw	r2,#0x0
+	movw	r3,#0x0
+	call	_IO_Driver_Init
+_491:
+
+; main.c	    60  
+; main.c	    61      IO_UART_Init( IO_UART_RS232
+	movb	rl2,#0x37
+_533:
+
+; main.c	    62                  , 115200
+	movw	r4,#0xc200
+_534:
+
+; main.c	    63                  , 8
+; main.c	    64                  , IO_UART_PARITY_NONE
+; main.c	    65                  , 1 );
+	movw	r5,#0x1
+	movb	rh2,#0x8
+	movb	rl3,#0x0
+	movb	rh3,#0x1
+	call	_IO_UART_Init
+_535:
+
+; main.c	    66  
+; main.c	    67  
+; main.c	    68      /* IO_PWM_00 */
+; main.c	    69      IO_PWM_Init( IO_PWM_00
+; main.c	    70                 , 100
+	movw	r3,#0x64
+_536:
+
+; main.c	    71                 , TRUE
+; main.c	    72                 , TRUE
+; main.c	    73                 , IO_ADC_CUR_00
+	movb	rh4,#0x2e
+_537:
+
+; main.c	    74                 , FALSE
+; main.c	    75                 , NULL );
+	movb	rl2,#0x0
+	movb	rh2,#0x1
+	movb	rl4,#0x1
+	movb	rl5,#0x0
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_Init
+_538:
+
+; main.c	    76  
+; main.c	    77      /* IO_PWM_01 */
+; main.c	    78      IO_PWM_Init( IO_PWM_01
+; main.c	    79                 , 100
+	movw	r3,#0x64
+_539:
+
+; main.c	    80                 , FALSE
+; main.c	    81                 , TRUE
+; main.c	    82                 , IO_ADC_CUR_01
+	movb	rh4,#0x2f
+_540:
+
+; main.c	    83                 , TRUE
+; main.c	    84                 , NULL );
+	movb	rl2,#0x1
+	movb	rh2,#0x0
+	movb	rl4,#0x1
+	movb	rl5,#0x1
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_Init
+_541:
+
+; main.c	    85  
+; main.c	    86      IO_PWM_DeInit( IO_PWM_01 );
+	movb	rl2,#0x1
+	call	_IO_PWM_DeInit
+_542:
+
+; main.c	    87  
+; main.c	    88      IO_PWM_Init( IO_PWM_01
+; main.c	    89                 , 100
+	movw	r3,#0x64
+_543:
+
+; main.c	    90                 , FALSE
+; main.c	    91                 , TRUE
+; main.c	    92                 , IO_ADC_CUR_01
+	movb	rh4,#0x2f
+_544:
+
+; main.c	    93                 , TRUE
+; main.c	    94                 , NULL );
+	movb	rl2,#0x1
+	movb	rh2,#0x0
+	movb	rl4,#0x1
+	movb	rl5,#0x1
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_Init
+_545:
+
+; main.c	    95  
+; main.c	    96      /* IO_PWM_02 */
+; main.c	    97      IO_PWM_Init( IO_PWM_02
+; main.c	    98                 , 150
+	movw	r3,#0x96
+_546:
+
+; main.c	    99                 , TRUE
+; main.c	   100                 , FALSE
+; main.c	   101                 , 0
+; main.c	   102                 , TRUE
+; main.c	   103                 , NULL );
+	movb	rl2,#0x2
+	movb	rh2,#0x1
+	movb	rl4,#0x0
+	movb	rh4,#0x0
+	movb	rl5,#0x1
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_Init
+_547:
+
+; main.c	   104  
+; main.c	   105      /* IO_PWM_03 */
+; main.c	   106      IO_PWM_Init( IO_PWM_03
+; main.c	   107                 , 200
+	movw	r3,#0xc8
+_548:
+
+; main.c	   108                 , FALSE
+; main.c	   109                 , FALSE
+; main.c	   110                 , 0
+; main.c	   111                 , TRUE
+; main.c	   112                 , NULL );
+	movb	rl2,#0x3
+	movb	rh2,#0x0
+	movb	rl4,#0x0
+	movb	rh4,#0x0
+	movb	rl5,#0x1
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_Init
+_549:
+
+; main.c	   113  
+; main.c	   114      /* IO_PWM_04 + IO_PWM_05 */
+; main.c	   115      IO_PWM_DualInit( IO_PWM_05
+; main.c	   116                     , 200
+	movw	r3,#0xc8
+_550:
+
+; main.c	   117                     , FALSE
+; main.c	   118                     , IO_ADC_CUR_03
+	movb	rl4,#0x31
+_551:
+
+; main.c	   119                     , NULL );
+	movb	rl2,#0x5
+	movb	rh2,#0x0
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_DualInit
+_552:
+
+; main.c	   120  
+; main.c	   121      /* IO_PWM_06 + IO_PWM_07 */
+; main.c	   122      IO_PWM_DualInit( IO_PWM_06
+; main.c	   123                     , 100
+	movw	r3,#0x64
+_553:
+
+; main.c	   124                     , TRUE
+; main.c	   125                     , IO_ADC_CUR_02
+	movb	rl4,#0x30
+_554:
+
+; main.c	   126                     , NULL );
+	movb	rl2,#0x6
+	movb	rh2,#0x1
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_DualInit
+_555:
+
+; main.c	   127  
+; main.c	   128      /* IO_PWM_04 + IO_PWM_05 */
+; main.c	   129      IO_PWM_DualDeInit( IO_PWM_05 );
+	movb	rl2,#0x5
+	call	_IO_PWM_DualDeInit
+_556:
+
+; main.c	   130  
+; main.c	   131      IO_PWM_DualInit( IO_PWM_05
+; main.c	   132                     , 200
+	movw	r3,#0xc8
+_557:
+
+; main.c	   133                     , FALSE
+; main.c	   134                     , IO_ADC_CUR_03
+	movb	rl4,#0x31
+_558:
+
+; main.c	   135                     , NULL );
+	movb	rl2,#0x5
+	movb	rh2,#0x0
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_DualInit
+_559:
+
+; main.c	   136  
+; main.c	   137      while (1)
+; main.c	   138      {
+; main.c	   139          IO_RTC_StartTime(&timestamp);
+; main.c	   140  
+; main.c	   141          IO_Driver_TaskBegin();
+; main.c	   142  
+; main.c	   143          ret0 = IO_PWM_SetDuty( IO_PWM_00
+; main.c	   144                               , duty_step
+; main.c	   145                               , NULL );
+; main.c	   146  
+; main.c	   147          ret1 = IO_PWM_SetDuty( IO_PWM_01
+; main.c	   148                               , 0x7FFF
+; main.c	   149                               , NULL );
+; main.c	   150  
+; main.c	   151          ret2 = IO_PWM_SetDuty( IO_PWM_02
+; main.c	   152                               , duty
+; main.c	   153                               , NULL );
+; main.c	   154  
+; main.c	   155          ret3 = IO_PWM_SetDuty( IO_PWM_03
+; main.c	   156                               , duty
+; main.c	   157                               , NULL );
+; main.c	   158  
+; main.c	   159          ret4 = IO_PWM_DualSetDuty( IO_PWM_05
+; main.c	   160                                   , dual_duty
+; main.c	   161                                   , direction
+; main.c	   162                                   , NULL
+; main.c	   163                                   , NULL );
+; main.c	   164  
+; main.c	   165          ret5 = IO_PWM_DualSetDuty( IO_PWM_06
+; main.c	   166                                   , dual_duty
+; main.c	   167                                   , direction
+; main.c	   168                                   , NULL
+; main.c	   169                                   , NULL );
+; main.c	   170  
+; main.c	   171          IO_PWM_GetCur( IO_PWM_00
+; main.c	   172                       , &curr0 );
+	movw	r11,r15
+	addw	r11,#0x88
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x94],r11
+	movw	r8,#@seg(__lc_ub_user_stack+0xffff)
+_560:
+
+; main.c	   173  
+; main.c	   174          IO_PWM_GetCur( IO_PWM_01
+; main.c	   175                       , &curr1 );
+	movw	r11,r15
+	addw	r11,#0x86
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x92],r11
+_561:
+
+; main.c	   176  
+; main.c	   177          IO_PWM_GetCur( IO_PWM_06
+; main.c	   178                       , &curr2 );
+	movw	r11,r15
+	addw	r11,#0x82
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x90],r11
+_562:
+
+; main.c	   179  
+; main.c	   180          IO_PWM_GetCur( IO_PWM_05
+; main.c	   181                       , &curr3 );
+	movw	r11,r15
+	addw	r11,#0x84
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x8e],r11
+_563:
+
+; main.c	   182  
+; main.c	   183          if (duty >= 0xFFFF)
+; main.c	   184          {
+; main.c	   185              dir = -DUTY_LITTLE_STEP;
+; main.c	   186          }
+; main.c	   187          if (duty <= 0x0)
+; main.c	   188          {
+; main.c	   189              dir = DUTY_LITTLE_STEP;
+; main.c	   190          }
+; main.c	   191          duty += dir;
+; main.c	   192  
+; main.c	   193          if ((count % 150) == 0)
+; main.c	   194          {
+; main.c	   195              direction = (direction == TRUE) ? FALSE : TRUE;
+; main.c	   196          }
+; main.c	   197          dual_duty += DUTY_LITTLE_STEP;
+; main.c	   198  
+; main.c	   199  
+; main.c	   200  
+; main.c	   201  
+; main.c	   202          if ((count % 150) == 0)
+; main.c	   203          {
+; main.c	   204              duty_step += DUTY_BIG_STEP;
+; main.c	   205          }
+; main.c	   206  
+; main.c	   207          sprintf ((char *) data, "\x0C%02X\t%02X\t%02X\t%02X\t%02X\t%02X\n\r\n\r%3.1f%%\t%4d\t%4d\t%4d\t%4d", ret0
+	movw	r11,r15
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x8c],r11
+_564:
+
+; main.c	   208                                                                                                             , ret1
+; main.c	   209                                                                                                             , ret2
+; main.c	   210                                                                                                             , ret3
+; main.c	   211                                                                                                             , ret4
+; main.c	   212                                                                                                             , ret5
+; main.c	   213                                                                                                             , ((float) duty_step) / 0xFFFF * 100.0
+; main.c	   214                                                                                                             , curr0
+; main.c	   215                                                                                                             , curr1
+; main.c	   216                                                                                                             , curr2
+; main.c	   217                                                                                                             , curr3 );
+; main.c	   218          len_tx = (ubyte1)strlen((char *) data);
+	movw	r11,r15
+	andw	r11,#0x3fff
+	orw	r11,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+	movw	[r15+#0x8a],r11
+_565:
+
+; main.c	   219          IO_UART_Write( IO_UART_RS232
+; main.c	   220                       , data
+; main.c	   221                       , len_tx
+; main.c	   222                       , &size );
+	movw	r9,r15
+	addw	r9,#0x80
+	andw	r9,#0x3fff
+	orw	r9,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+_566:
+	movw	r7,r15
+	andw	r7,#0x3fff
+	orw	r7,#@sof(__lc_ub_user_stack+0xffff) & 0xc000
+_2:
+	movw	r2,#@sof(_timestamp)
+	movw	r3,#@seg(_timestamp)
+	call	_IO_RTC_StartTime
+_567:
+	call	_IO_Driver_TaskBegin
+_568:
+	extp	#@pag(_duty_step),#0x1
+	movw	r3,@pof(_duty_step)
+_569:
+	movb	rl2,#0x0
+	movw	r4,#0x0
+	movw	r5,#0x0
+	call	_IO_PWM_SetDuty
+_493:
+	movw	[r15+#0xa0],r2
+_495:
+	movw	r3,#0x7fff
+_570:
+	movb	rl2,#0x1
+_494:
+	movw	r4,#0x0
+	movw	r5,#0x0
+	call	_IO_PWM_SetDuty
+_496:
+	movw	[r15+#0x9e],r2
+_498:
+	extp	#@pag(_duty),#0x1
+	movw	r3,@pof(_duty)
+_571:
+	movb	rl2,#0x2
+_497:
+	movw	r4,#0x0
+	movw	r5,#0x0
+	call	_IO_PWM_SetDuty
+_499:
+	movw	[r15+#0x9c],r2
+_501:
+	extp	#@pag(_duty),#0x1
+	movw	r3,@pof(_duty)
+_572:
+	movb	rl2,#0x3
+_500:
+	movw	r4,#0x0
+	movw	r5,#0x0
+	call	_IO_PWM_SetDuty
+_502:
+	movw	[r15+#0x9a],r2
+_504:
+	extp	#@pag(_dual_duty),#0x1
+	movw	r3,@pof(_dual_duty)
+_573:
+	movb	rl2,#0x5
+_503:
+	movb	rh2,[r15+#0xa2]
+_505:
+	movw	r4,#0x0
+	movw	r5,#0x0
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_DualSetDuty
+_506:
+	movw	[r15+#0x98],r2
+_508:
+	extp	#@pag(_dual_duty),#0x1
+	movw	r3,@pof(_dual_duty)
+_574:
+	movb	rl2,#0x6
+_507:
+	movb	rh2,[r15+#0xa2]
+_509:
+	movw	r4,#0x0
+	movw	r5,#0x0
+	movw	r11,#0x0
+	movw	r12,#0x0
+	call	_IO_PWM_DualSetDuty
+_510:
+	movw	[r15+#0x96],r2
+_512:
+	movb	rl2,#0x0
+_511:
+	movw	r4,[r15+#0x94]
+	movw	r5,r8
+	call	_IO_PWM_GetCur
+_575:
+	movb	rl2,#0x1
+	movw	r4,[r15+#0x92]
+	movw	r5,r8
+	call	_IO_PWM_GetCur
+_576:
+	movb	rl2,#0x6
+	movw	r4,[r15+#0x90]
+	movw	r5,r8
+	call	_IO_PWM_GetCur
+_577:
+	movb	rl2,#0x5
+	movw	r4,[r15+#0x8e]
+	movw	r5,r8
+	call	_IO_PWM_GetCur
+_578:
+	movw	r11,#0xffff
+_579:
+	extp	#@pag(_duty),#0x1
+	cmpw	r11,@pof(_duty)
+	jmp	cc_ugt,_3
+_580:
+	movw	r11,#0xff00
+_581:
+	extp	#@pag(_dir),#0x1
+	movw	@pof(_dir),r11
+_3:
+	movw	r11,#0x0
+_582:
+	extp	#@pag(_duty),#0x1
+	cmpw	r11,@pof(_duty)
+	jmp	cc_ne,_4
+_583:
+	movw	r11,#0x100
+_584:
+	extp	#@pag(_dir),#0x1
+	movw	@pof(_dir),r11
+_4:
+	extp	#@pag(_dir),#0x1
+	movw	r11,@pof(_dir)
+_585:
+	extp	#@pag(_duty),#0x1
+	addw	@pof(_duty),r11
+_586:
+	exts	#@seg(_count),#0x1
+	movw	r2,@sof(_count)
+	exts	#@seg(_count+0x2),#0x1
+	movw	r3,@sof(_count+0x2)
+_587:
+	movw	r4,#0x96
+_588:
+	movw	r5,#0x0
+	call	__umol
+_589:
+	movw	r2,r2
+	jmp	cc_ne,_5
+_590:
+	movb	rh4,#0x0
+_513:
+	movb	rl4,[r15+#0xa2]
+_514:
+	jmp	cc_ne,_6
+	movb	rh4,#0x1
+_6:
+	movb	[r15+#0xa2],rh4
+_5:
+	movw	r11,#0x100
+_591:
+	extp	#@pag(_dual_duty),#0x1
+	addw	@pof(_dual_duty),r11
+_592:
+	exts	#@seg(_count),#0x1
+	movw	r2,@sof(_count)
+	exts	#@seg(_count+0x2),#0x1
+	movw	r3,@sof(_count+0x2)
+_593:
+	movw	r4,#0x96
+_594:
+	movw	r5,#0x0
+	call	__umol
+_595:
+	movw	r2,r2
+	jmp	cc_ne,_7
+_596:
+	movw	r11,#0x2000
+_597:
+	extp	#@pag(_duty_step),#0x1
+	addw	@pof(_duty_step),r11
+_7:
+	extp	#@pag(_duty_step),#0x1
+	movw	r2,@pof(_duty_step)
+_598:
+	call	__us2spf
+_599:
+	movw	r4,#0xff00
+	movw	r5,#0x477f
+_600:
+	call	__div_spf
+	call	__spf2dpf
+_601:
+	movw	r14,#0x4059
+_602:
+	movw	r11,#0x0
+	movw	r12,#0x0
+	movw	r13,#0x0
+	call	__mul_dpf
+_603:
+	movw	r11,[r15+#0x84]
+	movw	[-r15],r11
+_81:
+	movw	r11,[r15+#0x84]
+	movw	[-r15],r11
+_92:
+	movw	r11,[r15+#0x8a]
+	movw	[-r15],r11
+_103:
+	movw	r11,[r15+#0x8e]
+	movw	[-r15],r11
+_114:
+	movw	[-r15],r5
+_125:
+	movw	[-r15],r4
+_136:
+	movw	[-r15],r3
+_147:
+	movw	[-r15],r2
+_158:
+	movw	r11,[r15+#0xa6]
+_515:
+	movw	[-r15],r11
+_169:
+	movw	r3,r8
+_604:
+	movw	r11,[r15+#0xaa]
+_516:
+	movw	[-r15],r11
+_180:
+	movw	r11,[r15+#0xae]
+_517:
+	movw	[-r15],r11
+_191:
+	movw	r11,[r15+#0xb2]
+_518:
+	movw	[-r15],r11
+_202:
+	movw	r11,[r15+#0xb6]
+_519:
+	movw	[-r15],r11
+_213:
+	movw	r11,[r15+#0xba]
+_520:
+	movw	[-r15],r11
+_224:
+	movw	r2,[r15+#0xa8]
+	movw	r4,#@sof(_$2$str)
+	movw	r5,#@seg(_$2$str)
+	call	_sprintf
+_521:
+	addw	r15,#0x1c
+_235:
+	movw	r3,r8
+	movw	r2,[r15+#0x8a]
+	call	_strlen
+_605:
+	movw	r3,r2
+_606:
+	movb	rl2,#0x37
+_607:
+	movw	r4,r7
+	movw	r5,r8
+	movb	rh2,rl3
+	movw	r11,r9
+	movw	r12,r8
+	call	_IO_UART_Write
+
+; main.c	   223          do
+; main.c	   224          {
+; main.c	   225              IO_UART_GetTxStatus( IO_UART_RS232
+; main.c	   226                                 , &size );
+; main.c	   227              IO_UART_Task();
+; main.c	   228          }while (size != 0);
+_8:
+	movb	rl2,#0x37
+_608:
+	movw	r4,r9
+	movw	r5,r8
+	call	_IO_UART_GetTxStatus
+_609:
+	call	_IO_UART_Task
+_610:
+	movb	rh4,[r15+#0x80]
+_611:
+	jmp+	cc_ne,_8
+_612:
+
+; main.c	   229  
+; main.c	   230          sprintf ((char *) data, "\n\r\n\r%04X\t%04X\t%04X", duty
+	extp	#@pag(_duty),#0x1
+	movw	r11,@pof(_duty)
+_613:
+
+; main.c	   231                                                            , duty_step
+	extp	#@pag(_duty_step),#0x1
+	movw	r12,@pof(_duty_step)
+_614:
+
+; main.c	   232                                                            , dual_duty );
+	extp	#@pag(_dual_duty),#0x1
+	movw	r13,@pof(_dual_duty)
+	movw	[-r15],r13
+_246:
+	movw	[-r15],r12
+_257:
+	movw	[-r15],r11
+_268:
+	movw	r2,[r15+#0x92]
+	movw	r3,r8
+	movw	r4,#@sof(_$3$str)
+	movw	r5,#@seg(_$3$str)
+	call	_sprintf
+	addw	r15,#0x6
+_279:
+
+; main.c	   233          len_tx = (ubyte1)strlen((char *) data);
+	movw	r2,[r15+#0x8a]
+	movw	r3,r8
+	call	_strlen
+_615:
+	movw	r3,r2
+_616:
+
+; main.c	   234          IO_UART_Write( IO_UART_RS232
+	movb	rl2,#0x37
+_617:
+
+; main.c	   235                       , data
+; main.c	   236                       , len_tx
+; main.c	   237                       , &size );
+	movw	r4,r7
+	movw	r5,r8
+	movb	rh2,rl3
+	movw	r11,r9
+	movw	r12,r8
+	call	_IO_UART_Write
+
+; main.c	   238          do
+; main.c	   239          {
+; main.c	   240              IO_UART_GetTxStatus( IO_UART_RS232
+; main.c	   241                                 , &size );
+; main.c	   242              IO_UART_Task();
+; main.c	   243          }while (size != 0);
+_9:
+	movb	rl2,#0x37
+_618:
+	movw	r4,r9
+	movw	r5,r8
+	call	_IO_UART_GetTxStatus
+_619:
+	call	_IO_UART_Task
+_620:
+	movb	rh4,[r15+#0x80]
+_621:
+	jmp+	cc_ne,_9
+_622:
+
+; main.c	   244  
+; main.c	   245          count++;
+	exts	#@seg(_count),#0x1
+	subw	@sof(_count),ONES
+	exts	#@seg(_count+0x2),#0x1
+	subcw	@sof(_count+0x2),ONES
+_623:
+
+; main.c	   246  
+; main.c	   247          IO_Driver_TaskEnd();
+	call	_IO_Driver_TaskEnd
+
+; main.c	   248  
+; main.c	   249          while (IO_RTC_GetTimeUS(timestamp) < 10000);
+_10:
+	exts	#@seg(_timestamp),#0x1
+	movw	r2,@sof(_timestamp)
+	exts	#@seg(_timestamp+0x2),#0x1
+	movw	r3,@sof(_timestamp+0x2)
+	call	_IO_RTC_GetTimeUS
+_624:
+	cmpw	r2,#0x2710
+	subcw	r3,#0x0
+	jmp+	cc_ult,_10
+_625:
+	jmp	_2
+_31:
+	; End of function
+	; End of section
+
+huge_appl_db	.section	huge, romdata, at 0xc10000, cluster 'appl_db', new
+	.global	_appl_db
+_appl_db	.label	word
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	0x226797e0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	0x1
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	__cstart
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	0x1
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	0x2
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.dl	0x1f4
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge_count	.section	huge, init, cluster 'count', new
+	.global	_count
+_count	.label	word
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge_duty	.section	huge, init, cluster 'duty', new
+	.global	_duty
+_duty	.label	word
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge_dual_duty	.section	huge, init, cluster 'dual_duty', new
+	.global	_dual_duty
+_dual_duty	.label	word
+	.dw	0x7fff
+	; End of section
+
+huge_duty_step	.section	huge, init, cluster 'duty_step', new
+	.global	_duty_step
+_duty_step	.label	word
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge_dir	.section	huge, init, cluster 'dir', new
+	.global	_dir
+_dir	.label	word
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge_timestamp	.section	huge, init, cluster 'timestamp', new
+	.global	_timestamp
+_timestamp	.label	word
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge__1_ini	.section	huge, byte, romdata, new
+_$1$ini	.label	byte
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	.db	0x0
+	; End of section
+
+huge__2_str	.section	huge, byte, romdata, new
+_$2$str	.label	byte
+	.db	0xc
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x32
+	.db	0x58
+	.db	0xa
+	.db	0xd
+	.db	0xa
+	.db	0xd
+	.db	0x25
+	.db	0x33
+	.db	0x2e
+	.db	0x31
+	.db	0x66
+	.db	0x25
+	.db	0x25
+	.db	0x9
+	.db	0x25
+	.db	0x34
+	.db	0x64
+	.db	0x9
+	.db	0x25
+	.db	0x34
+	.db	0x64
+	.db	0x9
+	.db	0x25
+	.db	0x34
+	.db	0x64
+	.db	0x9
+	.db	0x25
+	.db	0x34
+	.db	0x64
+	.db	0x0
+	; End of section
+
+huge__3_str	.section	huge, byte, romdata, new
+_$3$str	.label	byte
+	.db	0xa
+	.db	0xd
+	.db	0xa
+	.db	0xd
+	.db	0x25
+	.db	0x30
+	.db	0x34
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x34
+	.db	0x58
+	.db	0x9
+	.db	0x25
+	.db	0x30
+	.db	0x34
+	.db	0x58
+	.db	0x0
+	; End of section
+
+	.calls	'_main','__cphnb'
+	.calls	'_main','__umol'
+	.calls	'_main','__us2spf',4,0
+	.calls	'_main','__div_spf',8,0
+	.calls	'_main','__spf2dpf',8,2
+	.calls	'_main','__mul_dpf',8,4
+	.calls	'__INDIRECT__','__cstart'
+	.calls	'_main','_IO_Driver_Init'
+	.calls	'_main','_IO_UART_Init'
+	.calls	'_main','_IO_PWM_Init'
+	.calls	'_main','_IO_PWM_DeInit'
+	.calls	'_main','_IO_PWM_DualInit'
+	.calls	'_main','_IO_PWM_DualDeInit'
+	.calls	'_main','_IO_RTC_StartTime'
+	.calls	'_main','_IO_Driver_TaskBegin'
+	.calls	'_main','_IO_PWM_SetDuty'
+	.calls	'_main','_IO_PWM_DualSetDuty'
+	.calls	'_main','_IO_PWM_GetCur'
+	.calls	'_main','_sprintf'
+	.calls	'_main','_strlen'
+	.calls	'_main','_IO_UART_Write'
+	.calls	'_main','_IO_UART_GetTxStatus'
+	.calls	'_main','_IO_UART_Task'
+	.calls	'_main','_IO_Driver_TaskEnd'
+	.calls	'_main','_IO_RTC_GetTimeUS'
+	.calls	'_main','',4,192
+	.extern	_sprintf : far
+	.extern	_strlen : far
+	.extern	_IO_UART_Init : far
+	.extern	_IO_UART_Task : far
+	.extern	_IO_UART_Write : far
+	.extern	_IO_UART_GetTxStatus : far
+	.extern	_IO_Driver_Init : far
+	.extern	_IO_Driver_TaskBegin : far
+	.extern	_IO_Driver_TaskEnd : far
+	.extern	_IO_RTC_StartTime : far
+	.extern	_IO_RTC_GetTimeUS : far
+	.extern	_IO_PWM_Init : far
+	.extern	_IO_PWM_DualInit : far
+	.extern	_IO_PWM_DeInit : far
+	.extern	_IO_PWM_DualDeInit : far
+	.extern	_IO_PWM_SetDuty : far
+	.extern	_IO_PWM_DualSetDuty : far
+	.extern	_IO_PWM_GetCur : far
+	.extern	__cstart : far
+	.extern	___printf_float : far
+	.extern	___printf_int : far
+	.extern	__lc_ub_user_stack : nearbyte
+	.extern	__cphnb : far
+	.extern	__umol : far
+	.extern	__us2spf : far
+	.extern	__div_spf : far
+	.extern	__spf2dpf : far
+	.extern	__mul_dpf : far
+	.extern	__INDIRECT__ : far
+	.debug		.debug_info
+_24:
+	.dl	2853
+	.dw	3
+	.dl	_25
+	.db	4
+_23:
+	.db	1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1
+	.dl	_26
+	.db	2
+	.db	'int',0,2,5,2
+	.db	'char',0,1,6,3,5
+	.dl	138
+	.db	4
+	.dl	146
+	.db	5
+	.dl	138
+	.db	3,5
+	.dl	157
+	.db	4
+	.dl	162
+	.db	6
+	.db	'sprintf',0,1,150,1,16,6
+	.dl	131
+	.db	1,1,1,1,7,1,150,1,32,2
+	.dl	152
+	.db	7,1,150,1,55,2
+	.dl	168
+	.db	8,1,150,1,67,0
+_51:
+	.db	2
+	.db	'unsigned int',0,2,7,6
+	.db	'strlen',0,2,52,17,6
+	.dl	221
+	.db	1,1,1,1,7,2,52,39,2
+	.dl	162
+	.db	0
+_48:
+	.db	2
+	.db	'unsigned char',0,1,8
+_69:
+	.db	2
+	.db	'unsigned long int',0,4,7,6
+	.db	'IO_UART_Init',0,3,187,1,15,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'channel',0,3,187,1,36,2
+	.dl	267
+	.db	9
+	.db	'baudrate',0,3,188,1,36,2
+	.dl	284
+	.db	9
+	.db	'dbits',0,3,189,1,36,2
+	.dl	267
+	.db	9
+	.db	'par',0,3,190,1,36,2
+	.dl	267
+	.db	9
+	.db	'sbits',0,3,191,1,36,2
+	.dl	267
+	.db	0,10
+	.db	'IO_UART_Task',0,3,230,1,15,6
+	.dl	221
+	.db	1,1,1,1,5
+	.dl	267
+	.db	3,5
+	.dl	443
+	.db	5
+	.dl	448
+	.db	3,5
+	.dl	267
+	.db	5
+	.dl	459
+	.db	6
+	.db	'IO_UART_Write',0,3,181,2,15,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'channel',0,3,181,2,37,2
+	.dl	267
+	.db	9
+	.db	'data',0,3,182,2,51,2
+	.dl	454
+	.db	9
+	.db	'len',0,3,183,2,37,2
+	.dl	267
+	.db	9
+	.db	'tx_len',0,3,184,2,45,2
+	.dl	465
+	.db	0,5
+	.dl	459
+	.db	6
+	.db	'IO_UART_GetTxStatus',0,3,232,2,15,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'channel',0,3,232,2,43,2
+	.dl	267
+	.db	9
+	.db	'tx_len',0,3,233,2,51,2
+	.dl	563
+	.db	0,11
+	.db	'_io_driver_safety_conf',0,4,237,2,17,8,12
+	.db	'glitch_filter_time',0
+	.dl	267
+	.db	1,2,35,0,12
+	.db	'command_period',0
+	.dl	221
+	.db	2,2,35,2,12
+	.db	'timeout_count',0
+	.dl	267
+	.db	1,2,35,4,12
+	.db	'CPU_check_loopcount',0
+	.dl	221
+	.db	2,2,35,6,0,5
+	.dl	638
+	.db	3,5
+	.dl	772
+	.db	5
+	.dl	777
+	.db	6
+	.db	'IO_Driver_Init',0,4,163,3,15,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'safety_conf',0,4,163,3,67,2
+	.dl	783
+	.db	0,10
+	.db	'IO_Driver_TaskBegin',0,4,192,3,15,6
+	.dl	221
+	.db	1,1,1,1,10
+	.db	'IO_Driver_TaskEnd',0,4,207,3,15,6
+	.dl	221
+	.db	1,1,1,1,3,5
+	.dl	284
+	.db	5
+	.dl	906
+	.db	6
+	.db	'IO_RTC_StartTime',0,5,118,15,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'timestamp',0,5,118,49,2
+	.dl	912
+	.db	0,6
+	.db	'IO_RTC_GetTimeUS',0,5,143,1,9,6
+	.dl	284
+	.db	1,1,1,1,9
+	.db	'timestamp',0,5,143,1,35,2
+	.dl	284
+	.db	0,11
+	.db	'_io_pwm_safety_conf',0,6,111,16,2,12
+	.db	'resistance',0
+	.dl	267
+	.db	1,2,35,0,0,5
+	.dl	1019
+	.db	3,5
+	.dl	1065
+	.db	5
+	.dl	1070
+	.db	6
+	.db	'IO_PWM_Init',0,6,203,1,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,203,1,34,2
+	.dl	267
+	.db	9
+	.db	'frequency',0,6,204,1,34,2
+	.dl	221
+	.db	9
+	.db	'polarity',0,6,205,1,32,2
+	.dl	267
+	.db	9
+	.db	'cur_measurement',0,6,206,1,32,2
+	.dl	267
+	.db	9
+	.db	'cur_channel',0,6,207,1,34,2
+	.dl	267
+	.db	9
+	.db	'diag_margin',0,6,208,1,32,2
+	.dl	267
+	.db	9
+	.db	'safety_conf',0,6,209,1,60,2
+	.dl	1076
+	.db	0,5
+	.dl	1070
+	.db	6
+	.db	'IO_PWM_DualInit',0,6,158,2,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,158,2,38,2
+	.dl	267
+	.db	9
+	.db	'frequency',0,6,159,2,38,2
+	.dl	221
+	.db	9
+	.db	'polarity',0,6,160,2,36,2
+	.dl	267
+	.db	9
+	.db	'cur_channel',0,6,161,2,38,2
+	.dl	267
+	.db	9
+	.db	'safety_conf',0,6,162,2,64,2
+	.dl	1261
+	.db	0,6
+	.db	'IO_PWM_DeInit',0,6,183,2,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,183,2,36,2
+	.dl	267
+	.db	0,6
+	.db	'IO_PWM_DualDeInit',0,6,203,2,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,203,2,40,2
+	.dl	267
+	.db	0,5
+	.dl	906
+	.db	6
+	.db	'IO_PWM_SetDuty',0,6,235,2,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,235,2,37,2
+	.dl	267
+	.db	9
+	.db	'duty_cycle',0,6,236,2,37,2
+	.dl	221
+	.db	9
+	.db	'duty_cycle_fb',0,6,237,2,45,2
+	.dl	1508
+	.db	0,5
+	.dl	906
+	.db	5
+	.dl	906
+	.db	6
+	.db	'IO_PWM_DualSetDuty',0,6,150,3,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,150,3,41,2
+	.dl	267
+	.db	9
+	.db	'duty_cycle',0,6,151,3,41,2
+	.dl	221
+	.db	9
+	.db	'direction',0,6,152,3,39,2
+	.dl	267
+	.db	9
+	.db	'duty_cycle_fb_0',0,6,153,3,49,2
+	.dl	1610
+	.db	9
+	.db	'duty_cycle_fb_1',0,6,154,3,49,2
+	.dl	1615
+	.db	0,3,5
+	.dl	221
+	.db	5
+	.dl	1769
+	.db	6
+	.db	'IO_PWM_GetCur',0,6,179,3,14,6
+	.dl	221
+	.db	1,1,1,1,9
+	.db	'pwm_channel',0,6,179,3,36,2
+	.dl	267
+	.db	9
+	.db	'current',0,6,180,3,44,2
+	.dl	1775
+	.db	0
+_46:
+	.db	13,128,1
+	.dl	267
+	.db	14,127,0,15
+	.db	'_INDIRECT__',0,7,1,1,6,1,1,1,16
+	.db	'__size_t',0,7,1,1
+	.dl	221
+	.db	17
+	.db	'void',0,3,5
+	.dl	1896
+	.db	16
+	.db	'__prof_adm',0,7,1,1
+	.dl	1902
+	.db	16
+	.db	'__codeptr',0,7,1,1
+	.dl	284
+	.db	16
+	.db	'size_t',0,1,31,25
+	.dl	221
+	.db	2
+	.db	'unsigned short int',0,2,7,16
+	.db	'_iob_flag_t',0,1,82,25
+	.dl	1960
+	.db	16
+	.db	'ubyte1',0,8,21,29
+	.dl	267
+	.db	16
+	.db	'ubyte2',0,8,22,29
+	.dl	221
+	.db	16
+	.db	'ubyte4',0,8,23,29
+	.dl	284
+	.db	16
+	.db	'sbyte2',0,8,26,29
+	.dl	131
+	.db	16
+	.db	'bool',0,8,31,29
+	.dl	267
+	.db	16
+	.db	'IO_ErrorType',0,9,150,1,17
+	.dl	221
+	.db	16
+	.db	'IO_DRIVER_SAFETY_CONF',0,4,252,2,4
+	.dl	638
+	.db	16
+	.db	'IO_PWM_SAFETY_CONF',0,6,114,3
+	.dl	1019
+	.db	11
+	.db	'_bl_t_date',0,10,90,16,4,12
+	.db	'date',0
+	.dl	284
+	.db	4,2,35,0,0,16
+	.db	'BL_T_DATE',0,10,93,2
+	.dl	2155
+	.db	11
+	.db	'_bl_t_can_id',0,10,102,16,8,12
+	.db	'extended',0
+	.dl	284
+	.db	4,2,35,0,12
+	.db	'ID',0
+	.dl	284
+	.db	4,2,35,4,0,16
+	.db	'BL_T_CAN_ID',0,10,106,2
+	.dl	2204
+	.db	13,24
+	.dl	267
+	.db	14,23,0,11
+	.db	'_bl_apdb',0,10,116,16,128,1,12
+	.db	'versionAPDB',0
+	.dl	284
+	.db	4,2,35,0,12
+	.db	'flashDate',0
+	.dl	2155
+	.db	4,2,35,4,12
+	.db	'buildDate',0
+	.dl	2155
+	.db	4,2,35,8,12
+	.db	'nodeType',0
+	.dl	284
+	.db	4,2,35,12,12
+	.db	'startAddress',0
+	.dl	284
+	.db	4,2,35,16,12
+	.db	'codeSize',0
+	.dl	284
+	.db	4,2,35,20,12
+	.db	'legacyAppCRC',0
+	.dl	284
+	.db	4,2,35,24,12
+	.db	'appCRC',0
+	.dl	284
+	.db	4,2,35,28,12
+	.db	'nodeNr',0
+	.dl	284
+	.db	4,2,35,32,12
+	.db	'CRCInit',0
+	.dl	284
+	.db	4,2,35,36,12
+	.db	'flags',0
+	.dl	284
+	.db	4,2,35,40,12
+	.db	'hook1',0
+	.dl	284
+	.db	4,2,35,44,12
+	.db	'hook2',0
+	.dl	284
+	.db	4,2,35,48,12
+	.db	'hook3',0
+	.dl	284
+	.db	4,2,35,52,12
+	.db	'mainAddress',0
+	.dl	284
+	.db	4,2,35,56,12
+	.db	'canDownloadID',0
+	.dl	2204
+	.db	8,2,35,60,12
+	.db	'canUploadID',0
+	.dl	2204
+	.db	8,2,35,68,12
+	.db	'legacyHeaderCRC',0
+	.dl	284
+	.db	4,2,35,76,12
+	.db	'version',0
+	.dl	284
+	.db	4,2,35,80,12
+	.db	'canBaudrate',0
+	.dl	284
+	.db	4,2,35,84,12
+	.db	'canChannel',0
+	.dl	284
+	.db	4,2,35,88,12
+	.db	'password',0
+	.dl	284
+	.db	4,2,35,92,12
+	.db	'magicSeed',0
+	.dl	284
+	.db	4,2,35,96,12
+	.db	'reserved',0
+	.dl	2273
+	.db	24,2,35,100,12
+	.db	'headerCRC',0
+	.dl	284
+	.db	4,2,35,124,0,16
+	.db	'BL_APDB',0,10,150,1,2
+	.dl	2282
+	.db	18
+	.dl	2282
+_63:
+	.db	5
+	.dl	2785
+_64:
+	.db	18
+	.dl	284
+_65:
+	.db	18
+	.dl	221
+_66:
+	.db	18
+	.dl	221
+_67:
+	.db	18
+	.dl	221
+_68:
+	.db	18
+	.dl	131
+	.db	19
+	.dl	267
+	.db	20,0,21
+	.db	'_lc_ub_user_stack',0,7,1,1,2
+	.dl	2820
+	.db	1,1,0
+	; End of section
+
+	.debug		.debug_abbrev
+_25:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,16,6,0,0,2,36,0,3,8,11,15,62,15,0,0,3,15,0,51,15,73,19,0,0,4,55,0
+	.db	73,19,0,0,5,38,0,73,19,0,0,6,46,1,3,8,58,15,59,15,57,15,51,15,73,19,54,15,39,12,63,12,60,12,0,0,7,5,0
+	.db	58,15,59,15,57,15,51,15,73,19,0,0,8,24,0,58,15,59,15,57,15,0,0,9,5,0,3,8,58,15,59,15,57,15,51,15,73,19
+	.db	0,0,10,46,0,3,8,58,15,59,15,57,15,51,15,73,19,54,15,39,12,63,12,60,12,0,0,11,19,1,3,8,58,15,59,15,57,15
+	.db	11,15,0,0,12,13,0,3,8,73,19,11,15,56,9,0,0,13,1,1,11,15,73,19,0,0,14,33,0,47,15,0,0,15,46,0,3,8,58,15
+	.db	59,15,57,15,51,15,54,15,63,12,60,12,0,0,16,22,0,3,8,58,15,59,15,57,15,73,19,0,0,17,59,0,3,8,0,0,18,53
+	.db	0,73,19,0,0,19,1,1,73,19,0,0,20,33,0,0,0,21,52,0,3,8,58,15,59,15,57,15,51,15,73,19,63,12,60,12,0,0,0
+	; End of section
+
+	.debug		.debug_line
+_26:
+	.dl	_523-_522
+_522:
+	.dw	3
+	.dl	_525-_524
+_524:
+	.db	2,1,-4,9,10,0,1,1,1,1,0,0,0,1
+	.db	'c:\\Program Files (x86)\\TASKING\\C166-VX v4.0r1\\include\\',0
+	.db	'..\\..\\..\\Environment\\inc',0,0
+	.db	'stdio.h',0,1,0,0
+	.db	'string.h',0,1,0,0
+	.db	'IO_UART.h',0,2,0,0
+	.db	'IO_Driver.h',0,2,0,0
+	.db	'IO_RTC.h',0,2,0,0
+	.db	'IO_PWM.h',0,2,0,0
+	.db	'main.c',0,0,0,0
+	.db	'ptypes_xe167.h',0,2,0,0
+	.db	'IO_Constants.h',0,2,0,0
+	.db	'APDB.h',0,2,0,0,0
+_525:
+_523:
+	; End of section
+
+	.debug		.debug_pubnames
+	.dl	372
+	.dw	2
+	.dl	_24,2857,173
+	.db	'sprintf',0
+	.dl	237
+	.db	'strlen',0
+	.dl	305
+	.db	'IO_UART_Init',0
+	.dl	416
+	.db	'IO_UART_Task',0
+	.dl	470
+	.db	'IO_UART_Write',0
+	.dl	568
+	.db	'IO_UART_GetTxStatus',0
+	.dl	788
+	.db	'IO_Driver_Init',0
+	.dl	840
+	.db	'IO_Driver_TaskBegin',0
+	.dl	874
+	.db	'IO_Driver_TaskEnd',0
+	.dl	917
+	.db	'IO_RTC_StartTime',0
+	.dl	967
+	.db	'IO_RTC_GetTimeUS',0
+	.dl	1081
+	.db	'IO_PWM_Init',0
+	.dl	1266
+	.db	'IO_PWM_DualInit',0
+	.dl	1402
+	.db	'IO_PWM_DeInit',0
+	.dl	1453
+	.db	'IO_PWM_DualDeInit',0
+	.dl	1513
+	.db	'IO_PWM_SetDuty',0
+	.dl	1620
+	.db	'IO_PWM_DualSetDuty',0
+	.dl	1780
+	.db	'IO_PWM_GetCur',0
+	.dl	1859
+	.db	'_INDIRECT__',0
+	.dl	0
+	; End of section
+
+	.debug		.debug_info, cluster 'main'
+_27:
+	.dl	449
+	.dw	3
+	.dl	_28
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1
+	.dl	_30,_29
+	.db	2
+	.dl	_23
+	.db	3
+	.db	'main',0,1,50,6,6,1,1,1
+	.dl	_12,_31,_11
+	.db	12,19,146,176,2,0,64,36,146,161,2,0,33,4
+	.dl	_12,_31
+	.db	5
+	.db	'data',0,1,52,12,2
+	.dl	_46,_47
+	.db	5
+	.db	'size',0,1,53,12,2
+	.dl	_48,_49
+	.db	5
+	.db	'len_tx',0,1,53,18,2
+	.dl	_48,_50
+	.db	5
+	.db	'ret0',0,1,54,18,2
+	.dl	_51,_52
+	.db	5
+	.db	'ret1',0,1,54,24,2
+	.dl	_51,_53
+	.db	5
+	.db	'ret2',0,1,54,30,2
+	.dl	_51,_54
+	.db	5
+	.db	'ret3',0,1,54,36,2
+	.dl	_51,_55
+	.db	5
+	.db	'ret4',0,1,54,42,2
+	.dl	_51,_56
+	.db	5
+	.db	'ret5',0,1,54,48,2
+	.dl	_51,_57
+	.db	5
+	.db	'curr0',0,1,55,12,2
+	.dl	_51,_58
+	.db	5
+	.db	'curr1',0,1,55,19,2
+	.dl	_51,_59
+	.db	5
+	.db	'curr2',0,1,55,26,2
+	.dl	_51,_60
+	.db	5
+	.db	'curr3',0,1,55,33,2
+	.dl	_51,_61
+	.db	5
+	.db	'direction',0,1,56,10,2
+	.dl	_48,_62
+	.db	0,0,0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'main'
+_28:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,51,15
+	.db	54,15,39,12,63,12,17,1,18,1,64,6,42,9,0,0,4,11,1,17,1,18,1,0,0,5,52,0,3,8,58,15,59,15,57,15,51,15,73,16
+	.db	2,6,0,0,0
+	; End of section
+
+	.debug		.debug_line, cluster 'main'
+_29:
+	.dl	_527-_526
+_526:
+	.dw	3
+	.dl	_529-_528
+_528:
+	.db	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.db	'main.c',0,0,0,0,0
+_529:
+	.db	5,6,7,0,5,2
+	.dl	_12
+	.db	3,49,1,5,12,9
+	.dw	_70-_12
+	.db	3,2,1,5,24,9
+	.dw	_530-_70
+	.db	1,5,22,9
+	.dw	_531-_530
+	.db	1,5,20,9
+	.dw	_532-_531
+	.db	3,4,1,5,21,9
+	.dw	_492-_532
+	.db	3,3,1,5,19,9
+	.dw	_491-_492
+	.db	3,2,1,9
+	.dw	_533-_491
+	.db	3,1,1,9
+	.dw	_534-_533
+	.db	3,3,1,5,18,9
+	.dw	_535-_534
+	.db	3,5,1,9
+	.dw	_536-_535
+	.db	3,3,1,9
+	.dw	_537-_536
+	.db	3,2,1,9
+	.dw	_538-_537
+	.db	3,4,1,9
+	.dw	_539-_538
+	.db	3,3,1,9
+	.dw	_540-_539
+	.db	3,2,1,5,20,9
+	.dw	_541-_540
+	.db	3,2,1,5,18,9
+	.dw	_542-_541
+	.db	3,3,1,9
+	.dw	_543-_542
+	.db	3,3,1,9
+	.dw	_544-_543
+	.db	3,2,1,9
+	.dw	_545-_544
+	.db	3,4,1,9
+	.dw	_546-_545
+	.db	3,5,1,9
+	.dw	_547-_546
+	.db	3,4,1,9
+	.dw	_548-_547
+	.db	3,5,1,5,22,9
+	.dw	_549-_548
+	.db	3,4,1,9
+	.dw	_550-_549
+	.db	3,2,1,9
+	.dw	_551-_550
+	.db	3,1,1,9
+	.dw	_552-_551
+	.db	3,4,1,9
+	.dw	_553-_552
+	.db	3,2,1,9
+	.dw	_554-_553
+	.db	3,1,1,5,24,9
+	.dw	_555-_554
+	.db	3,3,1,5,22,9
+	.dw	_556-_555
+	.db	3,3,1,9
+	.dw	_557-_556
+	.db	3,2,1,9
+	.dw	_558-_557
+	.db	3,1,1,5,25,9
+	.dw	_559-_558
+	.db	3,37,1,9
+	.dw	_560-_559
+	.db	3,3,1,9
+	.dw	_561-_560
+	.db	3,3,1,9
+	.dw	_562-_561
+	.db	3,3,1,5,18,9
+	.dw	_563-_562
+	.db	3,26,1,5,33,9
+	.dw	_564-_563
+	.db	3,11,1,5,25,9
+	.dw	_565-_564
+	.db	3,4,1,5,24,9
+	.dw	_566-_565
+	.db	3,126,1,5,27,9
+	.dw	_2-_566
+	.db	3,175,127,1,5,28,9
+	.dw	_567-_2
+	.db	3,2,1,5,32,9
+	.dw	_568-_567
+	.db	3,3,1,9
+	.dw	_569-_568
+	.db	3,1,1,5,14,9
+	.dw	_493-_569
+	.db	3,126,1,5,32,9
+	.dw	_495-_493
+	.db	3,5,1,9
+	.dw	_570-_495
+	.db	3,1,1,5,14,9
+	.dw	_496-_570
+	.db	3,126,1,5,32,9
+	.dw	_498-_496
+	.db	3,5,1,9
+	.dw	_571-_498
+	.db	3,1,1,5,14,9
+	.dw	_499-_571
+	.db	3,126,1,5,32,9
+	.dw	_501-_499
+	.db	3,5,1,9
+	.dw	_572-_501
+	.db	3,1,1,5,14,9
+	.dw	_502-_572
+	.db	3,126,1,5,36,9
+	.dw	_504-_502
+	.db	3,5,1,9
+	.dw	_573-_504
+	.db	3,3,1,5,14,9
+	.dw	_506-_573
+	.db	3,124,1,5,36,9
+	.dw	_508-_506
+	.db	3,7,1,9
+	.dw	_574-_508
+	.db	3,3,1,5,14,9
+	.dw	_510-_574
+	.db	3,124,1,5,25,9
+	.dw	_512-_510
+	.db	3,7,1,9
+	.dw	_575-_512
+	.db	3,3,1,9
+	.dw	_576-_575
+	.db	3,3,1,9
+	.dw	_577-_576
+	.db	3,3,1,5,21,9
+	.dw	_578-_577
+	.db	3,2,1,5,9,9
+	.dw	_579-_578
+	.db	1,5,19,9
+	.dw	_580-_579
+	.db	3,2,1,5,17,9
+	.dw	_581-_580
+	.db	1,5,18,9
+	.dw	_3-_581
+	.db	3,2,1,5,9,9
+	.dw	_582-_3
+	.db	1,5,19,9
+	.dw	_583-_582
+	.db	3,2,1,5,17,9
+	.dw	_584-_583
+	.db	1,9
+	.dw	_4-_584
+	.db	3,2,1,5,14,9
+	.dw	_585-_4
+	.db	1,9
+	.dw	_586-_585
+	.db	3,2,1,5,22,9
+	.dw	_587-_586
+	.db	1,5,20,9
+	.dw	_588-_587
+	.db	1,5,9,9
+	.dw	_589-_588
+	.db	1,5,26,9
+	.dw	_590-_589
+	.db	3,2,1,5,23,9
+	.dw	_6-_590
+	.db	1,5,22,9
+	.dw	_5-_6
+	.db	3,2,1,5,19,9
+	.dw	_591-_5
+	.db	1,5,14,9
+	.dw	_592-_591
+	.db	3,5,1,5,22,9
+	.dw	_593-_592
+	.db	1,5,20,9
+	.dw	_594-_593
+	.db	1,5,9,9
+	.dw	_595-_594
+	.db	1,5,26,9
+	.dw	_596-_595
+	.db	3,2,1,5,23,9
+	.dw	_597-_596
+	.db	1,5,119,9
+	.dw	_7-_597
+	.db	3,9,1,5,111,9
+	.dw	_598-_7
+	.db	1,5,132,1,9
+	.dw	_599-_598
+	.db	1,5,130,1,9
+	.dw	_600-_599
+	.db	1,5,141,1,9
+	.dw	_601-_600
+	.db	1,5,139,1,9
+	.dw	_602-_601
+	.db	1,5,110,9
+	.dw	_603-_602
+	.db	3,4,1,9
+	.dw	_81-_603
+	.db	3,127,1,9
+	.dw	_92-_81
+	.db	3,127,1,9
+	.dw	_103-_92
+	.db	3,127,1,5,139,1,9
+	.dw	_114-_103
+	.db	3,127,1,5,110,9
+	.dw	_158-_114
+	.db	3,127,1,5,33,9
+	.dw	_169-_158
+	.db	3,123,1,5,110,9
+	.dw	_604-_169
+	.db	3,4,1,9
+	.dw	_180-_604
+	.db	3,127,1,9
+	.dw	_191-_180
+	.db	3,127,1,9
+	.dw	_202-_191
+	.db	3,127,1,9
+	.dw	_213-_202
+	.db	3,127,1,5,33,9
+	.dw	_224-_213
+	.db	1,9
+	.dw	_235-_224
+	.db	3,11,1,5,32,9
+	.dw	_605-_235
+	.db	1,5,24,9
+	.dw	_606-_605
+	.db	3,1,1,5,25,9
+	.dw	_607-_606
+	.db	3,3,1,5,34,9
+	.dw	_8-_607
+	.db	3,3,1,5,35,9
+	.dw	_608-_8
+	.db	3,1,1,5,25,9
+	.dw	_609-_608
+	.db	3,1,1,5,17,9
+	.dw	_610-_609
+	.db	3,1,1,5,27,9
+	.dw	_611-_610
+	.db	1,5,61,7,9
+	.dw	_612-_611
+	.db	3,2,1,9
+	.dw	_613-_612
+	.db	3,1,1,9
+	.dw	_614-_613
+	.db	3,1,1,9
+	.dw	_246-_614
+	.db	3,127,1,9
+	.dw	_257-_246
+	.db	3,127,1,5,33,9
+	.dw	_268-_257
+	.db	1,9
+	.dw	_279-_268
+	.db	3,3,1,5,32,9
+	.dw	_615-_279
+	.db	1,5,24,9
+	.dw	_616-_615
+	.db	3,1,1,5,25,9
+	.dw	_617-_616
+	.db	3,3,1,5,34,9
+	.dw	_9-_617
+	.db	3,3,1,5,35,9
+	.dw	_618-_9
+	.db	3,1,1,5,25,9
+	.dw	_619-_618
+	.db	3,1,1,5,17,9
+	.dw	_620-_619
+	.db	3,1,1,5,27,9
+	.dw	_621-_620
+	.db	1,5,14,7,9
+	.dw	_622-_621
+	.db	3,2,1,5,26,9
+	.dw	_623-_622
+	.db	3,2,1,5,33,9
+	.dw	_10-_623
+	.db	3,2,1,5,51,9
+	.dw	_624-_10
+	.db	1,5,13,9
+	.dw	_625-_624
+	.db	3,144,127,1,5,1,9
+	.dw	_31-_625
+	.db	3,244,0,0,1,1
+_527:
+	; End of section
+
+	.debug		.debug_ranges, cluster 'main'
+_30:
+	.dl	-1,_12,0,_31-_12,0,0
+	; End of section
+
+	.debug		.debug_pubnames
+	.dl	23
+	.dw	2
+	.dl	_27,453,140
+	.db	'main',0
+	.dl	0
+	; End of section
+
+	.debug		.debug_info, cluster 'appl_db'
+_32:
+	.dl	153
+	.dw	3
+	.dl	_33
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'appl_db',0,7,9,6,5
+	.dl	_63
+	.db	1,5,3
+	.dl	_appl_db
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'appl_db'
+_33:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'count'
+_34:
+	.dl	151
+	.dw	3
+	.dl	_35
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'count',0,7,43,17,5
+	.dl	_64
+	.db	1,5,3
+	.dl	_count
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'count'
+_35:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'duty'
+_36:
+	.dl	150
+	.dw	3
+	.dl	_37
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'duty',0,7,44,17,5
+	.dl	_65
+	.db	1,5,3
+	.dl	_duty
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'duty'
+_37:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'dual_duty'
+_38:
+	.dl	155
+	.dw	3
+	.dl	_39
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'dual_duty',0,7,45,17,5
+	.dl	_66
+	.db	1,5,3
+	.dl	_dual_duty
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'dual_duty'
+_39:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'duty_step'
+_40:
+	.dl	155
+	.dw	3
+	.dl	_41
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'duty_step',0,7,46,17,5
+	.dl	_67
+	.db	1,5,3
+	.dl	_duty_step
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'duty_step'
+_41:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'dir'
+_42:
+	.dl	149
+	.dw	3
+	.dl	_43
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'dir',0,7,47,17,5
+	.dl	_68
+	.db	1,5,3
+	.dl	_dir
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'dir'
+_43:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_info, cluster 'timestamp'
+_44:
+	.dl	155
+	.dw	3
+	.dl	_45
+	.db	4,1
+	.db	'main.c',0
+	.db	'TASKING VX-toolset for C166: C compiler',0
+	.db	'C:\\Users\\rusty\\Google Drive\\FSAE\\VCU\\Environment\\examples\\PWM_HL\\',0,12,1,2
+	.dl	_23
+	.db	3
+	.db	'timestamp',0,7,48,8,5
+	.dl	_69
+	.db	1,5,3
+	.dl	_timestamp
+	.db	0
+	; End of section
+
+	.debug		.debug_abbrev, cluster 'timestamp'
+_45:
+	.db	1,17,1,3,8,37,8,27,8,19,15,128,70,12,0,0,2,61,0,24,16,0,0,3,52,0,3,8,58,15,59,15,57,15,51,15,73,16,63
+	.db	12,2,9,0,0,0
+	; End of section
+
+	.debug		.debug_loc, cluster 'main'
+_58:
+	.dl	-1,_12,0,_31-_12
+	.dw	2
+	.db	145,100
+	.dl	0,0
+_59:
+	.dl	-1,_12,0,_31-_12
+	.dw	2
+	.db	145,98
+	.dl	0,0
+_60:
+	.dl	-1,_12,0,_31-_12
+	.dw	2
+	.db	145,94
+	.dl	0,0
+_61:
+	.dl	-1,_12,0,_31-_12
+	.dw	2
+	.db	145,96
+	.dl	0,0
+_47:
+	.dl	-1,_12,0,_31-_12
+	.dw	3
+	.db	145,220,126
+	.dl	0,0
+_62:
+	.dl	-1,_12,_490-_12,_491-_12
+	.dw	4
+	.db	84,157,8,8
+	.dl	_492-_12,_31-_12
+	.dw	2
+	.db	145,126
+	.dl	_505-_12,_506-_12
+	.dw	4
+	.db	82,157,8,8
+	.dl	_509-_12,_510-_12
+	.dw	4
+	.db	82,157,8,8
+	.dl	_513-_12,_514-_12
+	.dw	4
+	.db	84,157,8,8
+	.dl	_514-_12,_6-_12
+	.dw	4
+	.db	84,157,8,0
+	.dl	_6-_12,_5-_12
+	.dw	4
+	.db	84,157,8,8
+	.dl	0,0
+_50:
+	.dl	0,0
+_11:
+	.dl	-1,_12,0,_70-_12
+	.dw	58
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_13-_17
+_17:
+	.db	146,177,2,0,47
+	.dw	_16-_18
+_18:
+_13:
+	.db	18,49,46,40
+	.dw	_14-_19
+_19:
+	.db	146,178,2,0,47
+	.dw	_16-_20
+_20:
+_14:
+	.db	18,50,46,40
+	.dw	_15-_21
+_21:
+	.db	146,179,2,0,47
+	.dw	_16-_22
+_22:
+_15:
+	.db	146,180,2,0
+_16:
+	.db	22,19,62,36,33
+	.dl	_70-_12,_81-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_71-_75
+_75:
+	.db	146,177,2,0,47
+	.dw	_74-_76
+_76:
+_71:
+	.db	18,49,46,40
+	.dw	_72-_77
+_77:
+	.db	146,178,2,0,47
+	.dw	_74-_78
+_78:
+_72:
+	.db	18,50,46,40
+	.dw	_73-_79
+_79:
+	.db	146,179,2,0,47
+	.dw	_74-_80
+_80:
+_73:
+	.db	146,180,2,0
+_74:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34
+	.dl	_81-_12,_92-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_82-_86
+_86:
+	.db	146,177,2,0,47
+	.dw	_85-_87
+_87:
+_82:
+	.db	18,49,46,40
+	.dw	_83-_88
+_88:
+	.db	146,178,2,0,47
+	.dw	_85-_89
+_89:
+_83:
+	.db	18,50,46,40
+	.dw	_84-_90
+_90:
+	.db	146,179,2,0,47
+	.dw	_85-_91
+_91:
+_84:
+	.db	146,180,2,0
+_85:
+	.db	22,19,62,36,33,11
+	.dw	166
+	.db	34
+	.dl	_92-_12,_103-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_93-_97
+_97:
+	.db	146,177,2,0,47
+	.dw	_96-_98
+_98:
+_93:
+	.db	18,49,46,40
+	.dw	_94-_99
+_99:
+	.db	146,178,2,0,47
+	.dw	_96-_100
+_100:
+_94:
+	.db	18,50,46,40
+	.dw	_95-_101
+_101:
+	.db	146,179,2,0,47
+	.dw	_96-_102
+_102:
+_95:
+	.db	146,180,2,0
+_96:
+	.db	22,19,62,36,33,11
+	.dw	168
+	.db	34
+	.dl	_103-_12,_114-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_104-_108
+_108:
+	.db	146,177,2,0,47
+	.dw	_107-_109
+_109:
+_104:
+	.db	18,49,46,40
+	.dw	_105-_110
+_110:
+	.db	146,178,2,0,47
+	.dw	_107-_111
+_111:
+_105:
+	.db	18,50,46,40
+	.dw	_106-_112
+_112:
+	.db	146,179,2,0,47
+	.dw	_107-_113
+_113:
+_106:
+	.db	146,180,2,0
+_107:
+	.db	22,19,62,36,33,11
+	.dw	170
+	.db	34
+	.dl	_114-_12,_125-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_115-_119
+_119:
+	.db	146,177,2,0,47
+	.dw	_118-_120
+_120:
+_115:
+	.db	18,49,46,40
+	.dw	_116-_121
+_121:
+	.db	146,178,2,0,47
+	.dw	_118-_122
+_122:
+_116:
+	.db	18,50,46,40
+	.dw	_117-_123
+_123:
+	.db	146,179,2,0,47
+	.dw	_118-_124
+_124:
+_117:
+	.db	146,180,2,0
+_118:
+	.db	22,19,62,36,33,11
+	.dw	172
+	.db	34
+	.dl	_125-_12,_136-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_126-_130
+_130:
+	.db	146,177,2,0,47
+	.dw	_129-_131
+_131:
+_126:
+	.db	18,49,46,40
+	.dw	_127-_132
+_132:
+	.db	146,178,2,0,47
+	.dw	_129-_133
+_133:
+_127:
+	.db	18,50,46,40
+	.dw	_128-_134
+_134:
+	.db	146,179,2,0,47
+	.dw	_129-_135
+_135:
+_128:
+	.db	146,180,2,0
+_129:
+	.db	22,19,62,36,33,11
+	.dw	174
+	.db	34
+	.dl	_136-_12,_147-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_137-_141
+_141:
+	.db	146,177,2,0,47
+	.dw	_140-_142
+_142:
+_137:
+	.db	18,49,46,40
+	.dw	_138-_143
+_143:
+	.db	146,178,2,0,47
+	.dw	_140-_144
+_144:
+_138:
+	.db	18,50,46,40
+	.dw	_139-_145
+_145:
+	.db	146,179,2,0,47
+	.dw	_140-_146
+_146:
+_139:
+	.db	146,180,2,0
+_140:
+	.db	22,19,62,36,33,11
+	.dw	176
+	.db	34
+	.dl	_147-_12,_158-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_148-_152
+_152:
+	.db	146,177,2,0,47
+	.dw	_151-_153
+_153:
+_148:
+	.db	18,49,46,40
+	.dw	_149-_154
+_154:
+	.db	146,178,2,0,47
+	.dw	_151-_155
+_155:
+_149:
+	.db	18,50,46,40
+	.dw	_150-_156
+_156:
+	.db	146,179,2,0,47
+	.dw	_151-_157
+_157:
+_150:
+	.db	146,180,2,0
+_151:
+	.db	22,19,62,36,33,11
+	.dw	178
+	.db	34
+	.dl	_158-_12,_169-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_159-_163
+_163:
+	.db	146,177,2,0,47
+	.dw	_162-_164
+_164:
+_159:
+	.db	18,49,46,40
+	.dw	_160-_165
+_165:
+	.db	146,178,2,0,47
+	.dw	_162-_166
+_166:
+_160:
+	.db	18,50,46,40
+	.dw	_161-_167
+_167:
+	.db	146,179,2,0,47
+	.dw	_162-_168
+_168:
+_161:
+	.db	146,180,2,0
+_162:
+	.db	22,19,62,36,33,11
+	.dw	180
+	.db	34
+	.dl	_169-_12,_180-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_170-_174
+_174:
+	.db	146,177,2,0,47
+	.dw	_173-_175
+_175:
+_170:
+	.db	18,49,46,40
+	.dw	_171-_176
+_176:
+	.db	146,178,2,0,47
+	.dw	_173-_177
+_177:
+_171:
+	.db	18,50,46,40
+	.dw	_172-_178
+_178:
+	.db	146,179,2,0,47
+	.dw	_173-_179
+_179:
+_172:
+	.db	146,180,2,0
+_173:
+	.db	22,19,62,36,33,11
+	.dw	182
+	.db	34
+	.dl	_180-_12,_191-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_181-_185
+_185:
+	.db	146,177,2,0,47
+	.dw	_184-_186
+_186:
+_181:
+	.db	18,49,46,40
+	.dw	_182-_187
+_187:
+	.db	146,178,2,0,47
+	.dw	_184-_188
+_188:
+_182:
+	.db	18,50,46,40
+	.dw	_183-_189
+_189:
+	.db	146,179,2,0,47
+	.dw	_184-_190
+_190:
+_183:
+	.db	146,180,2,0
+_184:
+	.db	22,19,62,36,33,11
+	.dw	184
+	.db	34
+	.dl	_191-_12,_202-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_192-_196
+_196:
+	.db	146,177,2,0,47
+	.dw	_195-_197
+_197:
+_192:
+	.db	18,49,46,40
+	.dw	_193-_198
+_198:
+	.db	146,178,2,0,47
+	.dw	_195-_199
+_199:
+_193:
+	.db	18,50,46,40
+	.dw	_194-_200
+_200:
+	.db	146,179,2,0,47
+	.dw	_195-_201
+_201:
+_194:
+	.db	146,180,2,0
+_195:
+	.db	22,19,62,36,33,11
+	.dw	186
+	.db	34
+	.dl	_202-_12,_213-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_203-_207
+_207:
+	.db	146,177,2,0,47
+	.dw	_206-_208
+_208:
+_203:
+	.db	18,49,46,40
+	.dw	_204-_209
+_209:
+	.db	146,178,2,0,47
+	.dw	_206-_210
+_210:
+_204:
+	.db	18,50,46,40
+	.dw	_205-_211
+_211:
+	.db	146,179,2,0,47
+	.dw	_206-_212
+_212:
+_205:
+	.db	146,180,2,0
+_206:
+	.db	22,19,62,36,33,11
+	.dw	188
+	.db	34
+	.dl	_213-_12,_224-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_214-_218
+_218:
+	.db	146,177,2,0,47
+	.dw	_217-_219
+_219:
+_214:
+	.db	18,49,46,40
+	.dw	_215-_220
+_220:
+	.db	146,178,2,0,47
+	.dw	_217-_221
+_221:
+_215:
+	.db	18,50,46,40
+	.dw	_216-_222
+_222:
+	.db	146,179,2,0,47
+	.dw	_217-_223
+_223:
+_216:
+	.db	146,180,2,0
+_217:
+	.db	22,19,62,36,33,11
+	.dw	190
+	.db	34
+	.dl	_224-_12,_235-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_225-_229
+_229:
+	.db	146,177,2,0,47
+	.dw	_228-_230
+_230:
+_225:
+	.db	18,49,46,40
+	.dw	_226-_231
+_231:
+	.db	146,178,2,0,47
+	.dw	_228-_232
+_232:
+_226:
+	.db	18,50,46,40
+	.dw	_227-_233
+_233:
+	.db	146,179,2,0,47
+	.dw	_228-_234
+_234:
+_227:
+	.db	146,180,2,0
+_228:
+	.db	22,19,62,36,33,11
+	.dw	192
+	.db	34
+	.dl	_235-_12,_246-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_236-_240
+_240:
+	.db	146,177,2,0,47
+	.dw	_239-_241
+_241:
+_236:
+	.db	18,49,46,40
+	.dw	_237-_242
+_242:
+	.db	146,178,2,0,47
+	.dw	_239-_243
+_243:
+_237:
+	.db	18,50,46,40
+	.dw	_238-_244
+_244:
+	.db	146,179,2,0,47
+	.dw	_239-_245
+_245:
+_238:
+	.db	146,180,2,0
+_239:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34
+	.dl	_246-_12,_257-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_247-_251
+_251:
+	.db	146,177,2,0,47
+	.dw	_250-_252
+_252:
+_247:
+	.db	18,49,46,40
+	.dw	_248-_253
+_253:
+	.db	146,178,2,0,47
+	.dw	_250-_254
+_254:
+_248:
+	.db	18,50,46,40
+	.dw	_249-_255
+_255:
+	.db	146,179,2,0,47
+	.dw	_250-_256
+_256:
+_249:
+	.db	146,180,2,0
+_250:
+	.db	22,19,62,36,33,11
+	.dw	166
+	.db	34
+	.dl	_257-_12,_268-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_258-_262
+_262:
+	.db	146,177,2,0,47
+	.dw	_261-_263
+_263:
+_258:
+	.db	18,49,46,40
+	.dw	_259-_264
+_264:
+	.db	146,178,2,0,47
+	.dw	_261-_265
+_265:
+_259:
+	.db	18,50,46,40
+	.dw	_260-_266
+_266:
+	.db	146,179,2,0,47
+	.dw	_261-_267
+_267:
+_260:
+	.db	146,180,2,0
+_261:
+	.db	22,19,62,36,33,11
+	.dw	168
+	.db	34
+	.dl	_268-_12,_279-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_269-_273
+_273:
+	.db	146,177,2,0,47
+	.dw	_272-_274
+_274:
+_269:
+	.db	18,49,46,40
+	.dw	_270-_275
+_275:
+	.db	146,178,2,0,47
+	.dw	_272-_276
+_276:
+_270:
+	.db	18,50,46,40
+	.dw	_271-_277
+_277:
+	.db	146,179,2,0,47
+	.dw	_272-_278
+_278:
+_271:
+	.db	146,180,2,0
+_272:
+	.db	22,19,62,36,33,11
+	.dw	170
+	.db	34
+	.dl	_279-_12,_31-_12
+	.dw	62
+	.db	127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_280-_284
+_284:
+	.db	146,177,2,0,47
+	.dw	_283-_285
+_285:
+_280:
+	.db	18,49,46,40
+	.dw	_281-_286
+_286:
+	.db	146,178,2,0,47
+	.dw	_283-_287
+_287:
+_281:
+	.db	18,50,46,40
+	.dw	_282-_288
+_288:
+	.db	146,179,2,0,47
+	.dw	_283-_289
+_289:
+_282:
+	.db	146,180,2,0
+_283:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34
+	.dl	0,0
+_52:
+	.dl	-1,_12,_493-_12,_494-_12
+	.dw	1
+	.db	82
+	.dl	_495-_12,_31-_12
+	.dw	2
+	.db	145,124
+	.dl	_520-_12,_521-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_53:
+	.dl	-1,_12,_496-_12,_497-_12
+	.dw	1
+	.db	82
+	.dl	_498-_12,_31-_12
+	.dw	2
+	.db	145,122
+	.dl	_519-_12,_520-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_54:
+	.dl	-1,_12,_499-_12,_500-_12
+	.dw	1
+	.db	82
+	.dl	_501-_12,_31-_12
+	.dw	2
+	.db	145,120
+	.dl	_518-_12,_519-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_55:
+	.dl	-1,_12,_502-_12,_503-_12
+	.dw	1
+	.db	82
+	.dl	_504-_12,_31-_12
+	.dw	2
+	.db	145,118
+	.dl	_517-_12,_518-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_56:
+	.dl	-1,_12,_506-_12,_507-_12
+	.dw	1
+	.db	82
+	.dl	_508-_12,_31-_12
+	.dw	2
+	.db	145,116
+	.dl	_516-_12,_517-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_57:
+	.dl	-1,_12,_510-_12,_511-_12
+	.dw	1
+	.db	82
+	.dl	_512-_12,_31-_12
+	.dw	2
+	.db	145,114
+	.dl	_515-_12,_516-_12
+	.dw	1
+	.db	91
+	.dl	0,0
+_49:
+	.dl	-1,_12,0,_31-_12
+	.dw	2
+	.db	145,92
+	.dl	0,0
+	; End of section
+
+	.debug		.debug_frame
+_626:
+	.dl	148
+	.dl	-1
+	.db	3,0,2,2,173,2,15,60,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_627-_631
+_631:
+	.db	146,177,2,0,47
+	.dw	_630-_632
+_632:
+_627:
+	.db	18,49,46,40
+	.dw	_628-_633
+_633:
+	.db	146,178,2,0,47
+	.dw	_630-_634
+_634:
+_628:
+	.db	18,50,46,40
+	.dw	_629-_635
+_635:
+	.db	146,179,2,0,47
+	.dw	_630-_636
+_636:
+_629:
+	.db	146,180,2,0
+_630:
+	.db	22,19,62,36,33,48,34,16,173,2,12,19,146,176,2,0,64,36,146,161,2,0,33,8,15,22,161,2,5,19,146,161,2,4,8
+	.db	177,2,8,178,2,8,179,2,8,180,2,16,174,2,12,19,146,176,2,0,64,36,146,161,2,0,33,16,175,2,12,19,146,176,2
+	.db	0,64,36,146,161,2,2,33,8,176,2,0,0
+	; End of section
+
+	.debug		.debug_frame, cluster 'main'
+	.dl	1556
+	.dl	_626,_12,_31-_12
+	.db	8,162,2,8,166,2,8,167,2,8,168,2,8,169,2,8,170,2,8,171,2,8,172,2,4
+	.dl	(_70-_12)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_290-_294
+_294:
+	.db	146,177,2,0,47
+	.dw	_293-_295
+_295:
+_290:
+	.db	18,49,46,40
+	.dw	_291-_296
+_296:
+	.db	146,178,2,0,47
+	.dw	_293-_297
+_297:
+_291:
+	.db	18,50,46,40
+	.dw	_292-_298
+_298:
+	.db	146,179,2,0,47
+	.dw	_293-_299
+_299:
+_292:
+	.db	146,180,2,0
+_293:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34,22,15,4,19,127,164,1,4
+	.dl	(_81-_70)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_300-_304
+_304:
+	.db	146,177,2,0,47
+	.dw	_303-_305
+_305:
+_300:
+	.db	18,49,46,40
+	.dw	_301-_306
+_306:
+	.db	146,178,2,0,47
+	.dw	_303-_307
+_307:
+_301:
+	.db	18,50,46,40
+	.dw	_302-_308
+_308:
+	.db	146,179,2,0,47
+	.dw	_303-_309
+_309:
+_302:
+	.db	146,180,2,0
+_303:
+	.db	22,19,62,36,33,11
+	.dw	166
+	.db	34,22,15,4,19,127,166,1,4
+	.dl	(_92-_81)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_310-_314
+_314:
+	.db	146,177,2,0,47
+	.dw	_313-_315
+_315:
+_310:
+	.db	18,49,46,40
+	.dw	_311-_316
+_316:
+	.db	146,178,2,0,47
+	.dw	_313-_317
+_317:
+_311:
+	.db	18,50,46,40
+	.dw	_312-_318
+_318:
+	.db	146,179,2,0,47
+	.dw	_313-_319
+_319:
+_312:
+	.db	146,180,2,0
+_313:
+	.db	22,19,62,36,33,11
+	.dw	168
+	.db	34,22,15,4,19,127,168,1,4
+	.dl	(_103-_92)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_320-_324
+_324:
+	.db	146,177,2,0,47
+	.dw	_323-_325
+_325:
+_320:
+	.db	18,49,46,40
+	.dw	_321-_326
+_326:
+	.db	146,178,2,0,47
+	.dw	_323-_327
+_327:
+_321:
+	.db	18,50,46,40
+	.dw	_322-_328
+_328:
+	.db	146,179,2,0,47
+	.dw	_323-_329
+_329:
+_322:
+	.db	146,180,2,0
+_323:
+	.db	22,19,62,36,33,11
+	.dw	170
+	.db	34,22,15,4,19,127,170,1,4
+	.dl	(_114-_103)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_330-_334
+_334:
+	.db	146,177,2,0,47
+	.dw	_333-_335
+_335:
+_330:
+	.db	18,49,46,40
+	.dw	_331-_336
+_336:
+	.db	146,178,2,0,47
+	.dw	_333-_337
+_337:
+_331:
+	.db	18,50,46,40
+	.dw	_332-_338
+_338:
+	.db	146,179,2,0,47
+	.dw	_333-_339
+_339:
+_332:
+	.db	146,180,2,0
+_333:
+	.db	22,19,62,36,33,11
+	.dw	172
+	.db	34,22,15,4,19,127,172,1,4
+	.dl	(_125-_114)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_340-_344
+_344:
+	.db	146,177,2,0,47
+	.dw	_343-_345
+_345:
+_340:
+	.db	18,49,46,40
+	.dw	_341-_346
+_346:
+	.db	146,178,2,0,47
+	.dw	_343-_347
+_347:
+_341:
+	.db	18,50,46,40
+	.dw	_342-_348
+_348:
+	.db	146,179,2,0,47
+	.dw	_343-_349
+_349:
+_342:
+	.db	146,180,2,0
+_343:
+	.db	22,19,62,36,33,11
+	.dw	174
+	.db	34,22,15,4,19,127,174,1,4
+	.dl	(_136-_125)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_350-_354
+_354:
+	.db	146,177,2,0,47
+	.dw	_353-_355
+_355:
+_350:
+	.db	18,49,46,40
+	.dw	_351-_356
+_356:
+	.db	146,178,2,0,47
+	.dw	_353-_357
+_357:
+_351:
+	.db	18,50,46,40
+	.dw	_352-_358
+_358:
+	.db	146,179,2,0,47
+	.dw	_353-_359
+_359:
+_352:
+	.db	146,180,2,0
+_353:
+	.db	22,19,62,36,33,11
+	.dw	176
+	.db	34,22,15,4,19,127,176,1,4
+	.dl	(_147-_136)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_360-_364
+_364:
+	.db	146,177,2,0,47
+	.dw	_363-_365
+_365:
+_360:
+	.db	18,49,46,40
+	.dw	_361-_366
+_366:
+	.db	146,178,2,0,47
+	.dw	_363-_367
+_367:
+_361:
+	.db	18,50,46,40
+	.dw	_362-_368
+_368:
+	.db	146,179,2,0,47
+	.dw	_363-_369
+_369:
+_362:
+	.db	146,180,2,0
+_363:
+	.db	22,19,62,36,33,11
+	.dw	178
+	.db	34,22,15,4,19,127,178,1,4
+	.dl	(_158-_147)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_370-_374
+_374:
+	.db	146,177,2,0,47
+	.dw	_373-_375
+_375:
+_370:
+	.db	18,49,46,40
+	.dw	_371-_376
+_376:
+	.db	146,178,2,0,47
+	.dw	_373-_377
+_377:
+_371:
+	.db	18,50,46,40
+	.dw	_372-_378
+_378:
+	.db	146,179,2,0,47
+	.dw	_373-_379
+_379:
+_372:
+	.db	146,180,2,0
+_373:
+	.db	22,19,62,36,33,11
+	.dw	180
+	.db	34,22,15,4,19,127,180,1,4
+	.dl	(_169-_158)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_380-_384
+_384:
+	.db	146,177,2,0,47
+	.dw	_383-_385
+_385:
+_380:
+	.db	18,49,46,40
+	.dw	_381-_386
+_386:
+	.db	146,178,2,0,47
+	.dw	_383-_387
+_387:
+_381:
+	.db	18,50,46,40
+	.dw	_382-_388
+_388:
+	.db	146,179,2,0,47
+	.dw	_383-_389
+_389:
+_382:
+	.db	146,180,2,0
+_383:
+	.db	22,19,62,36,33,11
+	.dw	182
+	.db	34,22,15,4,19,127,182,1,4
+	.dl	(_180-_169)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_390-_394
+_394:
+	.db	146,177,2,0,47
+	.dw	_393-_395
+_395:
+_390:
+	.db	18,49,46,40
+	.dw	_391-_396
+_396:
+	.db	146,178,2,0,47
+	.dw	_393-_397
+_397:
+_391:
+	.db	18,50,46,40
+	.dw	_392-_398
+_398:
+	.db	146,179,2,0,47
+	.dw	_393-_399
+_399:
+_392:
+	.db	146,180,2,0
+_393:
+	.db	22,19,62,36,33,11
+	.dw	184
+	.db	34,22,15,4,19,127,184,1,4
+	.dl	(_191-_180)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_400-_404
+_404:
+	.db	146,177,2,0,47
+	.dw	_403-_405
+_405:
+_400:
+	.db	18,49,46,40
+	.dw	_401-_406
+_406:
+	.db	146,178,2,0,47
+	.dw	_403-_407
+_407:
+_401:
+	.db	18,50,46,40
+	.dw	_402-_408
+_408:
+	.db	146,179,2,0,47
+	.dw	_403-_409
+_409:
+_402:
+	.db	146,180,2,0
+_403:
+	.db	22,19,62,36,33,11
+	.dw	186
+	.db	34,22,15,4,19,127,186,1,4
+	.dl	(_202-_191)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_410-_414
+_414:
+	.db	146,177,2,0,47
+	.dw	_413-_415
+_415:
+_410:
+	.db	18,49,46,40
+	.dw	_411-_416
+_416:
+	.db	146,178,2,0,47
+	.dw	_413-_417
+_417:
+_411:
+	.db	18,50,46,40
+	.dw	_412-_418
+_418:
+	.db	146,179,2,0,47
+	.dw	_413-_419
+_419:
+_412:
+	.db	146,180,2,0
+_413:
+	.db	22,19,62,36,33,11
+	.dw	188
+	.db	34,22,15,4,19,127,188,1,4
+	.dl	(_213-_202)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_420-_424
+_424:
+	.db	146,177,2,0,47
+	.dw	_423-_425
+_425:
+_420:
+	.db	18,49,46,40
+	.dw	_421-_426
+_426:
+	.db	146,178,2,0,47
+	.dw	_423-_427
+_427:
+_421:
+	.db	18,50,46,40
+	.dw	_422-_428
+_428:
+	.db	146,179,2,0,47
+	.dw	_423-_429
+_429:
+_422:
+	.db	146,180,2,0
+_423:
+	.db	22,19,62,36,33,11
+	.dw	190
+	.db	34,22,15,4,19,127,190,1,4
+	.dl	(_224-_213)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_430-_434
+_434:
+	.db	146,177,2,0,47
+	.dw	_433-_435
+_435:
+_430:
+	.db	18,49,46,40
+	.dw	_431-_436
+_436:
+	.db	146,178,2,0,47
+	.dw	_433-_437
+_437:
+_431:
+	.db	18,50,46,40
+	.dw	_432-_438
+_438:
+	.db	146,179,2,0,47
+	.dw	_433-_439
+_439:
+_432:
+	.db	146,180,2,0
+_433:
+	.db	22,19,62,36,33,11
+	.dw	192
+	.db	34,22,15,4,19,127,192,1,4
+	.dl	(_235-_224)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_440-_444
+_444:
+	.db	146,177,2,0,47
+	.dw	_443-_445
+_445:
+_440:
+	.db	18,49,46,40
+	.dw	_441-_446
+_446:
+	.db	146,178,2,0,47
+	.dw	_443-_447
+_447:
+_441:
+	.db	18,50,46,40
+	.dw	_442-_448
+_448:
+	.db	146,179,2,0,47
+	.dw	_443-_449
+_449:
+_442:
+	.db	146,180,2,0
+_443:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34,22,15,4,19,127,164,1,4
+	.dl	(_246-_235)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_450-_454
+_454:
+	.db	146,177,2,0,47
+	.dw	_453-_455
+_455:
+_450:
+	.db	18,49,46,40
+	.dw	_451-_456
+_456:
+	.db	146,178,2,0,47
+	.dw	_453-_457
+_457:
+_451:
+	.db	18,50,46,40
+	.dw	_452-_458
+_458:
+	.db	146,179,2,0,47
+	.dw	_453-_459
+_459:
+_452:
+	.db	146,180,2,0
+_453:
+	.db	22,19,62,36,33,11
+	.dw	166
+	.db	34,22,15,4,19,127,166,1,4
+	.dl	(_257-_246)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_460-_464
+_464:
+	.db	146,177,2,0,47
+	.dw	_463-_465
+_465:
+_460:
+	.db	18,49,46,40
+	.dw	_461-_466
+_466:
+	.db	146,178,2,0,47
+	.dw	_463-_467
+_467:
+_461:
+	.db	18,50,46,40
+	.dw	_462-_468
+_468:
+	.db	146,179,2,0,47
+	.dw	_463-_469
+_469:
+_462:
+	.db	146,180,2,0
+_463:
+	.db	22,19,62,36,33,11
+	.dw	168
+	.db	34,22,15,4,19,127,168,1,4
+	.dl	(_268-_257)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_470-_474
+_474:
+	.db	146,177,2,0,47
+	.dw	_473-_475
+_475:
+_470:
+	.db	18,49,46,40
+	.dw	_471-_476
+_476:
+	.db	146,178,2,0,47
+	.dw	_473-_477
+_477:
+_471:
+	.db	18,50,46,40
+	.dw	_472-_478
+_478:
+	.db	146,179,2,0,47
+	.dw	_473-_479
+_479:
+_472:
+	.db	146,180,2,0
+_473:
+	.db	22,19,62,36,33,11
+	.dw	170
+	.db	34,22,15,4,19,127,170,1,4
+	.dl	(_279-_268)/2
+	.db	15,62,127,0,18,10
+	.dw	16383
+	.db	26,22,62,37,18,48,46,40
+	.dw	_480-_484
+_484:
+	.db	146,177,2,0,47
+	.dw	_483-_485
+_485:
+_480:
+	.db	18,49,46,40
+	.dw	_481-_486
+_486:
+	.db	146,178,2,0,47
+	.dw	_483-_487
+_487:
+_481:
+	.db	18,50,46,40
+	.dw	_482-_488
+_488:
+	.db	146,179,2,0,47
+	.dw	_483-_489
+_489:
+_482:
+	.db	146,180,2,0
+_483:
+	.db	22,19,62,36,33,11
+	.dw	164
+	.db	34,22,15,4,19,127,164,1
+	; End of section
+
+
+; main.c	   250          {
+; main.c	   251          }
+; main.c	   252      }
+; main.c	   253  }
+; main.c	   254  
+
+	; Module end
+	.end
