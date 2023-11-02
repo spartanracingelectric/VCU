@@ -627,8 +627,8 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     canMessage.data[0] = Sensor_HVILTerminationSense.sensorValue;
     canMessage.data[1] = Sensor_HVILTerminationSense.sensorValue >> 8;
     canMessage.data[2] = mcm->HVILOverride;
-    canMessage.data[3] = 0;
-    canMessage.data[4] = 0;
+    canMessage.data[3] = mcm->startupStage;
+    canMessage.data[4] = Sensor_RTDButton.sensorValue;
     canMessage.data[5] = 0;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
