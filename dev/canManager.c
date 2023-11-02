@@ -39,6 +39,11 @@ CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, 
     me->ioErr_can0_Init = IO_CAN_Init(IO_CAN_CHANNEL_0, can0_busSpeed, 0, 0, 0);
     me->ioErr_can1_Init = IO_CAN_Init(IO_CAN_CHANNEL_1, can1_busSpeed, 0, 0, 0);
 
+    me->can0_read_messageLimit = can0_read_messageLimit;
+    me->can0_write_messageLimit = can0_write_messageLimit;
+    me->can1_read_messageLimit = can1_read_messageLimit;
+    me->can1_write_messageLimit = can1_write_messageLimit;
+
     //Configure the FIFO queues
     //This specifies: The handle names for the queues
     //, which channel the queue belongs to
@@ -426,6 +431,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         // default:
         }
     }
+    // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
 }
 
 ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
