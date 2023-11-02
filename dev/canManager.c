@@ -459,10 +459,8 @@ void canOutput_sendSensorMessages(CanManager* me)
 void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
-    ubyte1 errorCount;
     ubyte2 canMessageCount = 0;
     ubyte2 canMessageID = 0x500;
-    ubyte1 byteNum;
 
     //500: TPS 0
     canMessageCount++;
@@ -794,8 +792,8 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker*
     canMessage.data[3] = MCM_getPower(mcm) >> 24;
     canMessage.data[4] = sc->warnings;
     canMessage.data[5] = sc->warnings >> 8;
-    canMessage.data[6] = sc->warnings >> 16;
-    canMessage.data[7] = sc->warnings >> 24;
+    canMessage.data[6] = 0;
+    canMessage.data[7] = 0;
     canMessage.length = 8;
     return canMessage;
 }
