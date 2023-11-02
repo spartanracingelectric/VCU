@@ -146,7 +146,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
             me->canMessageHistory[outboundMessageID] = (CanMessageNode*)malloc(sizeof(CanMessageNode));
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Min = 25000;
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Max = 125000;
-            me->canMessageHistory[outboundMessageID]->required = FALSE;
+            me->canMessageHistory[outboundMessageID]->required = TRUE;
             memcpy(emptyData, me->canMessageHistory[outboundMessageID]->data, sizeof(emptyData));
             me->canMessageHistory[outboundMessageID]->lastMessage_timeStamp = 0;
         }
