@@ -32,13 +32,6 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     //me->calibrated = FALSE;
     //TorqueEncoder_resetCalibration(me);
 
-    //Old Rotary Sensor Datasheet limits (used by safety checker / rules requirement)
-    //Datasheet had an operating range
-    //me->tps0->specMin = 5000 * .05 - 5000 * .006; // = 220 , Target 0% = ~500
-    //me->tps0->specMax = 5000 * .45 + 5000 * .006; // = 2280, Target 100% = ~2000
-    //me->tps1->specMin = 5000 * .55 - 5000 * .006; // = 2720, Target 0% = ~3000
-    //me->tps1->specMax = 5000 * .95 + 5000 * .006; // = 4780, Target 100% = ~4600
-
     //New Rotary Sensor Datasheet limits (used by safety checker / rules requirement)
     //It is literally a potentiometer, no sensor operating range in theory?
     //That would mean we could probably make our own ranges up

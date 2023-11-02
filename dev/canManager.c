@@ -413,7 +413,10 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         // VCU Debug Control
         //-------------------------------------------------------------------------
         case 0x5FF:
-            SafetyChecker_parseCanMessage(sc, &canMessages[currMessage]);
+            if (canMessages[currMessage].data[0] == 0xC4)
+            {
+                IO_RTC_StartTime(&sc->timestamp_bypassSafetyChecks);
+            }
             if (canMessages[currMessage].data[1] > 0)
             {
                 IO_RTC_StartTime(&mcm->timeStamp_HVILOverrideCommandReceived);

@@ -6,15 +6,13 @@
 
 #include "safety.h"
 #include "mathFunctions.h"
-
 #include "sensors.h"
-
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
-
 #include "motorController.h"
 #include "bms.h"
 #include "serial.h"
+#include "main.h"
 
 //TODO #162 Add in CAN Address to tell which Safeties are on or off
 
@@ -114,20 +112,6 @@ SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2
     return me;
 }
 
-void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMessage)
-{
-    switch (canMessage->id)
-    {
-    case 0x5FF:
-        // If the safety bypass code (0xC4) is received on the VCU debug address (0x5FF) at byte 0 (data[0])
-        if (canMessage->data[0] == 0xC4)
-        {
-            IO_RTC_StartTime(&me->timestamp_bypassSafetyChecks);
-        }
-        break;
-    }
-}
-
 // Updates all values based on sensor readings, safety checks, etc
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
@@ -142,64 +126,20 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //me->faults = 0xFFFF; //Set ALL faults by default.  only clear if truly safe
     me->faults &= ~F_unusedFaults;
 
-    //me->faults = 1;
-    if (tps->calibrated == FALSE)
-    {
-        me->faults |= F_tpsNotCalibrated;
-    }
-    else
-    {
-        me->faults &= ~F_tpsNotCalibrated;
-    }
+    set_flags(&me->faults, F_tpsNotCalibrated, tps->calibrated == FALSE);
 
-    if (bps->calibrated == FALSE)
-    {
-        me->faults |= F_bpsNotCalibrated;
-    }
-    else
-    {
-        me->faults &= ~F_bpsNotCalibrated;
-    }
+    set_flags(&me->faults, F_bpsNotCalibrated, bps->calibrated == FALSE);
 
     //===================================================================
     // Check if VCU was able to get a TPS/BPS reading
     //===================================================================
-    if (tps->tps0->ioErr_powerInit != IO_E_OK || tps->tps1->ioErr_powerInit != IO_E_OK || tps->tps0->ioErr_powerSet != IO_E_OK || tps->tps1->ioErr_powerSet != IO_E_OK)
-    {
-        me->faults |= F_tpsPowerFailure;
-    }
-    else
-    {
-        me->faults &= ~F_tpsPowerFailure;
-    }
+    set_flags(&me->faults, F_tpsPowerFailure, tps->tps0->ioErr_powerInit != IO_E_OK || tps->tps1->ioErr_powerInit != IO_E_OK || tps->tps0->ioErr_powerSet != IO_E_OK || tps->tps1->ioErr_powerSet != IO_E_OK);
+    
+    set_flags(&me->faults, F_tpsSignalFailure, tps->tps0->ioErr_signalInit != IO_E_OK || tps->tps1->ioErr_signalInit != IO_E_OK || tps->tps0->ioErr_signalGet != IO_E_OK || tps->tps1->ioErr_signalGet != IO_E_OK);
 
-    if (tps->tps0->ioErr_signalInit != IO_E_OK || tps->tps1->ioErr_signalInit != IO_E_OK || tps->tps0->ioErr_signalGet != IO_E_OK || tps->tps1->ioErr_signalGet != IO_E_OK)
-    {
-        //me->faults |= F_tpsSignalFailure;
-        SerialManager_send(me->serialMan, "TPS signal error\n");
-    }
-    else
-    {
-        me->faults &= ~F_tpsSignalFailure;
-    }
-
-    if (bps->bps0->ioErr_powerInit != IO_E_OK || bps->bps0->ioErr_powerSet != IO_E_OK)
-    {
-        me->faults |= F_bpsPowerFailure;
-    }
-    else
-    {
-        me->faults &= ~F_bpsPowerFailure;
-    }
-
-    if (bps->bps0->ioErr_signalInit != IO_E_OK || bps->bps0->ioErr_signalGet != IO_E_OK)
-    {
-        me->faults |= F_bpsSignalFailure;
-    }
-    else
-    {
-        me->faults &= ~F_bpsSignalFailure;
-    }
+    set_flags(&me->faults, F_bpsPowerFailure, bps->bps0->ioErr_powerInit != IO_E_OK || bps->bps0->ioErr_powerSet != IO_E_OK);
+    
+    set_flags(&me->faults, F_bpsSignalFailure, bps->bps0->ioErr_signalInit != IO_E_OK || bps->bps0->ioErr_signalGet != IO_E_OK);
 
     //===================================================================
     // Make sure raw sensor readings are within operating range
@@ -212,26 +152,12 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //-------------------------------------------------------------------
     //Torque Encoder
     //-------------------------------------------------------------------
-    if (tps->tps0->sensorValue < tps->tps0->specMin || tps->tps0->sensorValue > tps->tps0->specMax || tps->tps1->sensorValue < tps->tps1->specMin || tps->tps1->sensorValue > tps->tps1->specMax)
-    {
-        me->faults |= F_tpsOutOfRange;
-    }
-    else
-    {
-        me->faults &= ~F_tpsOutOfRange;
-    }
+    set_flags(&me->faults, F_tpsOutOfRange, tps->tps0->sensorValue < tps->tps0->specMin || tps->tps0->sensorValue > tps->tps0->specMax || tps->tps1->sensorValue < tps->tps1->specMin || tps->tps1->sensorValue > tps->tps1->specMax);
 
     //-------------------------------------------------------------------
     //Brake Pressure Sensor
     //-------------------------------------------------------------------
-    if (bps->bps0->sensorValue < bps->bps0->specMin || bps->bps0->sensorValue > bps->bps0->specMax)
-    {
-        me->faults |= F_bpsOutOfRange;
-    }
-    else
-    {
-        me->faults &= ~F_bpsOutOfRange;
-    }
+    set_flags(&me->faults, F_bpsOutOfRange, bps->bps0->sensorValue < bps->bps0->specMin || bps->bps0->sensorValue > bps->bps0->specMax);
 
     //===================================================================
     // Make sure calibrated TPS readings are in sync with each other
@@ -246,14 +172,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //Check for implausibility (discrepancy > 10%)
     //RULE: EV2.3.6 Implausibility is defined as a deviation of more than 10% pedal travel between the sensors.
 
-    if ((tps->tps1_percent - tps->tps0_percent) > .1 || (tps->tps1_percent - tps->tps0_percent) < -.1) //Note: Individual TPS readings don't go negative, otherwise this wouldn't work
-    {
-        me->faults |= F_tpsOutOfSync;
-    }
-    else
-    {
-        me->faults &= ~F_tpsOutOfSync;
-    }
+    set_flags(&me->faults, F_tpsOutOfSync, (tps->tps1_percent - tps->tps0_percent) > .1 || (tps->tps1_percent - tps->tps0_percent) < -.1);
 
     //Only one BPS right now - this fault doesn't happen
     me->faults &= ~F_bpsOutOfSync;
@@ -267,14 +186,12 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //     This must be demonstrated at Technical Inspection
     // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
-    bool tpsAbove25Percent = (tps->travelPercent > .25); //Rules is 25% this is a hack that is made to check
 
     //If mechanical brakes actuated && tps > 25%
-    if (bps->brakesAreOn && tpsAbove25Percent)
+    if (bps->brakesAreOn && (tps->travelPercent > .25) && SOFT_BSPD_ENABLE)
     {
         // Set the TPS/BPS implausibility VCU fault
         //me->faults |= F_tpsbpsImplausible;
-        //SerialManager_send(me->serialMan, "TPS BPS implausibility detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {
@@ -297,65 +214,18 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //-------------------------------------------------------------------
 
     //If over voltage fault detected
-    if (bms->faultFlags1 & BMS_CELL_OVER_VOLTAGE_FLAG)
-    {
-        //me->faults |= F_bmsOverVoltageFault;
-        SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
-    }
-    else
-    {
-        me->faults &= ~(F_bmsOverVoltageFault);
-    }
+    set_flags(&me->faults, F_bmsOverVoltageFault, bms->faultFlags1 & BMS_CELL_OVER_VOLTAGE_FLAG);
 
     //If under voltage fault detected
-    if (bms->faultFlags1 & BMS_CELL_UNDER_VOLTAGE_FLAG)
-    {
-        me->faults |= F_bmsUnderVoltageFault;
-        SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
-    }
-    else
-    {
-        me->faults &= ~(F_bmsUnderVoltageFault);
-    }
+    set_flags(&me->faults, F_bmsUnderVoltageFault, bms->faultFlags1 & BMS_CELL_UNDER_VOLTAGE_FLAG);
 
     //If over temperature fault detected
-    if (bms->faultFlags1 & BMS_CELL_OVER_TEMPERATURE_FLAG)
-    {
-        me->faults |= (F_bmsOverTemperatureFault);
-        SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
-    }
-    else
-    {
-        me->faults &= ~(F_bmsOverTemperatureFault);
-    }
+    set_flags(&me->faults, F_bmsOverTemperatureFault, bms->faultFlags1 & BMS_CELL_OVER_TEMPERATURE_FLAG);
 
     //If mismatch greater than specified mismatch value
-    //BMS cell voltage data members are in mV, 
-    if ((bms->highestCellVoltage-bms->lowestCellVoltage) > (BMS_MAX_CELL_MISMATCH_V*1000))
-    {
-        //me->faults |= F_bmsCellMismatchFault;
-        SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
-    }
-    else
-    {
-        me->faults &= ~(F_bmsCellMismatchFault);
-    }
-
-    //If any sort of BMS fault detected (assuming 8.3.4 fulfilled by BMS)
-    //if (BMS_getFaultFlags0(bms) || BMS_getFaultFlags1(bms))
-    //{
-    //    me->faults |= F_anyBmsFault;
-    //    SerialManager_send(me->serialMan, "BMS fault detected.\n");
-    //}
-    //Else, BMS reported faults over CAN are empty
-    //else
-    //{
-    //    me->faults &= ~(F_anyBmsFault);
-    //}
-
-
-
-    SerialManager_send(me->serialMan, "\n");
+    //BMS cell voltage data members are in mV
+    // NOTE: This should be redone to take into account voltage sag under load
+    // set_flags(&me->faults, F_bmsCellMismatchFault, (bms->highestCellVoltage-bms->lowestCellVoltage) > (BMS_MAX_CELL_MISMATCH_V*1000));
 
     /*****************************************************************************
     * Warnings
@@ -365,26 +235,8 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //===================================================================
     //  IO_ADC_UBAT: 0..40106  (0V..40.106V)
     //-------------------------------------------------------------------
-    if (Sensor_LVBattery.sensorValue <= 9200) //12730 = 10% SOC but hard to tell under load. 9200 = empty
-    {
-        me->faults |= F_lvsBatteryVeryLow;
-        me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)Sensor_LVBattery.sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
-    }
-    else if (Sensor_LVBattery.sensorValue <= 12730) //13100 = Recharge percentage, per Shorai
-    {
-        me->faults &= ~F_lvsBatteryVeryLow;
-        me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)Sensor_LVBattery.sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
-    }
-    else
-    {
-        me->warnings &= ~F_lvsBatteryVeryLow;
-        me->warnings &= ~W_lvsBatteryLow;
-        //sprintf(message, "LVS battery %.03fV good.\n", (float4)Sensor_LVBattery.sensorValue / 1000);
-    }
+    set_flags(&me->faults, F_lvsBatteryVeryLow, FALSE); // This should be based on SOC, can be enabled later
+    set_flags(&me->warnings, W_lvsBatteryLow, FALSE); // This should be based on SOC, can be enabled later
 
     //===================================================================
     // softBSPD - Software implementation of Brake System Plausibility Device
@@ -408,11 +260,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     me->softBSPD_kwHigh = MCM_getPower(mcm) > 4000;
 
     // Note: this is using the FUTURE torque request with the PREVIOUS RPM
-    if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh)
+    if (me->softBSPD_bpsHigh && me->softBSPD_kwHigh && SOFT_BSPD_ENABLE)
     {
         IO_RTC_StartTime(&timestamp_SoftBSPD);
-        me->softBSPD_fault = FALSE;
-        //me->faults |= F_softBSPDFault;
+        me->softBSPD_fault = TRUE;
+        me->faults |= F_softBSPDFault;
     }
     else if (IO_RTC_GetTimeUS(timestamp_SoftBSPD) >= 500000 || IO_RTC_GetTimeUS(timestamp_SoftBSPD) == 0)
     {
@@ -428,52 +280,22 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // the PCAN Explorer dashboard.  This is only used during debugging.
     //-------------------------------------------------------------------
     // In case CAN communication is lost, the bypass should be disabled after some time,
-    if (IO_RTC_GetTimeUS(me->timestamp_bypassSafetyChecks) < me->bypassSafetyChecksTimeout_us)
-    {
-        me->warnings |= W_safetyBypassEnabled;
-    }
-    else
-    {
-        me->warnings &= ~W_safetyBypassEnabled;
-    }
+    set_flags(&me->warnings, W_safetyBypassEnabled, IO_RTC_GetTimeUS(me->timestamp_bypassSafetyChecks) < me->bypassSafetyChecksTimeout_us);
 
     //===================================================================
     // HVIL Override
     //===================================================================
-    if (mcm->HVILOverride == TRUE)
-    {
-        me->warnings |= W_hvilOverrideEnabled;
-    }
-    else
-    {
-        me->warnings &= ~W_hvilOverrideEnabled;
-    }
+    set_flags(&me->warnings, W_hvilOverrideEnabled, mcm->HVILOverride == TRUE);
 
     //===================================================================
     // 2022 EV.8.3 / Accumulator Management System Warning
     //===================================================================
 
     //If under voltage fault detected
-    if (bms->lowestCellVoltage < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
-    {
-        // me->warnings |= W_bmsUnderVoltageWarning;
-        SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
-    }
-    else
-    {
-        me->warnings &= ~(W_bmsUnderVoltageWarning);
-    }
+    set_flags(&me->warnings, W_bmsUnderVoltageWarning, bms->lowestCellVoltage < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE));
 
     //If over temperature fault detected
-    if (bms->highestCellTemperature > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
-    {
-        me->warnings |= W_bmsOverTemperatureWarning;
-        SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
-    }
-    else
-    {
-        me->warnings &= ~(W_bmsOverTemperatureWarning);
-    }
+    set_flags(&me->warnings, W_bmsOverTemperatureWarning, bms->highestCellTemperature > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE));
 
     /*****************************************************************************
     * Notices
@@ -485,38 +307,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // If HVIL term sense goes low (because HV went down), motor torque
     // command should be set to zero before turning off the controller
     //-------------------------------------------------------------------
-    if (Sensor_HVILTerminationSense.sensorValue == FALSE)
-    {
-        me->notices |= N_HVILTermSenseLost;
-    }
-    else
-    {
-        me->notices &= ~N_HVILTermSenseLost;
-    }
+    set_flags(&me->notices, N_HVILTermSenseLost, Sensor_HVILTerminationSense.sensorValue == FALSE);
 
-    if (BMS_getPower_W(bms) > 75000)
-    {
-        me->notices |= N_Over75kW_BMS;
-    }
-    else
-    {
-        me->notices &= ~N_Over75kW_BMS;
-    }
-
-    if (MCM_getPower(mcm) > 75000)
-    {
-        me->notices |= N_Over75kW_MCM;
-    }
-    else
-    {
-        me->notices &= ~N_Over75kW_MCM;
-    }
-}
-
-//Updates all values based on sensor readings, safety checks, etc
-bool SafetyChecker_allSafe(SafetyChecker *me)
-{
-    return (me->faults == 0);
+    set_flags(&me->notices, N_Over75kW_BMS, BMS_getPower_W(bms) > 75000);
+    
+    set_flags(&me->notices, N_Over75kW_MCM, MCM_getPower(mcm) > 75000);
 }
 
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
@@ -622,6 +417,17 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
         multiplier = 1;
     }
     MCM_commands_setTorqueDNm(mcm, mcm->commands_torque * multiplier);
+}
+
+void set_flags(ubyte4 *fault, ubyte4 flag, bool condition) {
+    if (condition)
+    {
+        *fault |= flag;
+    }
+    else
+    {
+        *fault &= ~flag;
+    }
 }
 
 //-------------------------------------------------------------------
