@@ -767,7 +767,7 @@ IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs) {
     canMessage.data[2] = drs->buttonPressed;
     canMessage.data[3] = drs->currentDRSMode;
     canMessage.data[4] = drs->drsFlap;
-    canMessage.data[5] = 0;
+    canMessage.data[5] = Sensor_DRSButton.sensorValue;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
     canMessage.length = 8;

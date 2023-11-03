@@ -104,8 +104,8 @@ void vcu_initializeADC(bool benchMode)
     //----------------------------------------------------------------------------
     Sensor_RTDButton = *Button_new(IO_DI_00, TRUE); //RTD Button
     Sensor_EcoButton = *Button_new(IO_DI_01, TRUE); //Eco Button
-    Sensor_LCButton = *Button_new(IO_DI_04, TRUE); // Launch Control Enable Button
-    Sensor_DRSButton = *Button_new(IO_DI_03, TRUE); // DRS Button
+    Sensor_LCButton  = *Button_new(IO_DI_03, TRUE); // Launch Control Enable Button
+    Sensor_DRSButton = *Button_new(IO_DI_05, TRUE); // DRS Button
 
     //----------------------------------------------------------------------------
     Sensor_HVILTerminationSense = *Button_new(IO_DI_07, FALSE); //HVIL Term sense, high = HV present
@@ -139,6 +139,7 @@ void vcu_ADCWasteLoop(void)
         while (IO_RTC_GetTimeUS(timestamp_sensor_poll) < 12500)
             ; // wait until 1/8/10s (125ms) have passed
     }
+    IO_DI_DeInit(IO_DI_05);
 }
 
 void init_lv_battery_lut(void)
