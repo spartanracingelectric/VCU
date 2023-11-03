@@ -12,7 +12,7 @@
 #include "motorController.h"
 #include "sensorCalculations.h"
 #include "main.h"
-extern Sensor Sensor_LCButton;
+extern Button Sensor_LCButton;
 extern Sensor Sensor_DRSKnob;
 float Calctorque;
 

@@ -10,7 +10,7 @@
 #include "motorController.h"
 #include "sensorCalculations.h"
 
-extern Sensor Sensor_DRSButton; 
+extern Button Sensor_DRSButton; 
 extern Sensor Sensor_DRSKnob;
 
 DRS *DRS_new() 

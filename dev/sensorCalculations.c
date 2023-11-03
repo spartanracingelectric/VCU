@@ -39,7 +39,7 @@ extern Sensor Sensor_LVBattery;
 
 extern Button Sensor_RTDButton;
 extern Button Sensor_EcoButton;
-extern Button Sensor_DRSKnob;
+extern Sensor Sensor_DRSKnob;
 extern Button Sensor_DRSButton;
 extern Button Sensor_HVILTerminationSense;
 

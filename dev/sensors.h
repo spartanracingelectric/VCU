@@ -116,7 +116,7 @@ extern Button Sensor_LCButton;
 extern Sensor Sensor_TCSKnob;
 extern Button Sensor_DRSButton;
 extern Sensor Sensor_DRSKnob;
-extern Sensor Sensor_TEMP_BrakingSwitch;
+extern Button Sensor_TEMP_BrakingSwitch;
 
 extern Button Sensor_HVILTerminationSense;
 
