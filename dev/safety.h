@@ -47,14 +47,9 @@ typedef struct _SafetyChecker
 } SafetyChecker;
 
 SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
-void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps, Sensor *HVILTermSense, Sensor *LVBattery);
-void SafetyChecker_parseCanMessage(SafetyChecker *me, IO_CAN_DATA_FRAME *canMessage);
-bool SafetyChecker_allSafe(SafetyChecker *me);
+void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
-//bool SafetyChecker_getError(SafetyChecker* me, SafetyCheck check);
-//bool SafetyChecker_getErrorByte(SafetyChecker* me, ubyte1* errorByte);
-
-//ubyte2 checkPowerDraw(BatteryManagementSystem* bms, MotorController* mcm);
+void set_flags(ubyte4 *fault, ubyte4 flag, bool condition);
 void checkBatteryPackTemp(BatteryManagementSystem *bms);
 ubyte2 checkPowerDraw(BatteryManagementSystem *bms, MotorController *mcm);
 

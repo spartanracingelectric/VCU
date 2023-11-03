@@ -16,12 +16,10 @@
 
 #include "canManager.h"
 
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_TCSSwitchUp;   // used currently for regen
-extern Sensor Sensor_TCSSwitchDown; // used currently for regen
+extern Button Sensor_RTDButton;
+extern Button Sensor_EcoButton;
 extern Sensor Sensor_TCSKnob;       // used currently for regen
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_HVILTerminationSense;
 
 /*****************************************************************************
  * Motor Controller (MCM)
@@ -192,10 +190,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->InverterOverride = UNKNOWN;
 }
 
-void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
+void MCM_relayControl(MotorController *me)
 {
     //If HVIL Term Sense is low (HV is down)
-    if (HVILTermSense->sensorValue == FALSE && me->HVILOverride == FALSE)
+    if (Sensor_HVILTerminationSense.sensorValue == FALSE && me->HVILOverride == FALSE)
     {
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
@@ -248,8 +246,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
     float4 RTDPercent;
-    RTDPercent = (Sensor_RTDButton.sensorValue == FALSE ? 1 : 0);
-    //FALSE and TRUE for sensorValue's are reversed due to Pull Up Resistor
+    RTDPercent = (Sensor_RTDButton.sensorValue == TRUE ? 1 : 0);
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
@@ -278,7 +275,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == FALSE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable

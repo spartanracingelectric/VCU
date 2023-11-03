@@ -42,5 +42,8 @@
         "UBAT",
         "utemp",
         "WHEELSPEEDS"
-    ]
+    ],
+    "files.associations": {
+        "brakepressuresensor.h": "c"
+    }
 }
