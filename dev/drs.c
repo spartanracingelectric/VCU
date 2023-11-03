@@ -49,7 +49,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
 
     // sensor value true/false are switched to account for Pull Up
     if(pot_DRS_LC == 1) {
-        me->currentDRSMode = AUTO;
+        me->currentDRSMode = MANUAL;
     } else {
         //update_knob(me); Change to when we have a working rotary
         me->currentDRSMode = MANUAL;
