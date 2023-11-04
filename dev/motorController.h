@@ -68,6 +68,8 @@ typedef struct _MotorController
     ubyte4 faultCodesPOST; //0xAB Byte 0-3
     ubyte4 faultCodesRUN;  //0xAB Byte 4-7*/
 
+    float4 power_torque_lim;
+
     ubyte1 faultHistory[8];
 
     sbyte2 motor_temp; // in degrees C

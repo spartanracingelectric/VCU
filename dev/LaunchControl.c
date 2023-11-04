@@ -68,7 +68,7 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
-    me->slipRatio = ((wss->speed_FL + wss->speed_FR) / (wss->speed_RL + wss->speed_RR)) - 1;
+    me->slipRatio = ((wss->speed_FL_RPM + wss->speed_FR_RPM) / (wss->speed_RL_RPM + wss->speed_RR_RPM)) - 1;
     // Limit to the range of -1 to 1
     if (me->slipRatio > 1){
         me->slipRatio = 1;
@@ -76,11 +76,11 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     if (me->slipRatio < -1){
         me->slipRatio = -1;
     }
-    me->sr_valid = wss_above_min_speed(wss, 0.5);
+    me->sr_valid = wss_above_min_speed(wss, 1.5);
 }
 
 bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
-    if (wss->speed_FL > minSpeed && wss->speed_FR > minSpeed && wss->speed_RL > minSpeed && wss->speed_RR > minSpeed) {
+    if (wss->speed_FL_RPM > minSpeed && wss->speed_FR_RPM > minSpeed && wss->speed_RL_RPM > minSpeed && wss->speed_RR_RPM > minSpeed) {
         return TRUE;
     }
     else {
@@ -94,7 +94,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
      if (Sensor_LCButton.sensorValue == TRUE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;
         me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        initPIDController(controller, 0.001, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+        initPIDController(controller, 0.01, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
      if (me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;

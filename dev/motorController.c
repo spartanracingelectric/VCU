@@ -13,6 +13,7 @@
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
 #include "serial.h"
+#include "main.h"
 
 #include "canManager.h"
 
@@ -45,6 +46,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->motorRPM = 0;
     me->DC_Voltage = 0;
     me->DC_Current = 0;
+    me->power_torque_lim = 0;
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
@@ -165,7 +167,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-
+    me->power_torque_lim = MCM_get_max_torque_power_limit(me);
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
@@ -178,11 +180,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
 
-    if FALSE {
-        float4 torque_lim = MCM_get_max_torque_power_limit(me);
-        if (torqueOutput > torque_lim * 10) { // it is in DNm
-            torqueOutput = torque_lim * 10;
-        }
+    if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT) { // it is in DNm
+        torqueOutput = me->power_torque_lim * 10;
     }
     
     MCM_commands_setTorqueDNm(me, torqueOutput);
