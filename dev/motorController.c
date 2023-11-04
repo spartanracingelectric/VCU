@@ -21,6 +21,16 @@ extern Button Sensor_EcoButton;
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 extern Button Sensor_HVILTerminationSense;
 
+// these numbers are all for a emrax 28 MV with a PM100DX
+const float4 l_d = 0.000076; //H = 0.000076
+const float4 l_q = 0.000079; //H = 0.000079
+const float4 r_s = 0.0071;   //Ohms = 0.0071
+const float4 f_l = 0.0355;   //Webers = 0.0355
+const ubyte1 p = 10;          //Pole pairs = 10
+const ubyte2 max_phase_current = 380; //Amps = 380
+const ubyte2 i_d_max = 221; //Amps = 221
+const ubyte2 i_q_max = 453; //Amps = 453
+
 /*****************************************************************************
  * Motor Controller (MCM)
  ****************************************************************************/
@@ -451,4 +461,12 @@ void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS
 {
     if(percentAPPS >=0 || percentAPPS <= 1)
         me->regen_percentAPPSForCoasting = percentAPPS;
+}
+
+ubyte2 MCM_get_max_torque_power_limit(MotorController *me, ubyte2 maxPower)
+{
+    float4 w = me->motorRPM * 2 * 3.14159265358979323846 / 60;
+    const float4 sqrt_3 = 1.7320508075688772935274463415059;
+    float4 v_max = (me->DC_Voltage / sqrt_3) - r_s * max_phase_current;
+    return 0
 }
