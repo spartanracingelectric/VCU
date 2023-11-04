@@ -102,22 +102,22 @@ PWDSensor* PWDSensor_new(int pin) {
     IO_RTC_StartTime(&sensor->timestamp);
     sensor->sensorAddress = pin;
     sensor->heldSensorValue = 0;
-    sensor->ioErr_signalInit = IO_PWD_ComplexInit(pin, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_0_8, 4, IO_PWD_THRESH_1_25V, NULL, NULL);
+    sensor->ioErr_signalInit = IO_PWD_ComplexInit(pin, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_3_2, 1, IO_PWD_THRESH_1_25V, IO_PWD_PD_10K, NULL);
     return sensor;
 }
 
 void PWDSensor_read(PWDSensor* sensor) {
-    if(sensor->sensorValue > 0) //If non-zero reading, update displayed val
-    { 
+    ubyte4 pulseTrash;
+    ubyte4 frequency_now;
+    sensor->ioErr_signalGet = IO_PWD_ComplexGet(sensor->sensorAddress, &frequency_now, &pulseTrash, NULL);
+    if(sensor->ioErr_signalGet != IO_E_PWD_NOT_FINISHED) {
+        sensor->sensorValue = frequency_now;
+        IO_RTC_StartTime(&sensor->timestamp);
         sensor->heldSensorValue = sensor->sensorValue;
-        IO_RTC_StartTime(&sensor->timestamp); //Reset time
-    }
-    else if (IO_RTC_GetTimeUS(sensor->timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
+    } else if (IO_RTC_GetTimeUS(sensor->timestamp) > 750000) //Has been longer than 750000us (timeout, reset heldSensorValue to 0)
     { 
         sensor->heldSensorValue=0;
     }
-    ubyte4 pulseTrash;
-    sensor->ioErr_signalGet = IO_PWD_ComplexGet(sensor->sensorAddress, &sensor->sensorValue, &pulseTrash, NULL);
 }
 
 void Light_set(Light light, float4 percent)

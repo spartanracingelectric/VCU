@@ -191,7 +191,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (bps->brakesAreOn && (tps->travelPercent > .25) && SOFT_BSPD_ENABLE)
     {
         // Set the TPS/BPS implausibility VCU fault
-        //me->faults |= F_tpsbpsImplausible;
+        me->faults |= F_tpsbpsImplausible;
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {

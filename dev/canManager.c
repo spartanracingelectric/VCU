@@ -110,7 +110,6 @@ CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 mess
 IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount)
 {
     bool sendSerialDebug = FALSE;
-    ubyte2 serialMessageID = 0xC0;
     bool sendMessage = FALSE;
     ubyte1 messagesToSendCount = 0;
     IO_CAN_DATA_FRAME messagesToSend[canMessageCount];
@@ -182,12 +181,6 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
             //see http://stackoverflow.com/questions/1693853/copying-arrays-of-structs-in-c
             //http://www.socialledge.com/sjsu/index.php?title=ES101_-_Lesson_9_:_Structures
             messagesToSend[messagesToSendCount++] = canMessages[messagePosition];
-        }
-        else
-        {
-            if (sendSerialDebug && (serialMessageID == outboundMessageID)) {
-                SerialManager_send(me->sm, "This message did not need to be sent.\n");
-            }
         }
     } // end of loop for each message in outgoing messages
 
@@ -643,6 +636,7 @@ IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss) {
     canMessage.length = 8;
     return canMessage;
 }
+
 
 IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss) {
     IO_CAN_DATA_FRAME canMessage;
