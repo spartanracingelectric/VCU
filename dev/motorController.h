@@ -132,6 +132,7 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController* me);
 
 sbyte2 MCM_getRegenBPSForMaxRegenZeroToFF(MotorController* me);
 sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
+ubyte2 MCM_get_max_torque_power_limit(MotorController *me);
 
 //----------------------------------------------------------------------------
 //Inter-object functions
