@@ -625,14 +625,14 @@ IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x504;
-    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM*60.0f);
-    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM*60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM*60.0f);
-    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM*60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM*60.0f);
-    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM*60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM*60.0f);
-    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM*60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM*60.0f + 0.5);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM*60.0f + 0.5);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM*60.0f + 0.5);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM*60.0f + 0.5)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM*60.0f + 0.5);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM*60.0f + 0.5)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -641,14 +641,14 @@ IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x505;
-    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S*60.0f);
-    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S*60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S*60.0f);
-    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S*60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S*60.0f);
-    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S*60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S*60.0f);
-    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S*60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S*60.0f + 0.5);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S*60.0f + 0.5);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S*60.0f + 0.5);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S*60.0f + 0.5)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S*60.0f + 0.5);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S*60.0f + 0.5)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -692,7 +692,7 @@ IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm) {
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x508;
     canMessage.data[0] = mcm->regen_mode;
-    canMessage.data[1] = (ubyte2)mcm->nl_voltage; // temporary
+    canMessage.data[1] = 0;
     canMessage.data[2] = mcm->torqueMaximumDNm/10;
     canMessage.data[3] = mcm->regen_torqueLimitDNm/10;
     canMessage.data[4] = mcm->regen_torqueAtZeroPedalDNm/10;

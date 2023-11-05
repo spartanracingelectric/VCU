@@ -464,10 +464,10 @@ void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS
         me->regen_percentAPPSForCoasting = percentAPPS;
 }
 
-float4 MCM_pack_no_load_voltage(MotorController *me)
+ubyte2 MCM_pack_no_load_voltage(MotorController *me)
 {
 
-    return (float4)me->DC_Voltage + ((float4)me->DC_Current * PACK_RESISTANCE);
+    return me->DC_Voltage + (me->DC_Current * PACK_RESISTANCE);
 }
 
 const float4 POWER_LIM_LUT[25][25] = {
@@ -552,6 +552,5 @@ float4 solve_lut(float4 v, float4 s) {
 
 ubyte2 MCM_get_max_torque_power_limit(MotorController *me)
 {
-    me->nl_voltage = MCM_pack_no_load_voltage(me);
-    return solve_lut(me->nl_voltage, (float4)me->motorRPM);
+    return solve_lut(MCM_pack_no_load_voltage(me), me->motorRPM);
 }
