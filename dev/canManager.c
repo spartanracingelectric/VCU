@@ -20,6 +20,7 @@
 #include "main.h"
 
 extern LUT* LV_BATT_SOC_LUT;
+extern PWDSensor Sensor_WSS_FL;
 
 CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit,
                            ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit,
@@ -637,7 +638,6 @@ IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss) {
     return canMessage;
 }
 
-
 IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
@@ -697,7 +697,7 @@ IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm) {
     canMessage.data[2] = mcm->torqueMaximumDNm/10;
     canMessage.data[3] = mcm->regen_torqueLimitDNm/10;
     canMessage.data[4] = mcm->regen_torqueAtZeroPedalDNm/10;
-    canMessage.data[5] = 0;
+    canMessage.data[5] = (ubyte1)mcm->power_torque_lim;
     canMessage.data[6] = MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
     canMessage.data[7] = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
     canMessage.length = 8;

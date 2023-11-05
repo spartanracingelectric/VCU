@@ -36,14 +36,14 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
 
 void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
 {
-    me->speed_FL_RPM = Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
-    me->speed_FR_RPM = Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
-    me->speed_RL_RPM = Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
-    me->speed_RR_RPM = Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
-    me->speed_FL_RPM_S = Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
-    me->speed_FR_RPM_S = Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
-    me->speed_RL_RPM_S = Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
-    me->speed_RR_RPM_S = Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+    me->speed_FL_RPM = (float4)Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM = (float4)Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM = (float4)Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM = (float4)Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
+    me->speed_FL_RPM_S = (float4)Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM_S = (float4)Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM_S = (float4)Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM_S = (float4)Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
     //speed (m/s) = m * pulses/sec / pulses
     if (interpolate)
     {

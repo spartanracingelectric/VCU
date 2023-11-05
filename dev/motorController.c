@@ -514,6 +514,18 @@ float4 interpolate(float4 x0, float4 x1, float4 y0, float4 y1, float4 x, float4 
 float4 solve_lut(float4 v, float4 s) {
     const float4 v_step = (v_max - v_min) / (num_v - 1);
     const float4 s_step = (s_max - s_min) / (num_s - 1);
+    if (v > v_max) {
+        v = v_max;
+    }
+    if (v < v_min) {
+        v = v_min;
+    }
+    if (s < s_min) {
+        s = s_min;
+    }
+    if (s > s_max) {
+        s = s_max;
+    }
 
     ubyte1 v_index = (v - v_min) / v_step;
     ubyte1 s_index = (s - s_min) / s_step;
