@@ -180,9 +180,9 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
 
-    // if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT && !me->LCState) { // The requested torque is greater than the power limit, we have the power limit enables, and were not trying to launch
-    //     torqueOutput = me->power_torque_lim * 10; // it is in DNm
-    // }
+    if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT && !me->LCState) { // The requested torque is greater than the power limit, we have the power limit enables, and were not trying to launch
+        torqueOutput = me->power_torque_lim * 10; // it is in DNm
+    }
     
     MCM_commands_setTorqueDNm(me, torqueOutput);
 

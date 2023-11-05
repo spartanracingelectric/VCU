@@ -532,6 +532,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_bspd_can_message(mcm, sc);
 
+    //512: MCM Torque Command
+    canMessageCount++;
+    canMessages[canMessageCount - 1] = get_mcm_pl_can_message(mcm);
+
     //Motor controller command message
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_mcm_command_can_message(mcm);
@@ -609,14 +613,14 @@ IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds* wss) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x503;
-    canMessage.data[0] = (ubyte2)(wss->speed_FL + 0.5);
-    canMessage.data[1] = ((ubyte2)(wss->speed_FL + 0.5)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss->speed_FR + 0.5);
-    canMessage.data[3] = ((ubyte2)(wss->speed_FR + 0.5)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss->speed_RL + 0.5);
-    canMessage.data[5] = ((ubyte2)(wss->speed_RL + 0.5)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss->speed_RR + 0.5);
-    canMessage.data[7] = ((ubyte2)(wss->speed_RR + 0.5)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -810,6 +814,22 @@ IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) 
     canMessage.data[2] = 0; //(ubyte1)mcm->kwRequestEstimate;
     canMessage.data[3] = 0; //mcm->kwRequestEstimate >> 8;
     canMessage.length = 4;
+    return canMessage;
+}
+
+IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController* mcm) {
+    IO_CAN_DATA_FRAME canMessage;
+    canMessage.id_format = IO_CAN_STD_FRAME;
+    canMessage.id = 0x512;
+    canMessage.data[0] = mcm->power_torque_lim;
+    canMessage.data[1] = mcm->power_torque_lim >> 8;
+    canMessage.data[2] = (sbyte2)mcm->nl_voltage;
+    canMessage.data[3] = (sbyte2)mcm->nl_voltage >> 8;
+    canMessage.data[4] = 0;
+    canMessage.data[5] = 0;
+    canMessage.data[6] = 0;
+    canMessage.data[7] = 0;
+    canMessage.length = 8;
     return canMessage;
 }
 
