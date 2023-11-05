@@ -11,5 +11,5 @@
 #define LV_BATT_S 8 // number of cells in series for the LV Battery
 #define LC_STEERING_THRESHOLD 15.0f // in degrees
 
-#define SOFT_BSPD_ENABLE 1
+#define SOFT_BSPD_ENABLE 0
 #define POWER_LIMIT 0
