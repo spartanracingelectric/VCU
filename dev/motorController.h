@@ -69,6 +69,7 @@ typedef struct _MotorController
     ubyte4 faultCodesRUN;  //0xAB Byte 4-7*/
 
     ubyte2 power_torque_lim;
+    float4 nl_voltage;
 
     ubyte1 faultHistory[8];
 
