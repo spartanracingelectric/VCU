@@ -28,12 +28,6 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
 
     me->travelPercent = 0;
     me->runCalibration = FALSE;  //Do not run the calibration at the next main loop cycle
-    //added to remove calibration
-    me->calibrated = TRUE;
-    me->tps0_calibMin = 500;  //0.50;
-    me->tps0_calibMax = 1440;  //1.44;
-    me->tps1_calibMin = 3350;  //3.35;
-    me->tps1_calibMax = 4400;   // 4.40;
 
     //me->calibrated = FALSE;
     //TorqueEncoder_resetCalibration(me);
@@ -46,7 +40,7 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     me->tps1->specMin = 2500; // Target 0% = ~2650
     me->tps1->specMax = 4900; // Target 100% = ~4700
 
-    //me->calibrated = FALSE;
+    me->calibrated = FALSE;
 
     return me;
 }
