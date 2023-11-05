@@ -45,8 +45,10 @@ DRS *DRS_new()
 //      Brake Pressure 
 //----------------------------------------------------------------------
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
-    if(pot_DRS_LC == 1) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status) {
+    if (lc_status == TRUE) {
+        me->currentDRSMode = STAY_OPEN;
+    } else if(pot_DRS_LC == 1) {
         me->currentDRSMode = MANUAL;
     } else {
         //update_knob(me); Change to when we have a working rotary
