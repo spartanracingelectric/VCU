@@ -41,8 +41,11 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     me->brakesAreOn = FALSE;
     me->runCalibration = FALSE; //Do not run the calibration at the next main loop cycle
 
-    me->calibrated = FALSE;
-    BrakePressureSensor_resetCalibration(me);
+    //me->calibrated = FALSE;
+    me->calibrated = TRUE;
+    //BrakePressureSensor_resetCalibration(me);
+    me->bps0_calibMin = 500; //0.5
+    me->bps0_calibMax = 2350; //2.35
 
     return me;
 }
