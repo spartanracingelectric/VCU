@@ -75,8 +75,8 @@ typedef struct _Button {
 } Button;
 
 typedef struct _PWDSensor {
-    ubyte4 sensorValue;
-    ubyte4 heldSensorValue;
+    ubyte2 sensorValue;
+    ubyte2 heldSensorValue;
     ubyte4 timestamp;
     int sensorAddress;
     bool fresh;

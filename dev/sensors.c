@@ -108,7 +108,7 @@ PWDSensor* PWDSensor_new(int pin) {
 
 void PWDSensor_read(PWDSensor* sensor) {
     ubyte4 pulseTrash;
-    ubyte4 frequency_now;
+    ubyte2 frequency_now;
     sensor->ioErr_signalGet = IO_PWD_ComplexGet(sensor->sensorAddress, &frequency_now, &pulseTrash, NULL);
     if(sensor->ioErr_signalGet != IO_E_PWD_NOT_FINISHED) {
         sensor->sensorValue = frequency_now;
