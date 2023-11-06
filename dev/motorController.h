@@ -74,8 +74,8 @@ typedef struct _MotorController
     ubyte1 faultHistory[8];
 
     sbyte2 motor_temp; // in degrees C
-    sbyte4 DC_Voltage;
-    sbyte4 DC_Current;
+    sbyte4 DC_Voltage; // in DeciVolts (0.1V)
+    sbyte4 DC_Current; // in DeciAmps  (0.1A)
 
     sbyte2 commandedTorque; // in dNm
     ubyte4 currentPower;

@@ -274,7 +274,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             //0,1 motor angle (electrical)
             //2,3 motor speed*** // in rpms
             //Cast may be required - needs testing
-            mcm->motorRPM = reasm_ubyte2(canMessages[currMessage].data, 2);
+            mcm->motorRPM = reasm_sbyte2(canMessages[currMessage].data, 2);
             //4,5 electrical output frequency
             //6,7 delta resolver filtered
             break;
@@ -283,11 +283,11 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             //2,3 Phase B current
             //4,5 Phase C current
             //6,7 DC bus current
-            mcm->DC_Current = reasm_ubyte2(canMessages[currMessage].data, 6) / 10;
+            mcm->DC_Current = reasm_sbyte2(canMessages[currMessage].data, 6);
             break;
         case 0x0A7:
             //0,1 DC bus voltage***
-            mcm->DC_Voltage = reasm_ubyte2(canMessages[currMessage].data, 0) / 10;
+            mcm->DC_Voltage = reasm_sbyte2(canMessages[currMessage].data, 0);
             //2,3 output voltage
             //4,5 Phase AB voltage
             //6,7 Phase BC voltage

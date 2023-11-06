@@ -220,16 +220,6 @@ void main(void)
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
-        /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
-        {
-            case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
-            case IO_E_NULL_POINTER: SerialManager_send(serialMan, "IO_E_NULL_POINTER: null pointer has been passed to function\n"); break;
-            case IO_E_CAN_FIFO_FULL: SerialManager_send(serialMan, "IO_E_CAN_FIFO_FULL: overflow of FIFO buffer\n"); break;
-            case IO_E_CAN_WRONG_HANDLE: SerialManager_send(serialMan, "IO_E_CAN_WRONG_HANDLE: invalid handle has been passed\n"); break;
-            case IO_E_CHANNEL_NOT_CONFIGURED: SerialManager_send(serialMan, "IO_E_CHANNEL_NOT_CONFIGURED: the given handle has not been configured\n"); break;
-            case IO_E_CAN_OLD_DATA: SerialManager_send(serialMan, "IO_E_CAN_OLD_DATA: no data has been received\n"); break;
-            default: SerialManager_send(serialMan, "Warning: Unknown CAN read status\n"); break;
-        }*/
 
         //No regen below 5kph
         sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
@@ -289,8 +279,6 @@ void main(void)
 
         //Assign motor controls to MCM command message
         //DOES NOT set inverter command or rtds flag
-        //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
-        // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
@@ -316,7 +304,6 @@ void main(void)
 
         //Send debug data
         canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
-        //canOutput_sendSensorMessages();
 
         //----------------------------------------------------------------------------
         // Task management stuff (end)
@@ -332,10 +319,4 @@ void main(void)
         }
 
     } //end of main loop
-
-    //----------------------------------------------------------------------------
-    // VCU Subsystem Deinitialization
-    //----------------------------------------------------------------------------
-    //IO_ADC_ChannelDeInit(IO_ADC_5V_00);
-    //Free memory if object won't be used anymore
 }

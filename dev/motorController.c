@@ -173,8 +173,6 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     if(me->LCState == TRUE){
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0){
-        torqueOutput = me->LaunchControl_TorqueLimit;
     } else {
         torqueOutput = appsTorque + bpsTorque;
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
@@ -415,7 +413,7 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
 
 sbyte4 MCM_getPower(MotorController *me)
 {
-    return (me->DC_Voltage * me->DC_Current);
+    return (me->DC_Voltage * me->DC_Current/100);
 }
 
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
@@ -467,7 +465,7 @@ void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS
 float4 MCM_pack_no_load_voltage(MotorController *me)
 {
 
-    return (float4)me->DC_Voltage + ((float4)me->DC_Current * PACK_RESISTANCE);
+    return ((float4)me->DC_Voltage / 10) + ((float4)me->DC_Current * PACK_RESISTANCE / 10);
 }
 
 const float4 POWER_LIM_LUT[25][25] = {
@@ -553,5 +551,9 @@ float4 solve_lut(float4 v, float4 s) {
 ubyte2 MCM_get_max_torque_power_limit(MotorController *me)
 {
     me->nl_voltage = MCM_pack_no_load_voltage(me);
-    return solve_lut(me->nl_voltage, (float4)me->motorRPM);
+    ubyte2 power_lim = solve_lut(me->nl_voltage, (float4)me->motorRPM);
+    if (power_lim < 0) {
+        power_lim = 0;
+    }
+    return power_lim;
 }

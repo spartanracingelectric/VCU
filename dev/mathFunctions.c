@@ -90,6 +90,14 @@ ubyte2 reasm_ubyte2(const ubyte1* data, ubyte1 start_index) {
     return result;
 }
 
+sbyte2 reasm_sbyte2(const ubyte1* data, ubyte1 start_index) {
+    sbyte2 result = 0;
+    for (int i = 0; i < 2; i++) {
+        result |= ((sbyte2)data[start_index + i]) << (8 * (1 - i));
+    }
+    return result;
+}
+
 //byte swapping functions used by BMS
 
 ubyte1 swap_uint8(ubyte1 val)
