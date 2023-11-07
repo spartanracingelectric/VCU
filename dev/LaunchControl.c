@@ -80,7 +80,7 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
 }
 
 bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
-    if (wss->speed_FL_RPM > minSpeed && wss->speed_FR_RPM > minSpeed && wss->speed_RL_RPM > minSpeed && wss->speed_RR_RPM > minSpeed) {
+    if (wss->speed_FL_RPM_S > minSpeed && wss->speed_FR_RPM_S > minSpeed && wss->speed_RL_RPM_S > minSpeed && wss->speed_RR_RPM_S > minSpeed) {
         return TRUE;
     }
     else {
