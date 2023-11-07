@@ -101,6 +101,7 @@ IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs);
 IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms);
 IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker* sc);
 IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc);
+IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController* mcm);
 IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm);
 float4 lv_battery_soc();
 
