@@ -7,7 +7,6 @@
 #include "motorController.h"
 #include "mathFunctions.h"
 #include "sensors.h"
-#include "sensorCalculations.h"
 
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
@@ -17,8 +16,8 @@
 
 #include "canManager.h"
 
-extern Button Sensor_RTDButton;
-extern Button Sensor_EcoButton;
+extern Button RTD_Button;
+extern Button Cal_Button;
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 extern Button Sensor_HVILTerminationSense;
 
@@ -255,7 +254,7 @@ void MCM_relayControl(MotorController *me)
 void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
     float4 RTDPercent;
-    RTDPercent = (Sensor_RTDButton.sensorValue == TRUE ? 1 : 0);
+    RTDPercent = (RTD_Button.sensorValue == TRUE ? 1 : 0);
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
@@ -284,7 +283,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (RTD_Button.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable

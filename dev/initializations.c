@@ -26,8 +26,8 @@ void vcu_initializeADC(bool benchMode)
     //Power supplies/outputs
     //----------------------------------------------------------------------------
     //Analog sensor supplies
-    Sensor_TPS0.ioErr_powerSet = Sensor_BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148 and 136
-    Sensor_TPS1.ioErr_powerSet = Sensor_BPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
+    TPS0.ioErr_powerSet = BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148 and 136
+    TPS1.ioErr_powerSet = BPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
 
     //Variable power supply
     IO_POWER_Set(IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);    //IO_POWER_Set(IO_PIN_269, IO_POWER_8_5_V);
@@ -71,10 +71,10 @@ void vcu_initializeADC(bool benchMode)
     //----------------------------------------------------------------------------
     //TPS/BPS
     
-    Sensor_TPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
-    Sensor_TPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
-    Sensor_BPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
-    Sensor_BPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+    TPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
+    TPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+    BPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
+    BPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
 
     // SAS (Steering Angle Sensor)
     Sensor_SAS.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
@@ -94,18 +94,18 @@ void vcu_initializeADC(bool benchMode)
 
     //Wheel Speed Sensors (Pulse Width Detection)
 
-    Sensor_WSS_FL = *PWDSensor_new(IO_PWD_10);
-    Sensor_WSS_FR = *PWDSensor_new(IO_PWD_08);
-    Sensor_WSS_RL = *PWDSensor_new(IO_PWD_09);
-    Sensor_WSS_RR = *PWDSensor_new(IO_PWD_11);
+    WSS_FL = *PWDSensor_new(IO_PWD_10);
+    WSS_FR = *PWDSensor_new(IO_PWD_08);
+    WSS_RL = *PWDSensor_new(IO_PWD_09);
+    WSS_RR = *PWDSensor_new(IO_PWD_11);
     
     //----------------------------------------------------------------------------
     //Switches
     //----------------------------------------------------------------------------
-    Sensor_RTDButton = *Button_new(IO_DI_00, TRUE); //RTD Button
-    Sensor_EcoButton = *Button_new(IO_DI_01, TRUE); //Eco Button
-    Sensor_LCButton  = *Button_new(IO_DI_03, TRUE); // Launch Control Enable Button
-    Sensor_DRSButton = *Button_new(IO_DI_04, TRUE); // DRS Button
+    RTD_Button = *Button_new(IO_DI_00, TRUE); //RTD Button
+    Cal_Button = *Button_new(IO_DI_01, TRUE); //Eco Button
+    LC_Button  = *Button_new(IO_DI_03, TRUE); // Launch Control Enable Button
+    DRS_Button = *Button_new(IO_DI_04, TRUE); // DRS Button
 
     //----------------------------------------------------------------------------
     Sensor_HVILTerminationSense = *Button_new(IO_DI_07, FALSE); //HVIL Term sense, high = HV present
@@ -152,24 +152,24 @@ void init_lv_battery_lut(void)
 /*****************************************************************************
 * Sensors
 ****************************************************************************/
-Sensor Sensor_TPS0; // = { 0, 0.5, 4.5 };
-Sensor Sensor_TPS1; // = { 0, 4.5, 0.5 };
-Sensor Sensor_BPS0; // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
-Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
-PWDSensor Sensor_WSS_FL; // = { 2 };
-PWDSensor Sensor_WSS_FR; // = { 2 };
-PWDSensor Sensor_WSS_RL; // = { 2 };
-PWDSensor Sensor_WSS_RR; // = { 2 };
+Sensor TPS0; // = { 0, 0.5, 4.5 };
+Sensor TPS1; // = { 0, 4.5, 0.5 };
+Sensor BPS0; // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
+Sensor BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
+PWDSensor WSS_FL; // = { 2 };
+PWDSensor WSS_FR; // = { 2 };
+PWDSensor WSS_RL; // = { 2 };
+PWDSensor WSS_RR; // = { 2 };
 Sensor Sensor_SAS;    // = { 4 };
 Sensor Sensor_LVBattery;
 
 Sensor Sensor_TCSKnob;
-Button Sensor_RTDButton;
-Button Sensor_EcoButton;
-Button Sensor_LCButton;
+Button RTD_Button;
+Button Cal_Button;
+Button LC_Button;
 Button Sensor_HVILTerminationSense;
 
-Button Sensor_DRSButton;
+Button DRS_Button;
 Sensor Sensor_DRSKnob;
 //Switches
 //precharge failure

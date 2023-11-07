@@ -20,18 +20,18 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     BrakePressureSensor *me = (BrakePressureSensor *)malloc(sizeof(struct _BrakePressureSensor));
 
     //TODO: Make sure the main loop is running before doing this
-    me->bps0 = &Sensor_BPS0;
-    me->bps1 = &Sensor_BPS1;
+    me->bps0 = &BPS0;
+    me->bps1 = &BPS1;
 
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.
     // Accuracy below 100PSI is +/- 0.5% of the full scale span (4V), which is +/- 0.2V
-    Sensor_BPS0.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
-    Sensor_BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+    BPS0.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+    BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
 
     // Accuracy above 100PSI is +/- 0.25% of the full scale span (4V), which is +/- 0.1V
-    Sensor_BPS0.specMax = 4500 + (4000 * .0025);
-    Sensor_BPS1.specMax = 4500 + (4000 * .0025);
+    BPS0.specMax = 4500 + (4000 * .0025);
+    BPS1.specMax = 4500 + (4000 * .0025);
 
     me->bps0_reverse = FALSE;
     me->bps1_reverse = FALSE;
@@ -157,7 +157,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
             {
                 me->bps0_calibMax = me->bps0->sensorValue;
             }
-            /*
+            
             if (me->bps1->sensorValue < me->bps1_calibMin)
             {
                 me->bps1_calibMin = me->bps1->sensorValue;
@@ -166,7 +166,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
             {
                 me->bps1_calibMax = me->bps1->sensorValue;
             }
-            */
+            
         }
         else //Calibration shutdown
         {

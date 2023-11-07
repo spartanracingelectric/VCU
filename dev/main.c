@@ -39,7 +39,6 @@
 #include "brakePressureSensor.h"
 #include "wheelSpeeds.h"
 #include "safety.h"
-#include "sensorCalculations.h"
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
@@ -78,21 +77,7 @@ APDB appl_db =
         0 /* ubyte4 headerCRC          */
 };
 
-extern Sensor Sensor_TPS0;
-extern Sensor Sensor_TPS1;
-extern Sensor Sensor_BPS0;
-extern Sensor Sensor_BPS1;
-extern PWDSensor Sensor_WSS_FL;
-extern PWDSensor Sensor_WSS_FR;
-extern PWDSensor Sensor_WSS_RL;
-extern PWDSensor Sensor_WSS_RR;
-extern Sensor Sensor_SAS;
-extern Sensor Sensor_TCSKnob;
-
-extern Button Sensor_RTDButton;
-extern Button Sensor_TEMP_BrakingSwitch;
-extern Button Sensor_EcoButton;
-extern Button Sensor_DRSButton;
+extern Button Cal_Button;
 
 /*****************************************************************************
 * Main!
@@ -235,7 +220,7 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == TRUE)
+        if (Cal_Button.sensorValue == TRUE)
         {
             if (timestamp_EcoButton == 0)
             {

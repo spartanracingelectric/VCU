@@ -15,8 +15,8 @@
 TorqueEncoder* TorqueEncoder_new(bool benchMode)
 {
     TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
-    me->tps0 = &Sensor_TPS0;
-    me->tps1 = &Sensor_TPS1;
+    me->tps0 = &TPS0;
+    me->tps1 = &TPS1;
 
     //Where/should these be hardcoded?
     me->tps0_reverse = FALSE;

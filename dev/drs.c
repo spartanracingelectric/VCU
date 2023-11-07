@@ -10,7 +10,7 @@
 #include "motorController.h"
 #include "sensorCalculations.h"
 
-extern Button Sensor_DRSButton; 
+extern Button DRS_Button; 
 extern Sensor Sensor_DRSKnob;
 
 DRS *DRS_new() 
@@ -64,7 +64,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 DRS_open(me);           
                 break;
             case MANUAL:
-                if(Sensor_DRSButton.sensorValue == TRUE) {
+                if(DRS_Button.sensorValue == TRUE) {
                     me->buttonPressed = TRUE;
                     DRS_open(me);
                 } else {

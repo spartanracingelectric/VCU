@@ -91,32 +91,31 @@ typedef struct _PWDSensor {
 //TODO: Read stored calibration data from EEPROM
 
 //Torque Encoders (TPS is not really accurate since there's no throttle to position in an EV)
-extern Sensor Sensor_TPS0;  // = { 0, 0.5, 4.5 };
-extern Sensor Sensor_TPS1;  // = { 0, 4.5, 0.5 };
+extern Sensor TPS0;  // = { 0, 0.5, 4.5 };
+extern Sensor TPS1;  // = { 0, 4.5, 0.5 };
 
 //Brake Position Sensors
-extern Sensor Sensor_BPS0;  // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
-extern Sensor Sensor_BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
+extern Sensor BPS0;  // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
+extern Sensor BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
 
 //Wheel Speed Sensors (like an ABS sensor)
-extern PWDSensor Sensor_WSS_FL;  // = { 2 };
-extern PWDSensor Sensor_WSS_FR;  // = { 2 };
-extern PWDSensor Sensor_WSS_RL;  // = { 2 };
-extern PWDSensor Sensor_WSS_RR;  // = { 2 };
+extern PWDSensor WSS_FL;  // = { 2 };
+extern PWDSensor WSS_FR;  // = { 2 };
+extern PWDSensor WSS_RL;  // = { 2 };
+extern PWDSensor WSS_RR;  // = { 2 };
 
 //Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
 extern Sensor Sensor_SAS;  // = { 4 };
 
 //Switches
 //precharge failure
-extern Button Sensor_RTDButton;
-extern Button Sensor_EcoButton;
+extern Button RTD_Button;
+extern Button Cal_Button;
 extern Sensor Sensor_TCSSwitchUp;
-extern Button Sensor_LCButton;
+extern Button LC_Button;
 extern Sensor Sensor_TCSKnob;
-extern Button Sensor_DRSButton;
+extern Button DRS_Button;
 extern Sensor Sensor_DRSKnob;
-extern Button Sensor_TEMP_BrakingSwitch;
 
 extern Button Sensor_HVILTerminationSense;
 
@@ -141,5 +140,11 @@ void PWDSensor_read(PWDSensor* sensor);
 // Outputs
 //----------------------------------------------------------------------------
 void Light_set(Light light, float4 percent);
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte4 steering_degrees();
 
 #endif // _SENSORS_H

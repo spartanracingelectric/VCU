@@ -11,22 +11,22 @@
 #include "sensors.h"
 #include "mathFunctions.h"
 
-extern Sensor Sensor_TPS0;
-extern Sensor Sensor_TPS1;
-extern Sensor Sensor_BPS0;
-extern Sensor Sensor_BPS1;
-extern PWDSensor Sensor_WSS_FL;
-extern PWDSensor Sensor_WSS_FR;
-extern PWDSensor Sensor_WSS_RL;
-extern PWDSensor Sensor_WSS_RR;
+extern Sensor TPS0;
+extern Sensor TPS1;
+extern Sensor BPS0;
+extern Sensor BPS1;
+extern PWDSensor WSS_FL;
+extern PWDSensor WSS_FR;
+extern PWDSensor WSS_RL;
+extern PWDSensor WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
-extern Button Sensor_RTDButton;
-extern Button Sensor_EcoButton;
-extern Button Sensor_DRSButton;
+extern Button RTD_Button;
+extern Button Cal_Button;
+extern Button DRS_Button;
 extern Sensor Sensor_DRSKnob;
-extern Button Sensor_LCButton;
+extern Button LC_Button;
 extern Button Sensor_HVILTerminationSense;
 
 /*-------------------------------------------------------------------
@@ -41,25 +41,25 @@ extern Button Sensor_HVILTerminationSense;
 void sensors_updateSensors(void)
 {
     //Torque Encoders ---------------------------------------------------
-    Sensor_TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_TPS0.sensorValue, &Sensor_TPS0.fresh);
-    Sensor_TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_TPS1.sensorValue, &Sensor_TPS1.fresh);
+    TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &TPS0.sensorValue, &TPS0.fresh);
+    TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &TPS1.sensorValue, &TPS1.fresh);
 
     //Brake Position Sensor ---------------------------------------------------
-    Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
-    Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
+    BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &BPS0.sensorValue, &BPS0.fresh);
+    BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &BPS1.sensorValue, &BPS1.fresh);
    
     //Wheel speed sensors ---------------------------------------------------
-    PWDSensor_read(&Sensor_WSS_FL);
-    PWDSensor_read(&Sensor_WSS_FR);
-    PWDSensor_read(&Sensor_WSS_RL);
-    PWDSensor_read(&Sensor_WSS_RR);
+    PWDSensor_read(&WSS_FL);
+    PWDSensor_read(&WSS_FR);
+    PWDSensor_read(&WSS_RL);
+    PWDSensor_read(&WSS_RR);
 
     //Switches / Digital ---------------------------------------------------
-    Button_read(&Sensor_RTDButton);
-    Button_read(&Sensor_EcoButton);
-    Button_read(&Sensor_LCButton);
+    Button_read(&RTD_Button);
+    Button_read(&Cal_Button);
+    Button_read(&LC_Button);
     Button_read(&Sensor_HVILTerminationSense);
-    Button_read(&Sensor_DRSButton);
+    Button_read(&DRS_Button);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
@@ -182,3 +182,22 @@ void Light_set(Light light, float4 percent)
 * function in this file to do so.
 *
 *****************************************************************************/
+
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte4 steering_degrees(){
+    sbyte4 min_voltage = 960;    // Adjusted minimum voltage to 0 mV
+    sbyte4 max_voltage = 2560; // Adjusted maximum voltage to 5000 mV
+    sbyte4 min_angle = -90;
+    sbyte4 max_angle = 90;
+    
+    sbyte4 voltage_range = max_voltage - min_voltage;
+    sbyte4 angle_range = max_angle - min_angle;
+    sbyte4 voltage = Sensor_SAS.sensorValue;
+
+    sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
+    return deg;
+}

@@ -6,7 +6,7 @@
 #include "brakePressureSensor.h"
 #include "torqueEncoder.h"
 #include "motorController.h"
-#include "sensorCalculations.h"
+#include "sensors.h"
 
 // Rotary Switch modes:
 //      Mode 0 - Always off

@@ -10,9 +10,9 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "motorController.h"
-#include "sensorCalculations.h"
 #include "main.h"
-extern Button Sensor_LCButton;
+
+extern Button LC_Button;
 extern Sensor Sensor_DRSKnob;
 
 void initPIDController(PIDController* controller, float4 p, float4 i, float4 d, float4 initialTorque) {
@@ -90,13 +90,13 @@ bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
     sbyte2 steeringAngle = (sbyte2)steering_degrees();
     PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
-     if (Sensor_LCButton.sensorValue == TRUE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
+     if (LC_Button.sensorValue == TRUE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;
         me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         initPIDController(controller, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
         // Because acceleration is in the negative regime of slip ratio and we want to increase torque to make it more negative
      }
-     if (me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90 && bps->percent < .05) {
+     if (me->LCReady == TRUE && LC_Button.sensorValue == FALSE && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;
         me->lcTorque = controller->errorSum; // Set to the initial torque
         if (me->sr_valid) {

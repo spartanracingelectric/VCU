@@ -45,6 +45,8 @@
     ],
     "files.associations": {
         "brakepressuresensor.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "sensors.h": "c",
+        "motorcontroller.h": "c"
     }
 }

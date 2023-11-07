@@ -551,8 +551,8 @@ IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder* tps) {
     canMessage.id = 0x500;
     canMessage.data[0] = 0xFF * tps->travelPercent;
     canMessage.data[1] = 0xFF * tps->tps0_percent;
-    canMessage.data[2] = Sensor_TPS0.sensorValue;
-    canMessage.data[3] = Sensor_TPS0.sensorValue >> 8;
+    canMessage.data[2] = TPS0.sensorValue;
+    canMessage.data[3] = TPS0.sensorValue >> 8;
     canMessage.data[4] = tps->tps0_calibMin;
     canMessage.data[5] = tps->tps0_calibMin >> 8;
     canMessage.data[6] = tps->tps0_calibMax;
@@ -567,8 +567,8 @@ IO_CAN_DATA_FRAME get_tps1_can_message(TorqueEncoder* tps) {
     canMessage.id = 0x501;
     canMessage.data[0] = 0xFF * tps->travelPercent;
     canMessage.data[1] = 0xFF * tps->tps1_percent;
-    canMessage.data[2] = Sensor_TPS1.sensorValue;
-    canMessage.data[3] = Sensor_TPS1.sensorValue >> 8;
+    canMessage.data[2] = TPS1.sensorValue;
+    canMessage.data[3] = TPS1.sensorValue >> 8;
     canMessage.data[4] = tps->tps1_calibMin;
     canMessage.data[5] = tps->tps1_calibMin >> 8;
     canMessage.data[6] = tps->tps1_calibMax;
@@ -715,7 +715,7 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     canMessage.data[1] = Sensor_HVILTerminationSense.sensorValue >> 8;
     canMessage.data[2] = mcm->HVILOverride;
     canMessage.data[3] = mcm->startupStage;
-    canMessage.data[4] = Sensor_RTDButton.sensorValue;
+    canMessage.data[4] = RTD_Button.sensorValue;
     canMessage.data[5] = mcm->lockoutStatus;
     canMessage.data[6] = mcm->inverterStatus;
     canMessage.data[7] = 0;
@@ -750,7 +750,7 @@ IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl* lc) {
     canMessage.data[4] = (sbyte2)lc->slipRatio;
     canMessage.data[5] = (sbyte2)lc->slipRatio >> 8;
     canMessage.data[6] = (ubyte2)lc->lcTorque;
-    canMessage.data[7] = Sensor_LCButton.sensorValue;
+    canMessage.data[7] = LC_Button.sensorValue;
     canMessage.length = 8;
     return canMessage;
 }
@@ -764,7 +764,7 @@ IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs) {
     canMessage.data[2] = drs->buttonPressed;
     canMessage.data[3] = drs->currentDRSMode;
     canMessage.data[4] = drs->drsFlap;
-    canMessage.data[5] = Sensor_DRSButton.sensorValue;
+    canMessage.data[5] = DRS_Button.sensorValue;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
     canMessage.length = 8;

@@ -430,20 +430,3 @@ void set_flags(ubyte4 *fault, ubyte4 flag, bool condition) {
     }
 }
 
-//-------------------------------------------------------------------
-// 80kW Limit Check
-//-------------------------------------------------------------------
-//Change this to return a multiplier instead of torque value
-//ubyte2 checkPowerDraw(BatteryManagementSystem* bms, MotorController* mcm)
-//{
-//    ubyte2 torqueThrottle = 0;
-//
-//    // if either the bms or mcm goes over 75kw, limit torque
-//    if ((BMS_getPower(bms) > 75000) || (MCM_getPower(mcm) > 75000))
-//    {
-//        // using bmsPower since closer to e-meter
-//        torqueThrottle = MCM_getCommandedTorque(mcm) - (((BMS_getPower(bms) - 80000) / 80000) * MCM_getCommandedTorque(mcm));
-//    }
-//
-//    return torqueThrottle;
-//}
