@@ -104,7 +104,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             me->lcTorque = calculatePIDController(controller, -0.2, me->slipRatio, mcm->LaunchControl_TorqueLimit/10.0); // Set your target, current, dt
         }
     }
-    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus == TRUE) || (me->sr_valid && mcm->motorRPM > 1000)) {
+    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus == TRUE) || (!me->sr_valid && mcm->motorRPM > 1000)) {
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;
