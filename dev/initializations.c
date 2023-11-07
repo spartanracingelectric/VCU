@@ -118,6 +118,7 @@ void vcu_ADCWasteLoop(void)
 {
     bool tempFresh = FALSE;
     ubyte2 tempData;
+    bool tempBool;
     ubyte4 timestamp_sensor_poll = 0;
     IO_RTC_StartTime(&timestamp_sensor_poll);
     while (IO_RTC_GetTimeUS(timestamp_sensor_poll) < 1000000)
@@ -130,7 +131,7 @@ void vcu_ADCWasteLoop(void)
         IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
-        IO_DI_Get(IO_DI_05, &tempData);
+        IO_DI_Get(IO_DI_05, &tempBool);
         IO_ADC_Get(IO_ADC_5V_00, &tempData, &tempFresh);
         IO_ADC_Get(IO_ADC_5V_01, &tempData, &tempFresh);
 

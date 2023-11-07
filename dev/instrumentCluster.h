@@ -2,7 +2,6 @@
 #ifndef _INSTRUMENTCLUSTER_H
 #define _INSTRUMENTCLUSTER_H
 
-#include <stdlib.h>
 #include "IO_CAN.h"
 #include "IO_Driver.h"
 #include "motorController.h"

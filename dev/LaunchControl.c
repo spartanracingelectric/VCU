@@ -14,7 +14,6 @@
 #include "main.h"
 extern Button Sensor_LCButton;
 extern Sensor Sensor_DRSKnob;
-float Calctorque;
 
 void initPIDController(PIDController* controller, float4 p, float4 i, float4 d, float4 initialTorque) {
     controller->kp = p;

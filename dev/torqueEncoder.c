@@ -52,15 +52,10 @@ void TorqueEncoder_update(TorqueEncoder* me)
     me->tps1_value = me->tps1->sensorValue;
 
     me->travelPercent = 0;
-    ubyte2 errorCount = 0;
     
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
-    if (me->runCalibration == TRUE)
-    {
-        errorCount++;  //DO SOMETHING WITH THIS
-    }
-    else
+    if (me->runCalibration == FALSE)
     {
         //getPedalTravel = 0;
 
@@ -72,14 +67,13 @@ void TorqueEncoder_update(TorqueEncoder* me)
         {
             me->tps0_percent = 0;
             me->tps1_percent = 0;
-            (errorCount)++;  //DO SOMETHING WITH THIS
         }
         else
         {
             //Calculate individual throttle percentages
             //Percent = (Voltage - CalibMin) / (CalibMax - CalibMin)
-            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
-            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+            me->tps0_percent = getPercent((float4)me->tps0_value, (float4)me->tps0_calibMin, (float4)me->tps0_calibMax, TRUE);
+            me->tps1_percent = getPercent((float4)me->tps1_value, (float4)me->tps1_calibMin, (float4)me->tps1_calibMax, TRUE);
 
             me->travelPercent = (me->tps0_percent + me->tps1_percent) / 2;
         }

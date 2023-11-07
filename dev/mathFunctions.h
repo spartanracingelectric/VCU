@@ -13,13 +13,11 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly);
 
-// A utility function to get maximum of two integers
-ubyte2 max(ubyte2 a, ubyte2 b);
-
 // Function to reassemble a 4-byte integer from a byte array starting from a specified index
-ubyte4 reasm_ubyte4(const ubyte1* data, ubyte1 length);
+ubyte4 reasm_ubyte4(const ubyte1* data, ubyte1 start_index);
 // Function to reassemble a 2-byte integer from a byte array starting from a specified index
-ubyte2 reasm_ubyte2(const ubyte1* data, ubyte1 length);
+ubyte2 reasm_ubyte2(const ubyte1* data, ubyte1 start_index);
+sbyte2 reasm_sbyte2(const ubyte1* data, ubyte1 start_index);
 
 //  Functions for endian conversion
 ubyte1 swap_uint8(ubyte1 val);

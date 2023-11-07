@@ -49,10 +49,10 @@ typedef struct _Sensor {
     //ubyte2 calibNormal;  //zero value or normal position
 
     //ubyte2 calibratedValue;
-    ubyte4 sensorValue;
+    ubyte2 sensorValue;
     ubyte4 heldSensorValue;
     ubyte4 timestamp;
-    int sensorAddress;
+    ubyte1 sensorAddress;
     bool fresh;
     //bool isCalibrated;
     IO_ErrorType ioErr_powerInit;
@@ -67,7 +67,7 @@ typedef struct _Button {
     ubyte4 timestamp;
     ubyte4 heldTime;
     ubyte4 heldTimestamp;
-    int sensorAddress;
+    ubyte1 sensorAddress;
     bool fresh;
     bool inverted;
     IO_ErrorType ioErr_signalInit;
@@ -78,7 +78,7 @@ typedef struct _PWDSensor {
     ubyte2 sensorValue;
     ubyte2 heldSensorValue;
     ubyte4 timestamp;
-    int sensorAddress;
+    ubyte1 sensorAddress;
     bool fresh;
     IO_ErrorType ioErr_signalInit;
     IO_ErrorType ioErr_signalGet;
@@ -124,8 +124,8 @@ extern Button Sensor_HVILTerminationSense;
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
 
-Button* Button_new(int pin, bool inverted);
-PWDSensor* PWDSensor_new(int pin);
+Button* Button_new(ubyte1 pin, bool inverted);
+PWDSensor* PWDSensor_new(ubyte1 pin);
 
 //----------------------------------------------------------------------------
 // Sensor Functions

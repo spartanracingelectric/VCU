@@ -35,18 +35,6 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
     return retVal;
 }
 
-// A utility function to get maximum of two integers
-ubyte2 max(ubyte2 a, ubyte2 b)
-{
-    return (a > b) ? a : b;
-}
-
-// A utility function to get maximum of two integers
-ubyte2 min(ubyte2 a, ubyte2 b)
-{
-    return (a < b) ? a : b;
-}
-
 /**********************************************************************/ /**
  *
  * \brief Decides whether a blinking light should be on or off based on

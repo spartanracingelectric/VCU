@@ -71,7 +71,7 @@ void sensors_updateSensors(void)
     Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
 }
 
-Button* Button_new(int pin, bool inverted) {
+Button* Button_new(ubyte1 pin, bool inverted) {
     Button* button = malloc(sizeof(Button));
     IO_RTC_StartTime(&button->timestamp);
     IO_RTC_StartTime(&button->heldTimestamp);
@@ -97,7 +97,7 @@ void Button_read(Button* button) {
     }
 }
 
-PWDSensor* PWDSensor_new(int pin) {
+PWDSensor* PWDSensor_new(ubyte1 pin) {
     PWDSensor* sensor = malloc(sizeof(PWDSensor));
     IO_RTC_StartTime(&sensor->timestamp);
     sensor->sensorAddress = pin;

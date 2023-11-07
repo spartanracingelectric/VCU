@@ -1,5 +1,5 @@
 #include "IO_Driver.h"
-
+#include <stdlib.h>
 #include "instrumentCluster.h"
 #include "motorController.h"    // need definition of MotorController's struct, not just decaration
 #include "canManager.h"
