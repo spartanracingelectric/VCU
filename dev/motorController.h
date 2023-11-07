@@ -96,7 +96,7 @@ typedef struct _MotorController
     Status commands_inverter;
     //ubyte1 controlSwitches; // example: 0b00000001 = inverter is enabled, discharge is disabled
 
-    sbyte2 LaunchControl_TorqueLimit; // in dNm
+    sbyte2 LaunchControl_Torque; // in dNm
     bool LCState;
 
 } MotorController;

@@ -65,7 +65,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->motor_temp = 99;
 
-    me->LaunchControl_TorqueLimit = 0;
+    me->LaunchControl_Torque = 0;
 
     me->LCState = FALSE;
     
@@ -172,7 +172,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
     if(me->LCState == TRUE){
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->LaunchControl_Torque;
     } else {
         torqueOutput = appsTorque + bpsTorque;
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
