@@ -79,11 +79,6 @@ APDB appl_db =
 
 extern Button Cal_Button;
 
-/*****************************************************************************
-* Main!
-* Initializes I/O
-* Contains sensor polling loop (always running)
-****************************************************************************/
 void main(void)
 {
     ubyte4 timestamp_startTime = 0;
@@ -101,41 +96,13 @@ void main(void)
     SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
     SerialManager_send(serialMan, "VCU serial is online.\n");
 
-    //Read initial values from EEPROM
-    //EEPROMManager* EEPROMManager_new();
-
-    /*******************************************/
-    /*      System Level Initializations       */
-    /*******************************************/
-
-    //----------------------------------------------------------------------------
-    // Check if we're on the bench or not
-    //----------------------------------------------------------------------------
-    bool bench;
-    IO_DI_Init(IO_DI_06, IO_DI_PD_10K);
-    IO_RTC_StartTime(&timestamp_startTime);
-    while (IO_RTC_GetTimeUS(timestamp_startTime) < 55555)
-    {
-        IO_Driver_TaskBegin();
-
-        //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
-        IO_DI_Get(IO_DI_06, &bench);
-
-        IO_Driver_TaskEnd();
-        //TODO: Find out if EACH pin needs 2 cycles or just the entire DIO unit
-        while (IO_RTC_GetTimeUS(timestamp_startTime) < 10000)
-            ; // wait until 10ms have passed
-    }
-    IO_DI_DeInit(IO_DI_06);
-    SerialManager_send(serialMan, bench == TRUE ? "VCU is in bench mode.\n" : "VCU is NOT in bench mode.\n");
-
     //----------------------------------------------------------------------------
     // VCU Subsystem Initializations
     // Eventually, all of these functions should be made obsolete by creating
     // objects instead, like the RTDS/MCM/TPS objects below
     //----------------------------------------------------------------------------
     SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
-    vcu_initializeADC(bench); //Configure and activate all I/O pins on the VCU
+    vcu_initializeADC(); //Configure and activate all I/O pins on the VCU
 
     //Do some loops until the ADC stops outputting garbage values
     vcu_ADCWasteLoop();
@@ -159,9 +126,9 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10);
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
-    TorqueEncoder *tps = TorqueEncoder_new(bench);
+    TorqueEncoder *tps = TorqueEncoder_new();
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, F_WSS_TICKS, R_WSS_TICKS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
@@ -170,46 +137,28 @@ void main(void)
     DRS *drs = DRS_new();
     init_lv_battery_lut();
 
-    //TODO: Read calibration data from EEPROM?
-    //TODO: Run calibration functions?
-    //TODO: Power-on error checking?
-
-    /*******************************************/
-    /*       PERIODIC APPLICATION CODE         */
-    /*******************************************/
-    /* main loop, executed periodically with a defined cycle time (here: 5 ms) */
     ubyte4 timestamp_mainLoopStart = 0;
-    //IO_RTC_StartTime(&timestamp_calibStart);
     SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
+
     while (1)
     {
         //----------------------------------------------------------------------------
         // Task management stuff (start)
         //----------------------------------------------------------------------------
-        //Get a timestamp of when this task started from the Real Time Clock
         IO_RTC_StartTime(&timestamp_mainLoopStart);
-        //Mark the beginning of a task - what does this actually do?
         IO_Driver_TaskBegin();
-
-        //SerialManager_send(serialMan, "VCU has entered main loop.");
 
         /*******************************************/
         /*              Read Inputs                */
         /*******************************************/
-        //----------------------------------------------------------------------------
-        // Handle data input streams
-        //----------------------------------------------------------------------------
-        //Get readings from our sensors and other local devices (buttons, 12v battery, etc)
         sensors_updateSensors();
 
         //Pull messages from CAN FIFO and update our object representations.
-        //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
         //No regen below 5kph
         sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
-        if (groundSpeedKPH < 15)
-        {
+        if (groundSpeedKPH < 15) {
             MCM_setRegenMode(mcm0, REGENMODE_OFF);
         } else {
             // Regen mode is now set based on battery voltage to preserve overvoltage fault 
@@ -220,15 +169,12 @@ void main(void)
             // } 
         }
 
-        if (Cal_Button.sensorValue == TRUE)
-        {
-            if (timestamp_EcoButton == 0)
-            {
+        if (Cal_Button.sensorValue) {
+            if (timestamp_EcoButton == 0) {
                 SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
-            {
+            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) {
                 SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
                 TorqueEncoder_startCalibration(tps, 5);
@@ -237,10 +183,8 @@ void main(void)
                 //DIGITAL OUTPUT 4 for STATUS LED
             }
         }
-        else
-        {
-            if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000)
-            {
+        else {
+            if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000) {
                 SerialManager_send(serialMan, "Eco mode requested\n");
             }
             timestamp_EcoButton = 0;
@@ -248,7 +192,7 @@ void main(void)
         TorqueEncoder_update(tps);
         //Every cycle: if the calibration was started and hasn't finished, check the values again
         TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
-        BrakePressureSensor_update(bps, bench);
+        BrakePressureSensor_update(bps);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
 
         //Update WheelSpeed and interpolate

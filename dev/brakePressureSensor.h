@@ -38,7 +38,7 @@ typedef struct _BrakePressureSensor
 } BrakePressureSensor;
 
 BrakePressureSensor *BrakePressureSensor_new(void);
-void BrakePressureSensor_update(BrakePressureSensor *me, bool bench);
+void BrakePressureSensor_update(BrakePressureSensor *me);
 void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, ubyte1 sensorNumber, float4 *percent);
 void BrakePressureSensor_resetCalibration(BrakePressureSensor *me);
 void BrakePressureSensor_saveCalibrationToEEPROM(BrakePressureSensor *me);

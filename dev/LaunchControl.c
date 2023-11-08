@@ -79,31 +79,26 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
 }
 
 bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
-    if (wss->speed_FL_RPM_S > minSpeed && wss->speed_FR_RPM_S > minSpeed && wss->speed_RL_RPM_S > minSpeed && wss->speed_RR_RPM_S > minSpeed) {
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
+    return (wss->speed_FL_RPM_S > minSpeed && wss->speed_FR_RPM_S > minSpeed && wss->speed_RL_RPM_S > minSpeed && wss->speed_RR_RPM_S > minSpeed);
 }
 
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
     sbyte2 steeringAngle = (sbyte2)steering_degrees();
     PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
-     if (LC_Button.sensorValue == TRUE && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
+     if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;
         me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         initPIDController(controller, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
         // Because acceleration is in the negative regime of slip ratio and we want to increase torque to make it more negative
      }
-     if (me->LCReady == TRUE && LC_Button.sensorValue == FALSE && tps->travelPercent > .90 && bps->percent < .05) {
+     if (me->LCReady && !LC_Button.sensorValue && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;
         me->lcTorque = controller->errorSum; // Set to the initial torque
         if (me->sr_valid) {
             me->lcTorque = calculatePIDController(controller, -0.2, me->slipRatio, mcm->commands_torqueLimit/10.0); // Set your target, current, dt
         }
     }
-    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus == TRUE) || (!me->sr_valid && mcm->motorRPM > 1000)) {
+    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus) || (!me->sr_valid && mcm->motorRPM > 1000)) {
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;

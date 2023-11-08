@@ -12,7 +12,7 @@
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-TorqueEncoder* TorqueEncoder_new(bool benchMode)
+TorqueEncoder* TorqueEncoder_new(void)
 {
     TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
     me->tps0 = &TPS0;

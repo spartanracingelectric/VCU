@@ -48,7 +48,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 }
 
 //Updates all values based on sensor readings, safety checks, etc
- void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
+ void BrakePressureSensor_update(BrakePressureSensor *me)
 {
     me->bps0_value = me->bps0->sensorValue;
     me->bps1_value = me->bps1->sensorValue;
@@ -72,28 +72,11 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     }
 
     // Turn brake light on or off
-    if (me->brakesAreOn)
-    {
+    if (me->brakesAreOn) {
         Light_set(Light_brake, 1);
     }
-    else if (bench == FALSE)
-    {
+    else {
         Light_set(Light_brake, 0);
-    }
-    else
-    {
-        if (me->percent > 0 && me->percent < .02)
-        {
-            Light_set(Light_brake, .20);
-        }
-        else if (me->percent >= .02 && me->percent < .30)
-        {
-            Light_set(Light_brake, .30);
-        }
-        else if (me->percent >= .30)
-        {
-            Light_set(Light_brake, me->percent);
-        }
     }
 }
 

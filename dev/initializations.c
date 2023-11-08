@@ -20,7 +20,7 @@ LUT* LV_BATT_SOC_LUT;
 * ADC
 ****************************************************************************/
 //Turns on the VCU's ADC channels and power supplies.
-void vcu_initializeADC(bool benchMode)
+void vcu_initializeADC(void)
 {
     //----------------------------------------------------------------------------
     //Power supplies/outputs
@@ -39,7 +39,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
-    IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
+    IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, FALSE); //power output for switches - only used on bench
     IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
     IO_DO_Init(IO_DO_07);    IO_DO_Set(IO_DO_07, FALSE); //DRS Close
 
@@ -53,10 +53,6 @@ void vcu_initializeADC(bool benchMode)
     // RTD Sound
     IO_PWM_Init(IO_PWM_01, 750, TRUE, FALSE, 0, FALSE, NULL);
     IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
-
-    //Bench LED 12V source
-    IO_PWM_Init(IO_PWM_03, 500, TRUE, FALSE, 0, FALSE, NULL);
-    IO_PWM_SetDuty(IO_PWM_03, benchMode == TRUE ? 0xFFFF : 0, NULL);
     
     // Rad Fans (SR-14 and above)
     IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL); //Pin, Frequency Hz, Boolean for Pos polarity, Current measurement enabled bool, Weird other pin (current), No diag margin, Not safety Critical
