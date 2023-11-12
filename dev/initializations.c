@@ -67,27 +67,26 @@ void vcu_initializeADC(void)
     //----------------------------------------------------------------------------
     //TPS/BPS
     
-    TPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_00, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
-    TPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_01, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
-    BPS0.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_02, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
-    BPS1.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_03, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+    TPS0 = *Sensor_new(IO_ADC_5V_00, IO_ADC_SENSOR_SUPPLY_0);
+    TPS1 = *Sensor_new(IO_ADC_5V_01, IO_ADC_SENSOR_SUPPLY_1);
+    BPS0 = *Sensor_new(IO_ADC_5V_02, IO_ADC_SENSOR_SUPPLY_0);
+    BPS1 = *Sensor_new(IO_ADC_5V_03, IO_ADC_SENSOR_SUPPLY_1);
+    Sensor_power_set(&TPS0);
+    Sensor_power_set(&TPS1);
+    Sensor_power_set(&BPS0);
+    Sensor_power_set(&BPS1);
 
     // SAS (Steering Angle Sensor)
-    Sensor_SAS.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL);
+    Sensor_SAS = *Sensor_new(IO_ADC_5V_04, IO_ADC_SENSOR_SUPPLY_1);
     // Using absolute due to the external 5V supply
 
     // DRS
-    Sensor_DRSKnob.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_VAR_00 , IO_ADC_ABSOLUTE , IO_ADC_RANGE_25V, 0, 0, NULL );
+    Sensor_DRSKnob = *Sensor_new(IO_ADC_VAR_00, NULL);
 
-    //TCS Pot
-    //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
-
-
+    Sensor_LVBattery = *Sensor_new(IO_ADC_UBAT, NULL);
     //----------------------------------------------------------------------------
     //PWD channels
     //----------------------------------------------------------------------------
-    //TPS
-
     //Wheel Speed Sensors (Pulse Width Detection)
 
     WSS_FL = *PWDSensor_new(IO_PWD_10);

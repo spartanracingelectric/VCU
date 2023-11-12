@@ -41,12 +41,12 @@ extern Button Sensor_HVILTerminationSense;
 void sensors_updateSensors(void)
 {
     //Torque Encoders ---------------------------------------------------
-    TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &TPS0.sensorValue, &TPS0.fresh);
-    TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &TPS1.sensorValue, &TPS1.fresh);
+    Sensor_read(&TPS0);
+    Sensor_read(&TPS1);
 
     //Brake Position Sensor ---------------------------------------------------
-    BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &BPS0.sensorValue, &BPS0.fresh);
-    BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &BPS1.sensorValue, &BPS1.fresh);
+    Sensor_read(&BPS0);
+    Sensor_read(&BPS1);
    
     //Wheel speed sensors ---------------------------------------------------
     PWDSensor_read(&WSS_FL);
@@ -63,12 +63,30 @@ void sensors_updateSensors(void)
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
-    Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
+    Sensor_read(&Sensor_LVBattery);
     //Steering Angle Sensor
-    Sensor_SAS.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_SAS.sensorValue, &Sensor_SAS.fresh);
+    Sensor_read(&Sensor_SAS);
 
     //DRS Knob
-    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
+    Sensor_read(&Sensor_DRSKnob);
+}
+
+Sensor* Sensor_new(ubyte1 pin, ubyte1 power) {
+    Sensor* sensor = malloc(sizeof(Sensor));
+    IO_RTC_StartTime(&sensor->timestamp);
+    sensor->sensorAddress = pin;
+    sensor->powerAddress = power;
+    sensor->ioErr_signalInit = IO_ADC_ChannelInit(pin, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
+    return sensor;
+}
+
+void Sensor_power_set(Sensor* sensor) {
+    sensor->ioErr_powerSet = IO_POWER_Set(sensor->powerAddress, IO_POWER_ON);;
+}
+
+void Sensor_read(Sensor* sensor) {
+    sensor->ioErr_signalGet = IO_ADC_Get(sensor->sensorAddress, &sensor->sensorValue, &sensor->fresh);
+    IO_RTC_StartTime(&sensor->timestamp);
 }
 
 Button* Button_new(ubyte1 pin, bool inverted) {

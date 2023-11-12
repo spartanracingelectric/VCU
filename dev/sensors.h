@@ -44,15 +44,11 @@ typedef struct _Sensor {
     ubyte4 specMin;
     ubyte4 specMax;
     
-    //ubyte2 calibMin;
-    //ubyte2 calibMax;
-    //ubyte2 calibNormal;  //zero value or normal position
-
-    //ubyte2 calibratedValue;
     ubyte2 sensorValue;
     ubyte4 heldSensorValue;
     ubyte4 timestamp;
     ubyte1 sensorAddress;
+    ubyte1 powerAddress;
     bool fresh;
     //bool isCalibrated;
     IO_ErrorType ioErr_powerInit;
@@ -123,6 +119,7 @@ extern Button Sensor_HVILTerminationSense;
 //Other
 extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
 
+Sensor* Sensor_new(ubyte1 pin, ubyte1 power);
 Button* Button_new(ubyte1 pin, bool inverted);
 PWDSensor* PWDSensor_new(ubyte1 pin);
 
@@ -132,7 +129,8 @@ PWDSensor* PWDSensor_new(ubyte1 pin);
 void sensors_updateSensors(void);
 
 void setMCMRelay(bool turnOn);
-
+void Sensor_power_set(Sensor* sensor);
+void Sensor_read(Sensor* sensor);
 void Button_read(Button* button);
 void PWDSensor_read(PWDSensor* sensor);
 
