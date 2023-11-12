@@ -20,6 +20,8 @@ extern Button RTD_Button;
 extern Button Cal_Button;
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 extern Button Sensor_HVILTerminationSense;
+extern DigitalOutput RTD_Light;
+extern DigitalOutput MCM_Power;
 
 #define CELL_RESISTANCE 0.025f //Ohms resistance of the cell+ fuselink
 #define CELLS_IN_PARALLEL 7
@@ -217,7 +219,7 @@ void MCM_relayControl(MotorController *me)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
+                DigitalOutput_set(&MCM_Power, FALSE);
                 me->relayState = FALSE;
             }
             else
@@ -245,7 +247,7 @@ void MCM_relayControl(MotorController *me)
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_00, TRUE);
+        DigitalOutput_set(&MCM_Power, TRUE);
         me->relayState = TRUE;
     }
 }
@@ -253,8 +255,8 @@ void MCM_relayControl(MotorController *me)
 //See diagram at https://onedrive.live.com/redir?resid=F9BB8F0F8FDB5CF8!30410&authkey=!ABSF-uVH-VxQRAs&ithint=file%2chtml
 void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
-    float4 RTDPercent;
-    RTDPercent = (RTD_Button.sensorValue == TRUE ? 1 : 0);
+    float4 RTD_En;
+    RTD_En = (RTD_Button.sensorValue == TRUE ? 1 : 0);
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
@@ -299,9 +301,9 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //How to transition to next state ------------------------------------------------
         if (me->inverterStatus == ENABLED)
         {
-            RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is drivable
-            SerialManager_send(me->serialMan, "Inverter has been enabled.  S                                                    tarting RTDS.  Car is ready to drive.\n");
-            RTDS_setVolume(rtds, 1, 1500000);
+            RTD_En = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is drivable
+            SerialManager_send(me->serialMan, "Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
+            RTDS_play_sound(rtds);
             me->startupStage = 4; //leave this stage since we've already kicked off the RTDS
         }
         break;
@@ -309,7 +311,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
     case 4: //inverter=disabled, rtds=already started
         //Actions to perform upon entering this state ------------------------------------------------
         SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
-        RTDPercent = 1;                                                 //This line is redundant
+        RTD_En = 1;                                                 //This line is redundant
 
         //How to transition to next state ------------------------------------------------
         //Always do, since we sent a message.
@@ -318,7 +320,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
 
     case 5: //inverter=enabled, rtds=not_started
         //What happens in this state ------------------------------------------------
-        RTDPercent = 1; //This line is redundant
+        RTD_En = 1; //This line is redundant
         //This case is here so we don't send a message anymore
 
         //How to transition to next state ------------------------------------------------
@@ -346,7 +348,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
     }
 
     //After all that, we can turn the RTD light on/off
-    Light_set(Light_dashRTD, RTDPercent);
+    DigitalOutput_set(&RTD_Light, RTD_En);
 }
 
 

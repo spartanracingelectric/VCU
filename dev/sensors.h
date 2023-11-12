@@ -15,30 +15,6 @@
 
 #include "IO_Driver.h"
 
-
-
-typedef enum 
-{ 
-    Light_dashEco,        //on/off
-    Light_dashError,      //on/off
-    Light_dashRTD,        //on/off
-    Light_dashTCS,        //on/off
-    Light_brake,          //PWM
-    Cooling_waterPump,    //PWM
-    Cooling_RadFans,      //PWM
-    Cooling_batteryFans   //on/off
-} Light;
-
-
-//----------------------------------------------------------------------------
-// Sensor Object Definitions
-//----------------------------------------------------------------------------
-// Parameters:
-//
-// specMin/Max values should come from each sensor's datasheets, but it is not
-// required for all sensors.
-//
-//----------------------------------------------------------------------------
 typedef struct _Sensor {
     //Sensor values / properties
     ubyte4 specMin;
@@ -80,6 +56,17 @@ typedef struct _PWDSensor {
     IO_ErrorType ioErr_signalGet;
 } PWDSensor;
 
+typedef struct _DigitalOutput {
+    ubyte1 outputAddress;
+    bool inverted;
+} DigitalOutput;
+
+typedef struct _PWMOutput {
+    ubyte1 outputAddress;
+    ubyte2 duty;
+    ubyte2 frequency;
+} PWMOutput;
+
 //----------------------------------------------------------------------------
 // Sensor Object Declarations
 //----------------------------------------------------------------------------
@@ -87,21 +74,21 @@ typedef struct _PWDSensor {
 //TODO: Read stored calibration data from EEPROM
 
 //Torque Encoders (TPS is not really accurate since there's no throttle to position in an EV)
-extern Sensor TPS0;  // = { 0, 0.5, 4.5 };
-extern Sensor TPS1;  // = { 0, 4.5, 0.5 };
+extern Sensor TPS0;
+extern Sensor TPS1;
 
 //Brake Position Sensors
-extern Sensor BPS0;  // = { 1, 0.5, 4.5 };  //Brake system pressure (or front only in the future)
-extern Sensor BPS1;  // = { 2, 0.5, 4.5 }; //Rear brake system pressure (separate address in case used for something else)
+extern Sensor BPS0; //Brake system pressure (or front only in the future)
+extern Sensor BPS1; //Rear brake system pressure (separate address in case used for something else)
 
 //Wheel Speed Sensors (like an ABS sensor)
-extern PWDSensor WSS_FL;  // = { 2 };
-extern PWDSensor WSS_FR;  // = { 2 };
-extern PWDSensor WSS_RL;  // = { 2 };
-extern PWDSensor WSS_RR;  // = { 2 };
+extern PWDSensor WSS_FL;
+extern PWDSensor WSS_FR;
+extern PWDSensor WSS_RL;
+extern PWDSensor WSS_RR;
 
 //Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
-extern Sensor Sensor_SAS;  // = { 4 };
+extern Sensor Sensor_SAS;
 
 //Switches
 //precharge failure
@@ -114,18 +101,14 @@ extern Button DRS_Button;
 extern Sensor Sensor_DRSKnob;
 
 extern Button Sensor_HVILTerminationSense;
-
-
-//Other
-extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
+extern Sensor Sensor_LVBattery;
 
 Sensor* Sensor_new(ubyte1 pin, ubyte1 power);
 Button* Button_new(ubyte1 pin, bool inverted);
 PWDSensor* PWDSensor_new(ubyte1 pin);
+DigitalOutput* DigitalOutput_new(ubyte1 pin, bool inverted);
+PWMOutput* PWMOutput_new(ubyte1 pin, ubyte2 frequency, float4 duty);
 
-//----------------------------------------------------------------------------
-// Sensor Functions
-//----------------------------------------------------------------------------
 void sensors_updateSensors(void);
 
 void setMCMRelay(bool turnOn);
@@ -133,11 +116,9 @@ void Sensor_power_set(Sensor* sensor);
 void Sensor_read(Sensor* sensor);
 void Button_read(Button* button);
 void PWDSensor_read(PWDSensor* sensor);
+void DigitalOutput_set(DigitalOutput* output, bool value);
+void PWMOutput_set(PWMOutput* output, float4 duty);
 
-//----------------------------------------------------------------------------
-// Outputs
-//----------------------------------------------------------------------------
-void Light_set(Light light, float4 percent);
 /*****************************************************************************
 * Steering Angle Sensor (SAS)
 Input: Voltage

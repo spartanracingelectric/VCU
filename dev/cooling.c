@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include "IO_Driver.h"
-//#include "IO_DIO.h"
-//#include "IO_PWM.h"
 
 #include "serial.h"
 #include "sensors.h"
@@ -11,6 +9,8 @@
 #include "bms.h"
 
 extern Button Sensor_HVILTerminationSense;
+extern DigitalOutput Water_Pump;
+extern PWMOutput Rad_Fans;
 
 //All temperatures in C
 CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
@@ -124,25 +124,6 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    Light_set(Cooling_waterPump, me->waterPumpPercent);
-    Light_set(Cooling_RadFans, me->radFanPercent);
-
-    // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110
-    // Relay wiring seems to be backwards for 2021 car: Fans are on while everything is cool,
-    // and they turn OFF when systems get hot.  This boolean flips the software logic, but the
-    // wiring needs to be fixed and this software hack needs to be removed in the future.
-    /*
-    bool wiringIsWrong = TRUE;
-    
-    if (wiringIsWrong)
-    {
-        Light_set(Cooling_Fans, me->motorFanState == TRUE ? 0 : 1);
-        Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 0 : 1);
-    }
-    else
-    {
-        Light_set(Cooling_motorFans, me->motorFanState == TRUE ? 1 : 0);
-        Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 1 : 0);
-    }
-    */
+    DigitalOutput_set(&Water_Pump, me->waterPumpPercent);
+    PWMOutput_set(&Rad_Fans, me->radFanPercent);
 }

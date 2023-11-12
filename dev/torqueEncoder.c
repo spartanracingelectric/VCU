@@ -6,6 +6,8 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 
+extern DigitalOutput Eco_Light;
+
 /*****************************************************************************
 * Torque Encoder (TPS) functions
 * RULE EV2.3.5:
@@ -158,8 +160,7 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
-            Light_set(Light_dashEco, 0);
-
+            DigitalOutput_set(&Eco_Light, FALSE);
         }
 
     }

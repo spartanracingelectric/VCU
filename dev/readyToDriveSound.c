@@ -1,36 +1,26 @@
 #include <stdlib.h> //Needed for malloc
 
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
-#include "IO_PWM.h"
 
 #include "readyToDriveSound.h"
+#include "sensors.h"
 
-ReadyToDriveSound *RTDS_new(void)
-{
+extern PWMOutput RTD_Sound;
+
+ReadyToDriveSound *RTDS_new(ubyte2 volumePercent, ubyte4 timeToPlay) {
     ReadyToDriveSound *rtds = (ReadyToDriveSound *)malloc(sizeof(struct _ReadyToDriveSound));
-    RTDS_setVolume(rtds, 0, 0);
+    rtds->volumePercent = volumePercent;
+    rtds->timeToSound = timeToPlay;
     return rtds;
 }
 
-void RTDS_delete(ReadyToDriveSound *rtds)
-{
-    // some implementations pass a Person** to set the reference to 0
-    // this implementation requires that the caller sets his own references to 0
-    //free(person->name);
-    free(rtds);
-}
-
-void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
-{
-    IO_PWM_SetDuty(IO_PWM_01, 65535 * volumePercent, NULL);
+void RTDS_play_sound(ReadyToDriveSound *rtds) {
+    PWMOutput_setDuty(&RTD_Sound, rtds->volumePercent);
     IO_RTC_StartTime(&(rtds->timeStamp_soundStarted));
-    rtds->timeToSound = timeToPlay;
 }
 
-void RTDS_shutdownHelper(ReadyToDriveSound *rtds)
-{
-    if (IO_RTC_GetTimeUS(rtds->timeStamp_soundStarted) > rtds->timeToSound)
-    {
-        RTDS_setVolume(rtds, 0, 0);
+void RTDS_shutdownHelper(ReadyToDriveSound *rtds) {
+    if (IO_RTC_GetTimeUS(rtds->timeStamp_soundStarted) > rtds->timeToSound) {
+        PWDSensor_set(&RTD_Sound, 0);
     }
 }

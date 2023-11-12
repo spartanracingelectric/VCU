@@ -78,6 +78,8 @@ APDB appl_db =
 };
 
 extern Button Cal_Button;
+extern DigitalOutput Eco_Light;
+extern DigitalOutput Err_Light;
 
 void main(void)
 {
@@ -124,7 +126,7 @@ void main(void)
     //----------------------------------------------------------------------------
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
-    ReadyToDriveSound *rtds = RTDS_new();
+    ReadyToDriveSound *rtds = RTDS_new(1, 1500000);
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10);
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
@@ -179,8 +181,8 @@ void main(void)
                 //calibrateTPS(TRUE, 5);
                 TorqueEncoder_startCalibration(tps, 5);
                 BrakePressureSensor_startCalibration(bps, 5);
-                Light_set(Light_dashEco, 1);
-                //DIGITAL OUTPUT 4 for STATUS LED
+                DigitalOutput_set(&Eco_Light, TRUE);
+                //DIGITAL OUTPUT 4 for STATUS LED ???? I dont believe this -Ian
             }
         }
         else {
@@ -222,7 +224,7 @@ void main(void)
         /*              Enact Outputs              */
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
-        Light_set(Light_dashError, (sc->faults == 0) ? 0 : 1);
+        DigitalOutput_set(&Err_Light, (sc->faults == 0) ? FALSE : TRUE);
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0);
         MCM_inverterControl(mcm0, tps, bps, rtds);

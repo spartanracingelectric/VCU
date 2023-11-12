@@ -7,6 +7,9 @@
 
 #include "sensors.h"
 
+extern DigitalOutput Brake_Light;
+extern DigitalOutput Eco_Light;
+
 /*****************************************************************************
 * Brake Pressure Sensor (BPS) functions
 ****************************************************************************/
@@ -72,12 +75,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     }
 
     // Turn brake light on or off
-    if (me->brakesAreOn) {
-        Light_set(Light_brake, 1);
-    }
-    else {
-        Light_set(Light_brake, 0);
-    }
+    DigitalOutput_set(&Brake_Light, me->brakesAreOn);
 }
 
 // Sets initial/calibrated values
@@ -163,7 +161,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
-            Light_set(Light_dashEco, 0);
+            DigitalOutput_set(&Eco_Light, FALSE);
         }
     }
     else

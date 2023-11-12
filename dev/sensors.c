@@ -138,49 +138,31 @@ void PWDSensor_read(PWDSensor* sensor) {
     }
 }
 
-void Light_set(Light light, float4 percent)
-{
-    ubyte2 duty = 65535 * percent; //For Cooling_RadFans
+DigitalOutput* DigitalOutput_new(ubyte1 pin, bool inverted) {
+    DigitalOutput* output = malloc(sizeof(DigitalOutput));
+    output->outputAddress = pin;
+    output->inverted = inverted;
+    IO_DO_Init(pin);
+    IO_DO_Set(pin, inverted ? TRUE : FALSE);
+    return output;
+}
 
-    bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
+void DigitalOutput_set(DigitalOutput* output, bool value) {
+    IO_DO_Set(output->outputAddress, output->inverted ? !value : value);
+}
 
-    switch (light)
-    {
-    //PWM devices
-    case Light_brake:
-        IO_DO_Set(IO_ADC_CUR_00, power);
-        break;
+PWMOutput* PWMOutput_new(ubyte1 pin, ubyte2 frequency, float4 duty) {
+    PWMOutput* output = malloc(sizeof(PWMOutput));
+    output->outputAddress = pin;
+    output->frequency = frequency;
+    output->duty = duty * 0xFFFF;
+    IO_PWM_Init(pin, frequency, TRUE, FALSE, 0, FALSE, NULL);
+    IO_PWM_SetDuty(pin, duty * 0xFFFF, NULL);
+    return output;
+}
 
-    case Cooling_waterPump:
-        IO_DO_Set(IO_DO_02, power);
-        break;
-
-    case Cooling_RadFans:  // Radiator Fans
-        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
-        break;
-
-    case Cooling_batteryFans:
-        IO_DO_Set(IO_DO_04, power);
-        break;
-
-        //--------------------------------------------
-        //These devices moved from PWM to DIO
-
-    case Light_dashTCS:
-        break;
-
-    case Light_dashEco:
-        IO_DO_Set(IO_ADC_CUR_01, power);
-        break;
-
-    case Light_dashError:
-        IO_DO_Set(IO_ADC_CUR_02, power);
-        break;
-
-    case Light_dashRTD:
-        IO_DO_Set(IO_ADC_CUR_03, power);
-        break;
-    }
+void PWMOutput_set(PWMOutput* output, float4 duty) {
+    IO_PWM_SetDuty(output->outputAddress, duty * 0xFFFF, NULL);
 }
 
 /*****************************************************************************

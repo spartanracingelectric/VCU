@@ -22,45 +22,35 @@ LUT* LV_BATT_SOC_LUT;
 //Turns on the VCU's ADC channels and power supplies.
 void vcu_initializeADC(void)
 {
-    //----------------------------------------------------------------------------
-    //Power supplies/outputs
-    //----------------------------------------------------------------------------
-    //Analog sensor supplies
-    TPS0.ioErr_powerSet = BPS0.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_0, IO_POWER_ON);  // Pin 148 and 136
-    TPS1.ioErr_powerSet = BPS1.ioErr_powerSet = IO_POWER_Set(IO_ADC_SENSOR_SUPPLY_1, IO_POWER_ON);  // Pin 147
-
     //Variable power supply
     IO_POWER_Set(IO_SENSOR_SUPPLY_VAR, IO_POWER_14_5_V);    //IO_POWER_Set(IO_PIN_269, IO_POWER_8_5_V);
 
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
-    IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
-    IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
-    IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
-    IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
-    IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
-    IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, FALSE); //power output for switches - only used on bench
-    IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
-    IO_DO_Init(IO_DO_07);    IO_DO_Set(IO_DO_07, FALSE); //DRS Close
+    MCM_Power = *DigitalOutput_new(IO_DO_00, FALSE); //mcm0 Relay
+    VCU_BMS_Power = *DigitalOutput_new(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
+    Water_Pump = *DigitalOutput_new(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
+    Other_Fans = *DigitalOutput_new(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
+    Accum_Fans = *DigitalOutput_new(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
+    Bullshit = *DigitalOutput_new(IO_DO_05, FALSE); //power output for switches - only used on bench
+    DRS_Open = *DigitalOutput_new(IO_DO_06, FALSE); //DRS Open
+    DRS_Close = *DigitalOutput_new(IO_DO_07, FALSE); //DRS Close
 
     //Lowside outputs (connects to ground when on)
-    IO_DO_Init(IO_ADC_CUR_00);    IO_DO_Set(IO_ADC_CUR_00, FALSE); //Brake light
-    IO_DO_Init(IO_ADC_CUR_01);    IO_DO_Set(IO_ADC_CUR_01, FALSE); //Eco
-    IO_DO_Init(IO_ADC_CUR_02);    IO_DO_Set(IO_ADC_CUR_02, FALSE); //Err
-    IO_DO_Init(IO_ADC_CUR_03);    IO_DO_Set(IO_ADC_CUR_03, FALSE); //RTD
+    Brake_Light = *DigitalOutput_new(IO_ADC_CUR_00, FALSE); //Brake light
+    Eco_Light = *DigitalOutput_new(IO_ADC_CUR_01, FALSE); //Eco
+    Err_Light = *DigitalOutput_new(IO_ADC_CUR_02, FALSE); //Err
+    RTD_Light = *DigitalOutput_new(IO_ADC_CUR_03, FALSE); //RTD
 
     //Digital PWM outputs ---------------------------------------------------
     // RTD Sound
-    IO_PWM_Init(IO_PWM_01, 750, TRUE, FALSE, 0, FALSE, NULL);
-    IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
+    RTD_Sound = *PWMOutput_new(IO_PWM_01, 750, 0.0);
     
     // Rad Fans (SR-14 and above)
-    IO_PWM_Init(IO_PWM_02, 100, TRUE, FALSE, 0, FALSE, NULL); //Pin, Frequency Hz, Boolean for Pos polarity, Current measurement enabled bool, Weird other pin (current), No diag margin, Not safety Critical
-    IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL); //Pin, 0 - 65535, Feedback Measurement
+    Rad_Fans = *PWMOutput_new(IO_PWM_02, 100, 0.9);
 
     //Accum fan signal
-    IO_PWM_Init(IO_PWM_04, 100, TRUE, FALSE, 0, FALSE, NULL);
-    IO_PWM_SetDuty(IO_PWM_04, 1.00 * 0xFFFF, NULL);    //Default 100%, build up momentum in fans or whatever? Lol
+    Accum_Fan = *PWMOutput_new(IO_PWM_03, 100, 1.0);
 
     //----------------------------------------------------------------------------
     //ADC channels
@@ -166,8 +156,21 @@ Button Sensor_HVILTerminationSense;
 
 Button DRS_Button;
 Sensor Sensor_DRSKnob;
-//Switches
-//precharge failure
 
-//Other
-extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for this "sensor"
+DigitalOutput Brake_Light;
+DigitalOutput TCS_Light;
+DigitalOutput Eco_Light;
+DigitalOutput Err_Light;
+DigitalOutput RTD_Light;
+DigitalOutput MCM_Power;
+DigitalOutput VCU_BMS_Power; // I have no idea what this is for
+DigitalOutput Water_Pump;
+DigitalOutput Other_Fans;
+DigitalOutput Accum_Fans;
+DigitalOutput Bullshit;
+DigitalOutput DRS_Open;
+DigitalOutput DRS_Close;
+
+PWMOutput RTD_Sound;
+PWMOutput Rad_Fans;
+PWMOutput Accum_Fan;
