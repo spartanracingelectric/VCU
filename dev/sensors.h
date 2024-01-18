@@ -103,6 +103,24 @@ extern Sensor Sensor_DRSKnob;
 extern Button Sensor_HVILTerminationSense;
 extern Sensor Sensor_LVBattery;
 
+extern DigitalOutput Brake_Light;
+extern DigitalOutput TCS_Light;
+extern DigitalOutput Eco_Light;
+extern DigitalOutput Err_Light;
+extern DigitalOutput RTD_Light;
+extern DigitalOutput MCM_Power;
+extern DigitalOutput VCU_BMS_Power; // I have no idea what this is for
+extern DigitalOutput Water_Pump;
+extern DigitalOutput Other_Fans;
+extern DigitalOutput Accum_Fans;
+extern DigitalOutput Bullshit;
+extern DigitalOutput DRS_Open;
+extern DigitalOutput DRS_Close;
+
+extern PWMOutput RTD_Sound;
+extern PWMOutput Rad_Fans;
+extern PWMOutput Accum_Fan;
+
 Sensor* Sensor_new(ubyte1 pin, ubyte1 power);
 Button* Button_new(ubyte1 pin, bool inverted);
 PWDSensor* PWDSensor_new(ubyte1 pin);

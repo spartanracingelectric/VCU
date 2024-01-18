@@ -15,12 +15,12 @@ ReadyToDriveSound *RTDS_new(ubyte2 volumePercent, ubyte4 timeToPlay) {
 }
 
 void RTDS_play_sound(ReadyToDriveSound *rtds) {
-    PWMOutput_setDuty(&RTD_Sound, rtds->volumePercent);
+    PWMOutput_set(&RTD_Sound, rtds->volumePercent);
     IO_RTC_StartTime(&(rtds->timeStamp_soundStarted));
 }
 
 void RTDS_shutdownHelper(ReadyToDriveSound *rtds) {
     if (IO_RTC_GetTimeUS(rtds->timeStamp_soundStarted) > rtds->timeToSound) {
-        PWDSensor_set(&RTD_Sound, 0);
+        PWMOutput_set(&RTD_Sound, 0);
     }
 }

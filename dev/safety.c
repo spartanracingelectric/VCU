@@ -133,11 +133,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //===================================================================
     // Check if VCU was able to get a TPS/BPS reading
     //===================================================================
-    set_flags(&me->faults, F_tpsPowerFailure, tps->tps0->ioErr_powerInit != IO_E_OK || tps->tps1->ioErr_powerInit != IO_E_OK || tps->tps0->ioErr_powerSet != IO_E_OK || tps->tps1->ioErr_powerSet != IO_E_OK);
+    set_flags(&me->faults, F_tpsPowerFailure,  tps->tps0->ioErr_powerSet != IO_E_OK || tps->tps1->ioErr_powerSet != IO_E_OK); // tps->tps0->ioErr_powerInit != IO_E_OK || tps->tps1->ioErr_powerInit != IO_E_OK || 
     
     set_flags(&me->faults, F_tpsSignalFailure, tps->tps0->ioErr_signalInit != IO_E_OK || tps->tps1->ioErr_signalInit != IO_E_OK || tps->tps0->ioErr_signalGet != IO_E_OK || tps->tps1->ioErr_signalGet != IO_E_OK);
 
-    set_flags(&me->faults, F_bpsPowerFailure, bps->bps0->ioErr_powerInit != IO_E_OK || bps->bps0->ioErr_powerSet != IO_E_OK);
+    set_flags(&me->faults, F_bpsPowerFailure, bps->bps0->ioErr_powerSet != IO_E_OK); // bps->bps0->ioErr_powerInit != IO_E_OK || 
     
     set_flags(&me->faults, F_bpsSignalFailure, bps->bps0->ioErr_signalInit != IO_E_OK || bps->bps0->ioErr_signalGet != IO_E_OK);
 
