@@ -12,4 +12,4 @@
 #define LC_STEERING_THRESHOLD 1500.0f // in degrees
 
 #define SOFT_BSPD_ENABLE 0
-#define POWER_LIMIT 0
+#define POWER_LIMIT 1

@@ -749,7 +749,7 @@ IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl* lc) {
     canMessage.data[4] = (sbyte2)lc->slipRatio;
     canMessage.data[5] = (sbyte2)lc->slipRatio >> 8;
     canMessage.data[6] = (ubyte2)lc->lcTorque;
-    canMessage.data[7] = LC_Button.sensorValue;
+    canMessage.data[7] = LC_Button.sensorValue >> 1 | lc->sr_valid << 7;
     canMessage.length = 8;
     return canMessage;
 }
