@@ -98,7 +98,7 @@ typedef struct _MotorController
 
     sbyte2 LaunchControl_Torque; // in dNm
     bool LCState;
-
+    bool LCReady;
 } MotorController;
 
 MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);

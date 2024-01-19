@@ -100,11 +100,12 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     }
     if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus) || (!me->sr_valid && mcm->motorRPM > 1000)) {
         me->LCStatus = FALSE;
-        me->LCReady = FALSE;
+        me->LCReady = !me->sr_valid;
         me->lcTorque = -1;
     }
     // Update launch control state and torque limit
     mcm->LCState = me->LCStatus;
+    mcm->LCReady = me->LCReady;
     mcm->LaunchControl_Torque = me->lcTorque * 10;
     if (mcm->LaunchControl_Torque < 0) {
         mcm->LaunchControl_Torque = 0;
