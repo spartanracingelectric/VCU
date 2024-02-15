@@ -280,28 +280,6 @@ void main(void)
         /*******************************************/
         /*          Perform Calculations           */
         /*******************************************/
-        //calculations - Now that we have local sensor data and external data from CAN, we can
-        //do actual processing work, from pedal travel calcs to traction control
-        //calculations_calculateStuff();
-
-        //Run calibration if commanded
-        //if (IO_RTC_GetTimeUS(timestamp_calibStart) < (ubyte4)5000000)
-
-        //SensorValue TRUE and FALSE are reversed due to Pull Up Resistor
-
-        //No regen below 5kph
-        sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
-        if (groundSpeedKPH < 15)
-        {
-            MCM_setRegenMode(mcm0, REGENMODE_OFF);
-        } else {
-            // Regen mode is now set based on battery voltage to preserve overvoltage fault 
-            // if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
-            //     MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); 
-            // } else {
-            //     MCM_setRegenMode(mcm0, REGENMODE_FIXED);
-            // } 
-        }
 
         if (Sensor_EcoButton.sensorValue == FALSE)
         {
@@ -409,10 +387,4 @@ void main(void)
         }
 
     } //end of main loop
-
-    //----------------------------------------------------------------------------
-    // VCU Subsystem Deinitializations
-    //----------------------------------------------------------------------------
-    //IO_ADC_ChannelDeInit(IO_ADC_5V_00);
-    //Free memory if object won't be used anymore
 }
