@@ -53,17 +53,7 @@ static const ubyte4 F_lvsBatteryVeryLow = 0x10000;
 //static const ubyte4 F_ = 0x80000;
 
 //nibble 6
-static const ubyte4 F_bmsOverVoltageFault = 0x100000;
-static const ubyte4 F_bmsUnderVoltageFault = 0x200000;
-static const ubyte4 F_bmsOverTemperatureFault = 0x400000;
-//static const ubyte4 F_bmsOtherFault = 0x800000;
-
-//nibble 7
-static const ubyte4 F_bmsCellMismatchFault = 0x1000000;
-//static const ubyte4 F_ = 0x2000000;
-//static const ubyte4 F_ = 0x4000000;
-//static const ubyte4 F_ = 0x8000000;
-
+static const ubyte4 F_bmsFault = 0x100000;
 //nibble 8
 //                             nibble: 87654321
 static const ubyte4 F_unusedFaults = 0xFFFEF800;
@@ -72,9 +62,7 @@ static const ubyte4 F_unusedFaults = 0xFFFEF800;
 static const ubyte2 W_lvsBatteryLow = 1;
 static const ubyte2 W_hvilOverrideEnabled = 0x40; //This flag indicates HVIL bypass (MCM turn on)
 static const ubyte2 W_safetyBypassEnabled = 0x80; //This flag controls the safety bypass
-static const ubyte2 W_bmsOverVoltageWarning = 0x100; 
-static const ubyte2 W_bmsUnderVoltageWarning = 0x200; 
-static const ubyte2 W_bmsOverTemperatureWarning = 0x400; 
+
 
 //Notices
 static const ubyte2 N_HVILTermSenseLost = 1;
@@ -326,34 +314,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //      b. Turn on the AMS Indicator Light (handled by Shutdown circuit)    - Handled by Shutdown Circuit
     //-------------------------------------------------------------------
 
-    //If over voltage fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_VOLTAGE_FLAG)
+    
+    if (BMS_getFaultFlags0(bms))
     {
-        me->faults |= F_bmsOverVoltageFault;
+        me->faults |= (F_bmsFault);
     }
     else
     {
-        me->faults &= ~(F_bmsOverVoltageFault);
-    }
-
-    //If under voltage fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_UNDER_VOLTAGE_FLAG)
-    {
-        me->faults |= F_bmsUnderVoltageFault;
-    }
-    else
-    {
-        me->faults &= ~(F_bmsUnderVoltageFault);
-    }
-
-    //If over temperature fault detected
-    if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
-    {
-        me->faults |= (F_bmsOverTemperatureFault);
-    }
-    else
-    {
-        me->faults &= ~(F_bmsOverTemperatureFault);
+        me->faults &= ~(F_bmsFault);
     }
 
     /*****************************************************************************
@@ -453,31 +421,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->warnings &= ~W_hvilOverrideEnabled;
     }
 
-    //===================================================================
-    // 2022 EV.8.3 / Accumulator Management System Warning
-    //===================================================================
-
-    //If under voltage fault detected
-    if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
-    {
-        // me->warnings |= W_bmsUnderVoltageWarning;
-        SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
-    }
-    else
-    {
-        me->warnings &= ~(W_bmsUnderVoltageWarning);
-    }
-
-    //If over temperature fault detected
-    if (BMS_getHighestCellTemp_d_degC(bms) > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
-    {
-        me->warnings |= W_bmsOverTemperatureWarning;
-        SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
-    }
-    else
-    {
-        me->warnings &= ~(W_bmsOverTemperatureWarning);
-    }
 
     /*****************************************************************************
     * Notices

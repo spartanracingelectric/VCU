@@ -7,12 +7,6 @@
 #include "serial.h"
 #include "IO_CAN.h"
 
-//Max mismatch voltage, in volts
-//To determine VCU-side fault
-#define BMS_MAX_CELL_MISMATCH_V 1.00f
-#define BMS_MIN_CELL_VOLTAGE_WARNING 3.20f
-#define BMS_MAX_CELL_TEMPERATURE_WARNING 55.0f
-
 // BMS Base Address
 #define BMS_BASE_ADDRESS                    0x600
 
@@ -37,7 +31,7 @@
 
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
-BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
+BatteryManagementSystem* BMS_new(ubyte2 canMessageBaseID);
 void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCanMessage);
 
 // BMS COMMANDS // 
@@ -51,7 +45,6 @@ ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
 ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
-ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
 
 
 

@@ -28,18 +28,16 @@ struct _BatteryManagementSystem
     sbyte2 lowestCellTemperature;
    
     // BMS_FAULTS
-    ubyte1 faultFlags1;
     ubyte1 faultFlags0;                       
     bool relayState;
 };
 
-BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBaseID)
+BatteryManagementSystem *BMS_new(ubyte2 canMessageBaseID)
 {
 
     BatteryManagementSystem *me = (BatteryManagementSystem *)malloc(sizeof(struct _BatteryManagementSystem));
 
     me->canMessageBaseId = canMessageBaseID;
-    //me->maxTemp = 99;
 
     //Repick a new value, maybe 0xFFFF?
     me->highestCellVoltage = 0;
@@ -86,7 +84,7 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
 
     IO_ErrorType err;
     //There is a fault
-    if (BMS_getFaultFlags0(me) || BMS_getFaultFlags1(me))
+    if (BMS_getFaultFlags0(me))
     {
         me->relayState = TRUE;
         err = IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
@@ -131,6 +129,3 @@ ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me) {
     return me->faultFlags0;
 }
 
-ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
-    return me->faultFlags1;
-}
