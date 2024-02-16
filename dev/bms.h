@@ -1,22 +1,60 @@
-// ! Fault Thresholds
-#define PACK_HIGH_VOLT_FAULT	    410000
-#define PACK_LOW_VOLT_FAULT         288000
+#ifndef _BATTERYMANAGEMENTSYSTEM_H
+#define _BATTERYMANAGEMENTSYSTEM_H
 
-#define CELL_HIGH_VOLT_FAULT	    43000
-#define CELL_LOW_VOLT_FAULT		    30000
+#include <stdio.h>
+#include <stdint.h>
 
-#define CELL_HIGH_TEMP_FAULT		60
+#include "serial.h"
+#include "IO_CAN.h"
 
-struct _BMS{
-    ubyte2 canMessage;
-    ubyte4 highestCellVoltage;
-    ubyte2 lowestCellVoltage;
-    sbyte2 highestCellTemperature;              
-    sbyte2 lowestCellTemperature;
+//Max mismatch voltage, in volts
+//To determine VCU-side fault
+#define BMS_MAX_CELL_MISMATCH_V 1.00f
+#define BMS_MIN_CELL_VOLTAGE_WARNING 3.20f
+#define BMS_MAX_CELL_TEMPERATURE_WARNING 55.0f
 
-};
+// BMS Base Address
+#define BMS_BASE_ADDRESS                    0x600
 
-ubyte4 BMS_getHighestCellVoltage(BatteryManagementSystem *me);  
-ubyte2 BMS_getLowestCellVoltage(BatteryManagementSystem *me);   
-sbyte2 BMS_getHighestCellTemp(BatteryManagementSystem* me);  
-sbyte2 BMS_getHighestCellTemp(BatteryManagementSystem* me);   
+// BMS Transmitted Messages (BMS --> VCU)
+#define BMS_SAFETY_CHECKER                  0x000   //4 bytes
+#define BMS_CELL_SUMMARY                    0x022   //8 bytes
+
+
+// BMS Scaling factors
+// X/SCALE
+#define BMS_VOLTAGE_SCALE                   1000    //V*1000, milliVolts to Volts
+#define BMS_CURRENT_SCALE                   1000    //A*1000, milliAmps to Amps
+#define BMS_POWER_SCALE                     BMS_VOLTAGE_SCALE*BMS_CURRENT_SCALE //(V*1000)*(A*1000), microWatts to Watts
+#define BMS_TEMPERATURE_SCALE               10      //degC*10, deciCelsius to Celsius
+#define BMS_PERCENT_SCALE                   10      //%*10, percent*10 to percent
+#define BMS_AMP_HOURS_SCALE                 10      //Ah*10, deciAmpHours to AmpHours
+
+// BMS Specific Fault Bits/Flags (within faultFlag0 and 1)
+#define BMS_CELL_OVER_VOLTAGE_FLAG          0x01
+#define BMS_CELL_UNDER_VOLTAGE_FLAG         0x02
+#define BMS_CELL_OVER_TEMPERATURE_FLAG      0x04
+
+typedef struct _BatteryManagementSystem BatteryManagementSystem;
+
+BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
+void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCanMessage);
+
+// BMS COMMANDS // 
+
+IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
+bool BMS_getRelayState(BatteryManagementSystem *me);
+
+// ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
+ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
+ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
+sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
+sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me);
+
+
+
+#endif // _BATTERYMANAGEMENTSYSTEM_H
+
+

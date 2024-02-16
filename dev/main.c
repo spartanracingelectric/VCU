@@ -206,7 +206,7 @@ void main(void)
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
-    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+    BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm

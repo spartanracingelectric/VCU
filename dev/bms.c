@@ -1,3 +1,136 @@
 
+#include <stdio.h>
+#include "bms.h"
+#include <stdlib.h>
+#include "IO_Driver.h"
+#include "IO_RTC.h"
+#include "IO_DIO.h"
+#include "serial.h"
+#include "mathFunctions.h"
+
+/*********************************************************
+ *            *********** CAUTION ***********            *
+ * MULTI-BYTE VALUES FOR THE STAFL BMS ARE LITTLE-ENDIAN *
+ *                                                       *
+ *********************************************************/
+
+struct _BatteryManagementSystem
+{
+
+    ubyte2 canMessageBaseId;
+
+    // BMS_CELL_VOLTAGE_SUMMARY //
+    ubyte2 highestCellVoltage;
+    ubyte2 lowestCellVoltage;                   
+
+    // BMS_CELL_TEMPERATURE_SUMMARY
+    sbyte2 highestCellTemperature;
+    sbyte2 lowestCellTemperature;
+   
+    // BMS_FAULTS
+    ubyte1 faultFlags1;
+    ubyte1 faultFlags0;                       
+    bool relayState;
+};
+
+BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBaseID)
+{
+
+    BatteryManagementSystem *me = (BatteryManagementSystem *)malloc(sizeof(struct _BatteryManagementSystem));
+
+    me->canMessageBaseId = canMessageBaseID;
+    //me->maxTemp = 99;
+
+    //Repick a new value, maybe 0xFFFF?
+    me->highestCellVoltage = 0;
+    me->lowestCellVoltage = 9999;
+    me->highestCellTemperature = 0;
 
 
+    me->relayState = FALSE;
+
+    return me;
+}
+
+void BMS_parseCanMessage(BatteryManagementSystem *bms, IO_CAN_DATA_FRAME *bmsCanMessage)
+{
+
+    //Subtract BMS Base CAN ID from incoming BMS CAN message ID to get offset
+    //Byte extraction DOES NOT INCLUDE SCALING
+    //Ex: (bmsCanMessage->id+BMS_MASTER_FAULTS) - bms->canMessageBaseId = BMS_MASTER_FAULTS
+    switch (bmsCanMessage->id - bms->canMessageBaseId)
+    {
+        case BMS_SAFETY_CHECKER:
+            bms->faultFlags0 = (ubyte1)bmsCanMessage->data[0];
+            break;
+        
+        case BMS_CELL_SUMMARY:
+            bms->highestCellVoltage           = ( ((ubyte1)bmsCanMessage->data[1]) << 8)
+                                                | ((ubyte1)bmsCanMessage->data[0]);
+
+            bms->lowestCellVoltage            = ( ((ubyte1)bmsCanMessage->data[3]) << 8)
+                                                | ((ubyte1)bmsCanMessage->data[2]);
+
+            bms->highestCellTemperature       = ( ((ubyte1)bmsCanMessage->data[5]) << 8)
+                                                | ((ubyte1)bmsCanMessage->data[4]);
+
+            bms->lowestCellTemperature        = ( ((ubyte1)bmsCanMessage->data[7]) << 8)
+                                                | ((ubyte1)bmsCanMessage->data[6]);
+            break;
+            
+    }
+}
+
+IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
+{
+
+    IO_ErrorType err;
+    //There is a fault
+    if (BMS_getFaultFlags0(me) || BMS_getFaultFlags1(me))
+    {
+        me->relayState = TRUE;
+        err = IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
+    }
+    //There is no fault
+    else
+    {
+        me->relayState = FALSE;
+        err = IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
+    }
+    return err;
+}
+
+ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
+{
+    return (me->highestCellVoltage);
+}
+
+ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
+{
+    return (me->lowestCellVoltage);
+}
+
+
+//Split into
+sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
+{
+    return (me->highestCellTemperature);
+}
+
+sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
+{
+    return (me->highestCellTemperature/BMS_TEMPERATURE_SCALE);
+}
+
+bool BMS_getRelayState(BatteryManagementSystem *me) {
+    //Return state of shutdown board relay
+    return me->relayState;
+}
+
+ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me) {
+    return me->faultFlags0;
+}
+
+ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
+    return me->faultFlags1;
+}

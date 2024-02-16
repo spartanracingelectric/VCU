@@ -79,7 +79,6 @@ static const ubyte2 W_bmsOverTemperatureWarning = 0x400;
 //Notices
 static const ubyte2 N_HVILTermSenseLost = 1;
 
-static const ubyte2 N_Over75kW_BMS = 0x10;
 static const ubyte2 N_Over75kW_MCM = 0x20;
 
 ubyte4 timestamp_SoftBSPD = 0;
@@ -330,8 +329,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //If over voltage fault detected
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_VOLTAGE_FLAG)
     {
-        //me->faults |= F_bmsOverVoltageFault;
-        SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
+        me->faults |= F_bmsOverVoltageFault;
     }
     else
     {
@@ -342,7 +340,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_UNDER_VOLTAGE_FLAG)
     {
         me->faults |= F_bmsUnderVoltageFault;
-        SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
     }
     else
     {
@@ -353,40 +350,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
         me->faults |= (F_bmsOverTemperatureFault);
-        SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
     }
     else
     {
         me->faults &= ~(F_bmsOverTemperatureFault);
     }
-
-    //If mismatch greater than specified mismatch value
-    //BMS cell voltage data members are in mV, 
-    if ( (BMS_getHighestCellVoltage_mV(bms)-BMS_getLowestCellVoltage_mV(bms)) > (BMS_MAX_CELL_MISMATCH_V*1000) )
-    {
-        //me->faults |= F_bmsCellMismatchFault;
-        SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
-    }
-    else
-    {
-        me->faults &= ~(F_bmsCellMismatchFault);
-    }
-
-    //If any sort of BMS fault detected (assuming 8.3.4 fulfilled by BMS)
-    //if (BMS_getFaultFlags0(bms) || BMS_getFaultFlags1(bms))
-    //{
-    //    me->faults |= F_anyBmsFault;
-    //    SerialManager_send(me->serialMan, "BMS fault detected.\n");
-    //}
-    //Else, BMS reported faults over CAN are empty
-    //else
-    //{
-    //    me->faults &= ~(F_anyBmsFault);
-    //}
-
-
-
-    SerialManager_send(me->serialMan, "\n");
 
     /*****************************************************************************
     * Warnings
@@ -528,15 +496,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     else
     {
         me->notices &= ~N_HVILTermSenseLost;
-    }
-
-    if (BMS_getPower_W(bms) > 75000)
-    {
-        me->notices |= N_Over75kW_BMS;
-    }
-    else
-    {
-        me->notices &= ~N_Over75kW_BMS;
     }
 
     if (MCM_getPower(mcm) > 75000)
