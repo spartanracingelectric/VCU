@@ -1,13 +1,10 @@
 #include <stdlib.h>  //Needed for malloc
 #include <math.h>
 #include "IO_RTC.h"
-
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
-
 #include "sensors.h"
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
+
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -15,14 +12,9 @@ extern Sensor Sensor_BenchTPS1;
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-TorqueEncoder* TorqueEncoder_new(bool benchMode)
+TorqueEncoder* TorqueEncoder_new()
 {
     TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
-    //me->bench = benchMode;
-    
-    //TODO: Make sure the main loop is running before doing this
-    //me->tps0 = (benchMode == TRUE) ? &Sensor_BenchTPS0 : &Sensor_TPS0;
-    //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
     me->tps0 = &Sensor_TPS0;
     me->tps1 = &Sensor_TPS1;
 
@@ -30,8 +22,6 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     me->tps0_reverse = FALSE;
     me->tps1_reverse = TRUE;
 
-    // TODO: Fetch from / store in EEPROM
-    // exponent applied to pedal curve.  1 = linear, < 1 means more torque is given early on, > 1 means torque ramps up more slowly
     me->outputCurveExponent = 1.0;
 
     me->travelPercent = 0;
@@ -116,16 +106,6 @@ void TorqueEncoder_resetCalibration(TorqueEncoder* me)
     me->tps1_calibMax = me->tps1->sensorValue;
 }
 
-void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder* me)
-{
-
-}
-
-void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder* me)
-{
-
-}
-
 void TorqueEncoder_startCalibration(TorqueEncoder* me, ubyte1 secondsToRun)
 {
     if (me->runCalibration == FALSE) //Ignore the button if calibration is already running
@@ -170,11 +150,6 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
         }
         else  //Calibration shutdown
         {
-            //90 degree sensor active range.. so just say % = degrees
-            //float4 pedalTopPlay = 1.05;
-            //float4 pedalBottomPlay = .95;
-
-            //Shrink the calibrated range slightly
             float4 shrink0 = (me->tps0_calibMax - me->tps0_calibMin) * .05;
             float4 shrink1 = (me->tps1_calibMax - me->tps1_calibMin) * .05;
             me->tps0_calibMin += shrink0;
@@ -189,19 +164,6 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
         }
 
     }
-    else
-    {
-        //TODO: Throw warning: calibrationCycle helper function was called but calibration should not be running
-    }
-
-    //TODO: Write calibration data to EEPROM
-
-    //TODO: Check for valid/reasonable calibration data
-
-    //TODO: Do something on the display to show that voltages are being recorded
-
-    //Idea: Display "bars" filling up on right segment (for gas pedal) _=E=_=E...
-    //      Once calibration data makes sense, show pedal location (0-10%, 10-90%, 90-100%) with bars
 
 }
 

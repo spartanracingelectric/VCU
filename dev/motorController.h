@@ -7,8 +7,6 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
-//#include "safety.h"
-#include "serial.h"
 
 //typedef enum { TORQUE, DIRECTION, INVERTER, DISCHARGE, TORQUELIMIT} MCMCommand;
 typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
@@ -23,7 +21,7 @@ typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMOD
 
 typedef struct _MotorController MotorController;
 
-MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);
+MotorController* MotorController_new(ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);
 
 //----------------------------------------------------------------------------
 // Command Functions

@@ -3,7 +3,6 @@
 //#include "IO_DIO.h"
 //#include "IO_PWM.h"
 
-#include "serial.h"
 #include "sensors.h"
 #include "cooling.h"
 #include "motorController.h"
@@ -13,10 +12,9 @@
 extern Sensor Sensor_HVILTerminationSense;
 
 //All temperatures in C
-CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
+CoolingSystem *CoolingSystem_new()
 {
     CoolingSystem *me = (CoolingSystem *)malloc(sizeof(struct _CoolingSystem));
-    SerialManager *sm = serialMan;
 
     //-------------------------------------------------------------------
     // Cooling System Configuration
@@ -77,44 +75,6 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
         me->radFanPercent = 0.3;
     }
 
-    /*
-    //Motor fan / rad fan
-    if (me->motorFanState == FALSE)
-    {
-        if ((motorControllerTemp >= me->motorFanHigh) || (motorTemp >= me->motorFanHigh))
-        {
-            me->motorFanState = TRUE;
-            SerialManager_send(me->sm, "Turning motor fans on.\n");
-        }
-    }
-    else //motor fan is on
-    {
-        if ((motorControllerTemp < me->motorFanLow) && (motorTemp < me->motorFanLow))
-        // Shouldn't this be an || instead of an &&
-        {
-            me->motorFanState = FALSE;
-            SerialManager_send(me->sm, "Turning motor fans off.\n");
-        }
-    }
-
-    //Battery fans
-    if (me->batteryFanState == TRUE)
-    {
-        if (batteryTemp < me->batteryFanLow)
-        {
-            me->batteryFanState = FALSE;
-            SerialManager_send(me->sm, "Turning battery fans off.\n");
-        }
-    }
-    else //fans are off
-    {
-        if (batteryTemp >= me->batteryFanHigh)
-        {
-            me->batteryFanState = TRUE;
-            SerialManager_send(me->sm, "Turning battery fans on.\n");
-        }
-    }
-    */
 }
 
 //-------------------------------------------------------------------

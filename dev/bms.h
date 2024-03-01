@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
-#include "serial.h"
 #include "IO_CAN.h"
 
 //Max mismatch voltage, in volts
@@ -65,7 +63,7 @@
 
 typedef struct _BatteryManagementSystem BatteryManagementSystem;
 
-BatteryManagementSystem* BMS_new(SerialManager* serialMan, ubyte2 canMessageBaseID);
+BatteryManagementSystem* BMS_new(ubyte2 canMessageBaseID);
 void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCanMessage);
 
 // BMS COMMANDS // 

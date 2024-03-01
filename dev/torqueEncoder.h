@@ -9,8 +9,6 @@
 //Also, all values in the TorqueEncoder object are from
 typedef struct _TorqueEncoder
 {
-    bool bench;
-
     Sensor *tps0;
     Sensor *tps1;
 
@@ -37,15 +35,12 @@ typedef struct _TorqueEncoder
     bool implausibility;
 } TorqueEncoder;
 
-TorqueEncoder *TorqueEncoder_new(bool benchMode);
+TorqueEncoder *TorqueEncoder_new();
 void TorqueEncoder_update(TorqueEncoder *me);
 void TorqueEncoder_getIndividualSensorPercent(TorqueEncoder *me, ubyte1 sensorNumber, float4 *percent);
 void TorqueEncoder_resetCalibration(TorqueEncoder *me);
-void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder *me);
-void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder *me);
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);
 void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount);
-//void TorqueEncoder_plausibilityCheck(TorqueEncoder* me, ubyte1* errorCount, bool* isPlausible);
 void TorqueEncoder_getPedalTravel(TorqueEncoder *me, ubyte1 *errorCount, float4 *pedalPercent);
 void TorqueEncoder_getOutputPercent(TorqueEncoder *me, float4 *outputPercent);
 

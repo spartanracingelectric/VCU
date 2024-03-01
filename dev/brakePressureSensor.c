@@ -6,8 +6,6 @@
 #include "mathFunctions.h"
 
 #include "sensors.h"
-//extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BenchTPS1;
 
 /*****************************************************************************
 * Brake Pressure Sensor (BPS) functions
@@ -20,12 +18,9 @@
 BrakePressureSensor *BrakePressureSensor_new(void)
 {
     BrakePressureSensor *me = (BrakePressureSensor *)malloc(sizeof(struct _BrakePressureSensor));
-    //me->bench = benchMode;
-
     //TODO: Make sure the main loop is running before doing this
     me->bps0 = &Sensor_BPS0;
     me->bps1 = &Sensor_BPS1;
-    //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
 
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.
@@ -55,7 +50,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 }
 
 //Updates all values based on sensor readings, safety checks, etc
- void BrakePressureSensor_update(BrakePressureSensor *me, bool bench)
+ void BrakePressureSensor_update(BrakePressureSensor *me)
 {
     me->bps0_value = me->bps0->sensorValue;
     me->bps1_value = me->bps1->sensorValue;
@@ -83,10 +78,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     {
         Light_set(Light_brake, 1);
     }
-    else if (bench == FALSE)
-    {
-        Light_set(Light_brake, 0);
-    }
+
     else
     {
         if (me->percent > 0 && me->percent < .02)
@@ -114,13 +106,6 @@ void BrakePressureSensor_resetCalibration(BrakePressureSensor *me)
     //me->bps1_calibMax = me->bps1->sensorValue;
 }
 
-void BrakePressureSensor_saveCalibrationToEEPROM(BrakePressureSensor *me)
-{
-}
-
-void BrakePressureSensor_loadCalibrationFromEEPROM(BrakePressureSensor *me)
-{
-}
 
 void BrakePressureSensor_startCalibration(BrakePressureSensor *me, ubyte1 secondsToRun)
 {

@@ -15,7 +15,6 @@
 
 #include "motorController.h"
 #include "bms.h"
-#include "serial.h"
 
 //TODO #162 Add in CAN Address to tell which Safeties are on or off
 
@@ -94,7 +93,6 @@ ubyte4 timestamp_SoftBSPD = 0;
 struct _SafetyChecker
 {
     //Problems that require motor torque to be disabled
-    SerialManager *serialMan;
     ubyte4 faults;
     ubyte2 warnings;
     ubyte2 notices;
@@ -116,11 +114,9 @@ struct _SafetyChecker
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
 {
     SafetyChecker *me = (SafetyChecker *)malloc(sizeof(struct _SafetyChecker));
-
-    me->serialMan = sm;
     me->faults = 0;
     me->warnings = 0;
 
@@ -200,7 +196,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (tps->tps0->ioErr_signalInit != IO_E_OK || tps->tps1->ioErr_signalInit != IO_E_OK || tps->tps0->ioErr_signalGet != IO_E_OK || tps->tps1->ioErr_signalGet != IO_E_OK)
     {
         //me->faults |= F_tpsSignalFailure;
-        SerialManager_send(me->serialMan, "TPS signal error\n");
     }
     else
     {
@@ -305,7 +300,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     {
         // Set the TPS/BPS implaisibility VCU fault
         me->faults |= F_tpsbpsImplausible;
-        //SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
     {
@@ -331,7 +325,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_VOLTAGE_FLAG)
     {
         //me->faults |= F_bmsOverVoltageFault;
-        SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
     }
     else
     {
@@ -342,7 +335,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_UNDER_VOLTAGE_FLAG)
     {
         me->faults |= F_bmsUnderVoltageFault;
-        SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
     }
     else
     {
@@ -353,7 +345,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getFaultFlags1(bms) & BMS_CELL_OVER_TEMPERATURE_FLAG)
     {
         me->faults |= (F_bmsOverTemperatureFault);
-        SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
     }
     else
     {
@@ -365,28 +356,11 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if ( (BMS_getHighestCellVoltage_mV(bms)-BMS_getLowestCellVoltage_mV(bms)) > (BMS_MAX_CELL_MISMATCH_V*1000) )
     {
         //me->faults |= F_bmsCellMismatchFault;
-        SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
     }
     else
     {
         me->faults &= ~(F_bmsCellMismatchFault);
     }
-
-    //If any sort of BMS fault detected (assuming 8.3.4 fulfilled by BMS)
-    //if (BMS_getFaultFlags0(bms) || BMS_getFaultFlags1(bms))
-    //{
-    //    me->faults |= F_anyBmsFault;
-    //    SerialManager_send(me->serialMan, "BMS fault detected.\n");
-    //}
-    //Else, BMS reported faults over CAN are empty
-    //else
-    //{
-    //    me->faults &= ~(F_anyBmsFault);
-    //}
-
-
-
-    SerialManager_send(me->serialMan, "\n");
 
     /*****************************************************************************
     * Warnings
@@ -400,21 +374,16 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     {
         me->faults |= F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
     }
     else if (LVBattery->sensorValue <= 12730) //13100 = Recharge percentage, per Shorai
     {
         me->faults &= ~F_lvsBatteryVeryLow;
         me->warnings |= W_lvsBatteryLow;
-        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
-        SerialManager_send(me->serialMan, message);
     }
     else
     {
         me->warnings &= ~F_lvsBatteryVeryLow;
         me->warnings &= ~W_lvsBatteryLow;
-        //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
     }
 
     
@@ -493,7 +462,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
     {
         // me->warnings |= W_bmsUnderVoltageWarning;
-        SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
     }
     else
     {
@@ -504,7 +472,6 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (BMS_getHighestCellTemp_d_degC(bms) > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
     {
         me->warnings |= W_bmsOverTemperatureWarning;
-        SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
     }
     else
     {
@@ -582,20 +549,6 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
 
 
-    //-------------------------------------------------------------------
-    // Critical conditions - set 0 torque
-    //-------------------------------------------------------------------
-
-    //if ((me->warnings & W_bmsOverTemperatureWarning) > 0)
-    //{
-    //   multiplier = 0.80;
-    //}
-
-    //if ((me->warnings & W_bmsUnderVoltageWarning) > 0)
-    //{
-    //   multiplier = 0.70;
-    //}
-
     if (me->faults > 0) //Any VCU fault exists
     {
         multiplier = 0;
@@ -605,72 +558,8 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     if ((me->notices & N_HVILTermSenseLost) > 0)
     {
        multiplier = 0;
-       SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }    
 
-    //-------------------------------------------------------------------
-    // Other limits (% reduction) - set torque to the lowest of all these
-    // IMPORTANT: Be aware of direction-sensitive situations (accel/regen)
-    //-------------------------------------------------------------------
-    //80kW limit ---------------------------------
-    // if either the bms or mcm goes over 75kw, limit torque
-    //////////if ((BMS_getPower(bms) > 75000) || (MCM_getPower(mcm) > 75000))
-    //////////{
-    //////////    // using bmsPower since closer to e-meter
-    //////////    tempMultiplier = 1 - getPercent(max(BMS_getPower(bms), MCM_getPower(mcm)), 75000, 80000, TRUE);
-    //////////    SerialManager_send(me->serialMan, "SC.Mult: 80kW\n");
-    //////////}
-    //////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
-
-    //CCL/DCL from BMS --------------------------------
-    //why the DCL/CCL could be limited:
-    //0: No limit
-    //1 : Pack voltage too low
-    //2 : Pack voltage high
-    //3 : Cell voltage low
-    //4 : Cell voltage high
-    //5 : Temperature high for charging
-    //6 : Temperature too low for charging
-    //7 : Temperature high for discharging
-    //8 : Temperature too low for discharging
-    //9 : Charging current peak lasted too long
-    //10 = A : Discharging current peak lasted too long
-    //11 = B : Power up delay(Charge testing)
-    //12 = C : Fault
-    //13 = D : Contactors are off
-    ////////if (MCM_commands/*_getTorque(mcm) >= 0)
-    ////////{*/
-    ///////////*tempMultiplier = getPercent(BMS_getDCL(bms), 0, me->maxAmpsDischarge, TRUE);
-    //////////if (tempMultiplier < 1)
-    //////////{
-    //////////    SerialManager_send(me->serialMan, "SC.Mult: DCL\n");
-    //////////}*/
-    //////////}
-    //////////else //regen - Pick the lowest of CCL and speed reductions
-    //////////{
-    //////////    tempMultiplier = getPercent(BMS_getCCL(bms), 0, me->maxAmpsCharge, TRUE);
-    //////////    if (tempMultiplier < 1)
-    //////////    {
-    //////////        SerialManager_send(me->serialMan, "SC.Mult: CCL\n");
-    //////////    }
-    //////////    //Also, regen should be ramped down as speed approaches minimum
-    
-    
-    //////////        if (tempMultiplier < 1) { SerialManager_send(me->serialMan, "SC.Mult: Regen < 15kph\n"); }
-    //////////    }
-    ////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
-
-   /* if ( groundSpeedKPH < MCM_getRegenRampdownStartSpeed(mcm))
-    {
-        float4 regenMultiplier = 1 - getPercent(groundSpeedKPH, MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
-        //float4 regenMultiplier = 1 - getPercent(WheelSpeeds_getGroundSpeed(wss), MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
-            //USE FOR WHEEL SPEEDS TO DETECT RAMP DOWN
-        if (regenMultiplier < multiplier ) { multiplier = regenMultiplier; } // Use regenMultiplier if it is lower
-    }
-    */
-    //Reduce the torque command.  Multiplier should be a percent value (between 0 and 1)
-
-    //If the safety bypass is enabled, then override the multiplier to 100% (no reduction)
     if ((me->warnings & W_safetyBypassEnabled) == W_safetyBypassEnabled)
     {
         multiplier = 1;
