@@ -731,8 +731,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->LCStatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = (lc->LCReady == TRUE) ? (sbyte1)1 : (sbyte1)0;
+    canMessages[canMessageCount - 1].data[byteNum++] = (lc->LCStatus == TRUE) ? (sbyte1)1 : (sbyte1)0;
     canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque();
     canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque() >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
