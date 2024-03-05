@@ -597,7 +597,7 @@ IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm) {
     canMessage.data[5] = 0;
     canMessage.data[6] = MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
     canMessage.data[7] = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
-    canMessage.length = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
+    canMessage.length = 8;
     return canMessage;
 }
 

@@ -422,15 +422,6 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     return err;
 }
 
-/*
-sbyte1 BMS_getAvgTemp(BatteryManagementSystem *me)
-{
-    char buffer[32];
-    sprintf(buffer, "AvgPackTemp: %i\n", me->avgTemp);
-    return (me->avgTemp);
-}
-*/
-
 ubyte4 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
 {
     return (me->highestCellVoltage);
@@ -449,18 +440,12 @@ ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me)
 //Split into
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
 {
-    char buffer[32];
-    sprintf(buffer, "highestCellTemp (degC*10): %i\n", (me->highestCellTemperature));
-
     //Need to divide by BMS_TEMPERATURE_SCALE at usage to get deciCelsius value into Celsius
     return (me->highestCellTemperature);
 }
 
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
 {
-    char buffer[32];
-    sprintf(buffer, "highestCellTemp (degC): %i\n", (me->highestCellTemperature/BMS_TEMPERATURE_SCALE));
-
     //Need to divide by BMS_TEMPERATURE_SCALE at usage to get deciCelsius value into Celsius
     return (me->highestCellTemperature/BMS_TEMPERATURE_SCALE);
 }
@@ -468,9 +453,6 @@ sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
 {
-    //char buffer[32];
-    //sprintf(buffer, "power (uW): %f\n", (me->packCurrent * me->packVoltage));
-
     //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
     return (me->packCurrent * me->packVoltage);
 }
@@ -478,9 +460,6 @@ sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 sbyte4 BMS_getPower_W(BatteryManagementSystem *me)
 {
-    //char buffer[32];
-    //sprintf(buffer, "power (W): %f\n", ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE));
-
     //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
     return ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE);
 }
@@ -513,12 +492,3 @@ bool BMS_getRelayState(BatteryManagementSystem *me) {
     //Return state of shutdown board relay
     return me->relayState;
 }
-
-/*
-ubyte2 BMS_getPackTemp(BatteryManagementSystem *me)
-{
-    char buffer[32];
-    sprintf(buffer, "PackTemp: %i\n", me->packTemp);
-    return (me->packTemp);
-}
-*/
