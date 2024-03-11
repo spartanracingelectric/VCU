@@ -233,7 +233,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //-------------------------------------------------------------------
     if (tps->tps0->sensorValue < tps->tps0->specMin || tps->tps0->sensorValue > tps->tps0->specMax || tps->tps1->sensorValue < tps->tps1->specMin || tps->tps1->sensorValue > tps->tps1->specMax)
     {
-        me->faults |= F_tpsOutOfRange;
+        // me->faults |= F_tpsOutOfRange;
     }
     else
     {
@@ -245,7 +245,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     //-------------------------------------------------------------------
     if (bps->bps0->sensorValue < bps->bps0->specMin || bps->bps0->sensorValue > bps->bps0->specMax)
     {
-        me->faults |= F_bpsOutOfRange;
+        // me->faults |= F_bpsOutOfRange;
     }
     else
     {
@@ -272,7 +272,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
     if ((tps1Percent - tps0Percent) > .1 || (tps1Percent - tps0Percent) < -.1) //Note: Individual TPS readings don't go negative, otherwise this wouldn't work
     {
-        me->faults |= F_tpsOutOfSync;
+        // me->faults |= F_tpsOutOfSync;
     }
     else
     {

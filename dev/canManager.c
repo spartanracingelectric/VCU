@@ -610,7 +610,7 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     canMessage.data[2] = MCM_getHvilOverrideStatus(mcm);
     canMessage.data[3] = 0;
     canMessage.data[4] = 0;
-    canMessage.data[5] = 0;
+    canMessage.data[5] = 0; 
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
     canMessage.length = 8;
@@ -715,10 +715,11 @@ IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm) {
     canMessage.id = 0xC0;
     canMessage.data[0] = (ubyte1)MCM_commands_getTorque(mcm);
     canMessage.data[1] =  MCM_commands_getTorque(mcm) >> 8;
-    canMessage.data[2] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessage.data[3] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
+    canMessage.data[2] = 0;  //Speed (RPM) 
+    canMessage.data[3] = 0 >> 8;  //Speed (RPM) 
     canMessage.data[4] = MCM_commands_getDirection(mcm);
-    canMessage.data[5] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
+    canMessage.data[5] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; // Inverter Enable
+    canMessage.data[5] |= 0 << 2; // Speed Mode Override 
     canMessage.data[6] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessage.data[7] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessage.length = 8;

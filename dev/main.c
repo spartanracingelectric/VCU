@@ -115,7 +115,7 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
-    MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 600, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
     TorqueEncoder *tps = TorqueEncoder_new();
     BrakePressureSensor *bps = BrakePressureSensor_new();
