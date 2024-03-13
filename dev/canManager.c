@@ -234,8 +234,10 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0xA5:
         case 0xA6:
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA7:
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+            break;
         case 0xA8:
         case 0xA9:
         case 0xAA:
@@ -423,8 +425,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1] = get_mcm_power_can_message(mcm, sc);
 
     //511: SoftBSPD
-    // canMessageCount++;
-    // canMessages[canMessageCount - 1] = get_bspd_can_message(mcm, sc);
+    canMessageCount++;
+    canMessages[canMessageCount - 1] = get_bspd_can_message(mcm, sc);
 
     //512: MCM Torque Command
     // canMessageCount++;
@@ -697,17 +699,21 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker*
     return canMessage;
 }
 
-// IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) {
-//     IO_CAN_DATA_FRAME canMessage;
-//     canMessage.id_format = IO_CAN_STD_FRAME;
-//     canMessage.id = 0x511;
-//     canMessage.data[0] = sc->softBSPD_fault;
-//     canMessage.data[1] = flags;
-//     canMessage.data[2] = 0; //(ubyte1)mcm->kwRequestEstimate;
-//     canMessage.data[3] = 0; //mcm->kwRequestEstimate >> 8;
-//     canMessage.length = 4;
-//     return canMessage;
-// }
+IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) {
+    IO_CAN_DATA_FRAME canMessage;
+    canMessage.id_format = IO_CAN_STD_FRAME;
+    canMessage.id = 0x511;
+    canMessage.data[0] = (ubyte1) SafetyChecker_getsoftbspd(sc);
+    canMessage.data[1] = 0;
+    canMessage.data[2] = 0; 
+    canMessage.data[3] = 0; 
+    canMessage.data[4] = 0;
+    canMessage.data[5] = 0;
+    canMessage.data[6] = 0;
+    canMessage.data[7] = 0;
+    canMessage.length = 8;
+    return canMessage;
+}
 
 IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm) {
     IO_CAN_DATA_FRAME canMessage;

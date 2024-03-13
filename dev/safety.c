@@ -414,7 +414,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     {
         IO_RTC_StartTime(&timestamp_SoftBSPD);
         me->softBSPD_fault = FALSE;
-        //me->faults |= F_softBSPDFault;
+        // me->faults |= F_softBSPDFault;
         // Light_set(Light_dashEco, 1);  // For testing only
     }
     else if (IO_RTC_GetTimeUS(timestamp_SoftBSPD) >= 500000 || IO_RTC_GetTimeUS(timestamp_SoftBSPD) == 0)
@@ -532,6 +532,10 @@ ubyte4 SafetyChecker_getFaults(SafetyChecker *me)
 ubyte4 SafetyChecker_getWarnings(SafetyChecker *me)
 {
     return (me->warnings);
+}
+
+ubyte1 SafetyChecker_getsoftbspd(SafetyChecker *me){
+    return (me->softBSPD_fault);
 }
 
 //Updates all values based on sensor readings, safety checks, etc

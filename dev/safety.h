@@ -10,14 +10,6 @@
 #include "bms.h"
 #include "wheelSpeeds.h"
 
-/*
-typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
-             , CHECK_tpsOpenOrShort   , CHECK_bpsOpenOrShort
-             , CHECK_tpsNotCalibrated , CHECK_bpsNotCalibrated 
-             , CHECK_tpsOutOfSync     , CHECK_tpsbpsImplausible
-             } SafetyCheck;
-*/
-
 typedef struct _SafetyChecker SafetyChecker;
 
 SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
@@ -28,6 +20,7 @@ ubyte4 SafetyChecker_getFaults(SafetyChecker *me);
 ubyte4 SafetyChecker_getWarnings(SafetyChecker *me);
 ubyte4 SafetyChecker_getNotices(SafetyChecker *me);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
+ubyte1 SafetyChecker_getsoftbspd(SafetyChecker *me);
 //bool SafetyChecker_getError(SafetyChecker* me, SafetyCheck check);
 //bool SafetyChecker_getErrorByte(SafetyChecker* me, ubyte1* errorByte);
 
