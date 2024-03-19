@@ -326,7 +326,8 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         }
     }
-    // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
+    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);
+    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
 }
 
 ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
@@ -356,6 +357,7 @@ ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
+    IO_CAN_DATA_FRAME canMessages1[me->can1_write_messageLimit];
     ubyte2 canMessageCount = 0;
     ubyte2 canMessageID = 0x500;
 
@@ -438,6 +440,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     
     //Place the can messages into the FIFO queue ---------------------------------------------------
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
+    CanManager_send(me, CAN1_LOPRI, canMessages,canMessageCount);  // Transmit same data on CAN1
 
 }
 

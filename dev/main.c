@@ -130,7 +130,8 @@ void main(void)
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
         sensors_updateSensors();
-        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc); // read CAN0
+        CanManager_read(canMan, CAN1_LOPRI, mcm0, ic0,bms, sc); // read CAN1
 
         if (Sensor_EcoButton.sensorValue == FALSE)
         {
