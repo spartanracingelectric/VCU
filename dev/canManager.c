@@ -17,8 +17,8 @@
 #include "main.h"
 
 
-CanManager* CanManager_new(ubyte2 CAN1_busSpeed, ubyte1 CAN1_read_messageLimit, ubyte1 CAN1_write_messageLimit,
-                           ubyte2 CAN2_busSpeed, ubyte1 CAN2_read_messageLimit, ubyte1 CAN2_write_messageLimit,
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit,
+                           ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit,
                            ubyte4 defaultSendDelayus)
 {
     CanManager* me = (CanManager*)malloc(sizeof(struct _CanManager));
@@ -31,13 +31,13 @@ CanManager* CanManager_new(ubyte2 CAN1_busSpeed, ubyte1 CAN1_read_messageLimit, 
     me->sendDelayus = defaultSendDelayus;
 
     //Activate the CAN channels --------------------------------------------------
-    me->ioErr_CAN1_Init = IO_CAN_Init(IO_CAN_CHANNEL_0, CAN1_busSpeed, 0, 0, 0);
-    me->ioErr_CAN2_Init = IO_CAN_Init(IO_CAN_CHANNEL_1, CAN2_busSpeed, 0, 0, 0);
+    me->ioErr_can0_Init = IO_CAN_Init(IO_CAN_CHANNEL_0, can0_busSpeed, 0, 0, 0);
+    me->ioErr_can1_Init = IO_CAN_Init(IO_CAN_CHANNEL_1, can1_busSpeed, 0, 0, 0);
 
-    me->CAN1_read_messageLimit = CAN1_read_messageLimit;
-    me->CAN1_write_messageLimit = CAN1_write_messageLimit;
-    me->CAN2_read_messageLimit = CAN2_read_messageLimit;
-    me->CAN2_write_messageLimit = CAN2_write_messageLimit;
+    me->can0_read_messageLimit = can0_read_messageLimit;
+    me->can0_write_messageLimit = can0_write_messageLimit;
+    me->can1_read_messageLimit = can1_read_messageLimit;
+    me->can1_write_messageLimit = can1_write_messageLimit;
 
     // Configure the FIFO queues
     // This specifies: The handle names for the queues
@@ -45,16 +45,16 @@ CanManager* CanManager_new(ubyte2 CAN1_busSpeed, ubyte1 CAN1_read_messageLimit, 
     // the # of messages (or maximum count?)
     // the direction of the queue (in/out)
     // the frame size and other stuff?
-    IO_CAN_ConfigFIFO(&me->CAN1_readHandle, IO_CAN_CHANNEL_0, CAN1_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
-    IO_CAN_ConfigFIFO(&me->CAN1_writeHandle, IO_CAN_CHANNEL_0, CAN1_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
-    IO_CAN_ConfigFIFO(&me->CAN2_readHandle, IO_CAN_CHANNEL_1, CAN2_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
-    IO_CAN_ConfigFIFO(&me->CAN2_writeHandle, IO_CAN_CHANNEL_1, CAN2_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
+    IO_CAN_ConfigFIFO(&me->can0_readHandle, IO_CAN_CHANNEL_0, can0_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
+    IO_CAN_ConfigFIFO(&me->can0_writeHandle, IO_CAN_CHANNEL_0, can0_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
+    IO_CAN_ConfigFIFO(&me->can1_readHandle, IO_CAN_CHANNEL_1, can1_read_messageLimit, IO_CAN_MSG_READ, IO_CAN_STD_FRAME, 0, 0);
+    IO_CAN_ConfigFIFO(&me->can1_writeHandle, IO_CAN_CHANNEL_1, can1_write_messageLimit, IO_CAN_MSG_WRITE, IO_CAN_STD_FRAME, 0, 0);
 
     // Assume read/write at error state until used
-    me->ioErr_CAN1_read = IO_E_CAN_BUS_OFF;
-    me->ioErr_CAN1_write = IO_E_CAN_BUS_OFF;
-    me->ioErr_CAN2_read = IO_E_CAN_BUS_OFF;
-    me->ioErr_CAN2_write = IO_E_CAN_BUS_OFF;
+    me->ioErr_can0_read = IO_E_CAN_BUS_OFF;
+    me->ioErr_can0_write = IO_E_CAN_BUS_OFF;
+    me->ioErr_can1_read = IO_E_CAN_BUS_OFF;
+    me->ioErr_can1_write = IO_E_CAN_BUS_OFF;
     
     ubyte2 messageID;
     ubyte1 emptyData[8] = { 0,0,0,0,0,0,0,0 };
@@ -187,11 +187,11 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
     if (messagesToSendCount > 0)
     {
         // Send the messages to send to the appropriate FIFO queue
-        sendResult = IO_CAN_WriteFIFO((channel == CAN1_HIPRI) ? me->CAN1_writeHandle : me->CAN2_writeHandle, messagesToSend, messagesToSendCount);
-        *((channel == CAN1_HIPRI) ? &me->ioErr_CAN1_write : &me->ioErr_CAN2_write) = sendResult;
+        sendResult = IO_CAN_WriteFIFO((channel == CAN0_HIPRI) ? me->can0_writeHandle : me->can1_writeHandle, messagesToSend, messagesToSendCount);
+        *((channel == CAN0_HIPRI) ? &me->ioErr_can0_write : &me->ioErr_can1_write) = sendResult;
 
         // Update the outgoing message tree with message sent timestamps
-        if ((channel == CAN1_HIPRI ? me->ioErr_CAN1_write : me->ioErr_CAN2_write) == IO_E_OK)
+        if ((channel == CAN0_HIPRI ? me->ioErr_can0_write : me->ioErr_can1_write) == IO_E_OK)
         {
             // Loop through the messages that we sent...
             for (messagePosition = 0; messagePosition < messagesToSendCount; messagePosition++)
@@ -208,14 +208,14 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
 ****************************************************************************/
 void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
 {
-    IO_CAN_DATA_FRAME canMessages[(channel == CAN1_HIPRI ? me->CAN1_read_messageLimit : me->CAN2_read_messageLimit)];
+    IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
     ubyte1 canMessageCount;  // FIFO queue only holds 128 messages max
 
     // Read messages from hipri channel 
-    *(channel == CAN1_HIPRI ? &me->ioErr_CAN1_read : &me->ioErr_CAN2_read) =
-    IO_CAN_ReadFIFO((channel == CAN1_HIPRI ? me->CAN1_readHandle : me->CAN2_writeHandle),
+    *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
+    IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle),
                     canMessages,
-                    (channel == CAN1_HIPRI ? me->CAN1_read_messageLimit : me->CAN2_read_messageLimit),
+                    (channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit),
                     &canMessageCount);
 
     // Determine message type based on ID
@@ -326,12 +326,13 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         }
     }
-    // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
+    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);
+    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
 }
 
 ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 {
-    return (channel == CAN1_HIPRI) ? me->ioErr_CAN1_read : me->ioErr_CAN2_read;
+    return (channel == CAN0_HIPRI) ? me->ioErr_can0_read : me->ioErr_can1_read;
 }
 
 
@@ -356,6 +357,7 @@ ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
+    IO_CAN_DATA_FRAME canMessages1[me->can1_write_messageLimit];
     ubyte2 canMessageCount = 0;
     ubyte2 canMessageID = 0x500;
 
@@ -415,10 +417,6 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_bps1_can_message(bps);
 
-    
-    //50E: BMS Loopback Test
-    canMessageCount++;
-    canMessages[canMessageCount - 1] = get_bms_loopback_can_message(bms);
 
     //50F: MCM Power Debug
     canMessageCount++;
@@ -438,6 +436,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     
     //Place the can messages into the FIFO queue ---------------------------------------------------
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
+
+    //50E: BMS Loopback Test
+    canMessages1[0] = get_bms_loopback_can_message(bms);
+    CanManager_send(me, CAN1_LOPRI, canMessages1, (ubyte2) 1);
 
 }
 

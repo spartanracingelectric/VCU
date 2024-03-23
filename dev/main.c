@@ -108,7 +108,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000); //3rd param = messages per node (CAN1/CAN2; read/write)   
+    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000); //3rd param = messages per node (CAN0; read/write)
 
 
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
@@ -131,7 +131,7 @@ void main(void)
         IO_Driver_TaskBegin();
         sensors_updateSensors();
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
-
+    
         if (Sensor_EcoButton.sensorValue == FALSE)
         {
             if (timestamp_EcoButton == 0)

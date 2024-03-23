@@ -14,11 +14,11 @@
 
 typedef enum
 {
-    CAN1_HIPRI,
-    CAN2_LOPRI
+    CAN0_HIPRI,
+    CAN1_LOPRI
 } CanChannel;
-//CAN1: 48 messages per handle (48 read, 48 write)
-//CAN2: 16 messages per handle
+//CAN0: 48 messages per handle (48 read, 48 write)
+//CAN1: 16 messages per handle
 
 //Keep track of CAN message IDs, their data, and when they were last sent.
 typedef struct _CanMessageNode
@@ -37,32 +37,32 @@ typedef struct _CanManager {
     
     //These are our four FIFO queues.  All messages should come/go through one of these queues.
     //Functions shall have a CanChannel enum (see header) parameter.  Direction (send/receive is not
-    //specified by this parameter.  The CAN1/CAN2 is selected based on the parameter passed in, and 
+    //specified by this parameter.  The CAN0/CAN1 is selected based on the parameter passed in, and 
     //Read/Write is selected based on the function that is being called (get/send)
-    ubyte1 CAN1_busSpeed;
-    ubyte1 CAN1_readHandle;
-    ubyte1 CAN1_read_messageLimit;
-    ubyte1 CAN1_writeHandle;
-    ubyte1 CAN1_write_messageLimit;
+    ubyte1 can0_busSpeed;
+    ubyte1 can0_readHandle;
+    ubyte1 can0_read_messageLimit;
+    ubyte1 can0_writeHandle;
+    ubyte1 can0_write_messageLimit;
 
-    ubyte1 CAN2_busSpeed;
-    ubyte1 CAN2_readHandle;
-    ubyte1 CAN2_read_messageLimit;
-    ubyte1 CAN2_writeHandle;
-    ubyte1 CAN2_write_messageLimit;
+    ubyte1 can1_busSpeed;
+    ubyte1 can1_readHandle;
+    ubyte1 can1_read_messageLimit;
+    ubyte1 can1_writeHandle;
+    ubyte1 can1_write_messageLimit;
     
-    IO_ErrorType ioErr_CAN1_Init;
-    IO_ErrorType ioErr_CAN2_Init;
+    IO_ErrorType ioErr_can0_Init;
+    IO_ErrorType ioErr_can1_Init;
 
-    IO_ErrorType ioErr_CAN1_fifoInit_R;
-    IO_ErrorType ioErr_CAN1_fifoInit_W;
-    IO_ErrorType ioErr_CAN2_fifoInit_R;
-    IO_ErrorType ioErr_CAN2_fifoInit_W;
+    IO_ErrorType ioErr_can0_fifoInit_R;
+    IO_ErrorType ioErr_can0_fifoInit_W;
+    IO_ErrorType ioErr_can1_fifoInit_R;
+    IO_ErrorType ioErr_can1_fifoInit_W;
 
-    IO_ErrorType ioErr_CAN1_read;
-    IO_ErrorType ioErr_CAN1_write;
-    IO_ErrorType ioErr_CAN2_read;
-    IO_ErrorType ioErr_CAN2_write;
+    IO_ErrorType ioErr_can0_read;
+    IO_ErrorType ioErr_can0_write;
+    IO_ErrorType ioErr_can1_read;
+    IO_ErrorType ioErr_can1_write;
 
     ubyte4 sendDelayus;
 
@@ -71,7 +71,7 @@ typedef struct _CanManager {
 } CanManager;
 
 //Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
-CanManager *CanManager_new(ubyte2 CAN1_busSpeed, ubyte1 CAN1_read_messageLimit, ubyte1 CAN1_write_messageLimit, ubyte2 CAN2_busSpeed, ubyte1 CAN2_read_messageLimit, ubyte1 CAN2_write_messageLimit, ubyte4 defaultSendDelayus);
+CanManager *CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit, ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit, ubyte4 defaultSendDelayus);
 IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount);
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves
