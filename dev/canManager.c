@@ -354,7 +354,7 @@ ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs, TimerDebug *td)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     IO_CAN_DATA_FRAME canMessages1[me->can1_write_messageLimit];
@@ -421,6 +421,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     //50F: MCM Power Debug
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_mcm_power_can_message(mcm, sc);
+
+    canMessageCount++;
+    canMessages[canMessageCount - 1] = get_timer_debug_can_message(td); //what params
 
     //511: SoftBSPD
     canMessageCount++;
@@ -697,6 +700,24 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker*
     canMessage.data[5] = (SafetyChecker_getWarnings(sc) >> 8);
     canMessage.data[6] = (SafetyChecker_getWarnings(sc) >> 16);
     canMessage.data[7] = (SafetyChecker_getWarnings(sc) >> 24);
+    canMessage.length = 8;
+    return canMessage;
+}
+
+IO_CAN_DATA_FRAME get_timer_debug_can_message(TimerDebug *td) {
+    ubyte4 time = TimerDebug_getTime(td);
+    ubyte2 interval = TimerDebug_getIntervalCounter(td);
+    IO_CAN_DATA_FRAME canMessage;
+    canMessage.id_format = IO_CAN_STD_FRAME;
+    canMessage.id = 0x512;
+    canMessage.data[0] = time;
+    canMessage.data[1] = time >> 8;
+    canMessage.data[2] = time >> 16; 
+    canMessage.data[3] = time >> 24; 
+    canMessage.data[4] = interval;
+    canMessage.data[5] = interval >> 8;
+    canMessage.data[6] = 0;
+    canMessage.data[7] = 0;
     canMessage.length = 8;
     return canMessage;
 }

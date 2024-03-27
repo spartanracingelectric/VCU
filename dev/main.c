@@ -124,11 +124,13 @@ void main(void)
     CoolingSystem *cs = CoolingSystem_new();
     LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
+    TimerDebug *td = TimerDebug_new();
     ubyte4 timestamp_mainLoopStart = 0;
     while (1)
     {
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
+        
         sensors_updateSensors();
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
     
@@ -149,7 +151,10 @@ void main(void)
             }
         }
 
+        TimerDebug_startTimer(td);
         TorqueEncoder_update(tps);
+        TimerDebug_stopTimer(td);
+
         TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
         BrakePressureSensor_update(bps);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
@@ -179,9 +184,11 @@ void main(void)
         //Comment out to disable shutdown board control
         err = BMS_relayControl(bms);
 
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs, td);
+        
         RTDS_shutdownHelper(rtds); 
         IO_Driver_TaskEnd();
+        
         while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
