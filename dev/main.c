@@ -128,6 +128,7 @@ void main(void)
     ubyte4 timestamp_mainLoopStart = 0;
     while (1)
     {
+        TimerDebug_startTimer(td);
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
         
@@ -151,10 +152,10 @@ void main(void)
             }
         }
 
-        TimerDebug_startTimer(td);
-        TorqueEncoder_update(tps);
-        TimerDebug_stopTimer(td);
+        
+        
 
+        TorqueEncoder_update(tps);
         TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
         BrakePressureSensor_update(bps);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
@@ -188,6 +189,8 @@ void main(void)
         
         RTDS_shutdownHelper(rtds); 
         IO_Driver_TaskEnd();
+        
+        TimerDebug_stopTimer(td);
         
         while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
         {
