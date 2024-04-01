@@ -84,25 +84,9 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    Light_set(Cooling_waterPump, me->waterPumpPercent);
-    Light_set(Cooling_RadFans, me->radFanPercent);
+    IO_DO_Set(IO_DO_02, FALSE);
+    // Light_set(Cooling_waterPump, me->waterPumpPercent);
+    // Light_set(Cooling_RadFans, me->radFanPercent);
+    IO_PWM_SetDuty(IO_PWM_02, TRUE, NULL);
 
-    // Issue #110 https://github.com/spartanracingelectric/VCU/issues/110
-    // Relay wiring seems to be backwards for 2021 car: Fans are on while everything is cool,
-    // and they turn OFF when systems get hot.  This boolean flips the software logic, but the
-    // wiring needs to be fixed and this software hack needs to be removed in the future.
-    /*
-    bool wiringIsWrong = TRUE;
-    
-    if (wiringIsWrong)
-    {
-        Light_set(Cooling_Fans, me->motorFanState == TRUE ? 0 : 1);
-        Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 0 : 1);
-    }
-    else
-    {
-        Light_set(Cooling_motorFans, me->motorFanState == TRUE ? 1 : 0);
-        Light_set(Cooling_batteryFans, me->batteryFanState == TRUE ? 1 : 0);
-    }
-    */
 }

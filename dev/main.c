@@ -147,7 +147,8 @@ void main(void)
                 //calibrateTPS(TRUE, 5);
                 TorqueEncoder_startCalibration(tps, 5);
                 BrakePressureSensor_startCalibration(bps, 5);
-                Light_set(Light_dashEco, 1);
+                // Light_set(Light_dashEco, 1);
+                IO_DO_Set(IO_ADC_CUR_01, TRUE);
                 //DIGITAL OUTPUT 4 for STATUS LED
             }
         }
@@ -176,7 +177,8 @@ void main(void)
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
         //SafetyChecker_setErrorLight(sc);
-        Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
+        // Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
+        IO_DO_Set(IO_ADC_CUR_02, (SafetyChecker_getFaults(sc) != 0));
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
         MCM_inverterControl(mcm0, tps, bps, rtds);

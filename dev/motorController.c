@@ -452,7 +452,9 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
     }
 
     //After all that, we can turn the RTD light on/off
-    Light_set(Light_dashRTD, RTDPercent);
+    // Light_set(Light_dashRTD, RTDPercent);
+    IO_DO_Set(IO_ADC_CUR_03, TRUE);
+
 }
 
 void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)

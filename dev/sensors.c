@@ -172,15 +172,15 @@ void Light_set(Light light, float4 percent)
         IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
         break;
 
-    case Cooling_batteryFans:
-        IO_DO_Set(IO_DO_04, power);
-        break;
+    // case Cooling_batteryFans:
+    //     IO_DO_Set(IO_DO_04, power);
+    //     break;
 
         //--------------------------------------------
         //These devices moved from PWM to DIO
 
-    case Light_dashTCS:
-        break;
+    // case Light_dashTCS:
+    //     break;
 
     case Light_dashEco:
         IO_DO_Set(IO_ADC_CUR_01, power);
