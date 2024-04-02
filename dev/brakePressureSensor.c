@@ -77,7 +77,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     if (me->brakesAreOn)
     {
         // Light_set(Light_brake, 1);
-        IO_DO_Set(IO_ADC_CUR_00, FALSE);
+        IO_DO_Set(IO_ADC_CUR_00, TRUE);
     }
 
     else
@@ -85,19 +85,19 @@ BrakePressureSensor *BrakePressureSensor_new(void)
         if (me->percent > 0 && me->percent < .02)
         {
             // Light_set(Light_brake, .20);
-            IO_DO_Set(IO_ADC_CUR_00, FALSE);
+            IO_DO_Set(IO_ADC_CUR_00, TRUE);
 
         }
         else if (me->percent >= .02 && me->percent < .30)
         {
             // Light_set(Light_brake, .30);
-            IO_DO_Set(IO_ADC_CUR_00, FALSE);
+            IO_DO_Set(IO_ADC_CUR_00, TRUE);
 
         }
         else if (me->percent >= .30)
         {
             // Light_set(Light_brake, me->percent);
-            IO_DO_Set(IO_ADC_CUR_00, FALSE);
+            IO_DO_Set(IO_ADC_CUR_00, TRUE);
 
         }
     }

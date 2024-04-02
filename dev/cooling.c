@@ -84,9 +84,9 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    IO_DO_Set(IO_DO_02, FALSE);
+    IO_DO_Set(IO_DO_02, TRUE);
     // Light_set(Cooling_waterPump, me->waterPumpPercent);
     // Light_set(Cooling_RadFans, me->radFanPercent);
-    IO_PWM_SetDuty(IO_PWM_02, TRUE, NULL);
+    IO_PWM_SetDuty(IO_PWM_02, me->radFanPercent, NULL);
 
 }
