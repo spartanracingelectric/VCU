@@ -1,17 +1,3 @@
-/*****************************************************************************
-* Sensors
-******************************************************************************
-* bla bla bla.
-*
-******************************************************************************
-* To-do:
-*
-******************************************************************************
-* Revision history:
-* 2015-12-01 - Rusty Pedrosa - Changed loading of sensor data to switch
-*                              statement inside of a loop
-*****************************************************************************/
-
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_ADC.h"
 #include "IO_PWD.h"
@@ -151,71 +137,94 @@ void sensors_updateSensors(void)
     Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
 }
 
-void Light_set(Light light, float4 percent)
-{
-    ubyte2 duty = 65535 * percent; //For Cooling_RadFans
+// void Light_set(Light light, float4 percent)
+// {
+//     ubyte2 duty = 65535 * percent; //For Cooling_RadFans
 
-    bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
+//     bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
 
-    switch (light)
-    {
-    //PWM devices
-    case Light_brake:
-        IO_DO_Set(IO_ADC_CUR_00, power);
-        break;
+//     switch (light)
+//     {
+//     //PWM devices
+//     case Light_brake:
+//         IO_DO_Set(IO_ADC_CUR_00, power);
+//         break;
 
-    case Cooling_waterPump:
-        IO_DO_Set(IO_DO_02, power);
-        break;
+//     case Cooling_waterPump:
+//         IO_DO_Set(IO_DO_02, power);
+//         break;
 
-    case Cooling_RadFans:  // Radiator Fans
-        IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
-        break;
+//     case Cooling_RadFans:  // Radiator Fans
+//         IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
+//         break;
 
-    // case Cooling_batteryFans:
-    //     IO_DO_Set(IO_DO_04, power);
-    //     break;
+//     // case Cooling_batteryFans:
+//     //     IO_DO_Set(IO_DO_04, power);
+//     //     break;
 
-        //--------------------------------------------
-        //These devices moved from PWM to DIO
+//         //--------------------------------------------
+//         //These devices moved from PWM to DIO
 
-    // case Light_dashTCS:
-    //     break;
+//     // case Light_dashTCS:
+//     //     break;
 
-    case Light_dashEco:
-        IO_DO_Set(IO_ADC_CUR_01, power);
-        break;
+//     case Light_dashEco:
+//         IO_DO_Set(IO_ADC_CUR_01, power);
+//         break;
 
-    case Light_dashError:
-        IO_DO_Set(IO_ADC_CUR_02, power);
-        break;
+//     case Light_dashError:
+//         IO_DO_Set(IO_ADC_CUR_02, power);
+//         break;
 
-    case Light_dashRTD:
-        IO_DO_Set(IO_ADC_CUR_03, power);
-        break;
-    }
+//     case Light_dashRTD:
+//         IO_DO_Set(IO_ADC_CUR_03, power);
+//         break;
+//     }
+// }
+
+void sensor_TPS(){
+    Sensor *tps1;
+    Sensor *tps2;
+
+    ubyte4 tps1_calibMin; //Must be 4 bytes to support PWM (digital/timer) sensor
+    ubyte4 tps1_calibMax;
+    bool tps1_reverse;
+    ubyte4 tps1_value;
+    float4 tps1_percent;
+
+    ubyte4 tps2_calibMin;
+    ubyte4 tps2_calibMax;
+    bool tps2_reverse;
+    ubyte4 tps2_value;
+    float4 tps2_percent;
+
+    bool runCalibration;
+    ubyte4 timestamp_calibrationStart;
+    ubyte1 calibrationRunTime;
+
+    float4 outputCurveExponent;
+
+    bool calibrated;
+    float4 travelPercent;
+    bool implausibility;
+
+    tps1 = &Sensor_TPS0;
+    tps2 = &Sensor_TPS1;
+    tps1_reverse = FALSE;
+    tps2_reverse = TRUE;
+
+    outputCurveExponent = 1.0;
+    travelPercent = 0;
+    runCalibration = FALSE;
+
+    tps1_calibMin = 500;
+    tps1_calibMax = 1440;
+    tps1_calibMin = 3350;
+    tps2_calibMax = 4400;
+
+    calibrated = TRUE;
+
+
 }
 
-/*****************************************************************************
-* Output Calculations
-******************************************************************************
-* Takes properties from devices (such as raw sensor values [ohms, voltage],
-* MCU/BMS CAN messages, etc), performs calculations with that data, and updates
-* the relevant objects' properties.
-*
-* This includes sensor calculations, motor controller control calculations,
-* traction control, BMS/safety calculations, etc.
-* (May need to split this up later)
-*
-* For example: GetThrottlePosition() takes the raw TPS voltages from the TPS
-* sensor objects and returns the throttle pedal percent.  This function does
-* NOT update the sensor objects, but it would be acceptable for another
-* function in this file to do so.
-*
-******************************************************************************
-* To-do:
-*
-******************************************************************************
-* Revision history:
-* 2015-11-16 - Rusty Pedrosa -
-*****************************************************************************/
+

@@ -99,20 +99,6 @@
 #include "IO_Driver.h"
 
 
-
-typedef enum 
-{ 
-      Light_dashEco        //on/off
-    , Light_dashError      //on/off
-    , Light_dashRTD        //on/off
-    , Light_dashTCS        //on/off
-    , Light_brake          //PWM
-    , Cooling_waterPump    //PWM
-    , Cooling_RadFans      //PWM
-    , Cooling_batteryFans  //on/off
-} Light;
-
-
 //----------------------------------------------------------------------------
 // Sensor Object Definitions
 //----------------------------------------------------------------------------
@@ -121,27 +107,31 @@ typedef enum
 // specMin/Max values should come from each sensor's datasheets, but it is not
 // required for all sensors.
 //
-// TODO: What about having default calbiration values?  (Probably useless)
+// 
 //----------------------------------------------------------------------------
+
+typedef enum {
+    PEDAL_BOX
+} SensorType;
+
+
 typedef struct _Sensor {
     //Sensor values / properties
     ubyte4 specMin;
     ubyte4 specMax;
-    
-    //ubyte2 calibMin;
-    //ubyte2 calibMax;
-    //ubyte2 calibNormal;  //zero value or normal position
 
-    //ubyte2 calibratedValue;
     ubyte4 sensorValue;
     ubyte4 heldSensorValue;
     ubyte4 timestamp;
     bool fresh;
-    //bool isCalibrated;
+
     IO_ErrorType ioErr_powerInit;
     IO_ErrorType ioErr_powerSet;
     IO_ErrorType ioErr_signalInit;
     IO_ErrorType ioErr_signalGet;
+
+
+
 } Sensor;
 
 //----------------------------------------------------------------------------
@@ -196,14 +186,13 @@ extern Sensor Sensor_LVBattery; // = { 0xA };  //Note: There will be no init for
 // Sensor Functions
 //----------------------------------------------------------------------------
 void sensors_updateSensors(void);
-
-
 void setMCMRelay(bool turnOn);
+void sensor_TPS();
 
 
 //----------------------------------------------------------------------------
 // Outputs
 //----------------------------------------------------------------------------
-void Light_set(Light light, float4 percent);
+// void Light_set(Light light, float4 percent);
 
 #endif // _SENSORS_H
