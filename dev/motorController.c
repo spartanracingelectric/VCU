@@ -615,13 +615,13 @@ if (power > 70) {
 */
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {   
-    newTorque = 2400;
-    sbyte4 dummyPower = 72321; //watts
+    // newTorque = 2400;
+    // sbyte4 dummyPower = 72321; //watts
     
     sbyte2 takeaway = 0;
-    if (dummyPower/*MCM_getPower(me)*/ > POWER_LIM_LOWER_POWER_THRESH) {
-        // takeaway = (MCM_getPower(me) - (POWER_LIM_LOWER_POWER_THRESH * 1000)) / 100;
-        takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH) {
+        takeaway = (sbyte2)((MCM_getPower(me) - (POWER_LIM_LOWER_POWER_THRESH * 1000)) / 100);
+        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
         
         if ( newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR) )  {  //if newTorque is greater than powerlim adjust max torque
             newTorque = POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR);       //set it to powerlim adjust max torque    
