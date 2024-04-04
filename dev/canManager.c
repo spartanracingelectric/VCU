@@ -722,18 +722,20 @@ IO_CAN_DATA_FRAME get_timer_debug_can_message(TimerDebug *td) {
     return canMessage;
 }
 
+// i took this for now, will change after testing on car - ajay
 IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x511;
-    canMessage.data[0] = (ubyte1) SafetyChecker_getsoftbspd(sc);
-    canMessage.data[1] = 0;
-    canMessage.data[2] = 0; 
-    canMessage.data[3] = 0; 
-    canMessage.data[4] = 0;
-    canMessage.data[5] = 0;
-    canMessage.data[6] = 0;
-    canMessage.data[7] = 0;
+    // canMessage.data[0] = (ubyte1) SafetyChecker_getsoftbspd(sc);
+    canMessage.data[0] = MCM_getPower(mcm);
+    canMessage.data[1] = MCM_getPower(mcm) >> 8;
+    canMessage.data[2] = MCM_getPower(mcm) >> 16;
+    canMessage.data[3] = MCM_getPower(mcm) >> 24;
+    canMessage.data[4] = (POWER_LIM_UPPER_TORQUE_THRESH - (MCM_getTakeaway(mcm) * POWER_LIM_TAKEAWAY_SCALAR));
+    canMessage.data[5] = (POWER_LIM_UPPER_TORQUE_THRESH - (MCM_getTakeaway(mcm) * POWER_LIM_TAKEAWAY_SCALAR)) >> 8;
+    canMessage.data[6] = MCM_getTakeaway(mcm);
+    canMessage.data[7] = MCM_getTakeaway(mcm) >> 8;
     canMessage.length = 8;
     return canMessage;
 }

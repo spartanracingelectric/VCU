@@ -99,6 +99,7 @@ struct _MotorController
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
     ubyte1 commands_direction;
+    sbyte2 takeaway;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
     Status commands_inverter;
@@ -599,8 +600,35 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 *
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+
+/*
+70 - 80    170 - 240
+
+or just use
+power = rpm * torque and then just keep power constant at 80 or 79 and find a torque value and keep that as the max torque, assuming it is less than 240
+
+power = MCM_getPower(me)
+if (power > 70) {
+
+}
+
+*/
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
-{
+{   
+    newTorque = 2400;
+    sbyte4 dummyPower = 72321; //watts
+    
+    sbyte2 takeaway = 0;
+    if (dummyPower/*MCM_getPower(me)*/ > POWER_LIM_LOWER_POWER_THRESH) {
+        // takeaway = (MCM_getPower(me) - (POWER_LIM_LOWER_POWER_THRESH * 1000)) / 100;
+        takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+        
+        if ( newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR) )  {  //if newTorque is greater than powerlim adjust max torque
+            newTorque = POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR);       //set it to powerlim adjust max torque    
+        }
+    }
+    me->takeaway = takeaway;
+
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
 }
@@ -642,6 +670,9 @@ void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
 {
     me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     me->commands_torqueLimit = newTorqueLimit;
+}
+sbyte2 MCM_getTakeaway(MotorController *me) {
+    return me->takeaway;
 }
 sbyte2 MCM_commands_getTorque(MotorController *me)
 {

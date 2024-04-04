@@ -8,6 +8,13 @@
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
 
+#define POWER_LIM_UPPER_POWER_THRESH 80 * 1000
+#define POWER_LIM_LOWER_POWER_THRESH 70 * 1000
+#define POWER_LIM_LOWER_TORQUE_THRESH 170 * 10
+#define POWER_LIM_UPPER_TORQUE_THRESH 240 * 10
+#define POWER_LIM_TAKEAWAY_SCALAR ((POWER_LIM_UPPER_TORQUE_THRESH - POWER_LIM_LOWER_TORQUE_THRESH)/10) / ((POWER_LIM_UPPER_POWER_THRESH - POWER_LIM_LOWER_POWER_THRESH)/1000)
+
+
 //typedef enum { TORQUE, DIRECTION, INVERTER, DISCHARGE, TORQUELIMIT} MCMCommand;
 typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 
@@ -33,6 +40,7 @@ void MCM_commands_setDirection(MotorController* me, Direction rotation);
 void MCM_commands_setInverter(MotorController* me, Status inverterState);
 void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
 void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
+sbyte2 MCM_getTakeaway(MotorController *me);
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
 
