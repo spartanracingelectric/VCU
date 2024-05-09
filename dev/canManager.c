@@ -333,6 +333,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         // case 0x0AE:
         // case 0x0AF:
 
+
         //-------------------------------------------------------------------------
         // BMS
         //-------------------------------------------------------------------------
@@ -447,18 +448,15 @@ ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 * The message addresses are at:
 * https://docs.google.com/spreadsheets/d/1sYXx191RtMq5Vp5PbPsq3BziWvESF9arZhEjYUMFO3Y/edit
 ****************************************************************************/
-void canOutput_sendSensorMessages(CanManager* me)
-{
-
-}
 
 
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs, TimerDebug *td)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
+    IO_CAN_DATA_FRAME canMessages1[me->can1_write_messageLimit];
     ubyte2 canMessageCount = 0;
     ubyte2 canMessageID = 0x500;
 
@@ -518,14 +516,21 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessageCount++;
     canMessages[canMessageCount - 1] = get_bps1_can_message(bps);
 
-    
-    //50E: BMS Loopback Test
-    canMessageCount++;
-    canMessages[canMessageCount - 1] = get_bms_loopback_can_message(bms);
 
     //50F: MCM Power Debug
     canMessageCount++;
-    canMessages[canMessageCount - 1] = get_mcm_power_can_message(mcm, sc);
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 16);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 24);
+    canMessages[canMessageCount - 1].data[byteNum++] = SafetyChecker_getWarnings(sc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 16);
+    canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 24);
+    canMessages[canMessageCount - 1].length = byteNum;
 
     //511: SoftBSPD
     canMessageCount++;

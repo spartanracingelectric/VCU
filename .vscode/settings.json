@@ -1,4 +1,7 @@
 {
+    "files.associations": {
+        "io_driver.h": "c"
+    },
     "cSpell.words": [
         "APDB",
         "BATTERYMANAGEMENTSYSTEM",

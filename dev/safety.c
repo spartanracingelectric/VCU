@@ -90,11 +90,9 @@ extern Button Sensor_HVILTerminationSense;
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
 {
     SafetyChecker *me = (SafetyChecker *)malloc(sizeof(struct _SafetyChecker));
-
-    me->serialMan = sm;
     me->faults = 0;
     me->warnings = 0;
 
@@ -178,12 +176,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     me->faults &= ~F_bpsOutOfSync;
 
     //===================================================================
-    // 2021 EV.5.7 APPS / Brake Pedal Plausibility Check
+    // 2024 Rev 1 EV.4.7 APPS / Brake Pedal Plausibility Check
     //===================================================================
-    // EV.5.7.1 The power to the Motor(s) must be immediately and completely shut down when both of the following exist at the same time:
-    //     • The mechanical brakes are actuated
-    //     • The APPS signals more than 25% pedal travel
-    //     This must be demonstrated at Technical Inspection
+    // Must monitor for the two conditions:
+    //  • The mechanical brakes are engaged EV.4.6, T.3.2.4
+    //  • The APPS signals more than 25% Pedal Travel EV.4.5
+    //  EV.4.7.2 If the two conditions in EV.4.7.1 occur at the same time:
+    //      a. Power to the Motor(s) must be immediately and completely shut down
+    //      b. The Motor shut down must stay active until the APPS signals less than 5% Pedal Travel, with or without brake operation
     // EV.5.7.2 The Motor shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
     //-------------------------------------------------------------------
 
@@ -323,20 +323,6 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
 
 
-    //-------------------------------------------------------------------
-    // Critical conditions - set 0 torque
-    //-------------------------------------------------------------------
-
-    //if ((me->warnings & W_bmsOverTemperatureWarning) > 0)
-    //{
-    //   multiplier = 0.80;
-    //}
-
-    //if ((me->warnings & W_bmsUnderVoltageWarning) > 0)
-    //{
-    //   multiplier = 0.70;
-    //}
-
     if (me->faults > 0) //Any VCU fault exists
     {
         multiplier = 0;
@@ -346,72 +332,8 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     if ((me->notices & N_HVILTermSenseLost) > 0)
     {
        multiplier = 0;
-       SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }    
 
-    //-------------------------------------------------------------------
-    // Other limits (% reduction) - set torque to the lowest of all these
-    // IMPORTANT: Be aware of direction-sensitive situations (accel/regen)
-    //-------------------------------------------------------------------
-    //80kW limit ---------------------------------
-    // if either the bms or mcm goes over 75kw, limit torque
-    //////////if ((BMS_getPower(bms) > 75000) || (MCM_getPower(mcm) > 75000))
-    //////////{
-    //////////    // using bmsPower since closer to e-meter
-    //////////    tempMultiplier = 1 - getPercent(max(BMS_getPower(bms), MCM_getPower(mcm)), 75000, 80000, TRUE);
-    //////////    SerialManager_send(me->serialMan, "SC.Mult: 80kW\n");
-    //////////}
-    //////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
-
-    //CCL/DCL from BMS --------------------------------
-    //why the DCL/CCL could be limited:
-    //0: No limit
-    //1 : Pack voltage too low
-    //2 : Pack voltage high
-    //3 : Cell voltage low
-    //4 : Cell voltage high
-    //5 : Temperature high for charging
-    //6 : Temperature too low for charging
-    //7 : Temperature high for discharging
-    //8 : Temperature too low for discharging
-    //9 : Charging current peak lasted too long
-    //10 = A : Discharging current peak lasted too long
-    //11 = B : Power up delay(Charge testing)
-    //12 = C : Fault
-    //13 = D : Contactors are off
-    ////////if (MCM_commands/*_getTorque(mcm) >= 0)
-    ////////{*/
-    ///////////*tempMultiplier = getPercent(BMS_getDCL(bms), 0, me->maxAmpsDischarge, TRUE);
-    //////////if (tempMultiplier < 1)
-    //////////{
-    //////////    SerialManager_send(me->serialMan, "SC.Mult: DCL\n");
-    //////////}*/
-    //////////}
-    //////////else //regen - Pick the lowest of CCL and speed reductions
-    //////////{
-    //////////    tempMultiplier = getPercent(BMS_getCCL(bms), 0, me->maxAmpsCharge, TRUE);
-    //////////    if (tempMultiplier < 1)
-    //////////    {
-    //////////        SerialManager_send(me->serialMan, "SC.Mult: CCL\n");
-    //////////    }
-    //////////    //Also, regen should be ramped down as speed approaches minimum
-    
-    
-    //////////        if (tempMultiplier < 1) { SerialManager_send(me->serialMan, "SC.Mult: Regen < 15kph\n"); }
-    //////////    }
-    ////////if (tempMultiplier < multiplier) { multiplier = tempMultiplier; }
-
-   /* if ( groundSpeedKPH < MCM_getRegenRampdownStartSpeed(mcm))
-    {
-        float4 regenMultiplier = 1 - getPercent(groundSpeedKPH, MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
-        //float4 regenMultiplier = 1 - getPercent(WheelSpeeds_getGroundSpeed(wss), MCM_getRegenMinSpeed(mcm), MCM_getRegenRampdownStartSpeed(mcm), TRUE);
-            //USE FOR WHEEL SPEEDS TO DETECT RAMP DOWN
-        if (regenMultiplier < multiplier ) { multiplier = regenMultiplier; } // Use regenMultiplier if it is lower
-    }
-    */
-    //Reduce the torque command.  Multiplier should be a percent value (between 0 and 1)
-
-    //If the safety bypass is enabled, then override the multiplier to 100% (no reduction)
     if ((me->warnings & W_safetyBypassEnabled) == W_safetyBypassEnabled)
     {
         multiplier = 1;

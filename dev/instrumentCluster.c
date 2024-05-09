@@ -4,11 +4,22 @@
 #include "motorController.h"    // need definition of MotorController's struct, not just decaration
 #include "canManager.h"
 
-InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBaseID)
+
+struct _InstrumentCluster
+{
+   
+    ubyte2 canMessageBaseId;  //Starting message ID for messages that will come in from this controller
+
+    ubyte1 torqueMapMode;
+
+    //0 = off. Default OFF
+    ubyte1 launchControlSensitivity;
+    
+};
+
+InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID)
 {
     InstrumentCluster* me = (InstrumentCluster*)malloc(sizeof(struct _InstrumentCluster));
-
-    me->serialMan = sm;
 
     me->canMessageBaseId = canMessageBaseID;
 
@@ -72,4 +83,14 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
             break;
         }
     }
+}
+
+ubyte1 IC_getTorqueMapMode(InstrumentCluster *me)
+{
+    return me->torqueMapMode;
+}
+
+ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
+{
+    return me->launchControlSensitivity;
 }

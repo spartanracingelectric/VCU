@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright (c) 2010 TTTControl. All rights reserved. Confidential proprietory
- * Schönbrunnerstraße 7, A-1040 Wien, Austria. office@ttcontrol.com
+ * Schï¿½nbrunnerstraï¿½e 7, A-1040 Wien, Austria. office@ttcontrol.com
  **************************************************************************/
 /**********************************************************************//**
  * \file IO_CAN.h
@@ -291,8 +291,8 @@
  * Selects the CAN communication channel.
  */
 /*@{*/
-#define IO_CAN_CHANNEL_0    IO_INT_PIN_CAN_CH0   /**< CAN Channel 0 */
-#define IO_CAN_CHANNEL_1    IO_INT_PIN_CAN_CH1   /**< CAN Channel 1 */
+#define IO_CAN_CHANNEL_0    IO_INT_PIN_CAN_CH0   /**< CAN Channel 1 */
+#define IO_CAN_CHANNEL_1    IO_INT_PIN_CAN_CH1   /**< CAN Channel 2 */
 #if (defined(TTC94) || defined(TTC94E) || defined(TTC94R))
     #define IO_CAN_CHANNEL_2    IO_INT_PIN_CAN_CH2   /**< CAN Channel 2 (only for \ttc94) */
     #define IO_CAN_CHANNEL_3    IO_INT_PIN_CAN_CH3   /**< CAN Channel 3 (only for \ttc94) */

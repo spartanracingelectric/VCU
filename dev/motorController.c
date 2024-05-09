@@ -35,7 +35,6 @@ const float4 PACK_RESISTANCE = (1/(CELLS_IN_PARALLEL/CELL_RESISTANCE))*CELLS_IN_
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
-    me->serialMan = sm;
 
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
@@ -211,7 +210,6 @@ void MCM_relayControl(MotorController *me)
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
         {
-            SerialManager_send(me->serialMan, "Term sense went low\n");
             IO_RTC_StartTime(&me->timeStamp_HVILLost);
         }
 
@@ -331,7 +329,6 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         break;
 
     default:
-        SerialManager_send(me->serialMan, "ERROR: Lost track of MCM startup status.\n");
         break;
     }
 
@@ -359,8 +356,24 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
 * Accessors / Mutators (Set/Get)
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+
+
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
-{
+{   
+    // newTorque = 2400;
+    // sbyte4 dummyPower = 72321; //watts
+    
+    sbyte2 takeaway = 0;
+    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH) {
+        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
+        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+        
+        if ( newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR) )  {  //if newTorque is greater than powerlim adjust max torque
+            newTorque = POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR);       //set it to powerlim adjust max torque    
+        }
+    }
+    me->takeaway = takeaway;
+
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
 }

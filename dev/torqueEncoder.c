@@ -1,7 +1,6 @@
 #include <stdlib.h>  //Needed for malloc
 #include <math.h>
 #include "IO_RTC.h"
-
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
 #include "sensors.h"
@@ -24,8 +23,6 @@ TorqueEncoder* TorqueEncoder_new(void)
     me->tps0_reverse = FALSE;
     me->tps1_reverse = TRUE;
 
-    // TODO: Fetch from / store in EEPROM
-    // exponent applied to pedal curve.  1 = linear, < 1 means more torque is given early on, > 1 means torque ramps up more slowly
     me->outputCurveExponent = 1.0;
 
     me->travelPercent = 0;
@@ -42,7 +39,12 @@ TorqueEncoder* TorqueEncoder_new(void)
     me->tps1->specMin = 2500; // Target 0% = ~2650
     me->tps1->specMax = 4900; // Target 100% = ~4700
 
-    me->calibrated = FALSE;
+    
+    me->tps0_calibMin = 500;
+    me->tps0_calibMax = 1440;
+    me->tps1_calibMin = 3350;
+    me->tps1_calibMax = 4400;
+    me->calibrated = TRUE;
 
     return me;
 }
@@ -92,16 +94,6 @@ void TorqueEncoder_resetCalibration(TorqueEncoder* me)
     me->tps1_calibMax = me->tps1->sensorValue;
 }
 
-void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder* me)
-{
-
-}
-
-void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder* me)
-{
-
-}
-
 void TorqueEncoder_startCalibration(TorqueEncoder* me, ubyte1 secondsToRun)
 {
     if (me->runCalibration == FALSE) //Ignore the button if calibration is already running
@@ -146,11 +138,6 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
         }
         else  //Calibration shutdown
         {
-            //90 degree sensor active range.. so just say % = degrees
-            //float4 pedalTopPlay = 1.05;
-            //float4 pedalBottomPlay = .95;
-
-            //Shrink the calibrated range slightly
             float4 shrink0 = (me->tps0_calibMax - me->tps0_calibMin) * .05;
             float4 shrink1 = (me->tps1_calibMax - me->tps1_calibMin) * .05;
             me->tps0_calibMin += shrink0;

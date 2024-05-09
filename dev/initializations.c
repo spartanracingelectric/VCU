@@ -1,7 +1,7 @@
-//VCU initializations
-//Object (sensors, controllers, etc) instantiations
-//ONLY THIS FILE should have "true" version of object variables
-//Everything else should have "extern" declarations of variables
+// VCU initializations
+// Object (sensors, controllers, etc) instantiations
+// ONLY THIS FILE should have "true" version of object variables
+// Everything else should have "extern" declarations of variables
 
 #include "IO_Driver.h" //Includes datatypes, constants, etc - probably should be included in every c file
 #include "IO_ADC.h"
@@ -53,7 +53,7 @@ void vcu_initializeADC(void)
     Accum_Fan = *PWMOutput_new(IO_PWM_03, 100, 1.0);
 
     //----------------------------------------------------------------------------
-    //ADC channels
+    // ADC channels
     //----------------------------------------------------------------------------
     //TPS/BPS
     
@@ -75,7 +75,7 @@ void vcu_initializeADC(void)
 
     Sensor_LVBattery = *Sensor_new(IO_ADC_UBAT, NULL);
     //----------------------------------------------------------------------------
-    //PWD channels
+    // PWD channels
     //----------------------------------------------------------------------------
     //Wheel Speed Sensors (Pulse Width Detection)
 
@@ -85,7 +85,7 @@ void vcu_initializeADC(void)
     WSS_RR = *PWDSensor_new(IO_PWD_11);
     
     //----------------------------------------------------------------------------
-    //Switches
+    // Switches
     //----------------------------------------------------------------------------
     RTD_Button = *Button_new(IO_DI_00, TRUE); //RTD Button
     Cal_Button = *Button_new(IO_DI_01, TRUE); //Eco Button
@@ -112,8 +112,8 @@ void vcu_ADCWasteLoop(void)
 
         IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
-        IO_DO_Set(IO_DO_00, FALSE); //False = low
-        IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
+        IO_DO_Set(IO_DO_00, FALSE); // False = low
+        IO_DO_Set(IO_DO_01, FALSE); // HVIL shutdown relay
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
         IO_DI_Get(IO_DI_05, &tempBool);

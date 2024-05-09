@@ -9,8 +9,6 @@
 //Also, all values in the TorqueEncoder object are from
 typedef struct _TorqueEncoder
 {
-    bool bench;
-
     Sensor *tps0;
     Sensor *tps1;
 
@@ -40,8 +38,6 @@ typedef struct _TorqueEncoder
 TorqueEncoder *TorqueEncoder_new(void);
 void TorqueEncoder_update(TorqueEncoder *me);
 void TorqueEncoder_resetCalibration(TorqueEncoder *me);
-void TorqueEncoder_saveCalibrationToEEPROM(TorqueEncoder *me);
-void TorqueEncoder_loadCalibrationFromEEPROM(TorqueEncoder *me);
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);
 void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount);
 void TorqueEncoder_getPedalTravel(TorqueEncoder *me, ubyte1 *errorCount, float4 *pedalPercent);

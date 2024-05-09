@@ -9,8 +9,6 @@
 //Also, all values in the TorqueEncoder object are from
 typedef struct _BrakePressureSensor
 {
-    bool bench;
-
     Sensor *bps0;
     Sensor* bps1;
 

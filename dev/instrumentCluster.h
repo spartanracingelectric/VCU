@@ -5,7 +5,6 @@
 #include "IO_CAN.h"
 #include "IO_Driver.h"
 #include "motorController.h"
-#include "serial.h"
 
 typedef struct _InstrumentCluster
 {
@@ -20,7 +19,7 @@ typedef struct _InstrumentCluster
     
 } InstrumentCluster;
 
-InstrumentCluster* InstrumentCluster_new(SerialManager* sm, ubyte2 canMessageBaseID);
+InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID);
 
 //----------------------------------------------------------------------------
 // Command Functions

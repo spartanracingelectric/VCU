@@ -26,11 +26,14 @@ typedef struct _Sensor {
     ubyte1 sensorAddress;
     ubyte1 powerAddress;
     bool fresh;
-    //bool isCalibrated;
+
     IO_ErrorType ioErr_powerInit;
     IO_ErrorType ioErr_powerSet;
     IO_ErrorType ioErr_signalInit;
     IO_ErrorType ioErr_signalGet;
+
+
+
 } Sensor;
 
 typedef struct _Button {

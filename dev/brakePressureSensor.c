@@ -44,8 +44,11 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     me->brakesAreOn = FALSE;
     me->runCalibration = FALSE; //Do not run the calibration at the next main loop cycle
 
-    me->calibrated = FALSE;
-    BrakePressureSensor_resetCalibration(me);
+    me->calibrated = TRUE;
+    me->bps0_calibMin = 500;
+    me->bps0_calibMax = 2350;
+    
+    // BrakePressureSensor_resetCalibration(me);
 
     return me;
 }
@@ -88,13 +91,6 @@ void BrakePressureSensor_resetCalibration(BrakePressureSensor *me)
     //me->bps1_calibMax = me->bps1->sensorValue;
 }
 
-void BrakePressureSensor_saveCalibrationToEEPROM(BrakePressureSensor *me)
-{
-}
-
-void BrakePressureSensor_loadCalibrationFromEEPROM(BrakePressureSensor *me)
-{
-}
 
 void BrakePressureSensor_startCalibration(BrakePressureSensor *me, ubyte1 secondsToRun)
 {

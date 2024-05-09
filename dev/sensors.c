@@ -1,7 +1,3 @@
-/*****************************************************************************
-* Sensors
-*****************************************************************************/
-
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_ADC.h"
 #include "IO_PWD.h"

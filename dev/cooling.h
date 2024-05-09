@@ -5,8 +5,6 @@
 
 typedef struct _CoolingSystem
 {
-    SerialManager *sm;
-
     //Cooling systems:
     //Water pump (motor, controller) - PWM
     float4 waterPumpMinPercent;
@@ -34,7 +32,7 @@ typedef struct _CoolingSystem
     
 } CoolingSystem;
 
-CoolingSystem *CoolingSystem_new(SerialManager *sm);
+CoolingSystem *CoolingSystem_new();
 void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
 void CoolingSystem_enactCooling(CoolingSystem *me);
 

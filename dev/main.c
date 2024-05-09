@@ -93,9 +93,6 @@ void main(void)
     /*        Low Level Initializations        */
     /*******************************************/
     IO_Driver_Init(NULL); //Handles basic startup for all VCU subsystems
-
-    //Initialize serial first so we can use it to debug init of other subsystems
-    SerialManager *serialMan = SerialManager_new();
     IO_RTC_StartTime(&timestamp_startTime);
     SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
     SerialManager_send(serialMan, "VCU serial is online.\n");
@@ -146,9 +143,7 @@ void main(void)
 
     while (1)
     {
-        //----------------------------------------------------------------------------
-        // Task management stuff (start)
-        //----------------------------------------------------------------------------
+        TimerDebug_startTimer(td);
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
 
@@ -156,8 +151,6 @@ void main(void)
         /*              Read Inputs                */
         /*******************************************/
         sensors_updateSensors();
-
-        //Pull messages from CAN FIFO and update our object representations.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
         //No regen below 5kph
@@ -194,7 +187,6 @@ void main(void)
             timestamp_EcoButton = 0;
         }
         TorqueEncoder_update(tps);
-        //Every cycle: if the calibration was started and hasn't finished, check the values again
         TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
         BrakePressureSensor_update(bps);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
@@ -235,17 +227,13 @@ void main(void)
         //Comment out to disable shutdown board control
         err = BMS_relayControl(bms);
 
-        //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
-
-        //----------------------------------------------------------------------------
-        // Task management stuff (end)
-        //----------------------------------------------------------------------------
-        RTDS_shutdownHelper(rtds); //Stops the RTDS from playing if the set time has elapsed
-
-        //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs, td);
+        
+        RTDS_shutdownHelper(rtds); 
         IO_Driver_TaskEnd();
-        //wait until the cycle time is over
+        
+        TimerDebug_stopTimer(td);
+        
         while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < CYCLE_TIME_US) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.

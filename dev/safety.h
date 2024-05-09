@@ -8,7 +8,6 @@
 #include "sensors.h"
 #include "motorController.h"
 #include "bms.h"
-#include "serial.h"
 #include "wheelSpeeds.h"
 
 /*
@@ -49,6 +48,7 @@ typedef struct _SafetyChecker
 SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
+ubyte1 SafetyChecker_getsoftbspd(SafetyChecker *me);
 void set_flags(ubyte4 *fault, ubyte4 flag, bool condition);
 void checkBatteryPackTemp(BatteryManagementSystem *bms);
 ubyte2 checkPowerDraw(BatteryManagementSystem *bms, MotorController *mcm);
