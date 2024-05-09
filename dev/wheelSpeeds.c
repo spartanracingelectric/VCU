@@ -5,29 +5,7 @@
 
 #include "wheelSpeeds.h"
 #include "mathFunctions.h"
-
 #include "sensors.h"
-//extern Sensor Sensor_BPS0;
-//extern Sensor Sensor_BenchTPS1;
-
-/*****************************************************************************
-* Wheel Speed object
-******************************************************************************
-* This object converts raw wheel speed sensor readings to usable formats
-* for i.e. traction control
-****************************************************************************/
-
-struct _WheelSpeeds
-{
-    float4 tireCircumferenceMeters_F; //calculated
-    float4 tireCircumferenceMeters_R; //calculated
-    float4 pulsesPerRotation_F;
-    float4 pulsesPerRotation_R;
-    float4 speed_FL;
-    float4 speed_FR;
-    float4 speed_RL;
-    float4 speed_RR;
-};
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -57,139 +35,27 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
 
 void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
 {
+    me->speed_FL_RPM = (float4)WSS_FL.sensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM = (float4)WSS_FR.sensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM = (float4)WSS_RL.sensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM = (float4)WSS_RR.sensorValue / me->pulsesPerRotation_R;
+    me->speed_FL_RPM_S = (float4)WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_FR_RPM_S = (float4)WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+    me->speed_RL_RPM_S = (float4)WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+    me->speed_RR_RPM_S = (float4)WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
     //speed (m/s) = m * pulses/sec / pulses
     if (interpolate)
     {
-        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
-        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
-        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
-        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * me->speed_FL_RPM_S;
+        me->speed_FR = me->tireCircumferenceMeters_F * me->speed_FR_RPM_S;
+        me->speed_RL = me->tireCircumferenceMeters_R * me->speed_RL_RPM_S;
+        me->speed_RR = me->tireCircumferenceMeters_R * me->speed_RR_RPM_S;
     }
     else
     {
-        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
-        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
-        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
-        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * me->speed_FL_RPM;
+        me->speed_FR = me->tireCircumferenceMeters_F * me->speed_FR_RPM;
+        me->speed_RL = me->tireCircumferenceMeters_R * me->speed_RL_RPM;
+        me->speed_RR = me->tireCircumferenceMeters_R * me->speed_RR_RPM;
     }
-}
-
-//Trash code
-//void WheelSpeed_UnitCorrection(WheelSpeeds *me)
-//{
-//    me->speed_FL = me->speed_FL * 3.6;
-//    me->speed_FR = me->speed_FR * 3.6;
-//    me->speed_RL = me->speed_RL * 3.6;
-//    me->speed_RR = me->speed_RR * 3.6;
-//}
-
-float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
-{
-    float4 speed;
-    switch (corner)
-    {
-    case FL:
-        speed = me->speed_FL;
-        break;
-    case FR:
-        speed = me->speed_FR;
-        break;
-    case RL:
-        speed = me->speed_RL;
-        break;
-    case RR:
-        speed = me->speed_RR;
-        break;
-    default:
-        speed = 0;
-    }
-
-    return speed;
-}
-
-float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
-{
-    ubyte4 speed;
-    if (interpolate)
-    {
-        switch (corner)
-        {
-            case FL:
-                speed = Sensor_WSS_FL.heldSensorValue;
-                break;
-            case FR:
-                speed = Sensor_WSS_FR.heldSensorValue;
-                break;
-            case RL:
-                speed = Sensor_WSS_RL.heldSensorValue;
-                break;
-            case RR:
-                speed = Sensor_WSS_RR.heldSensorValue;
-                break;
-            default:
-                speed = 0;
-        }
-    }
-    else
-    {
-        switch (corner)
-        {
-            case FL:
-                speed = Sensor_WSS_FL.sensorValue;
-                break;
-            case FR:
-                speed = Sensor_WSS_FR.sensorValue;
-                break;
-            case RL:
-                speed = Sensor_WSS_RL.sensorValue;
-                break;
-            case RR:
-                speed = Sensor_WSS_RR.sensorValue;
-                break;
-            default:
-                speed = 0;
-        }
-    }
-
-    //Multiply sensorValue by 60 seconds to get RPM (1 Hz per bump)
-    return speed*60.0f/NUM_BUMPS;
-}
-
-//UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
-{
-    return (me->speed_FL < me->speed_FR) ? me->speed_FL : me->speed_FR;
-}
-
-//UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-float4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
-{
-    return (me->speed_RL > me->speed_RR) ? me->speed_RL : me->speed_RR;
-}
-
-
-float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
-{
-    //Grab interpolated Wheel Speed
-    switch (tire_config)
-    {
-        //Use both
-        case 0:
-            return (me->speed_FL + me->speed_FR) / 2;
-
-        //Use only FL
-        case 1:
-            return me->speed_FL;
-
-        //Use only FR
-        case 2:
-            return me->speed_FR;
-    }
-
-    return 0;
-}
-
-float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config)
-{
-    return (WheelSpeeds_getGroundSpeed(me, tire_config) * 3.6); //m/s to kph
 }

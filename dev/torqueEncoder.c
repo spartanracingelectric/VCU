@@ -5,6 +5,7 @@
 #include "mathFunctions.h"
 #include "sensors.h"
 
+extern DigitalOutput Eco_Light;
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -12,11 +13,11 @@
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-TorqueEncoder* TorqueEncoder_new()
+TorqueEncoder* TorqueEncoder_new(void)
 {
     TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
-    me->tps0 = &Sensor_TPS0;
-    me->tps1 = &Sensor_TPS1;
+    me->tps0 = &TPS0;
+    me->tps1 = &TPS1;
 
     //Where/should these be hardcoded?
     me->tps0_reverse = FALSE;
@@ -29,13 +30,6 @@ TorqueEncoder* TorqueEncoder_new()
 
     //me->calibrated = FALSE;
     //TorqueEncoder_resetCalibration(me);
-
-    //Old Rotary Sensor Datasheet limits (used by safety checker / rules requirement)
-    //Datasheet had an operating range
-    //me->tps0->specMin = 5000 * .05 - 5000 * .006; // = 220 , Target 0% = ~500
-    //me->tps0->specMax = 5000 * .45 + 5000 * .006; // = 2280, Target 100% = ~2000
-    //me->tps1->specMin = 5000 * .55 - 5000 * .006; // = 2720, Target 0% = ~3000
-    //me->tps1->specMax = 5000 * .95 + 5000 * .006; // = 4780, Target 100% = ~4600
 
     //New Rotary Sensor Datasheet limits (used by safety checker / rules requirement)
     //It is literally a potentiometer, no sensor operating range in theory?
@@ -62,15 +56,10 @@ void TorqueEncoder_update(TorqueEncoder* me)
     me->tps1_value = me->tps1->sensorValue;
 
     me->travelPercent = 0;
-    ubyte2 errorCount = 0;
     
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
-    if (me->runCalibration == TRUE)
-    {
-        errorCount++;  //DO SOMETHING WITH THIS
-    }
-    else
+    if (me->runCalibration == FALSE)
     {
         //getPedalTravel = 0;
 
@@ -82,14 +71,13 @@ void TorqueEncoder_update(TorqueEncoder* me)
         {
             me->tps0_percent = 0;
             me->tps1_percent = 0;
-            (errorCount)++;  //DO SOMETHING WITH THIS
         }
         else
         {
             //Calculate individual throttle percentages
             //Percent = (Voltage - CalibMin) / (CalibMax - CalibMin)
-            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
-            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+            me->tps0_percent = getPercent((float4)me->tps0_value, (float4)me->tps0_calibMin, (float4)me->tps0_calibMax, TRUE);
+            me->tps1_percent = getPercent((float4)me->tps1_value, (float4)me->tps1_calibMin, (float4)me->tps1_calibMax, TRUE);
 
             me->travelPercent = (me->tps0_percent + me->tps1_percent) / 2;
         }
@@ -159,29 +147,25 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
-            // Light_set(Light_dashEco, 0);
-            IO_DO_Set(IO_ADC_CUR_01, FALSE);
-
+            DigitalOutput_set(&Eco_Light, FALSE);
         }
 
     }
-
-}
-
-
-void TorqueEncoder_getIndividualSensorPercent(TorqueEncoder* me, ubyte1 sensorNumber, float4* percent)
-{
-    switch (sensorNumber)
+    else
     {
-    case 0:
-        *percent = me->tps0_percent;
-        break;
-    case 1:
-        *percent = me->tps1_percent;
-        break;
+        //TODO: Throw warning: calibrationCycle helper function was called but calibration should not be running
     }
-}
 
+    //TODO: Write calibration data to EEPROM
+
+    //TODO: Check for valid/reasonable calibration data
+
+    //TODO: Do something on the display to show that voltages are being recorded
+
+    //Idea: Display "bars" filling up on right segment (for gas pedal) _=E=_=E...
+    //      Once calibration data makes sense, show pedal location (0-10%, 10-90%, 90-100%) with bars
+
+}
 
 /*-------------------------------------------------------------------
 * GetThrottlePosition

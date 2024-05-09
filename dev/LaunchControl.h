@@ -11,26 +11,26 @@
 #include "motorController.h"
 
 typedef struct _PIDController {
-    float kp;         // Proportional gain
-    float ki;         // Integral gain
-    float kd;         // Derivative gain
-    float errorSum;   // Running sum of errors for the integral term
-    float lastError;  // Previous error for the derivative term
+    float4 kp;         // Proportional gain
+    float4 ki;         // Integral gain
+    float4 kd;         // Derivative gain
+    float4 errorSum;   // Running sum of errors for the integral term
+    float4 lastError;  // Previous error for the derivative term
 } PIDController;
 
 typedef struct _LaunchControl {
-    float slipRatio;
+    float4 slipRatio;
     ubyte2 lcTorque;
-    bool LCReady;
-    bool LCStatus; // Just for CAN to showcase when enabled
     PIDController *pidController;
     ubyte1 potLC;
+    bool LCReady;
+    bool LCStatus; // Just for CAN to showcase when enabled
+    bool sr_valid;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new(ubyte1 potLC);
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
 void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
-bool getLaunchControlStatus(LaunchControl *lc);
-sbyte2 getCalculatedTorque();
+bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed);
 
 #endif

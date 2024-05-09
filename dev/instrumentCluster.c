@@ -1,5 +1,5 @@
 #include "IO_Driver.h"
-
+#include <stdlib.h>
 #include "instrumentCluster.h"
 #include "motorController.h"    // need definition of MotorController's struct, not just decaration
 #include "canManager.h"
@@ -70,6 +70,16 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
         case 0x704:
         {
             MCM_setRegen_TorqueAtZeroPedalDNm(mcm, (icCanMessage->data[0]*10)); //Nm to DNm
+            /*
+            float4 BPSfloat, APPSfloat;
+            // evil bithack avoids float cast errors and keeps code footprint small
+            // relies on non-standard behaviour of pointer typecasting
+            // more rigorous implementation will probably involve creating a memcpy-like function
+            * (ubyte4 *) &BPSfloat = (ubyte4)icCanMessage->data[3] << 24 | (ubyte4)icCanMessage->data[2] << 16 | icCanMessage->data[1] << 8 | icCanMessage->data[0];
+            * (ubyte4 *) &APPSfloat = (ubyte4)icCanMessage->data[7] << 24 | (ubyte4)icCanMessage->data[6] << 16 | icCanMessage->data[5] << 8 | icCanMessage->data[4];
+            MCM_setRegen_PercentBPSForMaxRegen(mcm, BPSfloat);
+            MCM_setRegen_PercentAPPSForCoasting(mcm, APPSfloat);
+            */
             break;
         }
     }

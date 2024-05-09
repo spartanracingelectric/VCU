@@ -7,30 +7,23 @@
 #include "sensors.h"
 #include "mathFunctions.h"
 
-extern Sensor Sensor_TPS0;
-extern Sensor Sensor_TPS1;
-extern Sensor Sensor_BPS0;
-extern Sensor Sensor_BPS1;
-extern Sensor Sensor_WSS_FL;
-extern Sensor Sensor_WSS_FR;
-extern Sensor Sensor_WSS_RL;
-extern Sensor Sensor_WSS_RR;
-extern Sensor Sensor_WPS_FL;
-extern Sensor Sensor_WPS_FR;
-extern Sensor Sensor_WPS_RL;
-extern Sensor Sensor_WPS_RR;
+extern Sensor TPS0;
+extern Sensor TPS1;
+extern Sensor BPS0;
+extern Sensor BPS1;
+extern PWDSensor WSS_FL;
+extern PWDSensor WSS_FR;
+extern PWDSensor WSS_RL;
+extern PWDSensor WSS_RR;
 extern Sensor Sensor_SAS;
 extern Sensor Sensor_LVBattery;
 
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
-
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_DRSButton;
+extern Button RTD_Button;
+extern Button Cal_Button;
+extern Button DRS_Button;
 extern Sensor Sensor_DRSKnob;
-extern Sensor Sensor_LCButton;
-extern Sensor Sensor_HVILTerminationSense;
+extern Button LC_Button;
+extern Button Sensor_HVILTerminationSense;
 
 /*-------------------------------------------------------------------
 * getPercent
@@ -43,188 +36,164 @@ extern Sensor Sensor_HVILTerminationSense;
 //----------------------------------------------------------------------------
 void sensors_updateSensors(void)
 {
-    //TODO: Handle errors (using the return values for these Get functions)
-
-    //TODO: RTDS
-    
     //Torque Encoders ---------------------------------------------------
-    //Sensor_BenchTPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_BenchTPS0.sensorValue, &Sensor_BenchTPS0.fresh);
-    //Sensor_BenchTPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_BenchTPS1.sensorValue, &Sensor_BenchTPS1.fresh);
-    Sensor_TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_TPS0.sensorValue, &Sensor_TPS0.fresh);
-    Sensor_TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_TPS1.sensorValue, &Sensor_TPS1.fresh);
-    //Sensor_TPS0.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_00, &Sensor_TPS0.sensorValue);
-    //Sensor_TPS1.ioErr_signalGet = IO_PWD_PulseGet(IO_PWM_01, &Sensor_TPS1.sensorValue);
+    Sensor_read(&TPS0);
+    Sensor_read(&TPS1);
 
     //Brake Position Sensor ---------------------------------------------------
-    Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
-    Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
-
-    //TCS Knob
-    // Sensor_TCSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_TCSKnob.sensorValue, &Sensor_TCSKnob.fresh);
-
-    //Shock pots ---------------------------------------------------
-    /*IO_ADC_Get(IO_ADC_5V_04, &Sensor_WPS_FL.sensorValue, &Sensor_WPS_FL.fresh);
-    IO_ADC_Get(IO_ADC_5V_05, &Sensor_WPS_FR.sensorValue, &Sensor_WPS_FR.fresh);
-    IO_ADC_Get(IO_ADC_5V_06, &Sensor_WPS_RL.sensorValue, &Sensor_WPS_RL.fresh);
-    IO_ADC_Get(IO_ADC_5V_07, &Sensor_WPS_RR.sensorValue, &Sensor_WPS_RR.fresh);
-    */
+    Sensor_read(&BPS0);
+    Sensor_read(&BPS1);
    
     //Wheel speed sensors ---------------------------------------------------
-
-    //For input smoothing
-    if(Sensor_WSS_FL.sensorValue > 0) //If non-zero reading, update displayed val
-    { 
-        Sensor_WSS_FL.heldSensorValue=Sensor_WSS_FL.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_FL.timestamp); //Reset time
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_FL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_FL.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_FR.sensorValue > 0)
-    {
-        Sensor_WSS_FR.heldSensorValue=Sensor_WSS_FR.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_FR.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_FR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_FR.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_RL.sensorValue > 0)
-    {
-        Sensor_WSS_RL.heldSensorValue=Sensor_WSS_RL.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_RL.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_RL.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_RL.heldSensorValue=0;
-    }
-
-    if(Sensor_WSS_RR.sensorValue > 0)
-    {
-        Sensor_WSS_RR.heldSensorValue=Sensor_WSS_RR.sensorValue;
-        IO_RTC_StartTime(&Sensor_WSS_RR.timestamp);
-    }
-    else if (IO_RTC_GetTimeUS(Sensor_WSS_RR.timestamp) > 750000) //Has been longer than 750000ms (timeout, reset heldSensorValue to 0)
-    { 
-        Sensor_WSS_RR.heldSensorValue=0;
-    }
-
-
-    ubyte4 pulseTrash;
-    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_09, &Sensor_WSS_RL.sensorValue, &pulseTrash, NULL);
-    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue, &pulseTrash, NULL);
+    PWDSensor_read(&WSS_FL);
+    PWDSensor_read(&WSS_FR);
+    PWDSensor_read(&WSS_RL);
+    PWDSensor_read(&WSS_RR);
 
     //Switches / Digital ---------------------------------------------------
-    Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
-    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
-    // Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
-    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_LCButton.sensorValue);
-    Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
-    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_DRSButton.sensorValue);
+    Button_read(&RTD_Button);
+    Button_read(&Cal_Button);
+    Button_read(&LC_Button);
+    Button_read(&Sensor_HVILTerminationSense);
+    Button_read(&DRS_Button);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
-    Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
+    Sensor_read(&Sensor_LVBattery);
     //Steering Angle Sensor
-    Sensor_SAS.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_SAS.sensorValue, &Sensor_SAS.fresh);
+    Sensor_read(&Sensor_SAS);
 
     //DRS Knob
-    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
+    Sensor_read(&Sensor_DRSKnob);
 }
 
-// void Light_set(Light light, float4 percent)
-// {
-//     ubyte2 duty = 65535 * percent; //For Cooling_RadFans
-
-//     bool power = duty > 5000 ? TRUE : FALSE; //Even though it's a lowside output, TRUE = on
-
-//     switch (light)
-//     {
-//     //PWM devices
-//     case Light_brake:
-//         IO_DO_Set(IO_ADC_CUR_00, power);
-//         break;
-
-//     case Cooling_waterPump:
-//         IO_DO_Set(IO_DO_02, power);
-//         break;
-
-//     case Cooling_RadFans:  // Radiator Fans
-//         IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
-//         break;
-
-//     // case Cooling_batteryFans:
-//     //     IO_DO_Set(IO_DO_04, power);
-//     //     break;
-
-//         //--------------------------------------------
-//         //These devices moved from PWM to DIO
-
-//     // case Light_dashTCS:
-//     //     break;
-
-//     case Light_dashEco:
-//         IO_DO_Set(IO_ADC_CUR_01, power);
-//         break;
-
-//     case Light_dashError:
-//         IO_DO_Set(IO_ADC_CUR_02, power);
-//         break;
-
-//     case Light_dashRTD:
-//         IO_DO_Set(IO_ADC_CUR_03, power);
-//         break;
-//     }
-// }
-
-void sensor_TPS(){
-    Sensor *tps1;
-    Sensor *tps2;
-
-    ubyte4 tps1_calibMin; //Must be 4 bytes to support PWM (digital/timer) sensor
-    ubyte4 tps1_calibMax;
-    bool tps1_reverse;
-    ubyte4 tps1_value;
-    float4 tps1_percent;
-
-    ubyte4 tps2_calibMin;
-    ubyte4 tps2_calibMax;
-    bool tps2_reverse;
-    ubyte4 tps2_value;
-    float4 tps2_percent;
-
-    bool runCalibration;
-    ubyte4 timestamp_calibrationStart;
-    ubyte1 calibrationRunTime;
-
-    float4 outputCurveExponent;
-
-    bool calibrated;
-    float4 travelPercent;
-    bool implausibility;
-
-    tps1 = &Sensor_TPS0;
-    tps2 = &Sensor_TPS1;
-    tps1_reverse = FALSE;
-    tps2_reverse = TRUE;
-
-    outputCurveExponent = 1.0;
-    travelPercent = 0;
-    runCalibration = FALSE;
-
-    tps1_calibMin = 500;
-    tps1_calibMax = 1440;
-    tps1_calibMin = 3350;
-    tps2_calibMax = 4400;
-
-    calibrated = TRUE;
-
-
+Sensor* Sensor_new(ubyte1 pin, ubyte1 power) {
+    Sensor* sensor = malloc(sizeof(Sensor));
+    IO_RTC_StartTime(&sensor->timestamp);
+    sensor->sensorAddress = pin;
+    sensor->powerAddress = power;
+    sensor->ioErr_signalInit = IO_ADC_ChannelInit(pin, IO_ADC_RATIOMETRIC, 0, 0, IO_ADC_SENSOR_SUPPLY_0, NULL);
+    return sensor;
 }
 
+void Sensor_power_set(Sensor* sensor) {
+    sensor->ioErr_powerSet = IO_POWER_Set(sensor->powerAddress, IO_POWER_ON);;
+}
 
+void Sensor_read(Sensor* sensor) {
+    sensor->ioErr_signalGet = IO_ADC_Get(sensor->sensorAddress, &sensor->sensorValue, &sensor->fresh);
+    IO_RTC_StartTime(&sensor->timestamp);
+}
+
+Button* Button_new(ubyte1 pin, bool inverted) {
+    Button* button = malloc(sizeof(Button));
+    IO_RTC_StartTime(&button->timestamp);
+    IO_RTC_StartTime(&button->heldTimestamp);
+    button->sensorValue = 0;
+    button->heldSensorValue = 0;
+    button->sensorAddress = pin;
+    button->inverted = inverted;
+    button->ioErr_signalInit = IO_DI_Init(pin, IO_DI_PU_10K);
+    return button;
+}
+
+void Button_read(Button* button) {
+    button->ioErr_signalGet = IO_DI_Get(button->sensorAddress, &button->sensorValue);
+    IO_RTC_StartTime(&button->timestamp);
+    if (button->inverted) {
+        button->sensorValue = !button->sensorValue;
+    }
+    // Look and see if the button has changed state, if so calculate the time since the last change
+    if (button->sensorValue != button->heldSensorValue) {
+        button->heldSensorValue = button->sensorValue;
+        button->heldTime = button->timestamp - button->heldTimestamp;
+        IO_RTC_StartTime(&button->heldTimestamp);
+    }
+}
+
+PWDSensor* PWDSensor_new(ubyte1 pin) {
+    PWDSensor* sensor = malloc(sizeof(PWDSensor));
+    IO_RTC_StartTime(&sensor->timestamp);
+    sensor->sensorAddress = pin;
+    sensor->heldSensorValue = 0;
+    sensor->ioErr_signalInit = IO_PWD_ComplexInit(pin, IO_PWD_LOW_TIME, IO_PWD_FALLING_VAR, IO_PWD_RESOLUTION_3_2, 1, IO_PWD_THRESH_1_25V, IO_PWD_PD_10K, NULL);
+    return sensor;
+}
+
+void PWDSensor_read(PWDSensor* sensor) {
+    ubyte4 pulseTrash;
+    ubyte2 frequency_now;
+    sensor->ioErr_signalGet = IO_PWD_ComplexGet(sensor->sensorAddress, &frequency_now, &pulseTrash, NULL);
+    if(sensor->ioErr_signalGet != IO_E_PWD_NOT_FINISHED) {
+        sensor->sensorValue = frequency_now;
+        IO_RTC_StartTime(&sensor->timestamp);
+        sensor->heldSensorValue = sensor->sensorValue;
+    } else if (IO_RTC_GetTimeUS(sensor->timestamp) > 750000) //Has been longer than 750000us (timeout, reset heldSensorValue to 0)
+    { 
+        sensor->heldSensorValue=0;
+    }
+}
+
+DigitalOutput* DigitalOutput_new(ubyte1 pin, bool inverted) {
+    DigitalOutput* output = malloc(sizeof(DigitalOutput));
+    output->outputAddress = pin;
+    output->inverted = inverted;
+    IO_DO_Init(pin);
+    IO_DO_Set(pin, inverted ? TRUE : FALSE);
+    return output;
+}
+
+void DigitalOutput_set(DigitalOutput* output, bool value) {
+    IO_DO_Set(output->outputAddress, output->inverted ? !value : value);
+}
+
+PWMOutput* PWMOutput_new(ubyte1 pin, ubyte2 frequency, float4 duty) {
+    PWMOutput* output = malloc(sizeof(PWMOutput));
+    output->outputAddress = pin;
+    output->frequency = frequency;
+    output->duty = duty * 0xFFFF;
+    IO_PWM_Init(pin, frequency, TRUE, FALSE, 0, FALSE, NULL);
+    IO_PWM_SetDuty(pin, duty * 0xFFFF, NULL);
+    return output;
+}
+
+void PWMOutput_set(PWMOutput* output, float4 duty) {
+    IO_PWM_SetDuty(output->outputAddress, duty * 0xFFFF, NULL);
+}
+
+/*****************************************************************************
+* Output Calculations
+******************************************************************************
+* Takes properties from devices (such as raw sensor values [ohms, voltage],
+* MCU/BMS CAN messages, etc), performs calculations with that data, and updates
+* the relevant objects' properties.
+*
+* This includes sensor calculations, motor controller control calculations,
+* traction control, BMS/safety calculations, etc.
+* (May need to split this up later)
+*
+* For example: GetThrottlePosition() takes the raw TPS voltages from the TPS
+* sensor objects and returns the throttle pedal percent.  This function does
+* NOT update the sensor objects, but it would be acceptable for another
+* function in this file to do so.
+*
+*****************************************************************************/
+
+/*****************************************************************************
+* Steering Angle Sensor (SAS)
+Input: Voltage
+Output: Degrees
+****************************************************************************/
+sbyte4 steering_degrees(){
+    sbyte4 min_voltage = 960;    // Adjusted minimum voltage to 0 mV
+    sbyte4 max_voltage = 2560; // Adjusted maximum voltage to 5000 mV
+    sbyte4 min_angle = -90;
+    sbyte4 max_angle = 90;
+    
+    sbyte4 voltage_range = max_voltage - min_voltage;
+    sbyte4 angle_range = max_angle - min_angle;
+    sbyte4 voltage = Sensor_SAS.sensorValue;
+
+    sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
+    return deg;
+}

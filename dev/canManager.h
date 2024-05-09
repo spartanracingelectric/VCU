@@ -32,6 +32,7 @@ typedef struct _CanMessageNode
 } CanMessageNode;
 
 typedef struct _CanManager {
+    SerialManager* sm;
     CanMessageNode* canMessageHistory[0x7FF];
 
     ubyte1 canMessageLimit;
@@ -101,7 +102,8 @@ IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs);
 IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms);
 IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker* sc);
 IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc);
+IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController* mcm);
 IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm);
-IO_CAN_DATA_FRAME get_timer_debug_can_message(TimerDebug *td);
+float4 lv_battery_soc();
 
 #endif // _CANMANAGER_H is defined

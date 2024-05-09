@@ -1,84 +1,88 @@
+/*****************************************************************************
+* SRE-2 Vehicle Control Firmware for the TTTech HY-TTC 50 Controller (VCU)
+******************************************************************************
+* For project info and history, see https://github.com/spartanracingelectric/SRE-2
+* For software/development questions, email rusty@pedrosatech.com
+******************************************************************************
+* Files
+* The Git repository does not contain the complete firmware for SRE-2.  Modules
+* provided by TTTech can be found on the CD that accompanied the VCU. These 
+* files can be identified by our naming convention: TTTech files start with a
+* prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
+* they also provided.
+* For instructions on setting up a build environment, see the SRE-2 getting-
+* started document, Programming for the HY-TTC 50, at http://1drv.ms/1NQUppu
+*****************************************************************************/
+
+//-------------------------------------------------------------------
+//VCU Initialization Stuff
+//-------------------------------------------------------------------
+
+//VCU/C headers
+#include <stdio.h>
+#include <string.h>
+#include "APDB.h"
+#include "IO_DIO.h"
+#include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
+#include "IO_RTC.h"
+#include "IO_UART.h"
+
+//Our code
 #include "main.h"
+#include "initializations.h"
+#include "sensors.h"
+#include "canManager.h"
+#include "motorController.h"
+#include "instrumentCluster.h"
+#include "readyToDriveSound.h"
+#include "torqueEncoder.h"
+#include "brakePressureSensor.h"
+#include "wheelSpeeds.h"
+#include "safety.h"
+#include "serial.h"
+#include "cooling.h"
+#include "bms.h"
+#include "LaunchControl.h"
+#include "drs.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
     {
-        0 /* ubyte4 versionAPDB        */
-        ,
-        {0} /* BL_T_DATE flashDate       */
-            /* BL_T_DATE buildDate                   */
-        ,
+        0, /* ubyte4 versionAPDB        */
+        {0}, /* BL_T_DATE flashDate       */
         {(ubyte4)(((((ubyte4)RTS_TTC_FLASH_DATE_YEAR) & 0x0FFF) << 0) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_MONTH) & 0x0F) << 12) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_DAY) & 0x1F) << 16) |
                   ((((ubyte4)RTS_TTC_FLASH_DATE_HOUR) & 0x1F) << 21) |
-                  ((((ubyte4)RTS_TTC_FLASH_DATE_MINUTE) & 0x3F) << 26))},
-        0 /* ubyte4 nodeType           */
-        ,
-        0 /* ubyte4 startAddress       */
-        ,
-        0 /* ubyte4 codeSize           */
-        ,
-        0 /* ubyte4 legacyAppCRC       */
-        ,
-        0 /* ubyte4 appCRC             */
-        ,
-        1 /* ubyte1 nodeNr             */
-        ,
-        0 /* ubyte4 CRCInit            */
-        ,
-        0 /* ubyte4 flags              */
-        ,
-        0 /* ubyte4 hook1              */
-        ,
-        0 /* ubyte4 hook2              */
-        ,
-        0 /* ubyte4 hook3              */
-        ,
-        APPL_START /* ubyte4 mainAddress        */
-        ,
-        {0, 1} /* BL_T_CAN_ID canDownloadID */
-        ,
-        {0, 2} /* BL_T_CAN_ID canUploadID   */
-        ,
-        0 /* ubyte4 legacyHeaderCRC    */
-        ,
-        0 /* ubyte4 version            */
-        ,
-        500 /* ubyte2 canBaudrate        */
-        ,
-        0 /* ubyte1 canChannel         */
-        ,
-        {0} /* ubyte1 reserved[8*4]      */
-        ,
+                  ((((ubyte4)RTS_TTC_FLASH_DATE_MINUTE) & 0x3F) << 26))}, /* BL_T_DATE buildDate                   */
+        0, /* ubyte4 nodeType           */
+        0, /* ubyte4 startAddress       */
+        0, /* ubyte4 codeSize           */
+        0, /* ubyte4 legacyAppCRC       */
+        0, /* ubyte4 appCRC             */
+        1, /* ubyte1 nodeNr             */
+        0, /* ubyte4 CRCInit            */
+        0, /* ubyte4 flags              */
+        0, /* ubyte4 hook1              */
+        0, /* ubyte4 hook2              */
+        0, /* ubyte4 hook3              */
+        APPL_START, /* ubyte4 mainAddress        */
+        {0, 1}, /* BL_T_CAN_ID canDownloadID */
+        {0, 2}, /* BL_T_CAN_ID canUploadID   */
+        0, /* ubyte4 legacyHeaderCRC    */
+        0, /* ubyte4 version            */
+        500, /* ubyte2 canBaudrate        */
+        0, /* ubyte1 canChannel         */
+        {0}, /* ubyte1 reserved[8*4]      */
         0 /* ubyte4 headerCRC          */
 };
 
-extern Sensor Sensor_TPS0;
-extern Sensor Sensor_TPS1;
-extern Sensor Sensor_BPS0;
-extern Sensor Sensor_BPS1;
-extern Sensor Sensor_WSS_FL;
-extern Sensor Sensor_WSS_FR;
-extern Sensor Sensor_WSS_RL;
-extern Sensor Sensor_WSS_RR;
-extern Sensor Sensor_WPS_FL;
-extern Sensor Sensor_WPS_FR;
-extern Sensor Sensor_WPS_RL;
-extern Sensor Sensor_WPS_RR;
-extern Sensor Sensor_SAS;
-extern Sensor Sensor_TCSKnob;
+extern Button Cal_Button;
+extern DigitalOutput Eco_Light;
+extern DigitalOutput Err_Light;
 
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_TEMP_BrakingSwitch;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_DRSButton;
 
-/*****************************************************************************
-* Main!
-* Initializes I/O
-* Contains sensor polling loop (always running)
-****************************************************************************/
+
 void main(void)
 {
     ubyte4 timestamp_startTime = 0;
@@ -90,97 +94,133 @@ void main(void)
     /*******************************************/
     IO_Driver_Init(NULL); //Handles basic startup for all VCU subsystems
     IO_RTC_StartTime(&timestamp_startTime);
-    
-    IO_RTC_StartTime(&timestamp_startTime);
-    while (IO_RTC_GetTimeUS(timestamp_startTime) < 55555)
-    {
-        IO_Driver_TaskBegin();
-        IO_Driver_TaskEnd();
-        while (IO_RTC_GetTimeUS(timestamp_startTime) < 10000)
-            ; // wait until 10ms have passed
-    }
+    SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
+    SerialManager_send(serialMan, "VCU serial is online.\n");
+
     //----------------------------------------------------------------------------
     // VCU Subsystem Initializations
     // Eventually, all of these functions should be made obsolete by creating
     // objects instead, like the RTDS/MCM/TPS objects below
     //----------------------------------------------------------------------------
+    SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
     vcu_initializeADC(); //Configure and activate all I/O pins on the VCU
+
+    //Do some loops until the ADC stops outputting garbage values
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000); //3rd param = messages per node (CAN0; read/write)
+    CanManager *canMan = CanManager_new(CAN_0_BAUD, 50, 50, CAN_1_BAUD, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
+    //can0_busSpeed -------------------------^       ^   ^       ^       ^   ^     ^         ^
+    //can0_read_messageLimit ------------------------|   |       |       |   |     |         |
+    //can0_write_messageLimit----------------------------+       |       |   |     |         |
+    //can1_busSpeed----------------------------------------------+       |   |     |         |
+    //can1_read_messageLimit---------------------------------------------+   |     |         |
+    //can1_write_messageLimit------------------------------------------------+     |         |
+    //defaultSendDelayus-----------------------------------------------------------+         |
+    //SerialManager* sm----------------------------------------------------------------------+
 
-
+    //----------------------------------------------------------------------------
+    // Object representations of external devices
+    // Most default values for things should be specified here
+    //----------------------------------------------------------------------------
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
-    ReadyToDriveSound *rtds = RTDS_new();
-    BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
-    MotorController *mcm0 = MotorController_new(0xA0, FORWARD, 600, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
+    ReadyToDriveSound *rtds = RTDS_new(1, 1500000);
+    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10);
+    InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new();
     BrakePressureSensor *bps = BrakePressureSensor_new();
-    WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
-    SafetyChecker *sc = SafetyChecker_new(320, 32); //Must match amp limits
-    CoolingSystem *cs = CoolingSystem_new();
+    WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, F_WSS_TICKS, R_WSS_TICKS);
+    SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
+    CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
-    TimerDebug *td = TimerDebug_new();
+    init_lv_battery_lut();
+
     ubyte4 timestamp_mainLoopStart = 0;
+    SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
+
     while (1)
     {
         TimerDebug_startTimer(td);
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
-        
+
+        /*******************************************/
+        /*              Read Inputs                */
+        /*******************************************/
         sensors_updateSensors();
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
-    
-        if (Sensor_EcoButton.sensorValue == FALSE)
-        {
-            if (timestamp_EcoButton == 0)
-            {
-                
+
+        //No regen below 5kph
+        sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
+        if (groundSpeedKPH < 15) {
+            MCM_setRegenMode(mcm0, REGENMODE_OFF);
+        } else {
+            // Regen mode is now set based on battery voltage to preserve overvoltage fault 
+            // if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
+            //     MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); 
+            // } else {
+            //     MCM_setRegenMode(mcm0, REGENMODE_FIXED);
+            // } 
+        }
+
+        if (Cal_Button.sensorValue) {
+            if (timestamp_EcoButton == 0) {
+                SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
-            {
+            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) {
+                SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
                 TorqueEncoder_startCalibration(tps, 5);
                 BrakePressureSensor_startCalibration(bps, 5);
-                // Light_set(Light_dashEco, 1);
-                IO_DO_Set(IO_ADC_CUR_01, TRUE);
-                //DIGITAL OUTPUT 4 for STATUS LED
+                DigitalOutput_set(&Eco_Light, TRUE);
+                //DIGITAL OUTPUT 4 for STATUS LED ???? I dont believe this -Ian
             }
         }
-
-        
-        
-
+        else {
+            if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000) {
+                SerialManager_send(serialMan, "Eco mode requested\n");
+            }
+            timestamp_EcoButton = 0;
+        }
         TorqueEncoder_update(tps);
         TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
         BrakePressureSensor_update(bps);
         BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
+
+        //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
         slipRatioCalculation(wss, lc);
-        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+
+        //Cool DRS things
+        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC, lc->LCReady || lc->LCStatus);
+
+        CoolingSystem_calculations(cs, mcm0->motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm0->motor_temp, bms->highestCellTemperature/BMS_TEMPERATURE_SCALE, &Sensor_HVILTerminationSense);
         
-        CoolingSystem_enactCooling(cs); 
+        CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+
+        //Assign motor controls to MCM command message
+        //DOES NOT set inverter command or rtds flag
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
-        SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
+        SafetyChecker_update(sc, mcm0, bms, tps, bps);
+
+        /*******************************************/
+        /*  Output Adjustments by Safety Checker   */
+        /*******************************************/
         SafetyChecker_reduceTorque(sc, mcm0, bms, wss);
 
         /*******************************************/
         /*              Enact Outputs              */
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
-        //SafetyChecker_setErrorLight(sc);
-        // Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
-        IO_DO_Set(IO_ADC_CUR_02, (SafetyChecker_getFaults(sc) != 0));
+        DigitalOutput_set(&Err_Light, (sc->faults == 0) ? FALSE : TRUE);
         //Handle motor controller startup procedures
-        MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);
+        MCM_relayControl(mcm0);
         MCM_inverterControl(mcm0, tps, bps, rtds);
 
         IO_ErrorType err = 0;
@@ -194,11 +234,10 @@ void main(void)
         
         TimerDebug_stopTimer(td);
         
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < CYCLE_TIME_US) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
 
     } //end of main loop
-
 }

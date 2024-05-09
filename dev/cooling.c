@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include "IO_Driver.h"
-//#include "IO_DIO.h"
-//#include "IO_PWM.h"
 
 #include "sensors.h"
 #include "cooling.h"
@@ -9,7 +7,9 @@
 #include "mathFunctions.h"
 #include "bms.h"
 
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_HVILTerminationSense;
+extern DigitalOutput Water_Pump;
+extern PWMOutput Rad_Fans;
 
 //All temperatures in C
 CoolingSystem *CoolingSystem_new()
@@ -21,13 +21,13 @@ CoolingSystem *CoolingSystem_new()
     //-------------------------------------------------------------------
 
     // Water pump PWM control (for motor and controller)
-    // Note: the water pump needs to receive a PWM singal within n seconds of being turned on
+    // Note: the water pump needs to receive a PWM signal within n seconds of being turned on
     me->waterPumpMinPercent = 0.2;
     me->waterPumpLow = 25; //Start ramping beyond min at this temp
     me->waterPumpHigh = 40;
     me->waterPumpPercent = 0.2;
 
-    // Power pack fan relay  (for 2021 3ator)
+    // Power pack fan relay  (for 2021 radiator)
     me->motorFanLow = 38;     //Turn off BELOW this point
     me->motorFanHigh = 43;    //Turn on at this temperature
     me->motorFanState = TRUE; //float4 motorFanPercent;
@@ -84,9 +84,6 @@ void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, s
 void CoolingSystem_enactCooling(CoolingSystem *me)
 {
     //Send PWM control signal to water pump
-    IO_DO_Set(IO_DO_02, TRUE);
-    // Light_set(Cooling_waterPump, me->waterPumpPercent);
-    // Light_set(Cooling_RadFans, me->radFanPercent);
-    IO_PWM_SetDuty(IO_PWM_02, me->radFanPercent, NULL);
-
+    DigitalOutput_set(&Water_Pump, me->waterPumpPercent);
+    PWMOutput_set(&Rad_Fans, me->radFanPercent);
 }

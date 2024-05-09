@@ -7,133 +7,32 @@
 #include "motorController.h"
 #include "mathFunctions.h"
 #include "sensors.h"
-#include "sensorCalculations.h"
 
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
+#include "serial.h"
+#include "main.h"
+
 #include "canManager.h"
 
-extern Sensor Sensor_BenchTPS0;
-extern Sensor Sensor_BenchTPS1;
-
-extern Sensor Sensor_RTDButton;
-extern Sensor Sensor_EcoButton;
-extern Sensor Sensor_TCSSwitchUp;   // used currently for regen
-extern Sensor Sensor_TCSSwitchDown; // used currently for regen
+extern Button RTD_Button;
+extern Button Cal_Button;
 extern Sensor Sensor_TCSKnob;       // used currently for regen
-extern Sensor Sensor_HVILTerminationSense;
+extern Button Sensor_HVILTerminationSense;
+extern DigitalOutput RTD_Light;
+extern DigitalOutput MCM_Power;
+
+#define CELL_RESISTANCE 0.025f //Ohms resistance of the cell+ fuselink
+#define CELLS_IN_PARALLEL 7
+#define CELLS_IN_SERIES 96
+const float4 PACK_RESISTANCE = (1/(CELLS_IN_PARALLEL/CELL_RESISTANCE))*CELLS_IN_SERIES; // pack resistance
 
 /*****************************************************************************
  * Motor Controller (MCM)
- ******************************************************************************
- *
  ****************************************************************************/
 
-struct _MotorController
-{
-    //----------------------------------------------------------------------------
-    // Controller statuses/properties
-    //----------------------------------------------------------------------------
-    // These represent the state of the controller (set at run time, not compile
-    // time.)  These are updated by canInput.c
-    //----------------------------------------------------------------------------
-    ubyte2 canMessageBaseId; //Starting message ID for messages that will come in from this controller
-    ubyte4 timeStamp_inverterEnabled;
-
-    //Motor controller torque units are in 10ths (500 = 50.0 Nm)
-    //Positive = accel, negative = regen
-    //Reverse not allowed
-    ubyte2 torqueMaximumDNm; //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
-
-    //Regen torque calculations in whole Nm..?
-    RegenMode regen_mode;                //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
-    ubyte2 regen_torqueLimitDNm;         //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
-    ubyte2 regen_torqueAtZeroPedalDNm;   //Tuneable value.  Amount of regen torque (in Nm) to apply when both pedals at 0% travel.  Positive value.
-    float4 regen_percentBPSForMaxRegen;  //Tuneable value.  Amount of brake pedal required for full regen. Value between zero and one.
-    float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
-    sbyte1 regen_minimumSpeedKPH;        //Assigned by main
-    sbyte1 regen_SpeedRampStart;
-
-    bool relayState;
-    bool previousHVILState;
-    ubyte4 timeStamp_HVILLost;
-
-    ubyte4 timeStamp_HVILOverrideCommandReceived;
-    bool HVILOverride;
-
-    ubyte4 timeStamp_InverterEnableOverrideCommandReceived;
-    ubyte4 timeStamp_InverterDisableOverrideCommandReceived;
-    Status InverterOverride;
-
-    ubyte1 startupStage;
-    Status lockoutStatus;
-    Status inverterStatus;
-    bool startRTDS;
-    /*ubyte4 vsmStatus0;      //0xAA Byte 0,1
-    ubyte4 vsmStatus1;      //0xAA Byte 0,1
-    ubyte4 vsmStatus2;      //0xAA Byte 0,1
-    ubyte4 vsmStatus3;      //0xAA Byte 0,1
-    ubyte4 faultCodesPOST; //0xAB Byte 0-3
-    ubyte4 faultCodesRUN;  //0xAB Byte 4-7*/
-
-    ubyte1 faultHistory[8];
-
-    sbyte2 motor_temp;
-    sbyte4 DC_Voltage;
-    sbyte4 DC_Current;
-
-    sbyte2 commandedTorque;
-    ubyte4 currentPower;
-
-    sbyte4 motorRPM;
-    //----------------------------------------------------------------------------
-    // Control parameters
-    //----------------------------------------------------------------------------
-    // These are updated by ??? and will be sent to the MCM over CAN
-    //----------------------------------------------------------------------------
-    //struct _commands {
-    ubyte4 timeStamp_lastCommandSent; //from IO_RTC_StartTime(&)
-    ubyte2 updateCount;               //Number of updates since lastCommandSent
-
-    sbyte2 commands_torque;
-    sbyte2 commands_torqueLimit;
-    ubyte1 commands_direction;
-    sbyte2 takeaway;
-    //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
-    Status commands_discharge;
-    Status commands_inverter;
-    //ubyte1 controlSwitches; // example: 0b00000001 = inverter is enabled, discharge is disabled
-
-    /*
-    //----------------------------------------------------------------------------
-    // Control functions - for functions nested within struct
-    //----------------------------------------------------------------------------
-    void(*setTorque)(MotorController* me, ubyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
-    void(*setDirection)(MotorController* me, Direction rotation);
-    void(*setInverter)(MotorController* me, Status inverterState);
-    void(*setDischarge)(MotorController* me, Status dischargeState);
-    void(*setTorqueLimit)(MotorController* me, ubyte2 torqueLimit);
-    //        void(*motorController_setTorque)(MotorController* me, ubyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
-    //        void(*motorController_setDirection)(MotorController* me, Direction rotation);
-    //        void(*motorController_setInverter)(MotorController* me, Status inverterState);
-    //        void(*motorController_setDischarge)(MotorController* me, Status dischargeState);
-    //        void(*motorController_setTorqueLimit)(MotorController* me, ubyte2 torqueLimit);
-    void(*updateLockoutStatus)(MotorController* me, Status newState);
-    void(*updateInverterStatus)(MotorController* me, Status newState);
-    void(*getLockoutStatus)(MotorController* me);
-    void(*getInverterStatus)(MotorController* me);
-    }
-    */
-    //_commands commands;
-    //};
-
-    sbyte2 LaunchControl_TorqueLimit;
-    bool LCState;
-
-};
-
-MotorController *MotorController_new(ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
 
@@ -143,11 +42,11 @@ MotorController *MotorController_new(ubyte2 canMessageBaseID, Direction initialD
 
     me->lockoutStatus = UNKNOWN;
     me->inverterStatus = UNKNOWN;
-    //me->startRTDS = FALSE;
 
     me->motorRPM = 0;
     me->DC_Voltage = 0;
     me->DC_Current = 0;
+    me->power_torque_lim = 0;
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
@@ -160,27 +59,17 @@ MotorController *MotorController_new(ubyte2 canMessageBaseID, Direction initialD
     me->regen_minimumSpeedKPH = minRegenSpeedKPH;       //Assigned by main
     me->regen_SpeedRampStart = regenRampdownStartSpeed; //Assigned by main
 
-    //me->faultHistory = { 0,0,0,0,0,0,0,0 };  //Todo: read from eeprom instead of defaulting to 0
-
     me->startupStage = 0; //Off
 
     me->relayState = FALSE; //Low
 
     me->motor_temp = 99;
 
-    me->LaunchControl_TorqueLimit = 0;
+    me->LaunchControl_Torque = 0;
 
     me->LCState = FALSE;
-    /*
-me->setTorque = &setTorque;
-me->setInverter = &setInverter;
-me->setDischarge = &setDischarge;
-me->setTorqueLimit = &setTorqueLimit;
-me->updateLockoutStatus = &updateLockoutStatus;
-me->updateInverterStatus = &updateInverterStatus;
-me->getLockoutStatus = &getLockoutStatus;
-me->getInverterStatus = &getInverterStatus;
-        */
+    me->LCReady = FALSE;
+    
     return me;
 }
 
@@ -279,17 +168,21 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-
+    me->power_torque_lim = MCM_get_max_torque_power_limit(me);
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
     if(me->LCState == TRUE){
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0){
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->LaunchControl_Torque;
+    } else if(me->LCReady == TRUE) {
+        torqueOutput = 0;
     } else {
         torqueOutput = appsTorque + bpsTorque;
         //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
+    }
+
+    if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT && !me->LCState) { // The requested torque is greater than the power limit, we have the power limit enables, and were not trying to launch
+        torqueOutput = me->power_torque_lim * 10; // it is in DNm
     }
     
     MCM_commands_setTorqueDNm(me, torqueOutput);
@@ -309,10 +202,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->InverterOverride = UNKNOWN;
 }
 
-void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
+void MCM_relayControl(MotorController *me)
 {
     //If HVIL Term Sense is low (HV is down)
-    if (HVILTermSense->sensorValue == FALSE && me->HVILOverride == FALSE)
+    if (Sensor_HVILTerminationSense.sensorValue == FALSE && me->HVILOverride == FALSE)
     {
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
@@ -327,7 +220,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
+                DigitalOutput_set(&MCM_Power, FALSE);
                 me->relayState = FALSE;
             }
             else
@@ -336,10 +229,9 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
                 //For now do nothing
             }
         }
-        MCM_setStartupStage(me, 0);
-        MCM_updateInverterStatus(me, UNKNOWN);
-        MCM_updateLockoutStatus(me, UNKNOWN);
-
+        me->startupStage = 0;
+        me->inverterStatus = UNKNOWN;
+        me->lockoutStatus = UNKNOWN;
         me->previousHVILState = FALSE;
     }
     else // HVILTermSense->sensorValue == TRUE || me->HVILOverride == TRUE
@@ -347,15 +239,16 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         //If HVIL just changed, send a message
         if (me->previousHVILState == FALSE)
         {
-            if (MCM_getStartupStage(me) == 0)
+            SerialManager_send(me->serialMan, "Term sense went high\n");
+            if (me->startupStage == 0)
             {
-                MCM_setStartupStage(me, 1);
+                me->startupStage = 1;
             } //Reset the startup procedure because HV just went high and we are now turning on the MCM
         }
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_00, TRUE);
+        DigitalOutput_set(&MCM_Power, TRUE);
         me->relayState = TRUE;
     }
 }
@@ -363,14 +256,13 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 //See diagram at https://onedrive.live.com/redir?resid=F9BB8F0F8FDB5CF8!30410&authkey=!ABSF-uVH-VxQRAs&ithint=file%2chtml
 void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
 {
-    float4 RTDPercent;
-    RTDPercent = (Sensor_RTDButton.sensorValue == FALSE ? 1 : 0);
-    //FALSE and TRUE for sensorValue's are reversed due to Pull Up Resistor
+    float4 RTD_En;
+    RTD_En = (RTD_Button.sensorValue == TRUE ? 1 : 0);
     //----------------------------------------------------------------------------
     // Determine inverter state
     //----------------------------------------------------------------------------
     //New Handshake NOTE: Switches connected to ground.. TRUE = high = off = disconnected = open circuit, FALSE = low = grounded = on = connected = closed circuit
-    switch (MCM_getStartupStage(me))
+    switch (me->startupStage)
     {
     case 0: //MCM relay is off --> stay until lockout is enabled;
         //It shouldn't be necessary to check mcm relayState or inverter status <> UNKNOWN
@@ -382,9 +274,10 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Light_set(Light_dashRTD, 0);
 
         //How to transition to next state ------------------------------------------------
-        if (MCM_getLockoutStatus(me) == DISABLED)
+        if (me->lockoutStatus == DISABLED)
         {
-            MCM_setStartupStage(me, 2); //MCM_getStartupStage(me) + 1);
+            SerialManager_send(me->serialMan, "MCM lockout has been disabled.\n");
+            me->startupStage = 2;
         }
         break;
 
@@ -393,12 +286,12 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == TRUE && tps->calibrated == TRUE  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (RTD_Button.sensorValue == TRUE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable
-            MCM_setStartupStage(me, 3); // MCM_getStartupStage(me) + 1);
-            //RTDPercent = 1; //This line is redundant
+            SerialManager_send(me->serialMan, "Changed MCM inverter command to ENABLE.\n");
+            me->startupStage = 3;
         }
         break;
 
@@ -407,26 +300,28 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for mcm to say it's enabled
 
         //How to transition to next state ------------------------------------------------
-        if (MCM_getInverterStatus(me) == ENABLED)
+        if (me->inverterStatus == ENABLED)
         {
-            RTDPercent = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is driveable
-            RTDS_setVolume(rtds, 1, 1500000);
-            MCM_setStartupStage(me, 4); //MCM_getStartupStage(me) + 1);  //leave this stage since we've already kicked off the RTDS
+            RTD_En = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is drivable
+            SerialManager_send(me->serialMan, "Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
+            RTDS_play_sound(rtds);
+            me->startupStage = 4; //leave this stage since we've already kicked off the RTDS
         }
         break;
 
     case 4: //inverter=disabled, rtds=already started
         //Actions to perform upon entering this state ------------------------------------------------
-        RTDPercent = 1;                                                 //This line is redundant
+        SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
+        RTD_En = 1;                                                 //This line is redundant
 
         //How to transition to next state ------------------------------------------------
         //Always do, since we sent a message.
-        MCM_setStartupStage(me, MCM_getStartupStage(me) + 1);
+        me->startupStage = 5;
         break;
 
-    case 5: //inverter=enabled, rtds=notstarted
+    case 5: //inverter=enabled, rtds=not_started
         //What happens in this state ------------------------------------------------
-        RTDPercent = 1; //This line is redundant
+        RTD_En = 1; //This line is redundant
         //This case is here so we don't send a message anymore
 
         //How to transition to next state ------------------------------------------------
@@ -453,151 +348,12 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
     }
 
     //After all that, we can turn the RTD light on/off
-    // Light_set(Light_dashRTD, RTDPercent);
-    IO_DO_Set(IO_ADC_CUR_03, RTDPercent);
-
+    DigitalOutput_set(&RTD_Light, RTD_En);
 }
 
-void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
-{
-    //0xAA
-    static const ubyte1 bitInverter = 1;  //bit 1
-    static const ubyte1 bitLockout = 128; //bit 7
-
-    switch (mcmCanMessage->id)
-    {
-    case 0x0A0:
-        //0,1 module A temperature
-        //2,3 module B temperature
-        //4,5 module C temperature
-        //6,7 gate driver board temperature
-        break;
-
-    case 0x0A1:
-        //0,1 control board temp
-        //2,3 rtd 1 temp
-        //4,5 rtd 2 temp
-        //6,7 rtd 3 temp
-        break;
-
-    case 0x0A2:
-        //0,1 rtd 4 temp
-        //2,3 rtd 5 temp
-        //4,5 motor temperature***
-        me->motor_temp = ((ubyte2)mcmCanMessage->data[5] << 8 | mcmCanMessage->data[4]) / 10;
-        //6,7 torque shudder
-        break;
-
-    case 0x0A3:
-        //0,1 voltage analog input #1
-        //2,3 voltage analog input #2
-        //4,5 voltage analog input #3
-        //6,7 voltage analog input #4
-        break;
-
-    case 0x0A4:
-        // booleans //
-        // 0 digital input #1
-        // 1 digital input #2
-        // 2 digital input #3
-        // 4 digital input #5
-        // 5 digital input #6
-        // 6 digital input #7
-        // 7 digital input #8
-        break;
-
-    case 0x0A5:
-        //0,1 motor angle (electrical)
-        //2,3 motor speed*** // in rpms
-        //Cast may be required - needs testing
-        me->motorRPM = (ubyte2)mcmCanMessage->data[3] << 8 | mcmCanMessage->data[2];
-        //me->motorRPM = ((mcmCanMessage->data[2] << 8) | (mcmCanMessage->data[3]));
-        //4,5 electrical output frequency
-        //6,7 delta resolver filtered
-        break;
-
-    case 0x0A6:
-        //0,1 Phase A current
-        //2,3 Phase B current
-        //4,5 Phase C current
-        //6,7 DC bus current
-        me->DC_Current = ((ubyte2)mcmCanMessage->data[7] << 8 | mcmCanMessage->data[6]) / 10;
-        //me->DC_Current = (((mcmCanMessage->data[6] << 8) | (mcmCanMessage->data[7])) / 10);
-        break;
-
-    case 0x0A7:
-        //0,1 DC bus voltage***
-        me->DC_Voltage = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
-        //me->DC_Voltage = (((mcmCanMessage->data[0] << 8) | (mcmCanMessage->data[1])) / 10);
-        //2,3 output voltage
-        //4,5 Phase AB voltage
-        //6,7 Phase BC voltage
-        break;
-
-    case 0x0A8:
-        //0,1 Flux Command
-        //2,3 flux feedback
-        //4,5 id feedback
-        //6,7 iq feedback
-        break;
-
-    case 0x0A9:
-        // 0,1 1.5V reference voltage
-        // 2,3 2.5V reference voltage
-        // 4,5 5.0V reference voltage
-        // 6,7 12V reference voltage
-        break;
-
-    case 0x0AA:
-        //0,1 VSM state
-        //2   Inverter state
-        //3   Relay State
-        //4   bit-0 inverter run mode
-        //4   bit5-7 inverter active discharge state
-        //5   inverter command mode
-
-        //6   internal states
-        //    bit0 inverter enable state***
-        me->inverterStatus = (mcmCanMessage->data[6] & bitInverter) > 0 ? ENABLED : DISABLED;
-        //    bit7 inverter enable lockout***
-        me->lockoutStatus = (mcmCanMessage->data[6] & bitLockout) > 0 ? ENABLED : DISABLED;
-
-        //7   direction command
-        break;
-
-    case 0x0AB: //Faults
-        //mcmCanMessage->data;
-        //me->faultHistory |= data stuff //????????
-
-        break;
-
-    case 0x0AC:
-        //0,1 Commanded Torque
-        me->commandedTorque = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
-        //2,3 Torque Feedback
-        break;
-
-    case 0x5FF:
-        if (mcmCanMessage->data[1] > 0)
-        {
-            IO_RTC_StartTime(&me->timeStamp_HVILOverrideCommandReceived);
-        }
-        if (mcmCanMessage->data[2] == 55)
-        {
-            IO_RTC_StartTime(&me->timeStamp_InverterEnableOverrideCommandReceived);
-        }
-        if (mcmCanMessage->data[3] > 0)
-        {
-            IO_RTC_StartTime(&me->timeStamp_InverterDisableOverrideCommandReceived);
-        }
-        break;
-    }
-}
 
 /*****************************************************************************
 * Accessors / Mutators (Set/Get)
-******************************************************************************
-*
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 
@@ -660,86 +416,6 @@ void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
     me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     me->commands_torqueLimit = newTorqueLimit;
 }
-sbyte2 MCM_getTakeaway(MotorController *me) {
-    return me->takeaway;
-}
-sbyte2 MCM_commands_getTorque(MotorController *me)
-{
-    return me->commands_torque;
-}
-Direction MCM_commands_getDirection(MotorController *me)
-{
-    return me->commands_direction;
-}
-Status MCM_commands_getInverter(MotorController *me)
-{
-    return me->commands_inverter;
-}
-Status MCM_commands_getDischarge(MotorController *me)
-{
-    return me->commands_discharge;
-}
-sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
-{
-    return me->commands_torqueLimit;
-}
-
-void MCM_updateLockoutStatus(MotorController *me, Status newState)
-{
-    me->lockoutStatus = newState;
-}
-void MCM_updateInverterStatus(MotorController *me, Status newState)
-{
-    me->inverterStatus = newState;
-}
-
-void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
-
-     me->LaunchControl_TorqueLimit = lcTorqueLimit;
-
-}
-
-void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
-
-    me->LCState = newLCState;
-
-}
-
-Status MCM_getLockoutStatus(MotorController *me)
-{
-    return me->lockoutStatus;
-}
-
-Status MCM_getInverterStatus(MotorController *me)
-{
-    return me->inverterStatus;
-}
-
-bool MCM_getHvilOverrideStatus(MotorController *me)
-{
-    return me->HVILOverride;
-}
-
-Status MCM_getInverterOverrideStatus(MotorController *me)
-{
-    return me->InverterOverride;
-}
-
-void MCM_setRTDSFlag(MotorController *me, bool enableRTDS)
-{
-    me->startRTDS = enableRTDS;
-}
-bool MCM_getRTDSFlag(MotorController *me)
-{
-    //me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
-    return me->startRTDS;
-    //return FALSE;
-}
-
-ubyte2 MCM_commands_getUpdateCount(MotorController *me)
-{
-    return me->updateCount;
-}
 
 void MCM_commands_resetUpdateCountAndTime(MotorController *me)
 {
@@ -752,28 +428,9 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
     return IO_RTC_GetTimeUS(me->timeStamp_lastCommandSent);
 }
 
-ubyte2 MCM_getTorqueMax(MotorController *me)
-{
-    return me->torqueMaximumDNm;
-}
-
 sbyte4 MCM_getPower(MotorController *me)
 {
-    return ((me->DC_Voltage) * (me->DC_Current));
-}
-
-ubyte2 MCM_getCommandedTorque(MotorController *me)
-{
-    return me->commandedTorque;
-}
-
-sbyte2 MCM_getTemp(MotorController *me)
-{
-    return me->motor_temp; //TODO: Figure out which temperature to return for Motor Controller
-}
-sbyte2 MCM_getMotorTemp(MotorController *me)
-{
-    return me->motor_temp;
+    return (me->DC_Voltage * me->DC_Current/100);
 }
 
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
@@ -792,18 +449,6 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
     
 }
 
-ubyte1 MCM_getRegenMode(MotorController *me)
-{
-    return me->regen_mode;
-}
-sbyte2 MCM_getRegenTorqueLimitDNm(MotorController *me)
-{
-    return me->regen_torqueLimitDNm;
-}
-sbyte2 MCM_getRegenTorqueAtZeroPedalDNm(MotorController *me)
-{
-    return me->regen_torqueAtZeroPedalDNm;
-}
 sbyte2 MCM_getRegenBPSForMaxRegenZeroToFF(MotorController *me)
 {
     return 0xFF * me->regen_percentBPSForMaxRegen;
@@ -813,29 +458,6 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController *me)
     return 0xFF * me->regen_percentAPPSForCoasting;
 }
 
-sbyte1 MCM_getRegenMinSpeed(MotorController *me)
-{
-    return me->regen_minimumSpeedKPH;
-}
-sbyte1 MCM_getRegenRampdownStartSpeed(MotorController *me)
-{
-    return me->regen_SpeedRampStart;
-}
-
-void MCM_setStartupStage(MotorController *me, ubyte1 stage)
-{
-    me->startupStage = stage;
-}
-
-ubyte1 MCM_getStartupStage(MotorController *me)
-{
-    return me->startupStage;
-}
-
-void MCM_setMaxTorqueDNm(MotorController* me, ubyte2 newTorque)
-{
-    me->torqueMaximumDNm = newTorque;
-}
 void MCM_setRegen_TorqueLimitDNm(MotorController* me, ubyte2 newTorqueLimit)
 {
     if (newTorqueLimit >= 0)
@@ -857,23 +479,98 @@ void MCM_setRegen_PercentAPPSForCoasting(MotorController* me, float4 percentAPPS
         me->regen_percentAPPSForCoasting = percentAPPS;
 }
 
-ubyte2 MCM_getMaxTorqueDNm(MotorController* me)
+float4 MCM_pack_no_load_voltage(MotorController *me)
 {
-    return me->torqueMaximumDNm;
+
+    return ((float4)me->DC_Voltage / 10) + ((float4)me->DC_Current * PACK_RESISTANCE / 10);
 }
-ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* me)
-{
-    return me->regen_torqueLimitDNm;
+
+const float4 POWER_LIM_LUT[25][25] = {
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{231.74, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
+	{218.42, 227.51, 230.85, 230.85, 230.85, 230.85, 227.73, 222.03, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81, 217.81},
+	{206.97, 215.54, 222.86, 221.34, 225.38, 223.81, 221.47, 218.16, 214.28, 209.40, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27, 205.27},
+	{196.98, 205.14, 212.11, 218.33, 211.03, 214.14, 212.98, 211.27, 209.07, 206.14, 202.49, 198.59, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00, 194.00},
+	{188.06, 195.95, 202.61, 208.54, 214.01, 200.72, 203.93, 203.15, 201.93, 200.20, 198.22, 195.56, 192.56, 189.13, 185.17, 184.20, 184.20, 184.20, 184.20, 184.20, 184.20, 184.20, 184.20, 184.20, 184.20},
+	{179.99, 187.66, 194.11, 199.85, 205.07, 209.95, 190.07, 194.65, 194.03, 193.13, 191.90, 190.44, 188.49, 186.25, 183.65, 180.71, 177.36, 175.27, 175.27, 175.27, 175.27, 175.27, 175.27, 175.27, 175.27},
+	{172.51, 180.12, 186.42, 191.97, 197.05, 201.76, 206.18, 181.88, 186.05, 185.67, 185.00, 184.09, 182.93, 181.51, 179.83, 177.83, 175.66, 173.12, 170.16, 167.15, 167.15, 167.15, 167.15, 167.15, 167.15},
+	{165.50, 173.11, 179.35, 184.79, 189.73, 194.29, 198.60, 202.67, 175.41, 178.14, 177.83, 177.34, 176.67, 175.79, 174.84, 172.99, 171.95, 170.32, 168.29, 166.09, 163.70, 160.87, 159.81, 159.81, 159.81},
+	{158.76, 166.49, 172.72, 178.15, 183.00, 187.47, 191.65, 195.62, 199.39, 167.75, 170.79, 170.58, 170.27, 169.77, 169.12, 168.32, 167.25, 166.12, 164.89, 163.31, 161.69, 159.76, 157.63, 155.26, 152.92},
+	{152.10, 160.15, 166.48, 171.88, 176.73, 181.14, 185.24, 189.11, 192.79, 196.33, 159.95, 163.92, 163.73, 163.55, 163.19, 162.62, 162.09, 161.35, 160.51, 159.24, 158.28, 156.92, 155.52, 153.87, 152.02},
+	{145.25, 153.91, 160.46, 165.95, 170.79, 175.21, 179.27, 183.08, 186.69, 190.14, 193.45, 153.52, 157.46, 157.30, 157.06, 156.91, 156.55, 156.10, 155.55, 154.89, 154.12, 153.25, 152.23, 151.03, 149.70},
+	{137.71, 147.59, 154.55, 160.23, 165.14, 169.56, 173.64, 177.42, 180.99, 184.38, 187.63, 190.76, 147.26, 154.72, 151.28, 151.17, 150.93, 150.74, 150.40, 150.01, 149.51, 148.94, 148.25, 147.50, 146.60},
+	{127.93, 140.83, 148.59, 154.59, 159.66, 164.16, 168.24, 172.03, 175.60, 178.97, 182.18, 185.26, 134.72, 142.62, 148.62, 145.50, 145.47, 145.43, 145.20, 144.96, 144.73, 144.30, 143.88, 143.38, 143.44},
+	{0.00, 132.97, 142.31, 148.90, 154.26, 158.90, 163.07, 166.89, 170.45, 173.84, 177.03, 180.08, 183.01, 130.22, 135.25, 143.78, 140.08, 139.85, 139.99, 139.88, 139.74, 139.54, 139.30, 138.97, 138.62},
+	{0.00, 118.64, 135.22, 142.95, 148.80, 153.70, 158.02, 161.92, 165.53, 168.90, 172.09, 175.16, 178.07, 180.88, 125.24, 130.78, 135.53, 134.91, 134.87, 134.82, 134.76, 134.77, 134.63, 135.30, 134.26}};
+const float4 v_min = 283.200;
+const float4 v_max = 403.200;
+const sbyte4 s_min = 0;
+const sbyte4 s_max = 6000;
+const ubyte1 num_v = 25;
+const ubyte1 num_s = 25;
+
+float4 interpolate(float4 x0, float4 x1, float4 y0, float4 y1, float4 x, float4 y, float4 q00, float4 q01, float4 q10, float4 q11) {
+    float4 x0y0 = (x1 - x) * (y1 - y);
+    float4 x1y0 = (x - x0) * (y1 - y);
+    float4 x0y1 = (x1 - x) * (y - y0);
+    float4 x1y1 = (x - x0) * (y - y0);
+    return (q00 * x0y0 + q10 * x1y0 + q01 * x0y1 + q11 * x1y1) / ((x1 - x0) * (y1 - y0));
 }
-ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* me)
-{
-    return me->regen_torqueAtZeroPedalDNm;
+
+float4 solve_lut(float4 v, float4 s) {
+    const float4 v_step = (v_max - v_min) / (num_v - 1);
+    const float4 s_step = (s_max - s_min) / (num_s - 1);
+    if (v > v_max) {
+        v = v_max;
+    }
+    if (v < v_min) {
+        v = v_min;
+    }
+    if (s < s_min) {
+        s = s_min;
+    }
+    if (s > s_max) {
+        s = s_max;
+    }
+
+    ubyte1 v_index = (v - v_min) / v_step;
+    ubyte1 s_index = (s - s_min) / s_step;
+
+    // Clamping indices to be within the table bounds
+    v_index = v_index < 0 ? 0 : (v_index > num_v - 2 ? num_v - 2 : v_index);
+    s_index = s_index < 0 ? 0 : (s_index > num_s - 2 ? num_s - 2 : s_index);
+
+    float4 v0 = v_min + v_index * v_step;
+    float4 v1 = v0 + v_step;
+    float4 s0 = s_min + s_index * s_step;
+    float4 s1 = s0 + s_step;
+
+    // Get the four surrounding points
+    float4 q00 = POWER_LIM_LUT[s_index][v_index];
+    float4 q01 = POWER_LIM_LUT[s_index][v_index + 1];
+    float4 q10 = POWER_LIM_LUT[s_index + 1][v_index];
+    float4 q11 = POWER_LIM_LUT[s_index + 1][v_index + 1];
+
+    // Interpolate the table value at (v, s)
+    return interpolate(v0, v1, s0, s1, v, s, q00, q01, q10, q11);
 }
-float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* me)
+
+
+ubyte2 MCM_get_max_torque_power_limit(MotorController *me)
 {
-    return me->regen_percentBPSForMaxRegen;
-}
-float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* me)
-{
-    return me->regen_percentAPPSForCoasting;
+    me->nl_voltage = MCM_pack_no_load_voltage(me);
+    ubyte2 power_lim = solve_lut(me->nl_voltage, (float4)me->motorRPM);
+    if (power_lim < 0) {
+        power_lim = 0;
+    }
+    return power_lim;
 }

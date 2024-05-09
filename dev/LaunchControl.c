@@ -10,41 +10,38 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "motorController.h"
-#include "sensorCalculations.h"
-extern Sensor Sensor_LCButton;
-extern Sensor Sensor_DRSKnob;
-float Calctorque;
-/* Start of PID Controller */
+#include "main.h"
 
-void initPIDController(PIDController* controller, float p, float i, float d, float initialTorque) {
+extern Button LC_Button;
+extern Sensor Sensor_DRSKnob;
+
+void initPIDController(PIDController* controller, float4 p, float4 i, float4 d, float4 initialTorque) {
     controller->kp = p;
     controller->ki = i;
     controller->kd = d;
     controller->errorSum = initialTorque; //Will be initial torque command close to 240 (need tuning for initial torque)
     controller->lastError = 0;
 }
-float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+float calculatePIDController(PIDController* controller, float4 target, float4 current, sbyte2 maxTorque) {
     // Calculate the error between the target and current values
-    float error = target - current;
-    float propError = controller->kp * error;
+    float4 error = target - current;
+    float4 propError = controller->kp * error;
     // Add the current error to the running sum of errors for the integral term
-    // Time constant variance w/ System response (dt)
-    controller->errorSum += controller->ki * error * dt;
+    // Time constant variance w/ System response (CYCLE_TIME)
+    controller->errorSum += controller->ki * error * CYCLE_TIME;
     // Calculate the derivative of the error
-    float dError = ((error * controller->kd) - controller->lastError) / dt;
+    float4 dError = ((error * controller->kd) - controller->lastError) / CYCLE_TIME;
     controller->lastError = error * controller->kd;
     // Calculate the output of the PID controller using the three terms (proportional, integral, and derivative)
-    float output = propError + controller->errorSum + dError;
+    float4 output = propError + controller->errorSum + dError;
     //Anti-Windup Calculation (needs to be done on integral controllers)
-    if (error > 0) {
-        controller->errorSum -= controller->ki * error * dt;
+    if (output > (float4)maxTorque && (controller->ki * error * CYCLE_TIME) > 0) {
+        output = (float4)maxTorque;
+        controller->errorSum -= controller->ki * error * CYCLE_TIME;
     }
-    if (output > (float)maxTorque){
-        output = (float)maxTorque;
-    }
-    if (output < 0){ //Torque can't go negative in Launch Control (only reduced from Torque Max)
+    if (output < 0 && (controller->ki * error * CYCLE_TIME) < 0) { //Torque can't go negative in Launch Control (only reduced from Torque Max)
         output = 0;
-        //controller->errorSum = controller->errorSum - error * dt; Is this needed?
+        controller->errorSum = 0.0; // Something is wrong lets reset the integral term
     }
     return output;
 }
@@ -66,67 +63,51 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     me->LCReady = FALSE;
     me->LCStatus = FALSE;
     me->potLC = potLC;
-    me->pidController = (PIDController*)malloc(sizeof(struct _PIDController));
+    me->sr_valid = FALSE;
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
-    float unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
-    float filt_speed = unfilt_speed;
-    if (unfilt_speed > 1.0) {
-        filt_speed = 1.0;
+    me->slipRatio = ((wss->speed_FL_RPM + wss->speed_FR_RPM) / (wss->speed_RL_RPM + wss->speed_RR_RPM)) - 1;
+    // Limit to the range of -1 to 1
+    if (me->slipRatio > 1){
+        me->slipRatio = 1;
     }
-    if (unfilt_speed < -1.0) {
-        filt_speed = -1.0;
+    if (me->slipRatio < -1){
+        me->slipRatio = -1;
     }
-    me->slipRatio = filt_speed;
-    //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
+    me->sr_valid = wss_above_min_speed(wss, 1.5);
 }
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
-    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
-    sbyte2 steeringAngle = steering_degrees();
-    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
-    // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-    //  if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
-    //     me->LCReady = TRUE;
-    //  }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
-        me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        // if(me->potLC == 1){
-        //     if (Sensor_DRSKnob.sensorValue == 0)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 1.1)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 2.2)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 3.3)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 4.4)
-        //     {    me->lcTorque = lcTest; }
-        // }  else {
-        //     me->lcTorque = lcTest;
-        // }
-        initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
+
+bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
+    return (wss->speed_FL_RPM_S > minSpeed && wss->speed_FR_RPM_S > minSpeed && wss->speed_RL_RPM_S > minSpeed && wss->speed_RR_RPM_S > minSpeed);
+}
+
+void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
+    sbyte2 steeringAngle = (sbyte2)steering_degrees();
+    PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
+     if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
+        me->LCReady = TRUE;
+        me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
+        initPIDController(controller, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
+        // Because acceleration is in the negative regime of slip ratio and we want to increase torque to make it more negative
      }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
+     if (me->LCReady && !LC_Button.sensorValue && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;
-        me->lcTorque = me->pidController->errorSum; // Set to the initial torque
-        if(speedKph > 3){
-            Calctorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
-            me->lcTorque = Calctorque; // Test PID Controller before uncommenting
+        me->lcTorque = controller->errorSum; // Set to the initial torque
+        if (me->sr_valid) {
+            me->lcTorque = calculatePIDController(controller, -0.2, me->slipRatio, mcm->commands_torqueLimit/10.0); // Set your target, current, dt
         }
     }
-    if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
+    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus) || (!me->sr_valid && mcm->motorRPM > 1000)) {
         me->LCStatus = FALSE;
-        me->LCReady = FALSE;
+        me->LCReady = !me->sr_valid;
         me->lcTorque = -1;
     }
     // Update launch control state and torque limit
-    MCM_update_LaunchControl_State(mcm, me->LCStatus);
-    MCM_update_LaunchControl_TorqueLimit(mcm, me->lcTorque * 10);
-}
-bool getLaunchControlStatus(LaunchControl *me){
-    return me->LCStatus;
-}
-sbyte2 getCalculatedTorque(){
-    return Calctorque;
+    mcm->LCState = me->LCStatus;
+    mcm->LCReady = me->LCReady;
+    mcm->LaunchControl_Torque = me->lcTorque * 10;
+    if (mcm->LaunchControl_Torque < 0) {
+        mcm->LaunchControl_Torque = 0;
+    }
 }

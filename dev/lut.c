@@ -74,3 +74,9 @@ float4 getValueFromLUT(LUT* lut, float4 input) {
     // Return the interpolated value
     return lerp(lut->lut[indexLow], lut->lut[indexHigh], t);
 }
+
+    // float4 initialValues[] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+    // LUT* myLut = createLUT(0.0, 1.0, 10, initialValues);
+    // Use your LUT
+    // e.g., float4 value = getValueFromLUT(myLut, input);
+

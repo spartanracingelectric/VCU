@@ -17,11 +17,11 @@
 //Application Database, needed for TTC-Downloader
 //APDB appl_db;
 
-
 //Functions
 void vcu_initializeVCU(void);
 void vcu_initializeADC(void);
 void vcu_initializeCAN(void);
 void vcu_initializeMCU(void);
 void vcu_ADCWasteLoop(void);
+void init_lv_battery_lut(void);
 #endif //  _INITIALIZEVCU_H
