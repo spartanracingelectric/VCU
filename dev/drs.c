@@ -10,7 +10,7 @@
 #include "motorController.h"
 // #include "sensorCalculations.h"
 
-extern Sensor Sensor_DRSButton; 
+extern Button DRS_Button; 
 extern Sensor Sensor_DRSKnob;
 
 DRS *DRS_new() 
@@ -45,12 +45,11 @@ DRS *DRS_new()
 //      Brake Pressure 
 //----------------------------------------------------------------------
 
-
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
-
-    // .sensorvalue true/false are switched to account for Pull Up
-    if(pot_DRS_LC == 1) {
-        me->currentDRSMode = AUTO;
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status) {
+    if (lc_status == TRUE) {
+        me->currentDRSMode = STAY_OPEN;
+    } else if(pot_DRS_LC == 1) {
+        me->currentDRSMode = MANUAL;
     } else {
         //update_knob(me); Change to when we have a working rotary
         me->currentDRSMode = MANUAL;
@@ -65,7 +64,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 DRS_open(me);           
                 break;
             case MANUAL:
-                if(Sensor_DRSButton.sensorValue == FALSE) {
+                if(DRS_Button.sensorValue == TRUE) {
                     me->buttonPressed = TRUE;
                     DRS_open(me);
                 } else {
@@ -79,8 +78,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
             default:
                 break;
         }
-    
-
 }
 
 void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
@@ -105,7 +102,6 @@ void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
     me->drsFlap = 0;
-
 }
 
 //Change to future regarding rotary voltage values

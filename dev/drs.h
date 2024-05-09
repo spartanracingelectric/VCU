@@ -6,7 +6,7 @@
 #include "brakePressureSensor.h"
 #include "torqueEncoder.h"
 #include "motorController.h"
-#include "sensorCalculations.h"
+#include "sensors.h"
 
 // Rotary Switch modes:
 //      Mode 0 - Always off
@@ -21,7 +21,7 @@ typedef struct _DRS
     //flag indicating if DRS should be active or inactive based on inputs and mode
     bool AutoDRSActive;
 
-    //enum indicating current DRS mode selected based on rotaryswitch
+    //enum indicating current DRS mode selected based on rotary switch
     ubyte1 currentDRSMode;
     ubyte1 buttonPressed;
     ubyte1 drsFlap;
@@ -34,7 +34,7 @@ typedef struct _DRS
 DRS *DRS_new();
 
 //DRS control logic
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC);
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status);
 //make sensor comparisons to thresholds and set drsActive flag
 void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
 
