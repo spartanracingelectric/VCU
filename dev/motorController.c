@@ -357,7 +357,18 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 
+/*
+70 - 80    170 - 240
 
+or just use
+power = rpm * torque and then just keep power constant at 80 or 79 and find a torque value and keep that as the max torque, assuming it is less than 240
+
+power = MCM_getPower(me)
+if (power > 70) {
+
+}
+
+*/
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {   
     // newTorque = 2400;
@@ -365,7 +376,7 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     
     sbyte2 takeaway = 0;
     if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH) {
-        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
+        takeaway = (sbyte2)((MCM_getPower(me) - (POWER_LIM_LOWER_POWER_THRESH * 1000)) / 100);
         // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
         
         if ( newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR) )  {  //if newTorque is greater than powerlim adjust max torque
