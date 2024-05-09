@@ -13,127 +13,6 @@
  *                                                       *
  *********************************************************/
 
-struct _BatteryManagementSystem
-{
-
-    ubyte2 canMessageBaseId;
-    //BMS Member Variable format:
-    //byte(s), scaling, add'l comments
-
-    // BMS_MASTER_FAULTS //
-    //ubyte1 reserved;                          //3
-    ubyte1 imminentContactorOpenWarning;        //2
-    ubyte1 faultFlags1;                         //1
-    ubyte1 faultFlags0;                         //0
-
-    // BMS_MASTER_WARNINGS //
-    //ubyte1 reserved;                          //3
-    //ubyte1 reserved;                          //2
-    //ubyte1 reserved;                          //1
-    ubyte1 warningFlags0;                       //0
-
-    // BMS_MASTER_SYSTEM_STATUS //
-    //ubyte1 reserved;                          //7
-    ubyte1 state;                               //6
-    ubyte1 numMonitorBoards;                    //5
-    ubyte1 monitorBoardCommErrFlags;            //4
-    ubyte1 statusFlags1;                        //3
-    ubyte1 statusFlags2;                        //2
-    ubyte1 numFailedThermistors;                //1
-    //ubyte1 reserved;                          //0
-
-    // BMS_PACK_SAFE_OPERATING_ENVELOPE //
-    //ubyte2 reserved;                          //7:6
-    ubyte2 chargerConstVoltageSetPoint;         //5:4
-    ubyte2 maxDischargeCurrentAllowed;          //3:2
-    ubyte2 maxChargeCurrentAllowed;             //1:0
-
-    // BMS_MASTER_LOCAL_BOARD_MEASUREMENTS //
-    sbyte2 boardTemperature;                    //7:6
-    ubyte2 powerInputSense_12V_24V;             //5:4
-    ubyte2 powerInputSense_HVIL;                //3:2
-    ubyte2 internalRailSense_5V;                //1:0
-
-    // BMS_DIGITAL_INPUTS_AND_OUTPUTS //
-    ubyte1 digitalOutputStatus;                 //1
-    ubyte1 digitalInputStatus;                  //0
-
-    // BMS_PACK_LEVEL_MEASUREMENTS_1 //
-    ubyte4 packVoltage;                         //7:4, V*1000
-    sbyte4 packCurrent;                         //3:0, A*1000, charging=positive discharging=negative
-
-    // BMS_PACK_LEVEL_MEASUREMENTS_2 //
-    ubyte2 packStateOfCharge;                   //7:6, %*10
-    ubyte2 packStateOfHealth;                   //5:4, %*10
-    ubyte2 packAmpHoursRemaining;               //3:2, Ah*10
-    //ubyte2 reserved                           //1:0
-
-    // BMS_CELL_VOLTAGE_SUMMARY //
-    ubyte4 highestCellVoltage;                  //7:6, V*1000
-    ubyte2 lowestCellVoltage;                   //5:4, V*1000
-    ubyte2 highestCellVoltagePos;               //3:2, 1-N
-    ubyte2 lowestCellVoltagePos;                //1:0, 1-N
-
-    // BMS_CELL_TEMPERATURE_SUMMARY //
-    sbyte2 highestCellTemperature;              //7:6, degC*10
-    sbyte2 lowestCellTemperature;               //5:4, degC*10
-    ubyte2 highestCellTemperaturePos;           //3:2, 1-N
-    ubyte2 lowestCellTemperaturePos;            //1:0, 1-N
-
-    // BMS_PACK_LEVEL_MEASUREMENTS_3 //
-    ubyte4 sumOfCellVoltages;                   //7:4, V*1000
-    ubyte4 preChargeVoltage;                    //3:0, V*1000
-
-    // BMS_CELL_VOLTAGE_DATA //
-    // Use these variables as temporary buffers for now
-    // Maybe transfer to array in future?
-    ubyte2 cellVoltage_4X_1;                    //7:6, V*1000, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellVoltage_4X_2;                    //5:4, V*1000, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellVoltage_4X_3;                    //3:2, V*1000, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellVoltage_4X_4;                    //1:0, V*1000, X from 0 to 63 (targeted cell group voltage)
-
-    // BMS_CELL_TEMPERATURE_DATA //
-    // Use these variables as temporary buffers for now
-    // Maybe transfer to array in future?
-    ubyte2 cellTemperature_4X_1;                //7:6, degC*10, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellTemperature_4X_2;                //5:4, degC*10, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellTemperature_4X_3;                //3:2, degC*10, X from 0 to 63 (targeted cell group voltage)
-    ubyte2 cellTemperature_4X_4;                //1:0, degC*10, X from 0 to 63 (targeted cell group voltage)
-
-    // BMS_CELL_SHUNTING_STATUS_1 //
-    //No ubyte8 exists, so we need to split it into two ubyte4
-    ubyte4 cellShuntingStatusArray1_0;          //7:4, , bit0=1 - shunting active for cell 1 | bit31=1 - shunting active for cell 32 
-    ubyte4 cellShuntingStatusArray1_1;          //3:0, , bit0=1 - shunting active for cell 33 | bit31=1 - shunting active for cell 64 
-
-    // BMS_CELL_SHUNTING_STATUS_2 //
-    ubyte4 cellShuntingStatusArray2_0;          //7:4, , bit0=1 - shunting active for cell 65 | bit31=1 - shunting active for cell 96 
-    ubyte4 cellShuntingStatusArray2_1;          //3:0, , bit0=1 - shunting active for cell 97 | bit31=1 - shunting active for cell 128 
-
-    // BMS_CELL_SHUNTING_STATUS_3 //
-    ubyte4 cellShuntingStatusArray3_0;          //7:4, , bit0=1 - shunting active for cell 129 | bit31=1 - shunting active for cell 160 
-    ubyte4 cellShuntingStatusArray3_1;          //3:0, , bit0=1 - shunting active for cell 161 | bit31=1 - shunting active for cell 192
-
-    // BMS_CELL_SHUNTING_STATUS_4 //
-    ubyte4 cellShuntingStatusArray4_0;          //7:4, , bit0=1 - shunting active for cell 193 | bit31=1 - shunting active for cell 224
-    ubyte4 cellShuntingStatusArray4_1;          //3:0, , bit0=1 - shunting active for cell 225 | bit31=1 - shunting active for cell 256 
-
-    // BMS_CONFIGUATION_INFORMATION //
-    //ubyte2 reserved;                          //7:6
-    //ubyte2 reserved;                          //5:4
-    ubyte2 numSeriesCells;                      //3:2
-    ubyte2 numThermistors;                      //1:0
-
-    // BMS_FIRMWARE_VERSION_INFORMATION //
-    //ubyte1 reserved;                          //3
-    ubyte1 fwMajorVerNum;                       //2, , X.0.0
-    ubyte1 fwMinorVerNum;                       //1, , 0.X.0
-    ubyte1 fwRevNum;                            //0, , 0.0.X
-
-    bool relayState;
-
-    // signed = 2's complement: 0XfFF = -1, 0x00 = 0, 0x01 = 1
-};
-
 BatteryManagementSystem *BMS_new(ubyte2 canMessageBaseID)
 {
     BatteryManagementSystem *me = (BatteryManagementSystem *)malloc(sizeof(struct _BatteryManagementSystem));
@@ -297,7 +176,7 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     //////////////////////////////////////////////////////////////
     IO_ErrorType err;
     //There is a fault
-    if (BMS_getFaultFlags0(me) || BMS_getFaultFlags1(me))
+    if (me->faultFlags0 || me->faultFlags1)
     {
         me->relayState = TRUE;
         err = IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
@@ -311,70 +190,11 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     return err;
 }
 
-ubyte4 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
-{
-    return (me->highestCellVoltage);
-}
-
-ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
-{
-    return (me->lowestCellVoltage);
-}
-
-ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me)
-{
-    return (me->packVoltage); 
-}
-
-//Split into
-sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
-{
-    //Need to divide by BMS_TEMPERATURE_SCALE at usage to get deciCelsius value into Celsius
-    return (me->highestCellTemperature);
-}
 
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
 {
     //Need to divide by BMS_TEMPERATURE_SCALE at usage to get deciCelsius value into Celsius
     return (me->highestCellTemperature/BMS_TEMPERATURE_SCALE);
-}
-
-// ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
-sbyte4 BMS_getPower_uW(BatteryManagementSystem *me)
-{
-    //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
-    return (me->packCurrent * me->packVoltage);
-}
-
-// ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
-sbyte4 BMS_getPower_W(BatteryManagementSystem *me)
-{
-    //Need to divide by BMS_POWER_SCALE at usage to get microWatt value into Watts
-    return ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE);
-}
-
-ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me) {
-    //Flag 0x01: Isolation Leakage Fault
-    //Flag 0x02: BMS Monitor Communication Fault
-    //Flag 0x04: Pre-charge Fault
-    //Flag 0x08: Pack Discharge Operating Envelope Exceeded
-    //Flag 0x10: Pack Charge Operating Envelope Exceeded
-    //Flag 0x20: Failed Thermistor Fault
-    //Flag 0x40: HVIL Fault
-    //Flag 0x80: Emergency Stop Fault
-    return me->faultFlags0;
-}
-
-ubyte1 BMS_getFaultFlags1(BatteryManagementSystem *me) {
-    //Flag 0x01: Cell Over-Voltage Fault
-    //Flag 0x02: Cell Under-Voltage Fault
-    //Flag 0x04: Cell Over-Temperature Fault
-    //Flag 0x08: Cell Under-Temperature Fault
-    //Flag 0x10: Pack Over-Voltage Fault
-    //Flag 0x20: Pack Under-Voltage Fault
-    //Flag 0x40: Over-Current Discharge Fault
-    //Flag 0x80: Over-Current Charge Fault
-    return me->faultFlags1;
 }
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed

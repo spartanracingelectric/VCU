@@ -20,7 +20,6 @@
 #include "readyToDriveSound.h"
 #include "wheelSpeeds.h"
 #include "safety.h"
-#include "sensorCalculations.h"
 #include "cooling.h"
 #include "bms.h"
 #include "LaunchControl.h"
@@ -33,6 +32,8 @@
 #define CYCLE_TIME (1000000.0 / CYCLE_TIME_US) // in seconds
 #define CAN_0_BAUD 500 // in kbps
 #define CAN_1_BAUD 500 // in kbps
+#define CAN_READ_MESSAGE_LIMIT 64 // in messages
+#define CAN_WRITE_MESSAGE_LIMIT 32 // in messages
 //16 bumps per rotation, 16 hz = 1 rotation per second
 #define F_WSS_TICKS 26 // number of ticks on the tone wheel
 #define R_WSS_TICKS 22 // number of ticks on the tone wheel
@@ -42,3 +43,4 @@
 
 #define SOFT_BSPD_ENABLE 0
 #define POWER_LIMIT 1
+

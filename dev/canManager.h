@@ -41,17 +41,11 @@ typedef struct _CanManager {
     //Functions shall have a CanChannel enum (see header) parameter.  Direction (send/receive is not
     //specified by this parameter.  The CAN0/CAN1 is selected based on the parameter passed in, and 
     //Read/Write is selected based on the function that is being called (get/send)
-    ubyte1 can0_busSpeed;
     ubyte1 can0_readHandle;
-    ubyte1 can0_read_messageLimit;
     ubyte1 can0_writeHandle;
-    ubyte1 can0_write_messageLimit;
 
-    ubyte1 can1_busSpeed;
     ubyte1 can1_readHandle;
-    ubyte1 can1_read_messageLimit;
     ubyte1 can1_writeHandle;
-    ubyte1 can1_write_messageLimit;
     
     IO_ErrorType ioErr_can0_Init;
     IO_ErrorType ioErr_can1_Init;
@@ -73,7 +67,7 @@ typedef struct _CanManager {
 } CanManager;
 
 //Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
-CanManager *CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit, ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit, ubyte4 defaultSendDelayus);
+CanManager *CanManager_new(ubyte4 defaultSendDelayus, SerialManager *sm);
 IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount);
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves

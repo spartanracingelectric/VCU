@@ -29,7 +29,6 @@ typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
 typedef struct _SafetyChecker
 {
     //Problems that require motor torque to be disabled
-    SerialManager *serialMan;
     ubyte4 faults;
     ubyte2 warnings;
     ubyte2 notices;
@@ -45,7 +44,7 @@ typedef struct _SafetyChecker
     ubyte4 bypassSafetyChecksTimeout_us;
 } SafetyChecker;
 
-SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
+SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
 ubyte1 SafetyChecker_getsoftbspd(SafetyChecker *me);

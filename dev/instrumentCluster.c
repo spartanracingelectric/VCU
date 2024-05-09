@@ -5,18 +5,6 @@
 #include "canManager.h"
 
 
-struct _InstrumentCluster
-{
-   
-    ubyte2 canMessageBaseId;  //Starting message ID for messages that will come in from this controller
-
-    ubyte1 torqueMapMode;
-
-    //0 = off. Default OFF
-    ubyte1 launchControlSensitivity;
-    
-};
-
 InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID)
 {
     InstrumentCluster* me = (InstrumentCluster*)malloc(sizeof(struct _InstrumentCluster));

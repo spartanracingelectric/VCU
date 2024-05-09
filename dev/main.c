@@ -93,6 +93,7 @@ void main(void)
     /*        Low Level Initializations        */
     /*******************************************/
     IO_Driver_Init(NULL); //Handles basic startup for all VCU subsystems
+    SerialManager *serialMan = SerialManager_new();
     IO_RTC_StartTime(&timestamp_startTime);
     SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
     SerialManager_send(serialMan, "VCU serial is online.\n");
@@ -109,15 +110,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(CAN_0_BAUD, 50, 50, CAN_1_BAUD, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
-    //can0_busSpeed -------------------------^       ^   ^       ^       ^   ^     ^         ^
-    //can0_read_messageLimit ------------------------|   |       |       |   |     |         |
-    //can0_write_messageLimit----------------------------+       |       |   |     |         |
-    //can1_busSpeed----------------------------------------------+       |   |     |         |
-    //can1_read_messageLimit---------------------------------------------+   |     |         |
-    //can1_write_messageLimit------------------------------------------------+     |         |
-    //defaultSendDelayus-----------------------------------------------------------+         |
-    //SerialManager* sm----------------------------------------------------------------------+
+    CanManager *canMan = CanManager_new(200000, serialMan);
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -126,16 +119,17 @@ void main(void)
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new(1, 1500000);
-    BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+    BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10);
-    InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
+    InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
     TorqueEncoder *tps = TorqueEncoder_new();
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, F_WSS_TICKS, R_WSS_TICKS);
-    SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
+    SafetyChecker *sc = SafetyChecker_new(320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
     DRS *drs = DRS_new();
+    TimerDebug *td = TimerDebug_new();
     init_lv_battery_lut();
 
     ubyte4 timestamp_mainLoopStart = 0;

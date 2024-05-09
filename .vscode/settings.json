@@ -1,6 +1,16 @@
 {
     "files.associations": {
-        "io_driver.h": "c"
+        "*.json.liquid": "json",
+        "*.yaml.liquid": "yaml",
+        "*.md.liquid": "markdown",
+        "*.js.liquid": "liquid-javascript",
+        "*.css.liquid": "liquid-css",
+        "*.scss.liquid": "liquid-scss",
+        "brakepressuresensor.h": "c",
+        "stdlib.h": "c",
+        "sensors.h": "c",
+        "motorcontroller.h": "c",
+        "readytodrivesound.h": "c"
     },
     "cSpell.words": [
         "APDB",
