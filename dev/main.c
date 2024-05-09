@@ -44,6 +44,7 @@
 #include "bms.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "watch_dog.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -80,6 +81,7 @@ APDB appl_db =
 extern Button Cal_Button;
 extern DigitalOutput Eco_Light;
 extern DigitalOutput Err_Light;
+extern WatchDog wd;
 
 
 
@@ -111,6 +113,8 @@ void main(void)
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
     CanManager *canMan = CanManager_new(200000, serialMan);
+
+    WatchDog_new(&wd, 50000); //50 ms 
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -161,6 +165,7 @@ void main(void)
         }
 
         if (Cal_Button.sensorValue) {
+            WatchDog_reset(&wd); // tapping eco will reset the watchdog for now
             if (timestamp_EcoButton == 0) {
                 SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);

@@ -13,6 +13,7 @@
 #include "bms.h"
 #include "serial.h"
 #include "main.h"
+#include "watch_dog.h"
 
 //TODO #162 Add in CAN Address to tell which Safeties are on or off
 
@@ -35,7 +36,7 @@ static const ubyte4 F_bpsNotCalibrated = 0x80;
 static const ubyte4 F_tpsOutOfSync = 0x100;
 static const ubyte4 F_bpsOutOfSync = 0x200; //NOT USED
 static const ubyte4 F_tpsbpsImplausible = 0x400;
-//static const ubyte4 UNUSED = 0x800;
+static const ubyte4 F_bmsTimeOut = 0x800;
 
 //nibble 4
 static const ubyte4 F_softBSPDFault = 0x1000;
@@ -63,7 +64,7 @@ static const ubyte4 F_bmsCellMismatchFault = 0x1000000;
 
 //nibble 8
 //                             nibble: 87654321
-static const ubyte4 F_unusedFaults = 0xFFFEF800;
+static const ubyte4 F_unusedFaults = 0xFFFEF000; // we need to fix this so it is easier to add faults
 
 //Warnings -------------------------------------------
 static const ubyte2 W_lvsBatteryLow = 1;
@@ -83,6 +84,7 @@ ubyte4 timestamp_SoftBSPD = 0;
 
 extern Sensor Sensor_LVBattery;
 extern Button Sensor_HVILTerminationSense;
+extern WatchDog wd;
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -221,6 +223,9 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 
     //If over temperature fault detected
     set_flags(&me->faults, F_bmsOverTemperatureFault, bms->faultFlags1 & BMS_CELL_OVER_TEMPERATURE_FLAG);
+
+    //If the BMS timed out
+    set_flags(&me->faults, F_bmsTimeOut, WatchDog_check(&wd) == FALSE);
 
     //If mismatch greater than specified mismatch value
     //BMS cell voltage data members are in mV

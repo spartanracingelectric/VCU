@@ -12,6 +12,7 @@
 #include "sensors.h"
 #include "initializations.h"
 #include "lut.h"
+#include "watch_dog.h"
 
 
 LUT* LV_BATT_SOC_LUT;
@@ -174,3 +175,5 @@ DigitalOutput DRS_Close;
 PWMOutput RTD_Sound;
 PWMOutput Rad_Fans;
 PWMOutput Accum_Fan;
+
+WatchDog wd;

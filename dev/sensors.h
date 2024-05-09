@@ -32,8 +32,6 @@ typedef struct _Sensor {
     IO_ErrorType ioErr_signalInit;
     IO_ErrorType ioErr_signalGet;
 
-
-
 } Sensor;
 
 typedef struct _Button {

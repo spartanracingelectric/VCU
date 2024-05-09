@@ -17,8 +17,10 @@
 #include "drs.h"
 #include "lut.h"
 #include "main.h"
+#include "watch_dog.h"
 
 extern LUT* LV_BATT_SOC_LUT;
+extern WatchDog wd;
 
 // 0x0AA
 static const ubyte1 bitInverter = 1;  //bit 1
@@ -334,6 +336,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x600:
         case 0x602: // Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            WatchDog_pet(&wd);
             break;
         case 0x604:
         case 0x608:
@@ -345,9 +348,11 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x621:
         case 0x622: // Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            WatchDog_pet(&wd);
             break;
         case 0x623: // Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            WatchDog_pet(&wd);
             break;
         case 0x624:
         // 1st Module
@@ -385,6 +390,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            WatchDog_pet(&wd);
             break;
 
         case 0x702:
