@@ -26,7 +26,8 @@
 #include "drs.h"
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
-#include "timerDebug.h"#include <IO_Driver.h>
+#include "timerDebug.h"
+#include <IO_Driver.h>
 
 #define CYCLE_TIME_US 10000 // in microseconds
 #define CYCLE_TIME (1000000.0 / CYCLE_TIME_US) // in seconds
