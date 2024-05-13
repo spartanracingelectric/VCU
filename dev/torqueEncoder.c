@@ -51,11 +51,15 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     //It is literally a potentiometer, no sensor operating range in theory?
     //That would mean we could probably make our own ranges up
     me->tps0->specMin = 100; // Target 0% = ~250
-    me->tps0->specMax = 2500; // Target 100% = ~2000
-    me->tps1->specMin = 2500; // Target 0% = ~2650
+    me->tps0->specMax = 4900; // Target 100% = ~2000
+    me->tps1->specMin = 100; // Target 0% = ~2650
     me->tps1->specMax = 4900; // Target 100% = ~4700
 
-    me->calibrated = FALSE;
+    me->tps0_calibMin = 146;
+    me->tps0_calibMax = 816;
+    me->tps1_calibMin = 386;
+    me->tps1_calibMax = 2485;
+    me->calibrated = TRUE;
 
     return me;
 }
