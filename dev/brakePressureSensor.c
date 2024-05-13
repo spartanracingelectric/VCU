@@ -11,8 +11,8 @@ extern DigitalOutput Brake_Light;
 extern DigitalOutput Eco_Light;
 
 /*****************************************************************************
-* Brake Pressure Sensor (BPS) functions
-****************************************************************************/
+ * Brake Pressure Sensor (BPS) functions
+ ****************************************************************************/
 
 // TODO: #94 Make this CAN configurable and store in EEPROM
 // This value is used for controlling the brake light and triggering the TPS-BPS implausibility fault
@@ -33,39 +33,39 @@ void BrakePressureSensor_new(BrakePressureSensor *me)
     me->bps0_reverse = FALSE;
     me->bps1_reverse = FALSE;
 
-    //BPS0 only
+    // BPS0 only
     me->percent = 0;
     me->brakesAreOn = FALSE;
-    me->runCalibration = FALSE; //Do not run the calibration at the next main loop cycle
+    me->runCalibration = FALSE; // Do not run the calibration at the next main loop cycle
 
     me->calibrated = TRUE;
     me->bps0_calibMin = 500;
     me->bps0_calibMax = 2290;
-    
+
     // BrakePressureSensor_resetCalibration(me);
 }
 
-//Updates all values based on sensor readings, safety checks, etc
- void BrakePressureSensor_update(BrakePressureSensor *me)
+// Updates all values based on sensor readings, safety checks, etc
+void BrakePressureSensor_update(BrakePressureSensor *me)
 {
     me->bps0_value = BPS0.sensorValue;
     me->bps1_value = BPS1.sensorValue;
 
-    //This function runs before the calibration cycle function.  If calibration is currently
-    //running, then set the percentage to zero for safety purposes.
+    // This function runs before the calibration cycle function.  If calibration is currently
+    // running, then set the percentage to zero for safety purposes.
     if (me->runCalibration == TRUE || me->calibrated == FALSE)
     {
         me->bps0_percent = 0;
-        //me->bps1_percent = 0;
+        // me->bps1_percent = 0;
         me->percent = 0;
-        me->brakesAreOn = FALSE;  // Blocks Ready To Drive
+        me->brakesAreOn = FALSE; // Blocks Ready To Drive
     }
     else
     {
         me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
-        //me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
-        //BPS0 only
-        me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
+        // me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
+        // BPS0 only
+        me->percent = me->bps0_percent; // Note: If we had redundant sensors we would average them here
         me->brakesAreOn = me->percent > BRAKES_ON_PERCENT;
     }
 
@@ -83,10 +83,9 @@ void BrakePressureSensor_resetCalibration(BrakePressureSensor *me)
     me->bps1_calibMax = BPS1.sensorValue;
 }
 
-
 void BrakePressureSensor_startCalibration(BrakePressureSensor *me, ubyte1 secondsToRun)
 {
-    if (me->runCalibration == FALSE) //Ignore the button if calibration is already running
+    if (me->runCalibration == FALSE) // Ignore the button if calibration is already running
     {
         me->runCalibration = TRUE;
         BrakePressureSensor_resetCalibration(me);
@@ -96,7 +95,7 @@ void BrakePressureSensor_startCalibration(BrakePressureSensor *me, ubyte1 second
     }
     else
     {
-        IO_RTC_StartTime(&(me->timestamp_calibrationStart)); //extend the calibration time
+        IO_RTC_StartTime(&(me->timestamp_calibrationStart)); // extend the calibration time
     }
 }
 
@@ -117,7 +116,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
     {
         if (IO_RTC_GetTimeUS(me->timestamp_calibrationStart) < (ubyte4)(me->calibrationRunTime) * 1000 * 1000)
         {
-            //The calibration itself
+            // The calibration itself
             if (BPS0.sensorValue < me->bps0_calibMin)
             {
                 me->bps0_calibMin = BPS0.sensorValue;
@@ -126,7 +125,7 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
             {
                 me->bps0_calibMax = BPS0.sensorValue;
             }
-            
+
             if (BPS1.sensorValue < me->bps1_calibMin)
             {
                 me->bps1_calibMin = BPS1.sensorValue;
@@ -135,17 +134,16 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
             {
                 me->bps1_calibMax = BPS1.sensorValue;
             }
-            
         }
-        else //Calibration shutdown
+        else // Calibration shutdown
         {
             float4 pedalTopPlay = 1.05;
             float4 pedalBottomPlay = .95;
 
             me->bps0_calibMin *= me->bps0_reverse ? pedalBottomPlay : pedalTopPlay;
             me->bps0_calibMax *= me->bps0_reverse ? pedalTopPlay : pedalBottomPlay;
-            //me->bps1_calibMin *= me->bps1_reverse ? pedalBottomPlay : pedalTopPlay;
-            //me->bps1_calibMax *= me->bps1_reverse ? pedalTopPlay : pedalBottomPlay;
+            // me->bps1_calibMin *= me->bps1_reverse ? pedalBottomPlay : pedalTopPlay;
+            // me->bps1_calibMax *= me->bps1_reverse ? pedalTopPlay : pedalBottomPlay;
 
             me->runCalibration = FALSE;
             me->calibrated = TRUE;
@@ -154,41 +152,41 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
     }
     else
     {
-        //TODO: Throw warning: calibrationCycle helper function was called but calibration should not be running
+        // TODO: Throw warning: calibrationCycle helper function was called but calibration should not be running
     }
 
-    //TODO: Write calibration data to EEPROM
+    // TODO: Write calibration data to EEPROM
 
-    //TODO: Check for valid/reasonable calibration data
+    // TODO: Check for valid/reasonable calibration data
 
-    //TODO: Do something on the display to show that voltages are being recorded
+    // TODO: Do something on the display to show that voltages are being recorded
 
-    //Idea: Display "bars" filling up on right segment (for gas pedal) _=E=_=E...
-    //      Once calibration data makes sense, show pedal location (0-10%, 10-90%, 90-100%) with bars
+    // Idea: Display "bars" filling up on right segment (for gas pedal) _=E=_=E...
+    //       Once calibration data makes sense, show pedal location (0-10%, 10-90%, 90-100%) with bars
 }
 
 void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, ubyte1 sensorNumber, float4 *percent)
 {
-    //Sensor* bps;
-    //ubyte2 calMin;
-    //ubyte2 calMax;
+    // Sensor* bps;
+    // ubyte2 calMin;
+    // ubyte2 calMax;
 
     switch (sensorNumber)
     {
     case 0:
         *percent = me->bps0_percent;
-        //bps = me->bps0;
-        //calMin = me->bps0_calibMin;
-        //calMax = me->bps0_calibMax;
+        // bps = me->bps0;
+        // calMin = me->bps0_calibMin;
+        // calMax = me->bps0_calibMax;
         break;
     case 1:
         *percent = me->bps1_percent;
-        //bps = me->bps1;
-        //calMin = me->bps1_calibMin;
-        //calMax = me->bps1_calibMax;
+        // bps = me->bps1;
+        // calMin = me->bps1_calibMin;
+        // calMax = me->bps1_calibMax;
         break;
     }
-    //float4 TPS0PedalPercent = getPercent(me->tps0->sensorValue, calMin, calMax, TRUE); //Analog Input 0
+    // float4 TPS0PedalPercent = getPercent(me->tps0->sensorValue, calMin, calMax, TRUE); //Analog Input 0
 }
 
 /*-------------------------------------------------------------------
@@ -205,9 +203,9 @@ void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCo
 {
     *pedalPercent = me->percent;
 
-    //What about other error states?
-    //Voltage outside of calibration range
-    //Voltages off center
+    // What about other error states?
+    // Voltage outside of calibration range
+    // Voltages off center
 
     //    if (errorCount > 0)
     //    {
@@ -215,6 +213,6 @@ void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCo
     //    }
     //    else
     //    {
-    //return (TPS0PedalPercent + TPS1PedalPercent) / 2;
+    // return (TPS0PedalPercent + TPS1PedalPercent) / 2;
     //    }
 }

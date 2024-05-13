@@ -25,7 +25,7 @@ IO_ErrorType serial_sprintf(const ubyte1 *message, void *dataValue)
     return err;
 }
 
-//IO_ErrorType SerialManager_sendLen(SerialManager* me, const ubyte1* data, ubyte1* dataLength)
+// IO_ErrorType SerialManager_sendLen(SerialManager* me, const ubyte1* data, ubyte1* dataLength)
 //{
-//    return IO_UART_Write(IO_UART_CH0, data, dataLength, &dataLength);
-//}
+//     return IO_UART_Write(IO_UART_CH0, data, dataLength, &dataLength);
+// }

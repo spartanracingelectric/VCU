@@ -4,22 +4,22 @@
 #include "main.h"
 
 /// @brief Generates a watchdog timer, timeout is in microseconds
-/// @param wd 
-/// @param timeout 
-void WatchDog_new(WatchDog* wd, ubyte4 timeout)
+/// @param wd
+/// @param timeout
+void WatchDog_new(WatchDog *wd, ubyte4 timeout)
 {
     wd->timeout = timeout;
     wd->running = FALSE;
     wd->mood = 0;
 }
 
-void WatchDog_reset(WatchDog* wd)
+void WatchDog_reset(WatchDog *wd)
 {
     wd->running = TRUE;
     wd->mood = 0;
 }
 
-void WatchDog_pet(WatchDog* wd)
+void WatchDog_pet(WatchDog *wd)
 {
     IO_RTC_StartTime(&wd->timestamp);
     if (!wd->running)
@@ -39,7 +39,7 @@ void WatchDog_pet(WatchDog* wd)
     }
 }
 
-bool WatchDog_check(WatchDog* wd)
+bool WatchDog_check(WatchDog *wd)
 {
     return (wd->running && IO_RTC_GetTimeUS(wd->timestamp) >= wd->timeout);
 }

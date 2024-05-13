@@ -7,18 +7,22 @@
 
 extern PWMOutput RTD_Sound;
 
-void RTDS_new(ReadyToDriveSound *me, ubyte2 volumePercent, ubyte4 timeToPlay) {
+void RTDS_new(ReadyToDriveSound *me, ubyte2 volumePercent, ubyte4 timeToPlay)
+{
     me->volumePercent = volumePercent;
     me->timeToSound = timeToPlay;
 }
 
-void RTDS_play_sound(ReadyToDriveSound *rtds) {
+void RTDS_play_sound(ReadyToDriveSound *rtds)
+{
     PWMOutput_set(&RTD_Sound, rtds->volumePercent);
     IO_RTC_StartTime(&(rtds->timeStamp_soundStarted));
 }
 
-void RTDS_shutdownHelper(ReadyToDriveSound *rtds) {
-    if (IO_RTC_GetTimeUS(rtds->timeStamp_soundStarted) > rtds->timeToSound) {
+void RTDS_shutdownHelper(ReadyToDriveSound *rtds)
+{
+    if (IO_RTC_GetTimeUS(rtds->timeStamp_soundStarted) > rtds->timeToSound)
+    {
         PWMOutput_set(&RTD_Sound, 0);
     }
 }

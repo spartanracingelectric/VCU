@@ -1,13 +1,13 @@
-/**********************************************************************//**
- * \file sensors.h
- *
- * \brief Sensor object definitions and basic functions
- *
- *      The IO Driver high level interface provides a general
- *      initialization function, a version API and general task functions
- *      which shall wrap the whole user application.
- *
- **************************************************************************/
+/**********************************************************************/ /**
+                                                                          * \file sensors.h
+                                                                          *
+                                                                          * \brief Sensor object definitions and basic functions
+                                                                          *
+                                                                          *      The IO Driver high level interface provides a general
+                                                                          *      initialization function, a version API and general task functions
+                                                                          *      which shall wrap the whole user application.
+                                                                          *
+                                                                          **************************************************************************/
 
 //"Include guard" - prevents this file from being #included more than once
 #ifndef _SENSORS_H
@@ -15,11 +15,12 @@
 
 #include "IO_Driver.h"
 
-typedef struct _Sensor {
-    //Sensor values / properties
+typedef struct _Sensor
+{
+    // Sensor values / properties
     ubyte4 specMin;
     ubyte4 specMax;
-    
+
     ubyte2 sensorValue;
     ubyte4 heldSensorValue;
     ubyte4 timestamp;
@@ -34,7 +35,8 @@ typedef struct _Sensor {
 
 } Sensor;
 
-typedef struct _Button {
+typedef struct _Button
+{
     bool sensorValue;
     bool heldSensorValue;
     ubyte4 timestamp;
@@ -47,7 +49,8 @@ typedef struct _Button {
     IO_ErrorType ioErr_signalGet;
 } Button;
 
-typedef struct _PWDSensor {
+typedef struct _PWDSensor
+{
     ubyte2 sensorValue;
     ubyte2 heldSensorValue;
     ubyte4 timestamp;
@@ -57,12 +60,14 @@ typedef struct _PWDSensor {
     IO_ErrorType ioErr_signalGet;
 } PWDSensor;
 
-typedef struct _DigitalOutput {
+typedef struct _DigitalOutput
+{
     ubyte1 outputAddress;
     bool inverted;
 } DigitalOutput;
 
-typedef struct _PWMOutput {
+typedef struct _PWMOutput
+{
     ubyte1 outputAddress;
     ubyte2 duty;
     ubyte2 frequency;
@@ -71,28 +76,28 @@ typedef struct _PWMOutput {
 //----------------------------------------------------------------------------
 // Sensor Object Declarations
 //----------------------------------------------------------------------------
-//Initialize all sensors in vcu.c
-//TODO: Read stored calibration data from EEPROM
+// Initialize all sensors in vcu.c
+// TODO: Read stored calibration data from EEPROM
 
-//Torque Encoders (TPS is not really accurate since there's no throttle to position in an EV)
+// Torque Encoders (TPS is not really accurate since there's no throttle to position in an EV)
 extern Sensor TPS0;
 extern Sensor TPS1;
 
-//Brake Position Sensors
-extern Sensor BPS0; //Brake system pressure (or front only in the future)
-extern Sensor BPS1; //Rear brake system pressure (separate address in case used for something else)
+// Brake Position Sensors
+extern Sensor BPS0; // Brake system pressure (or front only in the future)
+extern Sensor BPS1; // Rear brake system pressure (separate address in case used for something else)
 
-//Wheel Speed Sensors (like an ABS sensor)
+// Wheel Speed Sensors (like an ABS sensor)
 extern PWDSensor WSS_FL;
 extern PWDSensor WSS_FR;
 extern PWDSensor WSS_RL;
 extern PWDSensor WSS_RR;
 
-//Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
+// Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
 extern Sensor SAS;
 
-//Switches
-//precharge failure
+// Switches
+// precharge failure
 extern Button RTD_Button;
 extern Button Cal_Button;
 extern Sensor TCSSwitchUp;
@@ -122,21 +127,21 @@ extern PWMOutput RTD_Sound;
 extern PWMOutput Rad_Fans;
 extern PWMOutput Accum_Fan;
 
-Sensor* Sensor_new(ubyte1 pin, ubyte1 power);
-Button* Button_new(ubyte1 pin, bool inverted);
-PWDSensor* PWDSensor_new(ubyte1 pin);
-DigitalOutput* DigitalOutput_new(ubyte1 pin, bool inverted);
-PWMOutput* PWMOutput_new(ubyte1 pin, ubyte2 frequency, float4 duty);
+Sensor *Sensor_new(ubyte1 pin, ubyte1 power);
+Button *Button_new(ubyte1 pin, bool inverted);
+PWDSensor *PWDSensor_new(ubyte1 pin);
+DigitalOutput *DigitalOutput_new(ubyte1 pin, bool inverted);
+PWMOutput *PWMOutput_new(ubyte1 pin, ubyte2 frequency, float4 duty);
 
 void sensors_updateSensors(void);
 
 void setMCMRelay(bool turnOn);
-void Sensor_power_set(Sensor* sensor);
-void Sensor_read(Sensor* sensor);
-void Button_read(Button* button);
-void PWDSensor_read(PWDSensor* sensor);
-void DigitalOutput_set(DigitalOutput* output, bool value);
-void PWMOutput_set(PWMOutput* output, float4 duty);
+void Sensor_power_set(Sensor *sensor);
+void Sensor_read(Sensor *sensor);
+void Button_read(Button *button);
+void PWDSensor_read(PWDSensor *sensor);
+void DigitalOutput_set(DigitalOutput *output, bool value);
+void PWMOutput_set(PWMOutput *output, float4 duty);
 
 /*****************************************************************************
 * Steering Angle Sensor (SAS)

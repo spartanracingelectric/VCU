@@ -5,31 +5,31 @@
 
 typedef struct _CoolingSystem
 {
-    //Cooling systems:
-    //Water pump (motor, controller) - PWM
+    // Cooling systems:
+    // Water pump (motor, controller) - PWM
     float4 waterPumpMinPercent;
-    sbyte1 waterPumpLow; //Start ramping beyond min at this temp
+    sbyte1 waterPumpLow; // Start ramping beyond min at this temp
     sbyte1 waterPumpHigh;
     float4 waterPumpPercent;
 
-    //PP fans (motor, radiator) - Relay
-    //Motor fan + radiator on same circuit
-    sbyte1 motorFanLow;  //Turn off BELOW this point
+    // PP fans (motor, radiator) - Relay
+    // Motor fan + radiator on same circuit
+    sbyte1 motorFanLow;  // Turn off BELOW this point
     sbyte1 motorFanHigh; // Turn on at this temperature
     bool motorFanState;
-    //float4 motorFanPercent;
+    // float4 motorFanPercent;
 
     float4 radFanMinPercent;
-    sbyte1 radFanLow; //Start ramping beyond min at this temp
+    sbyte1 radFanLow; // Start ramping beyond min at this temp
     sbyte1 radFanHigh;
     float4 radFanPercent;
 
-    //Battery fans (batteries) - Relay
-    sbyte1 batteryFanLow;  //Turn off BELOW this point
+    // Battery fans (batteries) - Relay
+    sbyte1 batteryFanLow;  // Turn off BELOW this point
     sbyte1 batteryFanHigh; // Turn on at this temperature
     bool batteryFanState;
-    //float4 batteryFanPercent;
-    
+    // float4 batteryFanPercent;
+
 } CoolingSystem;
 
 void CoolingSystem_new(CoolingSystem *me);

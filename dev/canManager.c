@@ -1,7 +1,7 @@
 
 #include <stdlib.h> //malloc
 
-#include "IO_Driver.h" 
+#include "IO_Driver.h"
 #include "IO_CAN.h"
 #include "IO_RTC.h"
 
@@ -19,7 +19,7 @@
 #include "main.h"
 #include "watch_dog.h"
 
-extern LUT* LV_BATT_SOC_LUT;
+extern LUT *LV_BATT_SOC_LUT;
 extern WatchDog wd;
 extern TorqueEncoder *tps;
 extern BrakePressureSensor *bps;
@@ -34,10 +34,10 @@ extern TimerDebug *td;
 extern WheelSpeeds *wss;
 
 // 0x0AA
-static const ubyte1 bitInverter = 1;  //bit 1
-static const ubyte1 bitLockout = 128; //bit 7
+static const ubyte1 bitInverter = 1;  // bit 1
+static const ubyte1 bitLockout = 128; // bit 7
 
-void CanManager_new(CanManager* me, ubyte4 defaultSendDelayus)
+void CanManager_new(CanManager *me, ubyte4 defaultSendDelayus)
 {
     for (ubyte4 id = 0; id <= 0x7FF; id++)
     {
@@ -46,10 +46,9 @@ void CanManager_new(CanManager* me, ubyte4 defaultSendDelayus)
 
     me->sendDelayus = defaultSendDelayus;
 
-    //Activate the CAN channels --------------------------------------------------
+    // Activate the CAN channels --------------------------------------------------
     me->ioErr_can0_Init = IO_CAN_Init(IO_CAN_CHANNEL_0, CAN_0_BAUD, 0, 0, 0);
     me->ioErr_can1_Init = IO_CAN_Init(IO_CAN_CHANNEL_1, CAN_1_BAUD, 0, 0, 0);
-
 
     // Configure the FIFO queues
     // This specifies: The handle names for the queues
@@ -67,11 +66,11 @@ void CanManager_new(CanManager* me, ubyte4 defaultSendDelayus)
     me->ioErr_can0_write = IO_E_CAN_BUS_OFF;
     me->ioErr_can1_read = IO_E_CAN_BUS_OFF;
     me->ioErr_can1_write = IO_E_CAN_BUS_OFF;
-    
+
     ubyte2 messageID;
-    ubyte1 emptyData[8] = { 0,0,0,0,0,0,0,0 };
-    //Outgoing ----------------------------
-    CAN_msg_insert(me->canMessageHistory, 0xC0, emptyData, 25000, 125000, TRUE);  //MCM Command Message
+    ubyte1 emptyData[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    // Outgoing ----------------------------
+    CAN_msg_insert(me->canMessageHistory, 0xC0, emptyData, 25000, 125000, TRUE); // MCM Command Message
 
     for (messageID = 0x500; messageID <= 0x515; messageID++)
     {
@@ -82,49 +81,48 @@ void CanManager_new(CanManager* me, ubyte4 defaultSendDelayus)
 CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
 {
     CanMessageNode *message = (CanMessageNode *)malloc(sizeof(CanMessageNode));
-    if (message == NULL) //malloc failed
+    if (message == NULL) // malloc failed
     {
-        //fprintf(stderr, "Out of memory!!! (insert)\n");
-        //exit(1);
+        // fprintf(stderr, "Out of memory!!! (insert)\n");
+        // exit(1);
     }
     else
     {
         message->timeBetweenMessages_Min = minTime;
         message->timeBetweenMessages_Max = maxTime;
         IO_RTC_StartTime(&message->lastMessage_timeStamp);
-        //To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
+        // To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
         memcpy(messageData, message->data, sizeof(messageData));
         message->required = req;
         messageHistoryArray[messageID] = message;
     }
     return message;
-
 }
 
 /*****************************************************************************
-* This function takes an array of messages, determines which messages to send
-* based on whether or not data has changed since the last time it was sent,
-* or if a certain amount of time has passed since the last time it was sent.
-*
-* Messages that need to be sent are copied to another array and passed to the
-* FIFO queue.
-*
-* Note: http://stackoverflow.com/questions/5573310/difference-between-passing-array-and-array-pointer-into-function-in-c
-* http://stackoverflow.com/questions/2360794/how-to-pass-an-array-of-struct-using-pointer-in-c-c
-****************************************************************************/
-IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount)
+ * This function takes an array of messages, determines which messages to send
+ * based on whether or not data has changed since the last time it was sent,
+ * or if a certain amount of time has passed since the last time it was sent.
+ *
+ * Messages that need to be sent are copied to another array and passed to the
+ * FIFO queue.
+ *
+ * Note: http://stackoverflow.com/questions/5573310/difference-between-passing-array-and-array-pointer-into-function-in-c
+ * http://stackoverflow.com/questions/2360794/how-to-pass-an-array-of-struct-using-pointer-in-c-c
+ ****************************************************************************/
+IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount)
 {
     bool sendSerialDebug = FALSE;
     bool sendMessage = FALSE;
     ubyte1 messagesToSendCount = 0;
     IO_CAN_DATA_FRAME messagesToSend[CAN_WRITE_MESSAGE_LIMIT];
-    ubyte1 emptyData[8] = { 0,0,0,0,0,0,0,0 };
+    ubyte1 emptyData[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
     //----------------------------------------------------------------------------
     // Check if message exists in outgoing message history tree
     //----------------------------------------------------------------------------
-    CanMessageNode* lastMessage;  //replace with me->canMessageHistory[ID]
-    ubyte1 messagePosition; //used twice
+    CanMessageNode *lastMessage; // replace with me->canMessageHistory[ID]
+    ubyte1 messagePosition;      // used twice
     for (messagePosition = 0; messagePosition < canMessageCount; messagePosition++)
     {
         bool firstTimeMessage = FALSE;
@@ -139,10 +137,10 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // Check if this message exists in the array, if not init it
         //----------------------------------------------------------------------------
-        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == NULL);  // pointer is null
+        firstTimeMessage = (me->canMessageHistory[outboundMessageID] == NULL); // pointer is null
         if (firstTimeMessage)
         {
-            me->canMessageHistory[outboundMessageID] = (CanMessageNode*)malloc(sizeof(CanMessageNode));
+            me->canMessageHistory[outboundMessageID] = (CanMessageNode *)malloc(sizeof(CanMessageNode));
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Min = 25000;
             me->canMessageHistory[outboundMessageID]->timeBetweenMessages_Max = 125000;
             me->canMessageHistory[outboundMessageID]->required = TRUE;
@@ -153,13 +151,13 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         // Check if data has changed since last time message was sent
         //----------------------------------------------------------------------------
-        //Check each data byte in the data array
+        // Check each data byte in the data array
         for (ubyte1 dataPosition = 0; dataPosition < 8; dataPosition++)
         {
-            //if any data byte is changed, then probably want to send the message
+            // if any data byte is changed, then probably want to send the message
             if (lastMessage->data[dataPosition] != canMessages[messagePosition].data[dataPosition])
             {
-                dataChanged = TRUE; //ONLY MODIFY IF CHANGED
+                dataChanged = TRUE; // ONLY MODIFY IF CHANGED
             }
         } // end checking each byte in message
 
@@ -168,7 +166,7 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         minTimeExceeded = ((IO_RTC_GetTimeUS(lastMessage->lastMessage_timeStamp) >= lastMessage->timeBetweenMessages_Min));
         maxTimeExceeded = ((IO_RTC_GetTimeUS(lastMessage->lastMessage_timeStamp) >= 50000));
-        
+
         //----------------------------------------------------------------------------
         // If any criteria were exceeded, send the message out
         //----------------------------------------------------------------------------
@@ -182,9 +180,9 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
         //----------------------------------------------------------------------------
         if (sendMessage == TRUE)
         {
-            //copy the message that needs to be sent into the outgoing messages array
-            //see http://stackoverflow.com/questions/1693853/copying-arrays-of-structs-in-c
-            //http://www.socialledge.com/sjsu/index.php?title=ES101_-_Lesson_9_:_Structures
+            // copy the message that needs to be sent into the outgoing messages array
+            // see http://stackoverflow.com/questions/1693853/copying-arrays-of-structs-in-c
+            // http://www.socialledge.com/sjsu/index.php?title=ES101_-_Lesson_9_:_Structures
             messagesToSend[messagesToSendCount++] = canMessages[messagePosition];
         }
     } // end of loop for each message in outgoing messages
@@ -214,19 +212,19 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
 }
 
 /*****************************************************************************
-* read
-****************************************************************************/
-void CanManager_read(CanManager* me, CanChannel channel)
+ * read
+ ****************************************************************************/
+void CanManager_read(CanManager *me, CanChannel channel)
 {
     IO_CAN_DATA_FRAME canMessages[CAN_READ_MESSAGE_LIMIT];
-    ubyte1 canMessageCount;  // FIFO queue only holds 128 messages max
+    ubyte1 canMessageCount; // FIFO queue only holds 128 messages max
 
-    // Read messages from hipri channel 
+    // Read messages from hipri channel
     *(channel == CAN0 ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
-    IO_CAN_ReadFIFO((channel == CAN0 ? me->can0_readHandle : me->can1_writeHandle),
-                    canMessages,
-                    CAN_READ_MESSAGE_LIMIT,
-                    &canMessageCount);
+        IO_CAN_ReadFIFO((channel == CAN0 ? me->can0_readHandle : me->can1_writeHandle),
+                        canMessages,
+                        CAN_READ_MESSAGE_LIMIT,
+                        &canMessageCount);
 
     // Determine message type based on ID
     for (int currMessage = 0; currMessage < canMessageCount; currMessage++)
@@ -237,29 +235,29 @@ void CanManager_read(CanManager* me, CanChannel channel)
         // Motor controller
         //-------------------------------------------------------------------------
         case 0x0A0:
-            //0,1 module A temperature
-            //2,3 module B temperature
-            //4,5 module C temperature
-            //6,7 gate driver board temperature
+            // 0,1 module A temperature
+            // 2,3 module B temperature
+            // 4,5 module C temperature
+            // 6,7 gate driver board temperature
             break;
         case 0x0A1:
-            //0,1 control board temp
-            //2,3 rtd 1 temp
-            //4,5 rtd 2 temp
-            //6,7 rtd 3 temp
+            // 0,1 control board temp
+            // 2,3 rtd 1 temp
+            // 4,5 rtd 2 temp
+            // 6,7 rtd 3 temp
             break;
         case 0x0A2:
-            //0,1 rtd 4 temp
-            //2,3 rtd 5 temp
-            //4,5 motor temperature***
+            // 0,1 rtd 4 temp
+            // 2,3 rtd 5 temp
+            // 4,5 motor temperature***
             mcm->motor_temp = ((ubyte2)canMessages[currMessage].data[5] << 8 | canMessages[currMessage].data[4]) / 10;
-            //6,7 torque shudder
+            // 6,7 torque shudder
             break;
         case 0x0A3:
-            //0,1 voltage analog input #1
-            //2,3 voltage analog input #2
-            //4,5 voltage analog input #3
-            //6,7 voltage analog input #4
+            // 0,1 voltage analog input #1
+            // 2,3 voltage analog input #2
+            // 4,5 voltage analog input #3
+            // 6,7 voltage analog input #4
             break;
         case 0x0A4:
             // booleans //
@@ -272,32 +270,32 @@ void CanManager_read(CanManager* me, CanChannel channel)
             // 7 digital input #8
             break;
         case 0x0A5:
-            //0,1 motor angle (electrical)
-            //2,3 motor speed*** // in rpms
-            //Cast may be required - needs testing
+            // 0,1 motor angle (electrical)
+            // 2,3 motor speed*** // in rpms
+            // Cast may be required - needs testing
             mcm->motorRPM = reasm_sbyte2(canMessages[currMessage].data, 2);
-            //4,5 electrical output frequency
-            //6,7 delta resolver filtered
+            // 4,5 electrical output frequency
+            // 6,7 delta resolver filtered
             break;
         case 0x0A6:
-            //0,1 Phase A current
-            //2,3 Phase B current
-            //4,5 Phase C current
-            //6,7 DC bus current
+            // 0,1 Phase A current
+            // 2,3 Phase B current
+            // 4,5 Phase C current
+            // 6,7 DC bus current
             mcm->DC_Current = reasm_sbyte2(canMessages[currMessage].data, 6);
             break;
         case 0x0A7:
-            //0,1 DC bus voltage***
+            // 0,1 DC bus voltage***
             mcm->DC_Voltage = reasm_sbyte2(canMessages[currMessage].data, 0);
-            //2,3 output voltage
-            //4,5 Phase AB voltage
-            //6,7 Phase BC voltage
+            // 2,3 output voltage
+            // 4,5 Phase AB voltage
+            // 6,7 Phase BC voltage
             break;
         case 0x0A8:
-            //0,1 Flux Command
-            //2,3 flux feedback
-            //4,5 id feedback
-            //6,7 iq feedback
+            // 0,1 Flux Command
+            // 2,3 flux feedback
+            // 4,5 id feedback
+            // 6,7 iq feedback
             break;
         case 0x0A9:
             // 0,1 1.5V reference voltage
@@ -306,35 +304,34 @@ void CanManager_read(CanManager* me, CanChannel channel)
             // 6,7 12V reference voltage
             break;
         case 0x0AA:
-            //0,1 VSM state
-            //2   Inverter state
-            //3   Relay State
-            //4   bit-0 inverter run mode
-            //4   bit5-7 inverter active discharge state
-            //5   inverter command mode
+            // 0,1 VSM state
+            // 2   Inverter state
+            // 3   Relay State
+            // 4   bit-0 inverter run mode
+            // 4   bit5-7 inverter active discharge state
+            // 5   inverter command mode
 
-            //6   internal states
-            //    bit0 inverter enable state***
+            // 6   internal states
+            //     bit0 inverter enable state***
             mcm->inverterStatus = (canMessages[currMessage].data[6] & bitInverter) > 0 ? ENABLED : DISABLED;
             //    bit7 inverter enable lockout***
             mcm->lockoutStatus = (canMessages[currMessage].data[6] & bitLockout) > 0 ? ENABLED : DISABLED;
 
-            //7   direction command
+            // 7   direction command
             break;
-        case 0x0AB: //Faults
-            //mcmCanMessage->data;
-            //me->faultHistory |= data stuff //????????
+        case 0x0AB: // Faults
+            // mcmCanMessage->data;
+            // me->faultHistory |= data stuff //????????
 
             break;
         case 0x0AC:
-            //0,1 Commanded Torque
+            // 0,1 Commanded Torque
             mcm->commandedTorque = reasm_ubyte2(canMessages[currMessage].data, 0) / 10;
-            //2,3 Torque Feedback
+            // 2,3 Torque Feedback
             break;
         // case 0x0AD:
         // case 0x0AE:
         // case 0x0AF:
-
 
         //-------------------------------------------------------------------------
         // BMS
@@ -428,32 +425,29 @@ void CanManager_read(CanManager* me, CanChannel channel)
             {
                 IO_RTC_StartTime(&mcm->timeStamp_InverterDisableOverrideCommandReceived);
             }
-                break;
-        // default:
+            break;
+            // default:
         }
     }
     // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
 }
 
-ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
+ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel)
 {
     return (channel == CAN0) ? me->ioErr_can0_read : me->ioErr_can1_read;
 }
 
-
-
-
 /*****************************************************************************
-* device-specific functions
-****************************************************************************/
+ * device-specific functions
+ ****************************************************************************/
 /*****************************************************************************
-* Standalone Sensor messages
-******************************************************************************
-* Load sensor values into CAN messages
-* Each can message's .data[] holds 1 byte - sensor data must be broken up into separate bytes
-* The message addresses are at:
-* https://docs.google.com/spreadsheets/d/1sYXx191RtMq5Vp5PbPsq3BziWvESF9arZhEjYUMFO3Y/edit
-****************************************************************************/
+ * Standalone Sensor messages
+ ******************************************************************************
+ * Load sensor values into CAN messages
+ * Each can message's .data[] holds 1 byte - sensor data must be broken up into separate bytes
+ * The message addresses are at:
+ * https://docs.google.com/spreadsheets/d/1sYXx191RtMq5Vp5PbPsq3BziWvESF9arZhEjYUMFO3Y/edit
+ ****************************************************************************/
 
 void addCanMessage(CanChannel channel, IO_CAN_DATA_FRAME message, CAN_MESSAGE_SEND_BUFFER *buffer)
 {
@@ -470,73 +464,73 @@ void addCanMessage(CanChannel channel, IO_CAN_DATA_FRAME message, CAN_MESSAGE_SE
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me)
+void canOutput_sendDebugMessage(CanManager *me)
 {
     CAN_MESSAGE_SEND_BUFFER canMessages;
 
-    //500: TPS 0
+    // 500: TPS 0
     addCanMessage(CAN0, get_tps0_can_message(tps), &canMessages);
 
-    //TPS 1
+    // TPS 1
     addCanMessage(CAN0, get_tps1_can_message(tps), &canMessages);
 
-    //BPS0
+    // BPS0
     addCanMessage(CAN0, get_bps0_can_message(bps), &canMessages);
 
-    //WSS mm/s output
+    // WSS mm/s output
     addCanMessage(CAN0, get_wss_can_message(wss), &canMessages);
 
-    //WSS RPM non-interpolated output
+    // WSS RPM non-interpolated output
     addCanMessage(CAN0, get_wss_rpm1_can_message(wss), &canMessages);
 
-    //WSS RPM interpolated output
+    // WSS RPM interpolated output
     addCanMessage(CAN0, get_wss_rpm2_can_message(wss), &canMessages);
 
-    //506: Safety Checker
+    // 506: Safety Checker
     addCanMessage(CAN0, get_sc_can_message(sc), &canMessages);
 
-    //507: LV Battery
+    // 507: LV Battery
     addCanMessage(CAN0, get_lvb_can_message(), &canMessages);
 
-    //508: MCM Regen settings
+    // 508: MCM Regen settings
     addCanMessage(CAN0, get_mcm_regen_can_message(mcm), &canMessages);
 
-    //509: MCM RTD Status
+    // 509: MCM RTD Status
     addCanMessage(CAN0, get_mcm_rtd_can_message(mcm), &canMessages);
 
-    //50A: MCM Ground Speed Reference
+    // 50A: MCM Ground Speed Reference
     addCanMessage(CAN0, get_mcm_gsr_can_message(mcm), &canMessages);
 
-    //50B: Launch Control
+    // 50B: Launch Control
     addCanMessage(CAN0, get_lc_can_message(lc), &canMessages);
 
-    //50C: SAS (Steering Angle Sensor) and DRS
+    // 50C: SAS (Steering Angle Sensor) and DRS
     addCanMessage(CAN0, get_drs_can_message(drs), &canMessages);
 
-    //50D: BPS1
+    // 50D: BPS1
     addCanMessage(CAN0, get_bps1_can_message(bps), &canMessages);
 
-
-    //50F: MCM Power Debug
+    // 50F: MCM Power Debug
     addCanMessage(CAN0, get_mcm_power_can_message(mcm, sc), &canMessages);
 
-    //511: SoftBSPD
+    // 511: SoftBSPD
     addCanMessage(CAN0, get_bspd_can_message(mcm, sc), &canMessages);
 
-    //512: MCM Torque Command
+    // 512: MCM Torque Command
     addCanMessage(CAN0, get_mcm_pl_can_message(mcm), &canMessages);
 
-    //Motor controller command message
+    // Motor controller command message
     addCanMessage(CAN0, get_mcm_command_can_message(mcm), &canMessages);
-    
-    //Place the can messages into the FIFO queue ---------------------------------------------------
-    CanManager_send(me, CAN0, canMessages.canMessages0, canMessages.canMessageCount0);  //Important: Only transmit one message (the MCU message)
+
+    // Place the can messages into the FIFO queue ---------------------------------------------------
+    CanManager_send(me, CAN0, canMessages.canMessages0, canMessages.canMessageCount0); // Important: Only transmit one message (the MCU message)
     CanManager_send(me, CAN1, canMessages.canMessages1, canMessages.canMessageCount1);
 }
 
-IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder* tps) {
+IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder *tps)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x500;
@@ -552,7 +546,8 @@ IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder* tps) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_tps1_can_message(TorqueEncoder* tps) {
+IO_CAN_DATA_FRAME get_tps1_can_message(TorqueEncoder *tps)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x501;
@@ -568,7 +563,8 @@ IO_CAN_DATA_FRAME get_tps1_can_message(TorqueEncoder* tps) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_bps0_can_message(BrakePressureSensor* bps) {
+IO_CAN_DATA_FRAME get_bps0_can_message(BrakePressureSensor *bps)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x502;
@@ -584,7 +580,8 @@ IO_CAN_DATA_FRAME get_bps0_can_message(BrakePressureSensor* bps) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_bps1_can_message(BrakePressureSensor* bps) {
+IO_CAN_DATA_FRAME get_bps1_can_message(BrakePressureSensor *bps)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50D;
@@ -600,7 +597,8 @@ IO_CAN_DATA_FRAME get_bps1_can_message(BrakePressureSensor* bps) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds* wss) {
+IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds *wss)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x503;
@@ -616,39 +614,42 @@ IO_CAN_DATA_FRAME get_wss_can_message(WheelSpeeds* wss) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds* wss) {
+IO_CAN_DATA_FRAME get_wss_rpm1_can_message(WheelSpeeds *wss)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x504;
-    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM*60.0f);
-    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM*60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM*60.0f);
-    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM*60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM*60.0f);
-    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM*60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM*60.0f);
-    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM*60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM * 60.0f);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM * 60.0f)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM * 60.0f);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM * 60.0f)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM * 60.0f);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM * 60.0f)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM * 60.0f);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM * 60.0f)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds* wss) {
+IO_CAN_DATA_FRAME get_wss_rpm2_can_message(WheelSpeeds *wss)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x505;
-    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S*60.0f);
-    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S*60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S*60.0f);
-    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S*60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S*60.0f);
-    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S*60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S*60.0f);
-    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S*60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S * 60.0f);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S * 60.0f)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S * 60.0f);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S * 60.0f)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S * 60.0f);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S * 60.0f)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S * 60.0f);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S * 60.0f)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_sc_can_message(SafetyChecker* sc) {
+IO_CAN_DATA_FRAME get_sc_can_message(SafetyChecker *sc)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x506;
@@ -664,7 +665,8 @@ IO_CAN_DATA_FRAME get_sc_can_message(SafetyChecker* sc) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_lvb_can_message() {
+IO_CAN_DATA_FRAME get_lvb_can_message()
+{
     float4 LVBatterySOC = lv_battery_soc();
     LVBattery.sensorValue = LVBattery.sensorValue + 0.46;
     IO_CAN_DATA_FRAME canMessage;
@@ -682,15 +684,16 @@ IO_CAN_DATA_FRAME get_lvb_can_message() {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm) {
+IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController *mcm)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x508;
     canMessage.data[0] = mcm->regen_mode;
     canMessage.data[1] = (ubyte2)mcm->nl_voltage; // temporary
-    canMessage.data[2] = mcm->torqueMaximumDNm/10;
-    canMessage.data[3] = mcm->regen_torqueLimitDNm/10;
-    canMessage.data[4] = mcm->regen_torqueAtZeroPedalDNm/10;
+    canMessage.data[2] = mcm->torqueMaximumDNm / 10;
+    canMessage.data[3] = mcm->regen_torqueLimitDNm / 10;
+    canMessage.data[4] = mcm->regen_torqueAtZeroPedalDNm / 10;
     canMessage.data[5] = (ubyte1)mcm->power_torque_lim;
     canMessage.data[6] = MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
     canMessage.data[7] = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
@@ -698,7 +701,8 @@ IO_CAN_DATA_FRAME get_mcm_regen_can_message(MotorController* mcm) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
+IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController *mcm)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x509;
@@ -714,7 +718,8 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_gsr_can_message(MotorController* mcm) {
+IO_CAN_DATA_FRAME get_mcm_gsr_can_message(MotorController *mcm)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50A;
@@ -730,7 +735,8 @@ IO_CAN_DATA_FRAME get_mcm_gsr_can_message(MotorController* mcm) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl* lc) {
+IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl *lc)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50B;
@@ -746,7 +752,8 @@ IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl* lc) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs) {
+IO_CAN_DATA_FRAME get_drs_can_message(DRS *drs)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50C;
@@ -762,12 +769,13 @@ IO_CAN_DATA_FRAME get_drs_can_message(DRS* drs) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms) {
+IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem *bms)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50E;
     canMessage.data[0] = bms->faultFlags0;
-    canMessage.data[1] = 0; //bms->faultFlags1;
+    canMessage.data[1] = 0; // bms->faultFlags1;
     canMessage.data[2] = bms->relayState;
     canMessage.data[3] = bms->highestCellTemperature;
     canMessage.data[4] = bms->highestCellTemperature >> 8;
@@ -778,7 +786,8 @@ IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker* sc) {
+IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController *mcm, SafetyChecker *sc)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50F;
@@ -794,7 +803,8 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message(MotorController* mcm, SafetyChecker*
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) {
+IO_CAN_DATA_FRAME get_bspd_can_message(MotorController *mcm, SafetyChecker *sc)
+{
     ubyte1 flags = sc->softBSPD_bpsHigh;
     flags |= sc->softBSPD_kwHigh << 1;
     IO_CAN_DATA_FRAME canMessage;
@@ -803,12 +813,13 @@ IO_CAN_DATA_FRAME get_bspd_can_message(MotorController* mcm, SafetyChecker* sc) 
     canMessage.data[0] = sc->softBSPD_fault;
     canMessage.data[1] = flags;
     canMessage.data[2] = 0; //(ubyte1)mcm->kwRequestEstimate;
-    canMessage.data[3] = 0; //mcm->kwRequestEstimate >> 8;
+    canMessage.data[3] = 0; // mcm->kwRequestEstimate >> 8;
     canMessage.length = 4;
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController* mcm) {
+IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController *mcm)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x512;
@@ -824,22 +835,24 @@ IO_CAN_DATA_FRAME get_mcm_pl_can_message(MotorController* mcm) {
     return canMessage;
 }
 
-IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm) {
+IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController *mcm)
+{
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0xC0;
     canMessage.data[0] = (ubyte1)mcm->commands_torque;
     canMessage.data[1] = mcm->commands_torque >> 8;
-    canMessage.data[2] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessage.data[3] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
+    canMessage.data[2] = 0; // Speed (RPM?) - not needed - mcu should be in torque mode
+    canMessage.data[3] = 0; // Speed (RPM?) - not needed - mcu should be in torque mode
     canMessage.data[4] = mcm->commands_direction;
-    canMessage.data[5] = (mcm->commands_inverter == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
+    canMessage.data[5] = (mcm->commands_inverter == ENABLED) ? 1 : 0; // unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     canMessage.data[6] = (ubyte1)mcm->commands_torqueLimit;
     canMessage.data[7] = mcm->commands_torqueLimit >> 8;
     canMessage.length = 8;
     return canMessage;
 }
 
-float4 lv_battery_soc() {
-    return getValueFromLUT(LV_BATT_SOC_LUT, LVBattery.sensorValue/1000.0f/LV_BATT_S);
+float4 lv_battery_soc()
+{
+    return getValueFromLUT(LV_BATT_SOC_LUT, LVBattery.sensorValue / 1000.0f / LV_BATT_S);
 }

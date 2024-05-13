@@ -13,22 +13,22 @@
 /*
 typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
              , CHECK_tpsOpenOrShort   , CHECK_bpsOpenOrShort
-             , CHECK_tpsNotCalibrated , CHECK_bpsNotCalibrated 
+             , CHECK_tpsNotCalibrated , CHECK_bpsNotCalibrated
              , CHECK_tpsOutOfSync     , CHECK_tpsbpsImplausible
              } SafetyCheck;
 */
 
 /*****************************************************************************
-* SafetyChecker object
-******************************************************************************
-* ToDo: change to ubyte1[8] (64 flags possible)
-* 1 = fault
-* 0 = no fault
-****************************************************************************/
+ * SafetyChecker object
+ ******************************************************************************
+ * ToDo: change to ubyte1[8] (64 flags possible)
+ * 1 = fault
+ * 0 = no fault
+ ****************************************************************************/
 
 typedef struct _SafetyChecker
 {
-    //Problems that require motor torque to be disabled
+    // Problems that require motor torque to be disabled
     ubyte4 faults;
     ubyte2 warnings;
     ubyte2 notices;

@@ -10,15 +10,17 @@
 #include "brakePressureSensor.h"
 #include "motorController.h"
 
-typedef struct _PIDController {
-    float4 kp;         // Proportional gain
-    float4 ki;         // Integral gain
-    float4 kd;         // Derivative gain
-    float4 errorSum;   // Running sum of errors for the integral term
-    float4 lastError;  // Previous error for the derivative term
+typedef struct _PIDController
+{
+    float4 kp;        // Proportional gain
+    float4 ki;        // Integral gain
+    float4 kd;        // Derivative gain
+    float4 errorSum;  // Running sum of errors for the integral term
+    float4 lastError; // Previous error for the derivative term
 } PIDController;
 
-typedef struct _LaunchControl {
+typedef struct _LaunchControl
+{
     float4 slipRatio;
     ubyte2 lcTorque;
     PIDController *pidController;

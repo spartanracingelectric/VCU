@@ -14,10 +14,10 @@
 #include "IO_Driver.h"
 #include "APDB.h"
 
-//Application Database, needed for TTC-Downloader
-//APDB appl_db;
+// Application Database, needed for TTC-Downloader
+// APDB appl_db;
 
-//Functions
+// Functions
 void vcu_initializeVCU(void);
 void vcu_initializeADC(void);
 void vcu_initializeCAN(void);

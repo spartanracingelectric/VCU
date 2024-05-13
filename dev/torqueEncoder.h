@@ -4,15 +4,15 @@
 #include "IO_Driver.h"
 #include "sensors.h"
 
-//After updateFromSensors, access to tps Sensor objects should no longer be necessary.
-//In other words, only updateFromSensors itself should use the tps Sensor objects
-//Also, all values in the TorqueEncoder object are from
+// After updateFromSensors, access to tps Sensor objects should no longer be necessary.
+// In other words, only updateFromSensors itself should use the tps Sensor objects
+// Also, all values in the TorqueEncoder object are from
 typedef struct _TorqueEncoder
 {
     Sensor *tps0;
     Sensor *tps1;
 
-    ubyte4 tps0_calibMin; //Must be 4 bytes to support PWM (digital/timer) sensor
+    ubyte4 tps0_calibMin; // Must be 4 bytes to support PWM (digital/timer) sensor
     ubyte4 tps0_calibMax;
     bool tps0_reverse;
     ubyte4 tps0_value;

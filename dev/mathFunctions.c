@@ -5,8 +5,8 @@
 #include "IO_RTC.h"
 
 /*****************************************************************************
-* Helper functions
-****************************************************************************/
+ * Helper functions
+ ****************************************************************************/
 /*-------------------------------------------------------------------
 * getPercent
 * Returns the % (position) of value, between min and max
@@ -35,7 +35,7 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
     return retVal;
 }
 
-/**********************************************************************/ /**
+/**********************************************************************
  *
  * \brief Decides whether a blinking light should be on or off based on
  *        the system clock and period given
@@ -52,41 +52,47 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
  ***************************************************************************/
 bool blink(ubyte4 *clock, ubyte2 highPeriod)
 {
-    //time passed since the start of the blinks divided by the period to get count.
-    //count % 2 gets the current state the blink should be in 0 or <0
+    // time passed since the start of the blinks divided by the period to get count.
+    // count % 2 gets the current state the blink should be in 0 or <0
     ubyte4 count = IO_RTC_GetTimeUS(*clock) / highPeriod;
-    //removes decimal places. there may be a better way to do this but I got lazy
+    // removes decimal places. there may be a better way to do this but I got lazy
     count = count - count % 1;
 
     return !(count / highPeriod) % 2;
 }
 
 // for reading data in from CAN messages
-ubyte4 reasm_ubyte4(const ubyte1* data, ubyte1 start_index) {
+ubyte4 reasm_ubyte4(const ubyte1 *data, ubyte1 start_index)
+{
     ubyte4 result = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         result |= ((ubyte4)data[start_index + i]) << (8 * (3 - i));
     }
     return result;
 }
 
-ubyte2 reasm_ubyte2(const ubyte1* data, ubyte1 start_index) {
+ubyte2 reasm_ubyte2(const ubyte1 *data, ubyte1 start_index)
+{
     ubyte2 result = 0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++)
+    {
         result |= ((ubyte2)data[start_index + i]) << (8 * (1 - i));
     }
     return result;
 }
 
-sbyte2 reasm_sbyte2(const ubyte1* data, ubyte1 start_index) {
+sbyte2 reasm_sbyte2(const ubyte1 *data, ubyte1 start_index)
+{
     sbyte2 result = 0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++)
+    {
         result |= ((sbyte2)data[start_index + i]) << (8 * (1 - i));
     }
     return result;
 }
 
-//byte swapping functions used by BMS
+// byte swapping functions used by BMS
 
 ubyte1 swap_uint8(ubyte1 val)
 {

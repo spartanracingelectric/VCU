@@ -8,15 +8,15 @@
 #include "sensors.h"
 
 /*****************************************************************************
-* Torque Encoder (TPS) functions
-* RULE EV2.3.5:
-* If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
-* It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
-****************************************************************************/
-void WheelSpeeds_new(WheelSpeeds* me, float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+ * Torque Encoder (TPS) functions
+ * RULE EV2.3.5:
+ * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
+ * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
+ ****************************************************************************/
+void WheelSpeeds_new(WheelSpeeds *me, float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
 {
 
-    //1 inch = .0254 m
+    // 1 inch = .0254 m
     me->tireCircumferenceMeters_F = 3.14159 * (.0254 * tireDiameterInches_F);
     me->tireCircumferenceMeters_R = 3.14159 * (.0254 * tireDiameterInches_R);
     me->pulsesPerRotation_F = pulsesPerRotation_F;
@@ -26,7 +26,7 @@ void WheelSpeeds_new(WheelSpeeds* me, float4 tireDiameterInches_F, float4 tireDi
     me->speed_RL = 0;
     me->speed_RR = 0;
 
-    //Turn on WSS power pins
+    // Turn on WSS power pins
     IO_DO_Set(IO_DO_07, TRUE); // WSS x4
 }
 
@@ -40,7 +40,7 @@ void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
     me->speed_FR_RPM_S = (float4)WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
     me->speed_RL_RPM_S = (float4)WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
     me->speed_RR_RPM_S = (float4)WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
-    //speed (m/s) = m * pulses/sec / pulses
+    // speed (m/s) = m * pulses/sec / pulses
     if (interpolate)
     {
         me->speed_FL = me->tireCircumferenceMeters_F * me->speed_FL_RPM_S;
