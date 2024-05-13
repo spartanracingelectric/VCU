@@ -770,7 +770,7 @@ IO_CAN_DATA_FRAME get_bms_loopback_can_message(BatteryManagementSystem* bms) {
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50E;
     canMessage.data[0] = bms->faultFlags0;
-    canMessage.data[1] = bms->faultFlags1;
+    canMessage.data[1] = 0; //bms->faultFlags1;
     canMessage.data[2] = bms->relayState;
     canMessage.data[3] = bms->highestCellTemperature;
     canMessage.data[4] = bms->highestCellTemperature >> 8;

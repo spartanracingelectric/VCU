@@ -101,8 +101,6 @@ SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
 // Updates all values based on sensor readings, safety checks, etc
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
-    ubyte1 *message[50]; //For sprintf'ing variables to print in serial
-    //SerialManager_send(me->serialMan, "Entered SafetyChecker_update().\n");
     /*****************************************************************************
     * Faults
     ****************************************************************************/
@@ -304,9 +302,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
 {
     float4 multiplier = 1;
-    //float4 tempMultiplier = 1;
     //Get ground speed in KPH using only FL WSS
-    //sbyte1 groundSpeedKPH = (sbyte1)WheelSpeeds_getGroundSpeedKPH(wss, 1);
     sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
 
 

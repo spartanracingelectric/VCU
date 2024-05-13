@@ -14,24 +14,6 @@
  *                                                       *
  *********************************************************/
 
-struct _BatteryManagementSystem
-{
-
-    ubyte2 canMessageBaseId;
-
-    // BMS_CELL_VOLTAGE_SUMMARY //
-    ubyte2 highestCellVoltage;
-    ubyte2 lowestCellVoltage;                   
-
-    // BMS_CELL_TEMPERATURE_SUMMARY
-    sbyte2 highestCellTemperature;
-    sbyte2 lowestCellTemperature;
-   
-    // BMS_FAULTS
-    ubyte1 faultFlags0;                       
-    bool relayState;
-};
-
 BatteryManagementSystem *BMS_new(ubyte2 canMessageBaseID)
 {
 

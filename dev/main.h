@@ -45,3 +45,5 @@
 #define SOFT_BSPD_ENABLE 0
 #define POWER_LIMIT 1
 
+#define BMS_WATCHDOG_CLEAR 64
+

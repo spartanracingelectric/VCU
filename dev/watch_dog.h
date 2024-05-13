@@ -7,6 +7,7 @@ typedef struct _WatchDog {
     ubyte4 timestamp;
     ubyte4 timeout;
     bool running;
+    ubyte1 mood; // used as a counter to determine if we should clear the watchdog
 } WatchDog;
 
 void WatchDog_new(WatchDog* wd, ubyte4 timeout);
