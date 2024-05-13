@@ -5,17 +5,13 @@
 #include "canManager.h"
 
 
-InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID)
+void InstrumentCluster_new(InstrumentCluster *me, ubyte2 canMessageBaseID)
 {
-    InstrumentCluster* me = (InstrumentCluster*)malloc(sizeof(struct _InstrumentCluster));
-
     me->canMessageBaseId = canMessageBaseID;
 
     me->torqueMapMode=0;
 
     me->launchControlSensitivity=0;
-    
-    return me;
 }
 
 void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA_FRAME* icCanMessage)
@@ -71,14 +67,4 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
             break;
         }
     }
-}
-
-ubyte1 IC_getTorqueMapMode(InstrumentCluster *me)
-{
-    return me->torqueMapMode;
-}
-
-ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me)
-{
-    return me->launchControlSensitivity;
 }

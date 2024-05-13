@@ -14,7 +14,7 @@ typedef struct _TimerDebug
     ubyte2 timerUpdateIntervalCounter;
 } TimerDebug;
 
-TimerDebug *TimerDebug_new();
+void TimerDebug_new(TimerDebug *me);
 void TimerDebug_startTimer(TimerDebug *me);
 void TimerDebug_stopTimer(TimerDebug *me);
 ubyte4 TimerDebug_getTime(TimerDebug *me); 

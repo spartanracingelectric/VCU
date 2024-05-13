@@ -35,7 +35,7 @@ typedef struct _BrakePressureSensor
     bool implausibility;
 } BrakePressureSensor;
 
-BrakePressureSensor *BrakePressureSensor_new(void);
+void BrakePressureSensor_new(BrakePressureSensor *me);
 void BrakePressureSensor_update(BrakePressureSensor *me);
 void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, ubyte1 sensorNumber, float4 *percent);
 void BrakePressureSensor_resetCalibration(BrakePressureSensor *me);

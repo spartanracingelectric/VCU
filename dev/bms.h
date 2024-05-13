@@ -47,22 +47,18 @@ typedef struct _BatteryManagementSystem
     bool relayState;
 } BatteryManagementSystem;
 
-BatteryManagementSystem* BMS_new(ubyte2 canMessageBaseID);
+void BMS_new(BatteryManagementSystem *bms, ubyte2 canMessageBaseID);
 void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCanMessage);
 
 // BMS COMMANDS // 
-
 IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
-bool BMS_getRelayState(BatteryManagementSystem *me);
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
 ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
 ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
-ubyte1 BMS_getFaultFlags0(BatteryManagementSystem *me);
 
 
 
 #endif // _BATTERYMANAGEMENTSYSTEM_H
-

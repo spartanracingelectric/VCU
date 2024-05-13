@@ -4,26 +4,24 @@
 #include "IO_Driver.h"
 #include "IO_UART.h"
 #include "serial.h"
+#include "mathFunctions.h"
 
-SerialManager *SerialManager_new(void)
+void serial_init(void)
 {
-    SerialManager *me = (SerialManager *)malloc(sizeof(struct _SerialManager));
     IO_UART_Init(IO_UART_RS232, 115200, 8, IO_UART_PARITY_NONE, 1);
-
-    return me;
 }
 
-IO_ErrorType SerialManager_send(SerialManager *me, const ubyte1 *data)
+IO_ErrorType serial_send(const ubyte1 *data)
 {
-    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, data, strlen(data), &me->size);
+    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, data, strlen(data), min_ew(MAX_PRINT_CHARS, strlen(data)));
     return err;
 }
 
-IO_ErrorType SerialManager_sprintf(SerialManager *me, const ubyte1 *message, void *dataValue)
+IO_ErrorType serial_sprintf(const ubyte1 *message, void *dataValue)
 {
     ubyte1 *temp[64];
     sprintf(&temp, message, dataValue);
-    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, temp, strlen(temp), &me->size);
+    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, temp, strlen(temp), min_ew(MAX_PRINT_CHARS, strlen(temp)));
     return err;
 }
 

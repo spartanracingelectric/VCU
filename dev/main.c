@@ -82,8 +82,19 @@ extern Button Cal_Button;
 extern DigitalOutput Eco_Light;
 extern DigitalOutput Err_Light;
 extern WatchDog wd;
-
-
+extern CanManager canMan;
+extern ReadyToDriveSound rtds;
+extern BatteryManagementSystem bms;
+extern MotorController mcm;
+extern InstrumentCluster ic;
+extern TorqueEncoder tps;
+extern BrakePressureSensor bps;
+extern WheelSpeeds wss;
+extern SafetyChecker sc;
+extern CoolingSystem cs;
+extern LaunchControl lc;
+extern DRS drs;
+extern TimerDebug td;
 
 void main(void)
 {
@@ -95,24 +106,24 @@ void main(void)
     /*        Low Level Initializations        */
     /*******************************************/
     IO_Driver_Init(NULL); //Handles basic startup for all VCU subsystems
-    SerialManager *serialMan = SerialManager_new();
+    serial_init();
     IO_RTC_StartTime(&timestamp_startTime);
-    SerialManager_send(serialMan, "\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
-    SerialManager_send(serialMan, "VCU serial is online.\n");
+    serial_send("\n\n\n\n\n\n\n\n\n\n----------------------------------------------------\n");
+    serial_send("VCU serial is online.\n");
 
     //----------------------------------------------------------------------------
     // VCU Subsystem Initializations
     // Eventually, all of these functions should be made obsolete by creating
     // objects instead, like the RTDS/MCM/TPS objects below
     //----------------------------------------------------------------------------
-    SerialManager_send(serialMan, "VCU objects/subsystems initializing.\n");
+    serial_send("VCU objects/subsystems initializing.\n");
     vcu_initializeADC(); //Configure and activate all I/O pins on the VCU
 
     //Do some loops until the ADC stops outputting garbage values
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(200000, serialMan);
+    CanManager_new(&canMan, 200000);
 
     WatchDog_new(&wd, 50000); //50 ms 
 
@@ -122,26 +133,26 @@ void main(void)
     //----------------------------------------------------------------------------
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
-    ReadyToDriveSound *rtds = RTDS_new(1, 1500000);
-    BatteryManagementSystem *bms = BMS_new(BMS_BASE_ADDRESS);
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10);
-    InstrumentCluster *ic0 = InstrumentCluster_new(0x702);
-    TorqueEncoder *tps = TorqueEncoder_new();
-    BrakePressureSensor *bps = BrakePressureSensor_new();
-    WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, F_WSS_TICKS, R_WSS_TICKS);
-    SafetyChecker *sc = SafetyChecker_new(320, 32); //Must match amp limits
-    CoolingSystem *cs = CoolingSystem_new(serialMan);
-    LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
-    DRS *drs = DRS_new();
-    TimerDebug *td = TimerDebug_new();
+    RTDS_new(&rtds, 1, 1500000);
+    BMS_new(&bms,BMS_BASE_ADDRESS);
+    MotorController_new(&mcm, 0xA0, FORWARD, 2400, 5, 10);
+    InstrumentCluster_new(&ic, 0x702);
+    TorqueEncoder_new(&tps);
+    BrakePressureSensor_new(&bps);
+    WheelSpeeds_new(&wss, WHEEL_DIAMETER, WHEEL_DIAMETER, F_WSS_TICKS, R_WSS_TICKS);
+    SafetyChecker_new(&sc, 320, 32); //Must match amp limits
+    CoolingSystem_new(&cs);
+    LaunchControl_new(&lc, pot_DRS_LC);
+    DRS_new(&drs);
+    TimerDebug_new(&td);
     init_lv_battery_lut();
 
     ubyte4 timestamp_mainLoopStart = 0;
-    SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
+    serial_send("VCU initializations complete.  Entering main loop.\n");
 
     while (1)
     {
-        TimerDebug_startTimer(td);
+        TimerDebug_startTimer(&td);
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         IO_Driver_TaskBegin();
 
@@ -149,12 +160,12 @@ void main(void)
         /*              Read Inputs                */
         /*******************************************/
         sensors_updateSensors();
-        CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+        CanManager_read(&canMan, CAN0_HIPRI, &mcm, &ic, &bms, &sc);
 
         //No regen below 5kph
-        sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm0);
+        sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(&mcm);
         if (groundSpeedKPH < 15) {
-            MCM_setRegenMode(mcm0, REGENMODE_OFF);
+            MCM_setRegenMode(&mcm, REGENMODE_OFF);
         } else {
             // Regen mode is now set based on battery voltage to preserve overvoltage fault 
             // if(BMS_getPackVoltage(bms) >= 38500 * 10){ 
@@ -167,71 +178,71 @@ void main(void)
         if (Cal_Button.sensorValue) {
             WatchDog_reset(&wd); // tapping eco will reset the watchdog for now
             if (timestamp_EcoButton == 0) {
-                SerialManager_send(serialMan, "Eco button detected\n");
+                serial_send("Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
             else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) {
-                SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
+                serial_send("Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
-                TorqueEncoder_startCalibration(tps, 5);
-                BrakePressureSensor_startCalibration(bps, 5);
+                TorqueEncoder_startCalibration(&tps, 5);
+                BrakePressureSensor_startCalibration(&bps, 5);
                 DigitalOutput_set(&Eco_Light, TRUE);
                 //DIGITAL OUTPUT 4 for STATUS LED ???? I dont believe this -Ian
             }
         }
         else {
             if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000) {
-                SerialManager_send(serialMan, "Eco mode requested\n");
+                serial_send("Eco mode requested\n");
             }
             timestamp_EcoButton = 0;
         }
-        TorqueEncoder_update(tps);
-        TorqueEncoder_calibrationCycle(tps, &calibrationErrors); //Todo: deal with calibration errors
-        BrakePressureSensor_update(bps);
-        BrakePressureSensor_calibrationCycle(bps, &calibrationErrors);
+        TorqueEncoder_update(&tps);
+        TorqueEncoder_calibrationCycle(&tps, &calibrationErrors); //Todo: deal with calibration errors
+        BrakePressureSensor_update(&bps);
+        BrakePressureSensor_calibrationCycle(&bps, &calibrationErrors);
 
         //Update WheelSpeed and interpolate
-        WheelSpeeds_update(wss, TRUE);
-        slipRatioCalculation(wss, lc);
+        WheelSpeeds_update(&wss, TRUE);
+        slipRatioCalculation(&wss, &lc);
 
         //Cool DRS things
-        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC, lc->LCReady || lc->LCStatus);
+        DRS_update(&drs, &mcm, &tps, &bps, pot_DRS_LC, lc.LCReady || lc.LCStatus);
 
-        CoolingSystem_calculations(cs, mcm0->motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm0->motor_temp, bms->highestCellTemperature/BMS_TEMPERATURE_SCALE, &Sensor_HVILTerminationSense);
+        CoolingSystem_calculations(&cs, mcm.motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm.motor_temp, bms.highestCellTemperature/BMS_TEMPERATURE_SCALE, &Sensor_HVILTerminationSense);
         
-        CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+        CoolingSystem_enactCooling(&cs); //This belongs under outputs but it doesn't really matter for cooling
 
         //Assign motor controls to MCM command message
         //DOES NOT set inverter command or rtds flag
-        launchControlTorqueCalculation(lc, tps, bps, mcm0);
-        MCM_calculateCommands(mcm0, tps, bps);
+        launchControlTorqueCalculation(&lc, &tps, &bps, &mcm);
+        MCM_calculateCommands(&mcm, &tps, &bps);
 
-        SafetyChecker_update(sc, mcm0, bms, tps, bps);
+        SafetyChecker_update(&sc, &mcm, &bms, &tps, &bps);
 
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
         /*******************************************/
-        SafetyChecker_reduceTorque(sc, mcm0, bms, wss);
+        SafetyChecker_reduceTorque(&sc, &mcm, &bms, &wss);
 
         /*******************************************/
         /*              Enact Outputs              */
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
-        DigitalOutput_set(&Err_Light, (sc->faults == 0) ? FALSE : TRUE);
+        DigitalOutput_set(&Err_Light, (sc.faults == 0) ? FALSE : TRUE);
         //Handle motor controller startup procedures
-        MCM_relayControl(mcm0);
-        MCM_inverterControl(mcm0, tps, bps, rtds);
+        MCM_relayControl(&mcm);
+        MCM_inverterControl(&mcm, &tps, &bps, &rtds);
 
         IO_ErrorType err = 0;
         //Comment out to disable shutdown board control
-        err = BMS_relayControl(bms);
+        err = BMS_relayControl(&bms);
 
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs, td);
+        canOutput_sendDebugMessage(&canMan, &tps, &bps, &mcm, &ic, &bms, &wss, &sc, &lc, &drs, &td);
         
-        RTDS_shutdownHelper(rtds); 
+        RTDS_shutdownHelper(&rtds); 
         IO_Driver_TaskEnd();
         
-        TimerDebug_stopTimer(td);
+        TimerDebug_stopTimer(&td);
         
         while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < CYCLE_TIME_US) // 1000 = 1ms
         {

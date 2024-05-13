@@ -13,7 +13,19 @@
 #include "initializations.h"
 #include "lut.h"
 #include "watch_dog.h"
-
+#include "canManager.h"
+#include "motorController.h"
+#include "instrumentCluster.h"
+#include "readyToDriveSound.h"
+#include "torqueEncoder.h"
+#include "brakePressureSensor.h"
+#include "wheelSpeeds.h"
+#include "safety.h"
+#include "serial.h"
+#include "cooling.h"
+#include "bms.h"
+#include "LaunchControl.h"
+#include "drs.h"
 
 LUT* LV_BATT_SOC_LUT;
 
@@ -177,3 +189,17 @@ PWMOutput Rad_Fans;
 PWMOutput Accum_Fan;
 
 WatchDog wd;
+
+CanManager canMan;
+ReadyToDriveSound rtds;
+BatteryManagementSystem bms;
+MotorController mcm;
+InstrumentCluster ic;
+TorqueEncoder tps;
+BrakePressureSensor bps;
+WheelSpeeds wss;
+SafetyChecker sc;
+CoolingSystem cs;
+LaunchControl lc;
+DRS drs;
+TimerDebug td;

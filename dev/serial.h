@@ -4,28 +4,15 @@
 #include "IO_Driver.h" 
 #include "IO_UART.h"
 
-typedef struct _SerialManager
-{
-    //Init stuff
-    //speed
-    //packet size
-    //???
+#define MAX_PRINT_CHARS 32
 
-    //More stuff
-    ubyte1 size; //This value is thrown away
-} SerialManager;
-
-//Make serialMan available globally
-//SerialManager* serialMan;
-
-//Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
-SerialManager* SerialManager_new(void);
+void serial_init(void);
 
 //usage:
 //ubyte1* message = "my message";
 //Write(serialMan, message);
-IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+IO_ErrorType serial_send(const ubyte1* data);
 //IO_ErrorType SerialManager_sendLen(SerialManager* me, const ubyte1* data, ubyte1* dataLength);
 
-IO_ErrorType SerialManager_sprintf(SerialManager* me, const ubyte1* message, void* dataValue);
+IO_ErrorType serial_sprintf(const ubyte1* message, void* dataValue);
 #endif // This header has been defined before

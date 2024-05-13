@@ -13,16 +13,12 @@
 extern Button DRS_Button; 
 extern Sensor Sensor_DRSKnob;
 
-DRS *DRS_new() 
+void DRS_new(DRS *me)
 {
-    DRS *me = (DRS *)malloc(sizeof(struct _DRS));
-
     //flags
     me->AutoDRSActive = TRUE;
     me->currentDRSMode = MANUAL; 
     me->drsFlap = 0;
-
-    return me;
 }
 
 //----------------------------------------------------------------------

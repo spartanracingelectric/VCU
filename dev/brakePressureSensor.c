@@ -18,10 +18,8 @@ extern DigitalOutput Eco_Light;
 // This value is used for controlling the brake light and triggering the TPS-BPS implausibility fault
 #define BRAKES_ON_PERCENT .08
 
-BrakePressureSensor *BrakePressureSensor_new(void)
+void BrakePressureSensor_new(BrakePressureSensor *me)
 {
-    BrakePressureSensor *me = (BrakePressureSensor *)malloc(sizeof(struct _BrakePressureSensor));
-
     //TODO: Make sure the main loop is running before doing this
     me->bps0 = &BPS0;
     me->bps1 = &BPS1;
@@ -49,8 +47,6 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     me->bps0_calibMax = 2350;
     
     // BrakePressureSensor_resetCalibration(me);
-
-    return me;
 }
 
 //Updates all values based on sensor readings, safety checks, etc

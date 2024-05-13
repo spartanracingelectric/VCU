@@ -34,10 +34,8 @@ const float4 PACK_RESISTANCE = (1/(CELLS_IN_PARALLEL/CELL_RESISTANCE))*CELLS_IN_
  * Motor Controller (MCM)
  ****************************************************************************/
 
-MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+void MotorController_new(MotorController *me, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
-    MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
-
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
     MCM_commands_resetUpdateCountAndTime(me);
@@ -71,8 +69,6 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->LCState = FALSE;
     me->LCReady = FALSE;
-    
-    return me;
 }
 
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
@@ -241,7 +237,7 @@ void MCM_relayControl(MotorController *me)
         //If HVIL just changed, send a message
         if (me->previousHVILState == FALSE)
         {
-            SerialManager_send(me->serialMan, "Term sense went high\n");
+            serial_send("Term sense went high\n");
             if (me->startupStage == 0)
             {
                 me->startupStage = 1;
@@ -278,7 +274,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //How to transition to next state ------------------------------------------------
         if (me->lockoutStatus == DISABLED)
         {
-            SerialManager_send(me->serialMan, "MCM lockout has been disabled.\n");
+            serial_send("MCM lockout has been disabled.\n");
             me->startupStage = 2;
         }
         break;
@@ -292,7 +288,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable
-            SerialManager_send(me->serialMan, "Changed MCM inverter command to ENABLE.\n");
+            serial_send("Changed MCM inverter command to ENABLE.\n");
             me->startupStage = 3;
         }
         break;
@@ -305,7 +301,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         if (me->inverterStatus == ENABLED)
         {
             RTD_En = 1; //Doesn't matter if button is no longer pressed - RTD light should be on if car is drivable
-            SerialManager_send(me->serialMan, "Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
+            serial_send("Inverter has been enabled.  Starting RTDS.  Car is ready to drive.\n");
             RTDS_play_sound(rtds);
             me->startupStage = 4; //leave this stage since we've already kicked off the RTDS
         }
@@ -313,7 +309,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
 
     case 4: //inverter=disabled, rtds=already started
         //Actions to perform upon entering this state ------------------------------------------------
-        SerialManager_send(me->serialMan, "RTD procedure complete.\n"); //Just send a message
+        serial_send("RTD procedure complete.\n"); //Just send a message
         RTD_En = 1;                                                 //This line is redundant
 
         //How to transition to next state ------------------------------------------------
@@ -486,8 +482,6 @@ float4 MCM_pack_no_load_voltage(MotorController *me)
 
     return ((float4)me->DC_Voltage / 10) + ((float4)me->DC_Current * PACK_RESISTANCE / 10);
 }
-
-
 
 float4 interpolate(float4 x0, float4 x1, float4 y0, float4 y1, float4 x, float4 y, float4 q00, float4 q01, float4 q10, float4 q11) {
     float4 x0y0 = (x1 - x) * (y1 - y);

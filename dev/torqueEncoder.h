@@ -35,7 +35,7 @@ typedef struct _TorqueEncoder
     bool implausibility;
 } TorqueEncoder;
 
-TorqueEncoder *TorqueEncoder_new(void);
+void TorqueEncoder_new(TorqueEncoder *me);
 void TorqueEncoder_update(TorqueEncoder *me);
 void TorqueEncoder_resetCalibration(TorqueEncoder *me);
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);

@@ -8,8 +8,6 @@
 
 typedef struct _InstrumentCluster
 {
-    SerialManager* serialMan;
-    
     ubyte2 canMessageBaseId;  //Starting message ID for messages that will come in from this controller
 
     ubyte1 torqueMapMode;
@@ -19,7 +17,7 @@ typedef struct _InstrumentCluster
     
 } InstrumentCluster;
 
-InstrumentCluster* InstrumentCluster_new(ubyte2 canMessageBaseID);
+void InstrumentCluster_new(InstrumentCluster *me, ubyte2 canMessageBaseID);
 
 //----------------------------------------------------------------------------
 // Command Functions
@@ -34,11 +32,5 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
 // Status Functions (CAN Inputs)
 //----------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
-//Inter-object functions
-//----------------------------------------------------------------------------
-
-ubyte1 IC_getTorqueMapMode(InstrumentCluster *me);
-ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me);
 
 #endif // _INSTRUMENTCLUSTER_H

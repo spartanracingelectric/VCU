@@ -31,7 +31,7 @@ typedef struct _DRS
 //what is the purpose of this initialized struct?
 
 //initialize new DRS objects
-DRS *DRS_new();
+void DRS_new(DRS *me);
 
 //DRS control logic
 void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status);

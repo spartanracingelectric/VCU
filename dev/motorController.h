@@ -29,7 +29,6 @@ typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMOD
 
 typedef struct _MotorController
 {
-    SerialManager *serialMan;
     //----------------------------------------------------------------------------
     // Controller statuses/properties
     //----------------------------------------------------------------------------
@@ -109,7 +108,7 @@ typedef struct _MotorController
     bool LCReady;
 } MotorController;
 
-MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);
+void MotorController_new(MotorController *me, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed);
 
 //----------------------------------------------------------------------------
 // Command Functions

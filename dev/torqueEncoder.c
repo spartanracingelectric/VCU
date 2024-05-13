@@ -13,9 +13,8 @@ extern DigitalOutput Eco_Light;
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-TorqueEncoder* TorqueEncoder_new(void)
+void TorqueEncoder_new(TorqueEncoder *me)
 {
-    TorqueEncoder* me = (TorqueEncoder*)malloc(sizeof(struct _TorqueEncoder));
     me->tps0 = &TPS0;
     me->tps1 = &TPS1;
 
@@ -45,8 +44,6 @@ TorqueEncoder* TorqueEncoder_new(void)
     me->tps1_calibMin = 3350;
     me->tps1_calibMax = 4400;
     me->calibrated = TRUE;
-
-    return me;
 }
 
 //Updates all values based on sensor readings, safety checks, etc

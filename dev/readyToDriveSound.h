@@ -8,7 +8,7 @@ typedef struct _ReadyToDriveSound {
     ubyte2 volumePercent;
 } ReadyToDriveSound;
 
-ReadyToDriveSound *RTDS_new(ubyte2 volumePercent, ubyte4 timeToPlay);
+void RTDS_new(ReadyToDriveSound *rtds, ubyte2 volumePercent, ubyte4 timeToPlay);
 
 void RTDS_play_sound(ReadyToDriveSound *rtds);
 

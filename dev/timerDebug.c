@@ -8,14 +8,11 @@ to verify function, make a dummy function in this file that has its own rtc to d
 
 RTC timer is adds around 5-7 microseconds. 
 */
-TimerDebug *TimerDebug_new()
+void TimerDebug_new(TimerDebug *me)
 {
-    TimerDebug *me = (TimerDebug *)malloc(sizeof(struct _TimerDebug));
     me->prevTime = 0;
     me->RTCTimer = 0;
     me->timerUpdateIntervalCounter = TIMER_UPDATE_INTERVAL_LIM ; //to start timer right away set to TIMER_UPDATE_INTERVAL_LIM 
-
-    return me;
 }
 
 void TimerDebug_startTimer(TimerDebug *me)

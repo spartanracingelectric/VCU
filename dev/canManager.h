@@ -32,7 +32,6 @@ typedef struct _CanMessageNode
 } CanMessageNode;
 
 typedef struct _CanManager {
-    SerialManager* sm;
     CanMessageNode* canMessageHistory[0x7FF];
 
     ubyte1 canMessageLimit;
@@ -67,7 +66,7 @@ typedef struct _CanManager {
 } CanManager;
 
 //Note: Sum of messageLimits must be < 128 (hardware only does 128 total messages)
-CanManager *CanManager_new(ubyte4 defaultSendDelayus, SerialManager *sm);
+void CanManager_new(CanManager *me, ubyte4 defaultSendDelayus);
 IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount);
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves

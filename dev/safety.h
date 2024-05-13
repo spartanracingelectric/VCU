@@ -44,7 +44,7 @@ typedef struct _SafetyChecker
     ubyte4 bypassSafetyChecksTimeout_us;
 } SafetyChecker;
 
-SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
+void SafetyChecker_new(SafetyChecker *me, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps);
 void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps);
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss);
 ubyte1 SafetyChecker_getsoftbspd(SafetyChecker *me);

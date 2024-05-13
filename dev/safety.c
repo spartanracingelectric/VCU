@@ -78,9 +78,8 @@ extern WatchDog wd;
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+void SafetyChecker_new(SafetyChecker *me, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
 {
-    SafetyChecker *me = (SafetyChecker *)malloc(sizeof(struct _SafetyChecker));
     me->faults = 0;
     me->warnings = 0;
 
@@ -95,7 +94,6 @@ SafetyChecker *SafetyChecker_new(ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
     me->timestamp_bypassSafetyChecks = 0;
     me->bypassSafetyChecksTimeout_us = 500000; //If safety bypass command is not received in this time then safety is re-enabled
     // Note: The safety bypass warning flag is the determining factor in bypassing the multiplier.
-    return me;
 }
 
 // Updates all values based on sensor readings, safety checks, etc

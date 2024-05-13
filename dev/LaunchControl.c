@@ -56,16 +56,17 @@ Proportional test first with other output 0, get midway with target and then tun
 Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for kp to get target
 */
 /* Start of Launch Control */
-LaunchControl *LaunchControl_new(ubyte1 potLC){
-    LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
+void LaunchControl_new(LaunchControl *me, ubyte1 potLC){
     me->slipRatio = 0;
     me->lcTorque = -1;
     me->LCReady = FALSE;
     me->LCStatus = FALSE;
     me->potLC = potLC;
     me->sr_valid = FALSE;
-    return me;
+    me->pidController = (PIDController *)malloc(sizeof(PIDController));
+    initPIDController(me->pidController, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
 }
+
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     me->slipRatio = ((wss->speed_FL_RPM + wss->speed_FR_RPM) / (wss->speed_RL_RPM + wss->speed_RR_RPM)) - 1;
     // Limit to the range of -1 to 1
@@ -84,18 +85,17 @@ bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
 
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
     sbyte2 steeringAngle = (sbyte2)steering_degrees();
-    PIDController *controller = (PIDController *)malloc(sizeof(PIDController));
      if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;
         me->lcTorque = 0; // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        initPIDController(controller, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
+        initPIDController(me->pidController, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
         // Because acceleration is in the negative regime of slip ratio and we want to increase torque to make it more negative
      }
      if (me->LCReady && !LC_Button.sensorValue && tps->travelPercent > .90 && bps->percent < .05) {
         me->LCStatus = TRUE;
-        me->lcTorque = controller->errorSum; // Set to the initial torque
+        me->lcTorque = me->pidController->errorSum; // Set to the initial torque
         if (me->sr_valid) {
-            me->lcTorque = calculatePIDController(controller, -0.2, me->slipRatio, mcm->commands_torqueLimit/10.0); // Set your target, current, dt
+            me->lcTorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, mcm->commands_torqueLimit/10.0); // Set your target, current, dt
         }
     }
     if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus) || (!me->sr_valid && mcm->motorRPM > 1000)) {

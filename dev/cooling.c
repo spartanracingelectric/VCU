@@ -12,10 +12,8 @@ extern DigitalOutput Water_Pump;
 extern PWMOutput Rad_Fans;
 
 //All temperatures in C
-CoolingSystem *CoolingSystem_new()
+void CoolingSystem_new(CoolingSystem *me)
 {
-    CoolingSystem *me = (CoolingSystem *)malloc(sizeof(struct _CoolingSystem));
-
     //-------------------------------------------------------------------
     // Cooling System Configuration
     //-------------------------------------------------------------------
@@ -41,8 +39,6 @@ CoolingSystem *CoolingSystem_new()
     me->batteryFanLow = 38;     //Turn off BELOW this point
     me->batteryFanHigh = 43;    //Turn on at this temperature
     me->batteryFanState = TRUE; //float4 batteryFanPercent;
-
-    return me;
 }
 
 //-------------------------------------------------------------------

@@ -13,9 +13,8 @@
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+void WheelSpeeds_new(WheelSpeeds* me, float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
 {
-    WheelSpeeds *me = (WheelSpeeds *)malloc(sizeof(struct _WheelSpeeds));
 
     //1 inch = .0254 m
     me->tireCircumferenceMeters_F = 3.14159 * (.0254 * tireDiameterInches_F);
@@ -29,8 +28,6 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
 
     //Turn on WSS power pins
     IO_DO_Set(IO_DO_07, TRUE); // WSS x4
-
-    return me;
 }
 
 void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)

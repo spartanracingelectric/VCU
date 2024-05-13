@@ -36,7 +36,7 @@ typedef struct _WheelSpeeds
 //In other words, only updateFromSensors itself should use the tps Sensor objects
 //Also, all values in the TorqueEncoder object are from 
 
-WheelSpeeds* WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R);
+void WheelSpeeds_new(WheelSpeeds* me, float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R);
 void WheelSpeeds_update(WheelSpeeds* me, bool interpolate);
 
 #endif //  _WHEELSPEEDS_H

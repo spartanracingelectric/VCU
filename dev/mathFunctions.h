@@ -27,4 +27,8 @@ sbyte2 swap_int16(sbyte2 val);
 ubyte4 swap_uint32(ubyte4 val);
 sbyte4 swap_int32(sbyte4 val);
 
+// make our own min and max because tasking has a fatal error with the stdlib min and max
+#define max_ew(a,b) (((a) > (b)) ? (a) : (b))
+#define min_ew(a,b) (((a) < (b)) ? (a) : (b))
+
 #endif //  _MATHFUNCTIONS_H

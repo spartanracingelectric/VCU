@@ -26,11 +26,8 @@ extern WatchDog wd;
 static const ubyte1 bitInverter = 1;  //bit 1
 static const ubyte1 bitLockout = 128; //bit 7
 
-CanManager* CanManager_new(ubyte4 defaultSendDelayus, SerialManager* serialMan)
+void CanManager_new(CanManager* me, ubyte4 defaultSendDelayus)
 {
-    CanManager* me = (CanManager*)malloc(sizeof(struct _CanManager));
-    me->sm = serialMan;
-
     for (ubyte4 id = 0; id <= 0x7FF; id++)
     {
         me->canMessageHistory[id] = 0;
@@ -69,8 +66,6 @@ CanManager* CanManager_new(ubyte4 defaultSendDelayus, SerialManager* serialMan)
     {
         CAN_msg_insert(me->canMessageHistory, messageID, emptyData, 50000, 250000, TRUE);
     }
-
-    return me;
 }
 
 CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
