@@ -9,9 +9,6 @@
 //Also, all values in the TorqueEncoder object are from
 typedef struct _BrakePressureSensor
 {
-    Sensor *bps0;
-    Sensor* bps1;
-
     ubyte2 bps0_calibMin; //2 bytes for ADC, 4 bytes if switch to digital/timer/PWM
     ubyte2 bps0_calibMax;
     bool bps0_reverse;

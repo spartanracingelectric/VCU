@@ -135,7 +135,7 @@ void main(void)
 
     RTDS_new(&rtds, 1, 1500000);
     BMS_new(&bms, BMS_BASE_ADDRESS);
-    MotorController_new(&mcm, 0xA0, FORWARD, 2400, 5, 10);
+    MotorController_new(&mcm, 0xA0, REVERSE, 2400, 5, 10);
     InstrumentCluster_new(&ic, 0x702);
     TorqueEncoder_new(&tps);
     BrakePressureSensor_new(&bps);

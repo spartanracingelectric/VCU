@@ -20,10 +20,6 @@ extern DigitalOutput Eco_Light;
 
 void BrakePressureSensor_new(BrakePressureSensor *me)
 {
-    //TODO: Make sure the main loop is running before doing this
-    me->bps0 = &BPS0;
-    me->bps1 = &BPS1;
-
     // Max/min values from the datasheet, including inaccuracy (important since our BPS sits slightly below 0.5V but still within range)
     // If voltage exceeds these values, a fault is thrown in safety.c.
     // Accuracy below 100PSI is +/- 0.5% of the full scale span (4V), which is +/- 0.2V
@@ -44,7 +40,7 @@ void BrakePressureSensor_new(BrakePressureSensor *me)
 
     me->calibrated = TRUE;
     me->bps0_calibMin = 500;
-    me->bps0_calibMax = 2350;
+    me->bps0_calibMax = 2290;
     
     // BrakePressureSensor_resetCalibration(me);
 }
@@ -52,8 +48,8 @@ void BrakePressureSensor_new(BrakePressureSensor *me)
 //Updates all values based on sensor readings, safety checks, etc
  void BrakePressureSensor_update(BrakePressureSensor *me)
 {
-    me->bps0_value = me->bps0->sensorValue;
-    me->bps1_value = me->bps1->sensorValue;
+    me->bps0_value = BPS0.sensorValue;
+    me->bps1_value = BPS1.sensorValue;
 
     //This function runs before the calibration cycle function.  If calibration is currently
     //running, then set the percentage to zero for safety purposes.
@@ -81,10 +77,10 @@ void BrakePressureSensor_new(BrakePressureSensor *me)
 void BrakePressureSensor_resetCalibration(BrakePressureSensor *me)
 {
     me->calibrated = FALSE;
-    me->bps0_calibMin = me->bps0->sensorValue;
-    me->bps0_calibMax = me->bps0->sensorValue;
-    //me->bps1_calibMin = me->bps1->sensorValue;
-    //me->bps1_calibMax = me->bps1->sensorValue;
+    me->bps0_calibMin = BPS0.sensorValue;
+    me->bps0_calibMax = BPS0.sensorValue;
+    me->bps1_calibMin = BPS1.sensorValue;
+    me->bps1_calibMax = BPS1.sensorValue;
 }
 
 
@@ -122,22 +118,22 @@ void BrakePressureSensor_calibrationCycle(BrakePressureSensor *me, ubyte1 *error
         if (IO_RTC_GetTimeUS(me->timestamp_calibrationStart) < (ubyte4)(me->calibrationRunTime) * 1000 * 1000)
         {
             //The calibration itself
-            if (me->bps0->sensorValue < me->bps0_calibMin)
+            if (BPS0.sensorValue < me->bps0_calibMin)
             {
-                me->bps0_calibMin = me->bps0->sensorValue;
+                me->bps0_calibMin = BPS0.sensorValue;
             }
-            if (me->bps0->sensorValue > me->bps0_calibMax)
+            if (BPS0.sensorValue > me->bps0_calibMax)
             {
-                me->bps0_calibMax = me->bps0->sensorValue;
+                me->bps0_calibMax = BPS0.sensorValue;
             }
             
-            if (me->bps1->sensorValue < me->bps1_calibMin)
+            if (BPS1.sensorValue < me->bps1_calibMin)
             {
-                me->bps1_calibMin = me->bps1->sensorValue;
+                me->bps1_calibMin = BPS1.sensorValue;
             }
-            if (me->bps1->sensorValue > me->bps1_calibMax)
+            if (BPS1.sensorValue > me->bps1_calibMax)
             {
-                me->bps1_calibMax = me->bps1->sensorValue;
+                me->bps1_calibMax = BPS1.sensorValue;
             }
             
         }
