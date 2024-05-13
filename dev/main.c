@@ -177,7 +177,6 @@ void main(void)
         }
 
         if (Cal_Button.sensorValue) {
-            WatchDog_reset(&wd); // tapping eco will reset the watchdog for now
             if (timestamp_EcoButton == 0) {
                 serial_send("Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
