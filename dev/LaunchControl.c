@@ -13,7 +13,10 @@
 #include "main.h"
 
 extern Button LC_Button;
-extern Sensor Sensor_DRSKnob;
+extern Sensor DRSKnob;
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern MotorController *mcm;
 
 void initPIDController(PIDController* controller, float4 p, float4 i, float4 d, float4 initialTorque) {
     controller->kp = p;
@@ -83,7 +86,7 @@ bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed){
     return (wss->speed_FL_RPM_S > minSpeed && wss->speed_FR_RPM_S > minSpeed && wss->speed_RL_RPM_S > minSpeed && wss->speed_RR_RPM_S > minSpeed);
 }
 
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
+void launchControlTorqueCalculation(LaunchControl *me) {
     sbyte2 steeringAngle = (sbyte2)steering_degrees();
      if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD) {
         me->LCReady = TRUE;

@@ -30,7 +30,7 @@ typedef struct _LaunchControl {
 
 void LaunchControl_new(LaunchControl *lc, ubyte1 potLC);
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
-void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
+void launchControlTorqueCalculation(LaunchControl *lc);
 bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed);
 
 #endif

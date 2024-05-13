@@ -68,9 +68,13 @@ static const ubyte2 N_Over75kW_MCM = 0x20;
 
 ubyte4 timestamp_SoftBSPD = 0;
 
-extern Sensor Sensor_LVBattery;
-extern Button Sensor_HVILTerminationSense;
+extern Sensor LVBattery;
+extern Button HVILTerminationSense;
 extern WatchDog wd;
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern ReadyToDriveSound *rtds;
+extern MotorController *mcm;
 
 /*****************************************************************************
 * Torque Encoder (TPS) functions
@@ -97,7 +101,7 @@ void SafetyChecker_new(SafetyChecker *me, ubyte2 maxChargeAmps, ubyte2 maxDischa
 }
 
 // Updates all values based on sensor readings, safety checks, etc
-void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, TorqueEncoder *tps, BrakePressureSensor *bps)
+void SafetyChecker_update(SafetyChecker *me)
 {
     /*****************************************************************************
     * Faults
@@ -291,13 +295,13 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     // If HVIL term sense goes low (because HV went down), motor torque
     // command should be set to zero before turning off the controller
     //-------------------------------------------------------------------
-    set_flags(&me->notices, N_HVILTermSenseLost, Sensor_HVILTerminationSense.sensorValue == FALSE);
+    set_flags(&me->notices, N_HVILTermSenseLost, HVILTerminationSense.sensorValue == FALSE);
 
     
     set_flags(&me->notices, N_Over75kW_MCM, MCM_getPower(mcm) > 75000);
 }
 
-void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
+void SafetyChecker_reduceTorque(SafetyChecker *me)
 {
     float4 multiplier = 1;
     //Get ground speed in KPH using only FL WSS

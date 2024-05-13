@@ -145,11 +145,10 @@ ubyte2 MCM_get_max_torque_power_limit(MotorController *me);
 //----------------------------------------------------------------------------
 //Inter-object functions
 //----------------------------------------------------------------------------
-// void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
-void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateCommands(MotorController *mcm);
 
 void MCM_relayControl(MotorController* mcm);
-void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
+void MCM_inverterControl(MotorController* mcm);
 
 #endif // _MOTORCONTROLLER_H

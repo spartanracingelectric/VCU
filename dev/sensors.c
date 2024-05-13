@@ -15,15 +15,15 @@ extern PWDSensor WSS_FL;
 extern PWDSensor WSS_FR;
 extern PWDSensor WSS_RL;
 extern PWDSensor WSS_RR;
-extern Sensor Sensor_SAS;
-extern Sensor Sensor_LVBattery;
+extern Sensor SAS;
+extern Sensor LVBattery;
 
 extern Button RTD_Button;
 extern Button Cal_Button;
 extern Button DRS_Button;
-extern Sensor Sensor_DRSKnob;
+extern Sensor DRSKnob;
 extern Button LC_Button;
-extern Button Sensor_HVILTerminationSense;
+extern Button HVILTerminationSense;
 
 /*-------------------------------------------------------------------
 * getPercent
@@ -54,17 +54,17 @@ void sensors_updateSensors(void)
     Button_read(&RTD_Button);
     Button_read(&Cal_Button);
     Button_read(&LC_Button);
-    Button_read(&Sensor_HVILTerminationSense);
+    Button_read(&HVILTerminationSense);
     Button_read(&DRS_Button);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
-    Sensor_read(&Sensor_LVBattery);
+    Sensor_read(&LVBattery);
     //Steering Angle Sensor
-    Sensor_read(&Sensor_SAS);
+    Sensor_read(&SAS);
 
     //DRS Knob
-    Sensor_read(&Sensor_DRSKnob);
+    Sensor_read(&DRSKnob);
 }
 
 Sensor* Sensor_new(ubyte1 pin, ubyte1 power) {
@@ -192,7 +192,7 @@ sbyte4 steering_degrees(){
     
     sbyte4 voltage_range = max_voltage - min_voltage;
     sbyte4 angle_range = max_angle - min_angle;
-    sbyte4 voltage = Sensor_SAS.sensorValue;
+    sbyte4 voltage = SAS.sensorValue;
 
     sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
     return deg;

@@ -174,25 +174,8 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
 * Throws:      000 - TPS0 voltage out of range
 *              001 - TPS1 voltage out of range, 002
 -------------------------------------------------------------------*/
-void TorqueEncoder_getPedalTravel(TorqueEncoder* me, ubyte1* errorCount, float4* pedalPercent)
+
+float4 TorqueEncoder_getOutputPercent(TorqueEncoder* me)
 {
-    *pedalPercent = me->travelPercent;
-
-    //What about other error states?
-    //Voltage outside of calibration range
-    //Voltages off center
-
-    //    if (errorCount > 0)
-    //    {
-    //        return 0;
-    //    }
-    //    else
-    //    {
-    //return (TPS0PedalPercent + TPS1PedalPercent) / 2;
-    //    }
-}
-
-void TorqueEncoder_getOutputPercent(TorqueEncoder* me, float4* outputPercent)
-{
-    *outputPercent = powf(me->travelPercent, me->outputCurveExponent);
+    return powf(me->travelPercent, me->outputCurveExponent);
 }

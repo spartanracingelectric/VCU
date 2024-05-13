@@ -7,12 +7,15 @@
 #include "IO_DIO.h"
 #include "serial.h"
 #include "mathFunctions.h"
+#include "sensors.h"
 
 /*********************************************************
  *            *********** CAUTION ***********            *
  * MULTI-BYTE VALUES FOR THE STAFL BMS ARE LITTLE-ENDIAN *
  *                                                       *
  *********************************************************/
+
+extern DigitalOutput VCU_BMS_Power;
 
 void BMS_new(BatteryManagementSystem *me, ubyte2 canMessageBaseID)
 {
@@ -62,32 +65,17 @@ IO_ErrorType BMS_relayControl(BatteryManagementSystem *me)
     if (me->faultFlags0)
     {
         me->relayState = TRUE;
-        err = IO_DO_Set(IO_DO_01, TRUE); //Drive BMS relay true (HIGH)
+        DigitalOutput_set(&VCU_BMS_Power, TRUE); //Drive BMS relay true (HIGH)
     }
     //There is no fault
     else
     {
         me->relayState = FALSE;
-        err = IO_DO_Set(IO_DO_01, FALSE); //Drive BMS relay false (LOW)
+        DigitalOutput_set(&VCU_BMS_Power, FALSE); //Drive BMS relay false (LOW)
     }
     return err;
 }
 
-ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me)
-{
-    return (me->highestCellVoltage);
-}
-
-ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me)
-{
-    return (me->lowestCellVoltage);
-}
-
-//Split into
-sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
-{
-    return (me->highestCellTemperature);
-}
 
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem *me)
 {

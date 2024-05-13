@@ -20,14 +20,15 @@
 
 extern Button RTD_Button;
 extern Button Cal_Button;
-extern Sensor Sensor_TCSKnob;       // used currently for regen
-extern Button Sensor_HVILTerminationSense;
+extern Sensor TCSKnob;       // used currently for regen
+extern Button HVILTerminationSense;
 extern DigitalOutput RTD_Light;
 extern DigitalOutput MCM_Power;
 
-#define CELL_RESISTANCE 0.025f //Ohms resistance of the cell+ fuselink
-#define CELLS_IN_PARALLEL 7
-#define CELLS_IN_SERIES 96
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern ReadyToDriveSound *rtds;
+
 const float4 PACK_RESISTANCE = (1/(CELLS_IN_PARALLEL/CELL_RESISTANCE))*CELLS_IN_SERIES; // pack resistance
 
 /*****************************************************************************
@@ -148,7 +149,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
+void MCM_calculateCommands(MotorController *me)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -163,9 +164,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     sbyte2 appsTorque = 0;
     sbyte2 bpsTorque = 0;
 
-    float4 appsOutputPercent;
+    float4 appsOutputPercent = TorqueEncoder_getOutputPercent(tps);
 
-    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     me->power_torque_lim = MCM_get_max_torque_power_limit(me);
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
@@ -203,7 +203,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 void MCM_relayControl(MotorController *me)
 {
     //If HVIL Term Sense is low (HV is down)
-    if (Sensor_HVILTerminationSense.sensorValue == FALSE && me->HVILOverride == FALSE)
+    if (HVILTerminationSense.sensorValue == FALSE && me->HVILOverride == FALSE)
     {
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
@@ -252,7 +252,7 @@ void MCM_relayControl(MotorController *me)
 }
 
 //See diagram at https://onedrive.live.com/redir?resid=F9BB8F0F8FDB5CF8!30410&authkey=!ABSF-uVH-VxQRAs&ithint=file%2chtml
-void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, ReadyToDriveSound *rtds)
+void MCM_inverterControl(MotorController *me)
 {
     float4 RTD_En;
     RTD_En = (RTD_Button.sensorValue == TRUE ? 1 : 0);

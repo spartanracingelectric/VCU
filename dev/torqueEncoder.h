@@ -40,7 +40,6 @@ void TorqueEncoder_update(TorqueEncoder *me);
 void TorqueEncoder_resetCalibration(TorqueEncoder *me);
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun);
 void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount);
-void TorqueEncoder_getPedalTravel(TorqueEncoder *me, ubyte1 *errorCount, float4 *pedalPercent);
-void TorqueEncoder_getOutputPercent(TorqueEncoder *me, float4 *outputPercent);
+float4 TorqueEncoder_getOutputPercent(TorqueEncoder *me);
 
 #endif //  _TORQUEENCODER_H

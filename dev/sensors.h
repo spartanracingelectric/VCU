@@ -89,20 +89,20 @@ extern PWDSensor WSS_RL;
 extern PWDSensor WSS_RR;
 
 //Steering angle Sensor (SAS) - continuous rotation sensor, works like TPS, probably ratiometric
-extern Sensor Sensor_SAS;
+extern Sensor SAS;
 
 //Switches
 //precharge failure
 extern Button RTD_Button;
 extern Button Cal_Button;
-extern Sensor Sensor_TCSSwitchUp;
+extern Sensor TCSSwitchUp;
 extern Button LC_Button;
-extern Sensor Sensor_TCSKnob;
+extern Sensor TCSKnob;
 extern Button DRS_Button;
-extern Sensor Sensor_DRSKnob;
+extern Sensor DRSKnob;
 
-extern Button Sensor_HVILTerminationSense;
-extern Sensor Sensor_LVBattery;
+extern Button HVILTerminationSense;
+extern Sensor LVBattery;
 
 extern DigitalOutput Brake_Light;
 extern DigitalOutput TCS_Light;

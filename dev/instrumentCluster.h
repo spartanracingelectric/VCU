@@ -27,7 +27,7 @@ void InstrumentCluster_new(InstrumentCluster *me, ubyte2 canMessageBaseID);
 // Update Functions (CAN Inputs)
 //----------------------------------------------------------------------------
 
-void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA_FRAME* icCanMessage);
+void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage);
 //----------------------------------------------------------------------------
 // Status Functions (CAN Inputs)
 //----------------------------------------------------------------------------

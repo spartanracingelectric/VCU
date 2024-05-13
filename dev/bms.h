@@ -35,12 +35,12 @@ typedef struct _BatteryManagementSystem
     ubyte2 canMessageBaseId;
 
     // BMS_CELL_VOLTAGE_SUMMARY //
-    ubyte2 highestCellVoltage;
-    ubyte2 lowestCellVoltage;                   
+    ubyte2 highestCellVoltage;   //Millivolts
+    ubyte2 lowestCellVoltage;    //Millivolts                
 
     // BMS_CELL_TEMPERATURE_SUMMARY
-    sbyte2 highestCellTemperature;
-    sbyte2 lowestCellTemperature;
+    sbyte2 highestCellTemperature;  //deciCelsius
+    sbyte2 lowestCellTemperature;   //deciCelsius
    
     // BMS_FAULTS
     ubyte1 faultFlags0;                       
@@ -54,9 +54,6 @@ void BMS_parseCanMessage(BatteryManagementSystem* bms, IO_CAN_DATA_FRAME* bmsCan
 IO_ErrorType BMS_relayControl(BatteryManagementSystem *me);
 
 // ***NOTE: packCurrent and and packVoltage are SIGNED variables and the return type for BMS_getPower is signed
-ubyte2 BMS_getHighestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
-ubyte2 BMS_getLowestCellVoltage_mV(BatteryManagementSystem *me);   //Millivolts
-sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem* me);  //deciCelsius (higher resolution)
 sbyte2 BMS_getHighestCellTemp_degC(BatteryManagementSystem* me);    //Celsius
 
 

@@ -4,6 +4,7 @@
 #include "motorController.h"    // need definition of MotorController's struct, not just decaration
 #include "canManager.h"
 
+extern MotorController *mcm;
 
 void InstrumentCluster_new(InstrumentCluster *me, ubyte2 canMessageBaseID)
 {
@@ -14,7 +15,7 @@ void InstrumentCluster_new(InstrumentCluster *me, ubyte2 canMessageBaseID)
     me->launchControlSensitivity=0;
 }
 
-void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA_FRAME* icCanMessage)
+void IC_parseCanMessage(InstrumentCluster* me, IO_CAN_DATA_FRAME* icCanMessage)
 {
     switch (icCanMessage->id)
     {

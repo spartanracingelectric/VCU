@@ -4,6 +4,7 @@
 #include "IO_Driver.h"
 #include "IO_CAN.h"
 
+#include "main.h"
 #include "motorController.h"
 #include "instrumentCluster.h"
 #include "bms.h"
@@ -15,11 +16,19 @@
 
 typedef enum
 {
-    CAN0_HIPRI,
-    CAN1_LOPRI
+    CAN0,
+    CAN1
 } CanChannel;
 //CAN0: 48 messages per handle (48 read, 48 write)
 //CAN1: 16 messages per handle
+
+typedef struct _CAN_MESSAGE_SEND_BUFFER
+{
+    IO_CAN_DATA_FRAME canMessages0[CAN_WRITE_MESSAGE_LIMIT];
+    IO_CAN_DATA_FRAME canMessages1[CAN_WRITE_MESSAGE_LIMIT];
+    ubyte1 canMessageCount0;
+    ubyte1 canMessageCount1;
+} CAN_MESSAGE_SEND_BUFFER;
 
 //Keep track of CAN message IDs, their data, and when they were last sent.
 typedef struct _CanMessageNode
@@ -70,11 +79,11 @@ void CanManager_new(CanManager *me, ubyte4 defaultSendDelayus);
 IO_ErrorType CanManager_send(CanManager *me, CanChannel channel, IO_CAN_DATA_FRAME canMessages[], ubyte1 canMessageCount);
 
 //Reads and distributes can messages to their appropriate subsystem objects so they can updates themselves
-void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, SafetyChecker *sc);
+void CanManager_read(CanManager *me, CanChannel channel);
 CanMessageNode *CAN_msg_insert(CanMessageNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req);
 void canOutput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
-void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc, DRS *drs, TimerDebug *td);
+void canOutput_sendDebugMessage(CanManager *me);
 
 ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel);
 

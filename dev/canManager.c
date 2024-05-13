@@ -21,6 +21,17 @@
 
 extern LUT* LV_BATT_SOC_LUT;
 extern WatchDog wd;
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern ReadyToDriveSound *rtds;
+extern MotorController *mcm;
+extern InstrumentCluster *ic;
+extern BatteryManagementSystem *bms;
+extern SafetyChecker *sc;
+extern LaunchControl *lc;
+extern DRS *drs;
+extern TimerDebug *td;
+extern WheelSpeeds *wss;
 
 // 0x0AA
 static const ubyte1 bitInverter = 1;  //bit 1
@@ -186,11 +197,11 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
     if (messagesToSendCount > 0)
     {
         // Send the messages to send to the appropriate FIFO queue
-        sendResult = IO_CAN_WriteFIFO((channel == CAN0_HIPRI) ? me->can0_writeHandle : me->can1_writeHandle, messagesToSend, messagesToSendCount);
-        *((channel == CAN0_HIPRI) ? &me->ioErr_can0_write : &me->ioErr_can1_write) = sendResult;
+        sendResult = IO_CAN_WriteFIFO((channel == CAN0) ? me->can0_writeHandle : me->can1_writeHandle, messagesToSend, messagesToSendCount);
+        *((channel == CAN0) ? &me->ioErr_can0_write : &me->ioErr_can1_write) = sendResult;
 
         // Update the outgoing message tree with message sent timestamps
-        if ((channel == CAN0_HIPRI ? me->ioErr_can0_write : me->ioErr_can1_write) == IO_E_OK)
+        if ((channel == CAN0 ? me->ioErr_can0_write : me->ioErr_can1_write) == IO_E_OK)
         {
             // Loop through the messages that we sent...
             for (messagePosition = 0; messagePosition < messagesToSendCount; messagePosition++)
@@ -205,14 +216,14 @@ IO_ErrorType CanManager_send(CanManager* me, CanChannel channel, IO_CAN_DATA_FRA
 /*****************************************************************************
 * read
 ****************************************************************************/
-void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
+void CanManager_read(CanManager* me, CanChannel channel)
 {
     IO_CAN_DATA_FRAME canMessages[CAN_READ_MESSAGE_LIMIT];
     ubyte1 canMessageCount;  // FIFO queue only holds 128 messages max
 
     // Read messages from hipri channel 
-    *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
-    IO_CAN_ReadFIFO((channel == CAN0_HIPRI ? me->can0_readHandle : me->can1_writeHandle),
+    *(channel == CAN0 ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
+    IO_CAN_ReadFIFO((channel == CAN0 ? me->can0_readHandle : me->can1_writeHandle),
                     canMessages,
                     CAN_READ_MESSAGE_LIMIT,
                     &canMessageCount);
@@ -389,13 +400,13 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
             break;
 
         case 0x702:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            IC_parseCanMessage(ic, &canMessages[currMessage]);
             break;
         case 0x703:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            IC_parseCanMessage(ic, &canMessages[currMessage]);
             break;
         case 0x704:
-            IC_parseCanMessage(ic, mcm, &canMessages[currMessage]);
+            IC_parseCanMessage(ic, &canMessages[currMessage]);
             break;
         //-------------------------------------------------------------------------
         // VCU Debug Control
@@ -426,7 +437,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
 ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 {
-    return (channel == CAN0_HIPRI) ? me->ioErr_can0_read : me->ioErr_can1_read;
+    return (channel == CAN0) ? me->ioErr_can0_read : me->ioErr_can1_read;
 }
 
 
@@ -444,94 +455,85 @@ ubyte1 CanManager_getReadStatus(CanManager* me, CanChannel channel)
 * https://docs.google.com/spreadsheets/d/1sYXx191RtMq5Vp5PbPsq3BziWvESF9arZhEjYUMFO3Y/edit
 ****************************************************************************/
 
+void addCanMessage(CanChannel channel, IO_CAN_DATA_FRAME message, CAN_MESSAGE_SEND_BUFFER *buffer)
+{
+    if (channel == CAN0)
+    {
+        buffer->canMessageCount0++;
+        buffer->canMessages0[buffer->canMessageCount0 - 1] = message;
+    }
+    else
+    {
+        buffer->canMessageCount1++;
+        buffer->canMessages1[buffer->canMessageCount1 - 1] = message;
+    }
+}
 
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs, TimerDebug *td)
+void canOutput_sendDebugMessage(CanManager* me)
 {
-    IO_CAN_DATA_FRAME canMessages0[CAN_WRITE_MESSAGE_LIMIT];
-    IO_CAN_DATA_FRAME canMessages1[CAN_WRITE_MESSAGE_LIMIT];
-    ubyte2 canMessage0Count = 0;
-    ubyte2 canMessage1Count = 0;
+    CAN_MESSAGE_SEND_BUFFER canMessages;
 
     //500: TPS 0
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_tps0_can_message(tps);
+    addCanMessage(CAN0, get_tps0_can_message(tps), &canMessages);
 
     //TPS 1
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_tps1_can_message(tps);
+    addCanMessage(CAN0, get_tps1_can_message(tps), &canMessages);
 
     //BPS0
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_bps0_can_message(bps);
+    addCanMessage(CAN0, get_bps0_can_message(bps), &canMessages);
 
     //WSS mm/s output
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_wss_can_message(wss);
+    addCanMessage(CAN0, get_wss_can_message(wss), &canMessages);
 
     //WSS RPM non-interpolated output
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_wss_rpm1_can_message(wss);
+    addCanMessage(CAN0, get_wss_rpm1_can_message(wss), &canMessages);
 
     //WSS RPM interpolated output
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_wss_rpm2_can_message(wss);
+    addCanMessage(CAN0, get_wss_rpm2_can_message(wss), &canMessages);
 
     //506: Safety Checker
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_sc_can_message(sc);
+    addCanMessage(CAN0, get_sc_can_message(sc), &canMessages);
 
     //507: LV Battery
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_lvb_can_message();
+    addCanMessage(CAN0, get_lvb_can_message(), &canMessages);
 
     //508: MCM Regen settings
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_mcm_regen_can_message(mcm);
+    addCanMessage(CAN0, get_mcm_regen_can_message(mcm), &canMessages);
 
     //509: MCM RTD Status
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_mcm_rtd_can_message(mcm);
+    addCanMessage(CAN0, get_mcm_rtd_can_message(mcm), &canMessages);
 
     //50A: MCM Ground Speed Reference
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_mcm_gsr_can_message(mcm);
+    addCanMessage(CAN0, get_mcm_gsr_can_message(mcm), &canMessages);
 
     //50B: Launch Control
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_lc_can_message(lc);
+    addCanMessage(CAN0, get_lc_can_message(lc), &canMessages);
 
     //50C: SAS (Steering Angle Sensor) and DRS
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_drs_can_message(drs);
+    addCanMessage(CAN0, get_drs_can_message(drs), &canMessages);
 
     //50D: BPS1
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_bps1_can_message(bps);
+    addCanMessage(CAN0, get_bps1_can_message(bps), &canMessages);
 
 
     //50F: MCM Power Debug
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_mcm_power_can_message(mcm, sc);
+    addCanMessage(CAN0, get_mcm_power_can_message(mcm, sc), &canMessages);
 
     //511: SoftBSPD
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_bspd_can_message(mcm, sc);
+    addCanMessage(CAN0, get_bspd_can_message(mcm, sc), &canMessages);
 
     //512: MCM Torque Command
-    canMessage0Count++;
-    canMessages0[canMessage0Count - 1] = get_mcm_pl_can_message(mcm);
+    addCanMessage(CAN0, get_mcm_pl_can_message(mcm), &canMessages);
 
     //Motor controller command message
-    canMessage1Count++;
-    canMessages1[canMessage1Count - 1] = get_mcm_command_can_message(mcm);
+    addCanMessage(CAN0, get_mcm_command_can_message(mcm), &canMessages);
     
     //Place the can messages into the FIFO queue ---------------------------------------------------
-    CanManager_send(me, CAN0_HIPRI, canMessages0, canMessage0Count);  //Important: Only transmit one message (the MCU message)
-    CanManager_send(me, CAN1_LOPRI, canMessages1, canMessage1Count);
-
+    CanManager_send(me, CAN0, canMessages.canMessages0, canMessages.canMessageCount0);  //Important: Only transmit one message (the MCU message)
+    CanManager_send(me, CAN1, canMessages.canMessages1, canMessages.canMessageCount1);
 }
 
 IO_CAN_DATA_FRAME get_tps0_can_message(TorqueEncoder* tps) {
@@ -664,12 +666,12 @@ IO_CAN_DATA_FRAME get_sc_can_message(SafetyChecker* sc) {
 
 IO_CAN_DATA_FRAME get_lvb_can_message() {
     float4 LVBatterySOC = lv_battery_soc();
-    Sensor_LVBattery.sensorValue = Sensor_LVBattery.sensorValue + 0.46;
+    LVBattery.sensorValue = LVBattery.sensorValue + 0.46;
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x507;
-    canMessage.data[0] = (ubyte1)Sensor_LVBattery.sensorValue;
-    canMessage.data[1] = Sensor_LVBattery.sensorValue >> 8;
+    canMessage.data[0] = (ubyte1)LVBattery.sensorValue;
+    canMessage.data[1] = LVBattery.sensorValue >> 8;
     canMessage.data[2] = (sbyte1)(100 * LVBatterySOC);
     canMessage.data[3] = 0;
     canMessage.data[4] = 0;
@@ -700,8 +702,8 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message(MotorController* mcm) {
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x509;
-    canMessage.data[0] = Sensor_HVILTerminationSense.sensorValue;
-    canMessage.data[1] = Sensor_HVILTerminationSense.sensorValue >> 8;
+    canMessage.data[0] = HVILTerminationSense.sensorValue;
+    canMessage.data[1] = HVILTerminationSense.sensorValue >> 8;
     canMessage.data[2] = mcm->HVILOverride;
     canMessage.data[3] = mcm->startupStage;
     canMessage.data[4] = RTD_Button.sensorValue;
@@ -839,5 +841,5 @@ IO_CAN_DATA_FRAME get_mcm_command_can_message(MotorController* mcm) {
 }
 
 float4 lv_battery_soc() {
-    return getValueFromLUT(LV_BATT_SOC_LUT, Sensor_LVBattery.sensorValue/1000.0f/LV_BATT_S);
+    return getValueFromLUT(LV_BATT_SOC_LUT, LVBattery.sensorValue/1000.0f/LV_BATT_S);
 }

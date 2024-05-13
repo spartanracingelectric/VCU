@@ -10,7 +10,7 @@
         "stdlib.h": "c",
         "sensors.h": "c",
         "motorcontroller.h": "c",
-        "readytodrivesound.h": "c"
+        "corecrt_math.h": "c"
     },
     "cSpell.words": [
         "APDB",

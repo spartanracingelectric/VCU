@@ -34,9 +34,9 @@ typedef struct _DRS
 void DRS_new(DRS *me);
 
 //DRS control logic
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status);
+void DRS_update(DRS *me, ubyte1 pot_DRS_LC, bool lc_status);
 //make sensor comparisons to thresholds and set drsActive flag
-void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
+void runAuto(DRS *me);
 
 //actuate the wing to physically activate DRS
 void DRS_open(DRS *me);

@@ -134,7 +134,7 @@ void main(void)
     ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     RTDS_new(&rtds, 1, 1500000);
-    BMS_new(&bms,BMS_BASE_ADDRESS);
+    BMS_new(&bms, BMS_BASE_ADDRESS);
     MotorController_new(&mcm, 0xA0, FORWARD, 2400, 5, 10);
     InstrumentCluster_new(&ic, 0x702);
     TorqueEncoder_new(&tps);
@@ -160,7 +160,8 @@ void main(void)
         /*              Read Inputs                */
         /*******************************************/
         sensors_updateSensors();
-        CanManager_read(&canMan, CAN0_HIPRI, &mcm, &ic, &bms, &sc);
+        CanManager_read(&canMan, CAN0);
+        CanManager_read(&canMan, CAN1);
 
         //No regen below 5kph
         sbyte4 groundSpeedKPH = MCM_getGroundSpeedKPH(&mcm);
@@ -206,23 +207,23 @@ void main(void)
         slipRatioCalculation(&wss, &lc);
 
         //Cool DRS things
-        DRS_update(&drs, &mcm, &tps, &bps, pot_DRS_LC, lc.LCReady || lc.LCStatus);
+        DRS_update(&drs, pot_DRS_LC, lc.LCReady || lc.LCStatus);
 
-        CoolingSystem_calculations(&cs, mcm.motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm.motor_temp, bms.highestCellTemperature/BMS_TEMPERATURE_SCALE, &Sensor_HVILTerminationSense);
+        CoolingSystem_calculations(&cs, mcm.motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm.motor_temp, bms.highestCellTemperature/BMS_TEMPERATURE_SCALE, &HVILTerminationSense);
         
         CoolingSystem_enactCooling(&cs); //This belongs under outputs but it doesn't really matter for cooling
 
         //Assign motor controls to MCM command message
         //DOES NOT set inverter command or rtds flag
-        launchControlTorqueCalculation(&lc, &tps, &bps, &mcm);
-        MCM_calculateCommands(&mcm, &tps, &bps);
+        launchControlTorqueCalculation(&lc);
+        MCM_calculateCommands(&mcm);
 
-        SafetyChecker_update(&sc, &mcm, &bms, &tps, &bps);
+        SafetyChecker_update(&sc);
 
         /*******************************************/
         /*  Output Adjustments by Safety Checker   */
         /*******************************************/
-        SafetyChecker_reduceTorque(&sc, &mcm, &bms, &wss);
+        SafetyChecker_reduceTorque(&sc);
 
         /*******************************************/
         /*              Enact Outputs              */
@@ -231,13 +232,13 @@ void main(void)
         DigitalOutput_set(&Err_Light, (sc.faults == 0) ? FALSE : TRUE);
         //Handle motor controller startup procedures
         MCM_relayControl(&mcm);
-        MCM_inverterControl(&mcm, &tps, &bps, &rtds);
+        MCM_inverterControl(&mcm);
 
         IO_ErrorType err = 0;
         //Comment out to disable shutdown board control
         err = BMS_relayControl(&bms);
 
-        canOutput_sendDebugMessage(&canMan, &tps, &bps, &mcm, &ic, &bms, &wss, &sc, &lc, &drs, &td);
+        canOutput_sendDebugMessage(&canMan);
         
         RTDS_shutdownHelper(&rtds); 
         IO_Driver_TaskEnd();

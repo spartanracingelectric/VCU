@@ -80,13 +80,13 @@ void vcu_initializeADC(void)
     Sensor_power_set(&BPS1);
 
     // SAS (Steering Angle Sensor)
-    Sensor_SAS = *Sensor_new(IO_ADC_5V_04, IO_ADC_SENSOR_SUPPLY_1);
+    SAS = *Sensor_new(IO_ADC_5V_04, IO_ADC_SENSOR_SUPPLY_1);
     // Using absolute due to the external 5V supply
 
     // DRS
-    Sensor_DRSKnob = *Sensor_new(IO_ADC_VAR_00, NULL);
+    DRSKnob = *Sensor_new(IO_ADC_VAR_00, NULL);
 
-    Sensor_LVBattery = *Sensor_new(IO_ADC_UBAT, NULL);
+    LVBattery = *Sensor_new(IO_ADC_UBAT, NULL);
     //----------------------------------------------------------------------------
     // PWD channels
     //----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void vcu_initializeADC(void)
     DRS_Button = *Button_new(IO_DI_04, TRUE); // DRS Button
 
     //----------------------------------------------------------------------------
-    Sensor_HVILTerminationSense = *Button_new(IO_DI_07, FALSE); //HVIL Term sense, high = HV present
+    HVILTerminationSense = *Button_new(IO_DI_07, FALSE); //HVIL Term sense, high = HV present
 }
 
 //----------------------------------------------------------------------------
@@ -158,17 +158,17 @@ PWDSensor WSS_FL; // = { 2 };
 PWDSensor WSS_FR; // = { 2 };
 PWDSensor WSS_RL; // = { 2 };
 PWDSensor WSS_RR; // = { 2 };
-Sensor Sensor_SAS;    // = { 4 };
-Sensor Sensor_LVBattery;
+Sensor SAS;    // = { 4 };
+Sensor LVBattery;
 
-Sensor Sensor_TCSKnob;
+Sensor TCSKnob;
 Button RTD_Button;
 Button Cal_Button;
 Button LC_Button;
-Button Sensor_HVILTerminationSense;
+Button HVILTerminationSense;
 
 Button DRS_Button;
-Sensor Sensor_DRSKnob;
+Sensor DRSKnob;
 
 DigitalOutput Brake_Light;
 DigitalOutput TCS_Light;

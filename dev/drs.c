@@ -11,7 +11,12 @@
 // #include "sensorCalculations.h"
 
 extern Button DRS_Button; 
-extern Sensor Sensor_DRSKnob;
+extern Sensor DRSKnob;
+extern MotorController *mcm;
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern DigitalOutput DRS_Open;
+extern DigitalOutput DRS_Close;
 
 void DRS_new(DRS *me)
 {
@@ -41,7 +46,7 @@ void DRS_new(DRS *me)
 //      Brake Pressure 
 //----------------------------------------------------------------------
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC, bool lc_status) {
+void DRS_update(DRS *me, ubyte1 pot_DRS_LC, bool lc_status) {
     if (lc_status == TRUE) {
         me->currentDRSMode = STAY_OPEN;
     } else if(pot_DRS_LC == 1) {
@@ -69,14 +74,14 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 }
                 break;
             case AUTO:
-                runAuto(me, mcm, tps, bps);
+                runAuto(me);
                 break;
             default:
                 break;
         }
 }
 
-void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
+void runAuto(DRS *me) {
     sbyte2 vehicle_speed_mph = 0.62 * MCM_getGroundSpeedKPH(mcm); // >30mph
     sbyte2 curr_steer_angle = steering_degrees(); // < +-15 deg
     float4 brake_travel = bps->percent; // > 50%
@@ -90,26 +95,26 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
 }
 
 void DRS_open(DRS *me) {
-    IO_DO_Set(IO_DO_06, TRUE);
-    IO_DO_Set(IO_DO_07, FALSE);
+    DigitalOutput_set(&DRS_Open, TRUE);
+    DigitalOutput_set(&DRS_Close, FALSE);
     me->drsFlap = 1;
 }
 void DRS_close(DRS *me) {
-    IO_DO_Set(IO_DO_06, FALSE);
-    IO_DO_Set(IO_DO_07, TRUE);
+    DigitalOutput_set(&DRS_Open, FALSE);
+    DigitalOutput_set(&DRS_Close, TRUE);
     me->drsFlap = 0;
 }
 
 //Change to future regarding rotary voltage values
 void update_knob(DRS *me) {
-        if (Sensor_DRSKnob.sensorValue == 0)
+        if (DRSKnob.sensorValue == 0)
         {    me->currentDRSMode = STAY_CLOSED;}
-        else if (Sensor_DRSKnob.sensorValue <= 1.1)
+        else if (DRSKnob.sensorValue <= 1.1)
         {    me->currentDRSMode = MANUAL;}
-        else if (Sensor_DRSKnob.sensorValue <= 2.2)
+        else if (DRSKnob.sensorValue <= 2.2)
         {    me->currentDRSMode = AUTO;}
-        else if (Sensor_DRSKnob.sensorValue <= 3.3)
+        else if (DRSKnob.sensorValue <= 3.3)
         {    me->currentDRSMode = STAY_OPEN;}
-        else if (Sensor_DRSKnob.sensorValue > 3.3)
+        else if (DRSKnob.sensorValue > 3.3)
         {    me->currentDRSMode = STAY_CLOSED;}
 }
