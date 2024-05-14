@@ -47,6 +47,6 @@
 
 #define BMS_WATCHDOG_CLEAR 64
 
-#define CELL_RESISTANCE 0.025f // Ohms resistance of the cell+ fuselink
-#define CELLS_IN_PARALLEL 7
+#define CELL_RESISTANCE 0.027f // Ohms resistance of the cell+ fuselink
+#define CELLS_IN_PARALLEL 8
 #define CELLS_IN_SERIES 96

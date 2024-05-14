@@ -26,7 +26,7 @@ typedef struct _LaunchControl
     PIDController *pidController;
     ubyte1 potLC;
     bool LCReady;
-    bool LCStatus; // Just for CAN to showcase when enabled
+    bool LCState;
     bool sr_valid;
 } LaunchControl;
 

@@ -206,7 +206,7 @@ void main(void)
         slipRatioCalculation(&wss, &lc);
 
         //Cool DRS things
-        DRS_update(&drs, pot_DRS_LC, lc.LCReady || lc.LCStatus);
+        DRS_update(&drs, pot_DRS_LC, lc.LCReady || lc.LCState);
 
         CoolingSystem_calculations(&cs, mcm.motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm.motor_temp, bms.highestCellTemperature/BMS_TEMPERATURE_SCALE, &HVILTerminationSense);
         

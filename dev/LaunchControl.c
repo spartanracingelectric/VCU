@@ -68,7 +68,7 @@ void LaunchControl_new(LaunchControl *me, ubyte1 potLC)
     me->slipRatio = 0;
     me->lcTorque = -1;
     me->LCReady = FALSE;
-    me->LCStatus = FALSE;
+    me->LCState = FALSE;
     me->potLC = potLC;
     me->sr_valid = FALSE;
     me->pidController = (PIDController *)malloc(sizeof(PIDController));
@@ -98,34 +98,32 @@ bool wss_above_min_speed(WheelSpeeds *wss, float4 minSpeed)
 void launchControlTorqueCalculation(LaunchControl *me)
 {
     sbyte2 steeringAngle = (sbyte2)steering_degrees();
-    if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && steeringAngle > -LC_STEERING_THRESHOLD && steeringAngle < LC_STEERING_THRESHOLD)
+    if (LC_Button.sensorValue && MCM_getGroundSpeedKPH(mcm) < 5 && abs(steeringAngle) < LC_STEERING_THRESHOLD)
     {
         me->LCReady = TRUE;
         me->lcTorque = 0;                                      // On the motor controller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         initPIDController(me->pidController, -1.0, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd
                                                                // Because acceleration is in the negative regime of slip ratio and we want to increase torque to make it more negative
     }
+    // When LC is ready and the button is released, and TPS and BPS are within bounds then enable LC
     if (me->LCReady && !LC_Button.sensorValue && tps->travelPercent > .90 && bps->percent < .05)
     {
-        me->LCStatus = TRUE;
-        me->lcTorque = me->pidController->errorSum; // Set to the initial torque
+        me->LCState = TRUE;
+        me->lcTorque = abs(me->pidController->errorSum); // Set to the initial torque, this is abs in case the error becomes negative at the same time as the SR becomes invalid
         if (me->sr_valid)
         {
             me->lcTorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, mcm->commands_torqueLimit / 10.0); // Set your target, current, dt
         }
     }
-    if (bps->percent > .05 || steeringAngle > LC_STEERING_THRESHOLD || steeringAngle < -LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCStatus) || (!me->sr_valid && mcm->motorRPM > 1000))
+    // Turn off launch control if:
+    // 1. The brakes are applied more than 5%
+    // 2. The steering angle is more than the threshold
+    // 3. The TPS goes below 90% while LC is active
+    // 4. There is no currently valid slip ratio and the motor exceeds 1000 RPM (so LC can be tested on stands)
+    if (bps->percent > .05 || abs(steeringAngle) > LC_STEERING_THRESHOLD || (tps->travelPercent < 0.90 && me->LCState) || (!me->sr_valid && mcm->motorRPM > 1000))
     {
-        me->LCStatus = FALSE;
-        me->LCReady = !me->sr_valid;
-        me->lcTorque = -1;
-    }
-    // Update launch control state and torque limit
-    mcm->LCState = me->LCStatus;
-    mcm->LCReady = me->LCReady;
-    mcm->LaunchControl_Torque = me->lcTorque * 10;
-    if (mcm->LaunchControl_Torque < 0)
-    {
-        mcm->LaunchControl_Torque = 0;
+        me->LCState = FALSE;
+        me->LCReady = FALSE;
+        me->lcTorque = 0;
     }
 }

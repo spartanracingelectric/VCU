@@ -28,6 +28,7 @@ extern DigitalOutput MCM_Power;
 extern TorqueEncoder *tps;
 extern BrakePressureSensor *bps;
 extern ReadyToDriveSound *rtds;
+extern LaunchControl *lc;
 
 const float4 PACK_RESISTANCE = (1 / (CELLS_IN_PARALLEL / CELL_RESISTANCE)) * CELLS_IN_SERIES; // pack resistance
 
@@ -65,11 +66,6 @@ void MotorController_new(MotorController *me, ubyte2 canMessageBaseID, Direction
     me->relayState = FALSE; // Low
 
     me->motor_temp = 99;
-
-    me->LaunchControl_Torque = 0;
-
-    me->LCState = FALSE;
-    me->LCReady = FALSE;
 }
 
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
@@ -167,14 +163,15 @@ void MCM_calculateCommands(MotorController *me)
     float4 appsOutputPercent = TorqueEncoder_getOutputPercent(tps);
 
     me->power_torque_lim = MCM_get_max_torque_power_limit(me);
+    // me->power_torque_lim = MCM_takeaway_power_lim(me); // This is the alternate power limit version
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    if (me->LCState == TRUE)
+    if (lc->LCState == TRUE)
     {
-        torqueOutput = me->LaunchControl_Torque;
+        torqueOutput = lc->lcTorque * 10;
     }
-    else if (me->LCReady == TRUE)
+    else if (lc->LCReady == TRUE)
     {
         torqueOutput = 0;
     }
@@ -184,7 +181,7 @@ void MCM_calculateCommands(MotorController *me)
         // torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
 
-    if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT && !me->LCState)
+    if ((torqueOutput > me->power_torque_lim * 10) && POWER_LIMIT && !lc->LCState)
     {                                             // The requested torque is greater than the power limit, we have the power limit enables, and were not trying to launch
         torqueOutput = me->power_torque_lim * 10; // it is in DNm
     }
@@ -362,22 +359,6 @@ void MCM_inverterControl(MotorController *me)
 
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
-    // newTorque = 2400;
-    // sbyte4 dummyPower = 72321; //watts
-
-    sbyte2 takeaway = 0;
-    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
-    {
-        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
-        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
-
-        if (newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR))
-        {                                                                                       // if newTorque is greater than powerlim adjust max torque
-            newTorque = POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR); // set it to powerlim adjust max torque
-        }
-    }
-    me->takeaway = takeaway;
-
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
 }
@@ -480,6 +461,19 @@ void MCM_setRegen_PercentAPPSForCoasting(MotorController *me, float4 percentAPPS
 {
     if (percentAPPS >= 0 || percentAPPS <= 1)
         me->regen_percentAPPSForCoasting = percentAPPS;
+}
+
+ubyte2 MCM_takeaway_power_lim(MotorController *me)
+{
+    sbyte2 takeaway = 0;
+    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
+    {
+        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
+        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+    }
+    me->takeaway = takeaway;
+
+    return POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR);
 }
 
 float4 MCM_pack_no_load_voltage(MotorController *me)
