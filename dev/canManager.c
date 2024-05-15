@@ -719,9 +719,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4) Sensor_EcoButton.sensorValue;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getDRSButtonDebug(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getEcoButtonDebug(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getLCButtonDebug(lc);
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;

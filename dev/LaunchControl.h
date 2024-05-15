@@ -25,7 +25,11 @@ typedef struct _LaunchControl {
     bool LCStatus; // Just for CAN to showcase when enabled
     PIDController *pidController;
     ubyte1 potLC;
-    ubyte1 buttonDebug;
+
+    //Button Bytes
+    ubyte1 DRSbuttonDebug;
+    ubyte1 EcobuttonDebug;
+    ubyte1 LCbuttonDebug;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new(ubyte1 potLC);
@@ -33,5 +37,8 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
 void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
 bool getLaunchControlStatus(LaunchControl *lc);
 sbyte2 getCalculatedTorque();
+ubyte1 getDRSButtonDebug(LaunchControl *me);
+ubyte1 getLCButtonDebug(LaunchControl *me);
+ubyte1 getEcoButtonDebug(LaunchControl *me);
 
 #endif

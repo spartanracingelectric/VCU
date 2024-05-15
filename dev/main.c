@@ -267,17 +267,16 @@ void main(void)
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
-        if (Sensor_RTDButton.sensorValue == FALSE ) {
-            lc->buttonDebug += 1;
-        }
+        //If a button is pressed, set the corresponding value in lc to 1
         if (Sensor_DRSButton.sensorValue == FALSE ) {
-            lc->buttonDebug += 2;
+            lc->DRSbuttonDebug = 1;
+
         }
         if (Sensor_EcoButton.sensorValue == FALSE ) {
-            lc->buttonDebug += 4;
+            lc->EcobuttonDebug = 1;
         }
         if (Sensor_LCButton.sensorValue == FALSE) {
-            lc->buttonDebug += 8;
+            lc->LCbuttonDebug = 1;
         }
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {

@@ -135,11 +135,13 @@ void sensors_updateSensors(void)
 
     //Switches / Digital ---------------------------------------------------
     Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
-    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
+    
     // Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
-    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_LCButton.sensorValue);
+    
     Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
     Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_DRSButton.sensorValue);
+    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
+    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_LCButton.sensorValue);
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
