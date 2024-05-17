@@ -315,7 +315,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 {
     //If HVIL Term Sense is low (HV is down)
-    if (HVILTermSense->sensorValue == FALSE && me->HVILOverride == FALSE)
+    if (HVILTermSense->sensorValue == FALSE  && me->HVILOverride == FALSE)
     {
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
@@ -399,7 +399,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == FALSE  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (Sensor_RTDButton.sensorValue == FALSE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable
