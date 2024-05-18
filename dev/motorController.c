@@ -48,6 +48,9 @@ struct _MotorController
     // Positive = accel, negative = regen
     // Reverse not allowed
     ubyte2 torqueMaximumDNm; // Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
+    ubyte2 torqueMaximumDNmDerate;
+    ubyte2 powerLimMaximumDNmDerate;
+    ubyte2 lowerTorqueLim;
 
     // Regen torque calculations in whole Nm..?
     RegenMode regen_mode;                // Software reading of regen knob position.  Each mode has different regen behavior (variables below).
@@ -154,6 +157,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
+    me->lowerTorqueLim = me->torqueMaximumDNm - 700;
 
     me->regen_mode = REGENMODE_OFF;
     me->regen_torqueLimitDNm = 0;
@@ -295,13 +299,16 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         if (avgTemp >= 50.0 * BMS_TEMPERATURE_SCALE) {
             if (me->torqueMaximumDNm > 760) {
                 me->torqueMaximumDNm -= 150; // derate step down
+                me->lowerTorqueLim -= 150; // because these two variable are used in the power_lim_takeaway_scalar, they should decrement the same to main constant takeaway for this state in derating
             }
         }
         else if (avgTemp >= 40.0 * BMS_TEMPERATURE_SCALE) {
-            me->torqueMaximumDNm = 1700;
+            me->torqueMaximumDNm = (1700 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1700;
+            me->lowerTorqueLim = 1200;
         }
         else if (avgTemp >= 15.0 * BMS_TEMPERATURE_SCALE) {
-            me->torqueMaximumDNm = 2400;
+            me->torqueMaximumDNm = (2400 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1700;
+            me->lowerTorqueLim = 1900;
         }
         else {
             // fault?
@@ -644,24 +651,20 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 // Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
-    // me->commands_torqueLimit = me->torqueMaximumDNm
+    // sbyte4 dummyPower = 75321;
     sbyte2 takeaway = 0;
     if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
     {
         takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
         // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
 
-        if (newTorque > POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR))
+        sbyte2 adjustedMaxTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim));
+        if (newTorque > adjustedMaxTorque)
         {                                                                                       // if newTorque is greater than powerlim adjust max torque
-            newTorque = POWER_LIM_UPPER_TORQUE_THRESH - (takeaway * POWER_LIM_TAKEAWAY_SCALAR); // set it to powerlim adjust max torque
-            // me->commands_torqueLimit = me->torqueMaximumDNm = newTorque; //this line may or may not be necessary. meant to affect torqueMaximumDNm * travelPercent to change feel of pedal. 
+            newTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim)); // set it to powerlim adjust max torque
+            // me->torqueMaximumDNm = newTorque; 
         }
     }
-    else {
-        // because commands_torqueLimit doesn't do anything? I think I can just keep commands_torqueLimit as the hard value and then torqueMaximumDNm as the dynamic limit. 
-        // me->commands_torqueLimit = me->torqueMaximumDNm = 2400;
-    }
-
 
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
