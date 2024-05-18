@@ -173,7 +173,7 @@ void Light_set(Light light, float4 percent)
         break;
 
     case Cooling_batteryFans:
-        // IO_DO_Set(IO_DO_04, power);
+        IO_DO_Set(IO_DO_04, power);
         break;
 
         //--------------------------------------------

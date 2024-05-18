@@ -331,7 +331,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_04, FALSE); //Need MCM relay object
+                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
                 me->relayState = FALSE;
             }
             else
@@ -360,7 +360,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_04, TRUE);
+        IO_DO_Set(IO_DO_00, TRUE);
         me->relayState = TRUE;
     }
 }
@@ -399,7 +399,7 @@ void MCM_inverterControl(MotorController *me, TorqueEncoder *tps, BrakePressureS
         //Nothing: wait for RTD button
 
         //How to transition to next state ------------------------------------------------
-        if (Sensor_RTDButton.sensorValue == FALSE  // Should be high enough to ensure driver is on the brakes reasonably hard
+        if (Sensor_RTDButton.sensorValue == FALSE && tps->calibrated == TRUE && bps->calibrated == TRUE && tps->travelPercent < .05  && bps->percent > .25  // Should be high enough to ensure driver is on the brakes reasonably hard
         )
         {
             MCM_commands_setInverter(me, ENABLED); //Change the inverter command to enable

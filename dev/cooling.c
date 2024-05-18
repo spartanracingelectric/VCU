@@ -42,8 +42,8 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
     // Battery fans (Unused in 2021)
     me->batteryFanLow = 38;     //Turn off BELOW this point
     me->batteryFanHigh = 43;    //Turn on at this temperature
-    me->batteryFanState = TRUE; //float4 batteryFanPercent;\
-    
+    me->batteryFanState = TRUE; //float4 batteryFanPercent;
+
     return me;
 }
 
