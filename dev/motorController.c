@@ -293,7 +293,6 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     //derating will change pedal mappings
     // for derating and power lim to work together, power lim needs to adjust to max torque set by derating
     #if DERATE_ENABLED == 1
-        //also no falshy
         sbyte2 avgTemp = 23.6;  //or ubyte2?
         
         if (avgTemp >= 50.0 * BMS_TEMPERATURE_SCALE) {
