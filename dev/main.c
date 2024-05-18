@@ -1,27 +1,3 @@
-/*****************************************************************************
-* SRE-2 Vehicle Control Firmware for the TTTech HY-TTC 50 Controller (VCU)
-******************************************************************************
-* For project info and history, see https://github.com/spartanracingelectric/SRE-2
-* For software/development questions, email rusty@pedrosatech.com
-******************************************************************************
-* Files
-* The Git repository does not contain the complete firmware for SRE-2.  Modules
-* provided by TTTech can be found on the CD that accompanied the VCU. These 
-* files can be identified by our naming convetion: TTTech files start with a
-* prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
-* they also provided.
-* For instructions on setting up a build environment, see the SRE-2 getting-
-* started document, Programming for the HY-TTC 50, at http://1drv.ms/1NQUppu
-******************************************************************************
-* Organization
-* Our code is laid out in the following manner:
-* 
-*****************************************************************************/
-
-//-------------------------------------------------------------------
-//VCU Initialization Stuff
-//-------------------------------------------------------------------
-
 //VCU/C headers
 #include <stdio.h>
 #include <string.h>
@@ -30,8 +6,6 @@
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_RTC.h"
 #include "IO_UART.h"
-//#include "IO_CAN.h"
-//#include "IO_PWM.h"
 
 //Our code
 #include "initializations.h"
@@ -50,6 +24,7 @@
 #include "bms.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "watchdog.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -105,6 +80,7 @@ APDB appl_db =
         0 /* ubyte4 headerCRC          */
 };
 
+extern WatchDog wd;
 extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
@@ -199,6 +175,8 @@ void main(void)
     //defaultSendDelayus---------------------------------------------+         |
     //SerialManager* sm--------------------------------------------------------+
 
+    WatchDog_new(&wd, 50000);
+
     //----------------------------------------------------------------------------
     // Object representations of external devices
     // Most default values for things should be specified here
@@ -207,6 +185,7 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+    
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm

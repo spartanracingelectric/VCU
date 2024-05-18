@@ -17,6 +17,7 @@
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "watchdog.h"
 
 
 struct _CanManager {
@@ -79,6 +80,8 @@ struct _CanMessageNode
     canHistoryNode* right;
 };
 */
+
+extern WatchDog wd;
 
 CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
                          , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
@@ -372,6 +375,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x600:
         case 0x602: //Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x604:
         case 0x608:
@@ -383,9 +387,11 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x623: //Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x624:
         //1st Module
@@ -423,6 +429,8 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            WatchDog_pet(&wd);
+
             break;
 
         case 0x702:

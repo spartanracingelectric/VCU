@@ -189,4 +189,3 @@ typedef enum LimitCause{
 #endif // _BATTERYMANAGEMENTSYSTEM_H
 
 
-
