@@ -286,20 +286,48 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    if (me->LCState == TRUE)
-    {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    }
-    else if (me->LaunchControl_TorqueLimit == 0)
-    {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    }
-    else
-    {
-        // no regen
-        // torqueOutput = appsTorque + bpsTorque;
+    //derating will change pedal mappings
+    // for derating and power lim to work together, power lim needs to adjust to max torque set by derating
+    #if DERATE_ENABLED == 1
+        //also no falshy
+        sbyte2 avgTemp = 23.6;  //or ubyte2?
+        
+        if (avgTemp >= 50.0 * BMS_TEMPERATURE_SCALE) {
+            if (me->torqueMaximumDNm > 760) {
+                me->torqueMaximumDNm -= 150; // derate step down
+            }
+        }
+        else if (avgTemp >= 40.0 * BMS_TEMPERATURE_SCALE) {
+            me->torqueMaximumDNm = 1700;
+        }
+        else if (avgTemp >= 15.0 * BMS_TEMPERATURE_SCALE) {
+            me->torqueMaximumDNm = 2400;
+        }
+        else {
+            // fault?
+        }
         torqueOutput = me->torqueMaximumDNm * appsOutputPercent;
-    }
+    #endif
+
+
+    #if DERATE_ENABLED == 0
+        if (me->LCState == TRUE)
+        {
+            torqueOutput = me->LaunchControl_TorqueLimit;
+        }
+        else if (me->LaunchControl_TorqueLimit == 0)
+        {
+            torqueOutput = me->LaunchControl_TorqueLimit;
+        }
+        else
+        {
+            // no regen
+            // torqueOutput = appsTorque + bpsTorque;
+            torqueOutput = me->torqueMaximumDNm * appsOutputPercent;
+        }
+    #endif
+
+    
 
     MCM_commands_setTorqueDNm(me, torqueOutput);
 

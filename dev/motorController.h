@@ -10,6 +10,9 @@
 //#include "safety.h"
 #include "serial.h"
 
+#define DERATE_ENABLED 1
+#define BMS_TEMPERATURE_SCALE 10
+
 #define POWER_LIM_UPPER_POWER_THRESH 80 * 1000
 #define POWER_LIM_LOWER_POWER_THRESH 70 * 1000
 #define POWER_LIM_LOWER_TORQUE_THRESH 170 * 10
