@@ -333,6 +333,25 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         }
     #endif
 
+    //power lim
+    // sbyte4 dummyPower = 75321;
+    sbyte2 takeaway = 0;
+    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
+    {
+        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
+        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+
+        sbyte2 adjustedMaxTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim));
+        if (torqueOutput > adjustedMaxTorque)
+        {                                                                                       // if newTorque is greater than powerlim adjust max torque
+            torqueOutput = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim)); // set it to powerlim adjust max torque
+            // me->torqueMaximumDNm = newTorque; 
+        }
+    }
+
+    if (torqueOutput < 750) {
+        torqueOutput = 750;
+    }
     
 
     MCM_commands_setTorqueDNm(me, torqueOutput);
@@ -650,20 +669,7 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 // Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
-    // sbyte4 dummyPower = 75321;
-    sbyte2 takeaway = 0;
-    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
-    {
-        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
-        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
-
-        sbyte2 adjustedMaxTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim));
-        if (newTorque > adjustedMaxTorque)
-        {                                                                                       // if newTorque is greater than powerlim adjust max torque
-            newTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim)); // set it to powerlim adjust max torque
-            // me->torqueMaximumDNm = newTorque; 
-        }
-    }
+    
 
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
