@@ -13,6 +13,9 @@
 #include "LaunchControl.h"
 #include "drs.h"
 #include "timerDebug.h"
+#include "torqueEncoder.h"
+
+extern TorqueEncoder *tps;
 
 typedef enum
 {

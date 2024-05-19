@@ -351,13 +351,13 @@ void canOutput_sendDebugMessage(CanManager *me)
     CAN_MESSAGE_SEND_BUFFER canMessages;
 
     // 500: TPS 0
-    addCanMessage(CAN0, get_tps0_can_message(), canMessages);
+    // addCanMessage(CAN0, get_tps0_can_message(), canMessages);
 
     // TPS 1
-    addCanMessage(CAN0, get_tps1_can_message(), canMessages);
+    // addCanMessage(CAN0, get_tps1_can_message(), canMessages);
 
     // BPS0
-    addCanMessage(CAN0, get_bps0_can_message(), canMessages);
+    // addCanMessage(CAN0, get_bps0_can_message(), canMessages);
 
     // WSS mm/s output
     // THIS MESSAGE IS FUCKED DO NOT UNCOMMENT
@@ -422,14 +422,14 @@ IO_CAN_DATA_FRAME get_tps0_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x500;
-    canMessage.data[0] = 0xFF * tps.travelPercent;
-    canMessage.data[1] = 0xFF * tps.tps0_percent;
+    canMessage.data[0] = 0xFF * tps->travelPercent;
+    canMessage.data[1] = 0xFF * tps->tps0_percent;
     canMessage.data[2] = TPS0.sensorValue;
     canMessage.data[3] = TPS0.sensorValue >> 8;
-    canMessage.data[4] = tps.tps0_calibMin;
-    canMessage.data[5] = tps.tps0_calibMin >> 8;
-    canMessage.data[6] = tps.tps0_calibMax;
-    canMessage.data[7] = tps.tps0_calibMax >> 8;
+    canMessage.data[4] = tps->tps0_calibMin;
+    canMessage.data[5] = tps->tps0_calibMin >> 8;
+    canMessage.data[6] = tps->tps0_calibMax;
+    canMessage.data[7] = tps->tps0_calibMax >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -439,14 +439,14 @@ IO_CAN_DATA_FRAME get_tps1_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x501;
-    canMessage.data[0] = 0xFF * tps.travelPercent;
-    canMessage.data[1] = 0xFF * tps.tps1_percent;
+    canMessage.data[0] = 0xFF * tps->travelPercent;
+    canMessage.data[1] = 0xFF * tps->tps1_percent;
     canMessage.data[2] = TPS1.sensorValue;
     canMessage.data[3] = TPS1.sensorValue >> 8;
-    canMessage.data[4] = tps.tps1_calibMin;
-    canMessage.data[5] = tps.tps1_calibMin >> 8;
-    canMessage.data[6] = tps.tps1_calibMax;
-    canMessage.data[7] = tps.tps1_calibMax >> 8;
+    canMessage.data[4] = tps->tps1_calibMin;
+    canMessage.data[5] = tps->tps1_calibMin >> 8;
+    canMessage.data[6] = tps->tps1_calibMax;
+    canMessage.data[7] = tps->tps1_calibMax >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -456,14 +456,14 @@ IO_CAN_DATA_FRAME get_bps0_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x502;
-    canMessage.data[0] = 0xFF * bps.percent;
+    canMessage.data[0] = 0xFF * bps->percent;
     canMessage.data[1] = 0;
-    canMessage.data[2] = bps.bps0_value;
-    canMessage.data[3] = bps.bps0_value >> 8;
-    canMessage.data[4] = bps.bps0_calibMin;
-    canMessage.data[5] = bps.bps0_calibMin >> 8;
-    canMessage.data[6] = bps.bps0_calibMax;
-    canMessage.data[7] = bps.bps0_calibMax >> 8;
+    canMessage.data[2] = bps->bps0_value;
+    canMessage.data[3] = bps->bps0_value >> 8;
+    canMessage.data[4] = bps->bps0_calibMin;
+    canMessage.data[5] = bps->bps0_calibMin >> 8;
+    canMessage.data[6] = bps->bps0_calibMax;
+    canMessage.data[7] = bps->bps0_calibMax >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -473,14 +473,14 @@ IO_CAN_DATA_FRAME get_bps1_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50D;
-    canMessage.data[0] = 0xFF * bps.percent;
+    canMessage.data[0] = 0xFF * bps->percent;
     canMessage.data[1] = 0;
-    canMessage.data[2] = bps.bps1_value;
-    canMessage.data[3] = bps.bps1_value >> 8;
-    canMessage.data[4] = bps.bps1_calibMin;
-    canMessage.data[5] = bps.bps1_calibMin >> 8;
-    canMessage.data[6] = bps.bps1_calibMax;
-    canMessage.data[7] = bps.bps1_calibMax >> 8;
+    canMessage.data[2] = bps->bps1_value;
+    canMessage.data[3] = bps->bps1_value >> 8;
+    canMessage.data[4] = bps->bps1_calibMin;
+    canMessage.data[5] = bps->bps1_calibMin >> 8;
+    canMessage.data[6] = bps->bps1_calibMax;
+    canMessage.data[7] = bps->bps1_calibMax >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -490,14 +490,14 @@ IO_CAN_DATA_FRAME get_wss_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x503;
-    canMessage.data[0] = (ubyte2)(wss.speed_FL);
-    canMessage.data[1] = ((ubyte2)(wss.speed_FL)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss.speed_FR);
-    canMessage.data[3] = ((ubyte2)(wss.speed_FR)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss.speed_RL);
-    canMessage.data[5] = ((ubyte2)(wss.speed_RL)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss.speed_RR);
-    canMessage.data[7] = ((ubyte2)(wss.speed_RR)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -507,14 +507,14 @@ IO_CAN_DATA_FRAME get_wss_rpm1_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x504;
-    canMessage.data[0] = (ubyte2)(wss.speed_FL_RPM * 60.0f);
-    canMessage.data[1] = ((ubyte2)(wss.speed_FL_RPM * 60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss.speed_FR_RPM * 60.0f);
-    canMessage.data[3] = ((ubyte2)(wss.speed_FR_RPM * 60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss.speed_RL_RPM * 60.0f);
-    canMessage.data[5] = ((ubyte2)(wss.speed_RL_RPM * 60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss.speed_RR_RPM * 60.0f);
-    canMessage.data[7] = ((ubyte2)(wss.speed_RR_RPM * 60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM * 60.0f);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM * 60.0f)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM * 60.0f);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM * 60.0f)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM * 60.0f);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM * 60.0f)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM * 60.0f);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM * 60.0f)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -524,14 +524,14 @@ IO_CAN_DATA_FRAME get_wss_rpm2_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x505;
-    canMessage.data[0] = (ubyte2)(wss.speed_FL_RPM_S * 60.0f);
-    canMessage.data[1] = ((ubyte2)(wss.speed_FL_RPM_S * 60.0f)) >> 8;
-    canMessage.data[2] = (ubyte2)(wss.speed_FR_RPM_S * 60.0f);
-    canMessage.data[3] = ((ubyte2)(wss.speed_FR_RPM_S * 60.0f)) >> 8;
-    canMessage.data[4] = (ubyte2)(wss.speed_RL_RPM_S * 60.0f);
-    canMessage.data[5] = ((ubyte2)(wss.speed_RL_RPM_S * 60.0f)) >> 8;
-    canMessage.data[6] = (ubyte2)(wss.speed_RR_RPM_S * 60.0f);
-    canMessage.data[7] = ((ubyte2)(wss.speed_RR_RPM_S * 60.0f)) >> 8;
+    canMessage.data[0] = (ubyte2)(wss->speed_FL_RPM_S * 60.0f);
+    canMessage.data[1] = ((ubyte2)(wss->speed_FL_RPM_S * 60.0f)) >> 8;
+    canMessage.data[2] = (ubyte2)(wss->speed_FR_RPM_S * 60.0f);
+    canMessage.data[3] = ((ubyte2)(wss->speed_FR_RPM_S * 60.0f)) >> 8;
+    canMessage.data[4] = (ubyte2)(wss->speed_RL_RPM_S * 60.0f);
+    canMessage.data[5] = ((ubyte2)(wss->speed_RL_RPM_S * 60.0f)) >> 8;
+    canMessage.data[6] = (ubyte2)(wss->speed_RR_RPM_S * 60.0f);
+    canMessage.data[7] = ((ubyte2)(wss->speed_RR_RPM_S * 60.0f)) >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -541,14 +541,14 @@ IO_CAN_DATA_FRAME get_sc_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x506;
-    canMessage.data[0] = sc.faults;
-    canMessage.data[1] = sc.faults >> 8;
-    canMessage.data[2] = sc.faults >> 16;
-    canMessage.data[3] = sc.faults >> 24;
-    canMessage.data[4] = sc.warnings;
-    canMessage.data[5] = sc.warnings >> 8;
-    canMessage.data[6] = sc.notices;
-    canMessage.data[7] = sc.notices >> 8;
+    canMessage.data[0] = sc->faults;
+    canMessage.data[1] = sc->faults >> 8;
+    canMessage.data[2] = sc->faults >> 16;
+    canMessage.data[3] = sc->faults >> 24;
+    canMessage.data[4] = sc->warnings;
+    canMessage.data[5] = sc->warnings >> 8;
+    canMessage.data[6] = sc->notices;
+    canMessage.data[7] = sc->notices >> 8;
     canMessage.length = 8;
     return canMessage;
 }
@@ -577,15 +577,15 @@ IO_CAN_DATA_FRAME get_mcm_regen_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x508;
-    canMessage.data[0] = mcm.regen_mode;
-    canMessage.data[1] = (ubyte2)mcm.nl_voltage; // temporary
-    canMessage.data[2] = mcm.torqueMaximumDNm / 10;
-    canMessage.data[3] = mcm.regen_torqueLimitDNm / 10;
-    canMessage.data[4] = mcm.regen_torqueAtZeroPedalDNm / 10;
-    canMessage.data[5] = (ubyte1)mcm.power_torque_lim;
+    canMessage.data[0] = mcm->regen_mode;
+    canMessage.data[1] = (ubyte2)mcm->nl_voltage; // temporary
+    canMessage.data[2] = mcm->torqueMaximumDNm / 10;
+    canMessage.data[3] = mcm->regen_torqueLimitDNm / 10;
+    canMessage.data[4] = mcm->regen_torqueAtZeroPedalDNm / 10;
+    canMessage.data[5] = (ubyte1)mcm->power_torque_lim;
     canMessage.data[6] = MCM_getRegenAPPSForMaxCoastingZeroToFF(mcm);
     canMessage.data[7] = MCM_getRegenBPSForMaxRegenZeroToFF(mcm);
-    canMessage.length = (ubyte2)mcm.nl_voltage >> 8;
+    canMessage.length = (ubyte2)mcm->nl_voltage >> 8;
     return canMessage;
 }
 
@@ -596,11 +596,11 @@ IO_CAN_DATA_FRAME get_mcm_rtd_can_message()
     canMessage.id = 0x509;
     canMessage.data[0] = HVILTerminationSense.sensorValue;
     canMessage.data[1] = HVILTerminationSense.sensorValue >> 8;
-    canMessage.data[2] = mcm.HVILOverride;
-    canMessage.data[3] = mcm.startupStage;
+    canMessage.data[2] = mcm->HVILOverride;
+    canMessage.data[3] = mcm->startupStage;
     canMessage.data[4] = RTD_Button.sensorValue;
-    canMessage.data[5] = mcm.lockoutStatus;
-    canMessage.data[6] = mcm.inverterStatus;
+    canMessage.data[5] = mcm->lockoutStatus;
+    canMessage.data[6] = mcm->inverterStatus;
     canMessage.data[7] = 0;
     canMessage.length = 8;
     return canMessage;
@@ -628,14 +628,14 @@ IO_CAN_DATA_FRAME get_lc_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50B;
-    canMessage.data[0] = lc.LCReady;
-    canMessage.data[1] = lc.LCState;
-    canMessage.data[2] = lc.lcTorque;
-    canMessage.data[3] = lc.lcTorque >> 8;
-    canMessage.data[4] = (sbyte2)lc.slipRatio;
-    canMessage.data[5] = (sbyte2)lc.slipRatio >> 8;
-    canMessage.data[6] = (ubyte2)lc.lcTorque;
-    canMessage.data[7] = LC_Button.sensorValue >> 1 | lc.sr_valid << 7;
+    canMessage.data[0] = lc->LCReady;
+    canMessage.data[1] = lc->LCState;
+    canMessage.data[2] = lc->lcTorque;
+    canMessage.data[3] = lc->lcTorque >> 8;
+    canMessage.data[4] = (sbyte2)lc->slipRatio;
+    canMessage.data[5] = (sbyte2)lc->slipRatio >> 8;
+    canMessage.data[6] = (ubyte2)lc->lcTorque;
+    canMessage.data[7] = LC_Button.sensorValue >> 1 | lc->sr_valid << 7;
     canMessage.length = 8;
     return canMessage;
 }
@@ -647,9 +647,9 @@ IO_CAN_DATA_FRAME get_drs_can_message()
     canMessage.id = 0x50C;
     canMessage.data[0] = steering_degrees();
     canMessage.data[1] = steering_degrees() >> 8;
-    canMessage.data[2] = drs.buttonPressed;
-    canMessage.data[3] = drs.currentDRSMode;
-    canMessage.data[4] = drs.drsFlap;
+    canMessage.data[2] = drs->buttonPressed;
+    canMessage.data[3] = drs->currentDRSMode;
+    canMessage.data[4] = drs->drsFlap;
     canMessage.data[5] = DRS_Button.sensorValue;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
@@ -662,11 +662,11 @@ IO_CAN_DATA_FRAME get_bms_loopback_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50E;
-    canMessage.data[0] = bms.faultFlags0;
+    canMessage.data[0] = bms->faultFlags0;
     canMessage.data[1] = 0; // bms.faultFlags1;
-    canMessage.data[2] = bms.relayState;
-    canMessage.data[3] = bms.highestCellTemperature;
-    canMessage.data[4] = bms.highestCellTemperature >> 8;
+    canMessage.data[2] = bms->relayState;
+    canMessage.data[3] = bms->highestCellTemperature;
+    canMessage.data[4] = bms->highestCellTemperature >> 8;
     canMessage.data[5] = 0;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
@@ -683,8 +683,8 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message()
     canMessage.data[1] = MCM_getPower(mcm) >> 8;
     canMessage.data[2] = MCM_getPower(mcm) >> 16;
     canMessage.data[3] = MCM_getPower(mcm) >> 24;
-    canMessage.data[4] = sc.warnings;
-    canMessage.data[5] = sc.warnings >> 8;
+    canMessage.data[4] = sc->warnings;
+    canMessage.data[5] = sc->warnings >> 8;
     canMessage.data[6] = 0;
     canMessage.data[7] = 0;
     canMessage.length = 8;
@@ -693,12 +693,12 @@ IO_CAN_DATA_FRAME get_mcm_power_can_message()
 
 IO_CAN_DATA_FRAME get_bspd_can_message()
 {
-    ubyte1 flags = sc.softBSPD_bpsHigh;
-    flags |= sc.softBSPD_kwHigh << 1;
+    ubyte1 flags = sc->softBSPD_bpsHigh;
+    flags |= sc->softBSPD_kwHigh << 1;
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x511;
-    canMessage.data[0] = sc.softBSPD_fault;
+    canMessage.data[0] = sc->softBSPD_fault;
     canMessage.data[1] = flags;
     canMessage.data[2] = 0; //(ubyte1)mcm.kwRequestEstimate;
     canMessage.data[3] = 0; // mcm.kwRequestEstimate >> 8;
@@ -711,10 +711,10 @@ IO_CAN_DATA_FRAME get_mcm_pl_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x512;
-    canMessage.data[0] = mcm.power_torque_lim;
-    canMessage.data[1] = mcm.power_torque_lim >> 8;
-    canMessage.data[2] = (sbyte2)mcm.nl_voltage;
-    canMessage.data[3] = (sbyte2)mcm.nl_voltage >> 8;
+    canMessage.data[0] = mcm->power_torque_lim;
+    canMessage.data[1] = mcm->power_torque_lim >> 8;
+    canMessage.data[2] = (sbyte2)mcm->nl_voltage;
+    canMessage.data[3] = (sbyte2)mcm->nl_voltage >> 8;
     canMessage.data[4] = 0;
     canMessage.data[5] = 0;
     canMessage.data[6] = 0;
@@ -746,14 +746,14 @@ IO_CAN_DATA_FRAME get_mcm_command_can_message()
     IO_CAN_DATA_FRAME canMessage;
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0xC0;
-    canMessage.data[0] = (ubyte1)mcm.commands_torque;
-    canMessage.data[1] = mcm.commands_torque >> 8;
+    canMessage.data[0] = (ubyte1)mcm->commands_torque;
+    canMessage.data[1] = mcm->commands_torque >> 8;
     canMessage.data[2] = 0; // Speed (RPM?) - not needed - mcu should be in torque mode
     canMessage.data[3] = 0; // Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessage.data[4] = mcm.commands_direction;
-    canMessage.data[5] = (mcm.commands_inverter == ENABLED) ? 1 : 0; // unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
-    canMessage.data[6] = (ubyte1)mcm.commands_torqueLimit;
-    canMessage.data[7] = mcm.commands_torqueLimit >> 8;
+    canMessage.data[4] = mcm->commands_direction;
+    canMessage.data[5] = (mcm->commands_inverter == ENABLED) ? 1 : 0; // unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
+    canMessage.data[6] = (ubyte1)mcm->commands_torqueLimit;
+    canMessage.data[7] = mcm->commands_torqueLimit >> 8;
     canMessage.length = 8;
     return canMessage;
 }

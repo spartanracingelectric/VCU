@@ -78,23 +78,23 @@ APDB appl_db =
         0 /* ubyte4 headerCRC          */
 };
 
-extern Button Cal_Button;
-extern DigitalOutput Eco_Light;
-extern DigitalOutput Err_Light;
-extern WatchDog wd;
+// extern Button Cal_Button;
+// extern DigitalOutput Eco_Light;
+// extern DigitalOutput Err_Light;
+// extern WatchDog wd;
 extern CanManager canMan;
-extern ReadyToDriveSound rtds;
-extern BatteryManagementSystem bms;
-extern MotorController mcm;
-extern InstrumentCluster ic;
-extern TorqueEncoder tps;
-extern BrakePressureSensor bps;
-extern WheelSpeeds wss;
-extern SafetyChecker sc;
+// extern ReadyToDriveSound rtds;
+// extern BatteryManagementSystem bms;
+// extern MotorController mcm;
+// extern InstrumentCluster ic;
+// extern TorqueEncoder tps;
+// extern BrakePressureSensor bps;
+// extern WheelSpeeds wss;
+// extern SafetyChecker sc;
 extern CoolingSystem cs;
-extern LaunchControl lc;
-extern DRS drs;
-extern TimerDebug td;
+// extern LaunchControl lc;
+// extern DRS drs;
+// extern TimerDebug td;
 
 void main(void)
 {
@@ -206,9 +206,9 @@ void main(void)
         slipRatioCalculation(&wss, &lc);
 
         //Cool DRS things
-        DRS_update(&drs, pot_DRS_LC, lc.LCReady || lc.LCState);
+        DRS_update(&drs, pot_DRS_LC, lc->LCReady || lc->LCState);
 
-        CoolingSystem_calculations(&cs, mcm.motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm.motor_temp, bms.highestCellTemperature/BMS_TEMPERATURE_SCALE, &HVILTerminationSense);
+        CoolingSystem_calculations(&cs, mcm->motor_temp/*This was just mcm temp but it was really just getting motor temp*/, mcm->motor_temp, bms->highestCellTemperature/BMS_TEMPERATURE_SCALE, &HVILTerminationSense);
         
         CoolingSystem_enactCooling(&cs); //This belongs under outputs but it doesn't really matter for cooling
 
@@ -228,7 +228,7 @@ void main(void)
         /*              Enact Outputs              */
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
-        DigitalOutput_set(&Err_Light, (sc.faults == 0) ? FALSE : TRUE);
+        DigitalOutput_set(&Err_Light, (sc->faults == 0) ? FALSE : TRUE);
         //Handle motor controller startup procedures
         MCM_relayControl(&mcm);
         MCM_inverterControl(&mcm);
@@ -237,7 +237,7 @@ void main(void)
         //Comment out to disable shutdown board control
         err = BMS_relayControl(&bms);
 
-        canOutput_sendDebugMessage(&canMan);
+        // canOutput_sendDebugMessage(&canMan);
         IO_ErrorType blah;
         blah = send_a_fucking_message(&canMan);
         

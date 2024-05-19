@@ -23,6 +23,8 @@
 #include "drs.h"
 #include "lut.h"
 #include "watch_dog.h"
+#include "instrumentCluster.h"
+#include "timerDebug.h"
 
 typedef struct _Sensor
 {
@@ -139,7 +141,6 @@ extern PWMOutput Accum_Fan;
 
 extern LUT *LV_BATT_SOC_LUT;
 extern WatchDog wd;
-extern TorqueEncoder *tps;
 extern BrakePressureSensor *bps;
 extern ReadyToDriveSound *rtds;
 extern MotorController *mcm;
