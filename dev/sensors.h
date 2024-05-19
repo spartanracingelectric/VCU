@@ -122,8 +122,9 @@ extern DigitalOutput Accum_Fans;
 extern DigitalOutput Bullshit;
 extern DigitalOutput DRS_Open;
 extern DigitalOutput DRS_Close;
+extern DigitalOutput RTD_Sound;
 
-extern PWMOutput RTD_Sound;
+// extern PWMOutput RTD_Sound;
 extern PWMOutput Rad_Fans;
 extern PWMOutput Accum_Fan;
 

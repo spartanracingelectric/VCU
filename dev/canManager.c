@@ -741,7 +741,7 @@ IO_CAN_DATA_FRAME get_lc_can_message(LaunchControl *lc)
     canMessage.id_format = IO_CAN_STD_FRAME;
     canMessage.id = 0x50B;
     canMessage.data[0] = lc->LCReady;
-    canMessage.data[1] = lc->LCStatus;
+    canMessage.data[1] = lc->LCState;
     canMessage.data[2] = lc->lcTorque;
     canMessage.data[3] = lc->lcTorque >> 8;
     canMessage.data[4] = (sbyte2)lc->slipRatio;
