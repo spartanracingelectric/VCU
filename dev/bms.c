@@ -156,8 +156,8 @@ BatteryManagementSystem *BMS_new(SerialManager *serialMan, ubyte2 canMessageBase
 
     me->faultFlags0 = 0;
     me->faultFlags1 = 0;
-    //me->faultFlags0 = 0xFF;
-    //me->faultFlags1 = 0xFF;
+    // me->faultFlags0 = 0xFF;
+    // me->faultFlags1 = 0xFF;
 
     me->relayState = FALSE;
 

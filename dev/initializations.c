@@ -11,6 +11,7 @@
 
 #include "sensors.h"
 #include "initializations.h"
+#include "watchdog.h"
 //#include "can.h"
 
 /*****************************************************************************
@@ -209,6 +210,7 @@ Sensor Sensor_HVILTerminationSense;
 
 Sensor Sensor_DRSButton;
 Sensor Sensor_DRSKnob;
+WatchDog wd;
 //Switches
 //precharge failure
 

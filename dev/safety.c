@@ -16,6 +16,9 @@
 #include "motorController.h"
 #include "bms.h"
 #include "serial.h"
+#include "watchdog.h"
+
+extern WatchDog wd;
 
 //TODO #162 Add in CAN Address to tell which Safeties are on or off
 
@@ -416,6 +419,14 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         me->warnings &= ~W_lvsBatteryLow;
         //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
     }
+
+    // if(WatchDog_check(&wd) == FALSE){
+    //     me->faults |= F_bpsSignalFailure;
+    // }
+    // else
+    // {
+    //     me->faults &= ~F_bpsSignalFailure;
+    // }
 
     
     //===================================================================

@@ -124,6 +124,7 @@ extern Sensor Sensor_RTDButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSButton;
+extern WatchDog wd;
 
 /*****************************************************************************
 * Main!
@@ -189,7 +190,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager *canMan = CanManager_new(500, 50, 50, 500, 10, 10, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
+    CanManager *canMan = CanManager_new(500, 40, 40, 500, 20, 20, 200000, serialMan); //3rd param = messages per node (can0/can1; read/write)
     //can0_busSpeed ---------------------^    ^   ^   ^    ^   ^     ^         ^
     //can0_read_messageLimit -----------------|   |   |    |   |     |         |
     //can0_write_messageLimit---------------------+   |    |   |     |         |
@@ -198,6 +199,8 @@ void main(void)
     //can1_write_messageLimit----------------------------------+     |         |
     //defaultSendDelayus---------------------------------------------+         |
     //SerialManager* sm--------------------------------------------------------+
+
+    // WatchDog_new(&wd, 50000);
 
     //----------------------------------------------------------------------------
     // Object representations of external devices
@@ -266,6 +269,7 @@ void main(void)
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+        CanManager_read(canMan, CAN1_LOPRI, mcm0, ic0, bms, sc);
 
         // if (Sensor_RTDButton.sensorValue == FALSE ) {
         //     lc->buttonDebug += 1;
@@ -318,6 +322,7 @@ void main(void)
 
         if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE)) // temp make rtd button rtd button in lv
         {
+            WatchDog_reset(&wd);
             lc->EcobuttonDebug+=1;
             if (timestamp_EcoButton == 0)
             {

@@ -6,6 +6,7 @@
 
 #include "serial.h"
 #include "IO_CAN.h"
+#include "watchdog.h"
 
 //Max mismatch voltage, in volts
 //To determine VCU-side fault

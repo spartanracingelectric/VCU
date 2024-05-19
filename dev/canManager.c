@@ -17,7 +17,9 @@
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "watchdog.h"
 
+extern WatchDog wd;
 
 struct _CanManager {
     //AVLNode* incomingTree;
@@ -372,6 +374,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x600:
         case 0x602: //Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x604:
         case 0x608:
@@ -383,9 +386,11 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x623: //Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            // WatchDog_pet(&wd);
             break;
         case 0x624:
         //1st Module
@@ -450,7 +455,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
     //Echo message on lopri channel
     //IO_CAN_WriteFIFO(me->can1_writeHandle, canMessages, messagesReceived);
-    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
+    // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
     //IO_CAN_WriteMsg(canFifoHandle_LoPri_Write, canMessages);
 }
 
@@ -836,7 +841,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 
     //Place the can messsages into the FIFO queue ---------------------------------------------------
     //IO_CAN_WriteFIFO(canFifoHandle_HiPri_Write, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
-    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
+    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message))
     //IO_CAN_WriteFIFO(canFifoHandle_LoPri_Write, canMessages, canMessageCount);  
 
 }
