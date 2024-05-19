@@ -123,7 +123,7 @@ void main(void)
     vcu_ADCWasteLoop();
 
     //vcu_init functions may have to be performed BEFORE creating CAN Manager object
-    CanManager_new(&canMan, 200000);
+    CanManager_new(&canMan);
 
     WatchDog_new(&wd, 50000); //50 ms 
 
@@ -238,6 +238,8 @@ void main(void)
         err = BMS_relayControl(&bms);
 
         canOutput_sendDebugMessage(&canMan);
+        IO_ErrorType blah;
+        blah = send_a_fucking_message(&canMan);
         
         RTDS_shutdownHelper(&rtds); 
         IO_Driver_TaskEnd();

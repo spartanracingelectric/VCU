@@ -14,6 +14,15 @@
 #define _SENSORS_H
 
 #include "IO_Driver.h"
+#include "motorController.h"
+#include "bms.h"
+#include "safety.h"
+#include "wheelSpeeds.h"
+#include "serial.h"
+#include "LaunchControl.h"
+#include "drs.h"
+#include "lut.h"
+#include "watch_dog.h"
 
 typedef struct _Sensor
 {
@@ -127,6 +136,20 @@ extern DigitalOutput RTD_Sound;
 // extern PWMOutput RTD_Sound;
 extern PWMOutput Rad_Fans;
 extern PWMOutput Accum_Fan;
+
+extern LUT *LV_BATT_SOC_LUT;
+extern WatchDog wd;
+extern TorqueEncoder *tps;
+extern BrakePressureSensor *bps;
+extern ReadyToDriveSound *rtds;
+extern MotorController *mcm;
+extern InstrumentCluster *ic;
+extern BatteryManagementSystem *bms;
+extern SafetyChecker *sc;
+extern LaunchControl *lc;
+extern DRS *drs;
+extern TimerDebug *td;
+extern WheelSpeeds *wss;
 
 Sensor *Sensor_new(ubyte1 pin, ubyte1 power);
 Button *Button_new(ubyte1 pin, bool inverted);

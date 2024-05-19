@@ -15,9 +15,6 @@ extern DigitalOutput Eco_Light;
  ****************************************************************************/
 void TorqueEncoder_new(TorqueEncoder *me)
 {
-    me->tps0 = &TPS0;
-    me->tps1 = &TPS1;
-
     // Where/should these be hardcoded?
     me->tps0_reverse = FALSE;
     me->tps1_reverse = TRUE;
@@ -33,10 +30,10 @@ void TorqueEncoder_new(TorqueEncoder *me)
     // New Rotary Sensor Datasheet limits (used by safety checker / rules requirement)
     // It is literally a potentiometer, no sensor operating range in theory?
     // That would mean we could probably make our own ranges up
-    me->tps0->specMin = 100;  // Target 0% = ~250
-    me->tps0->specMax = 950;  // Target 100% = ~2000
-    me->tps1->specMin = 250;  // Target 0% = ~2650
-    me->tps1->specMax = 2700; // Target 100% = ~4700
+    TPS0->specMin = 100;  // Target 0% = ~250
+    TPS0->specMax = 950;  // Target 100% = ~2000
+    TPS1->specMin = 250;  // Target 0% = ~2650
+    TPS1->specMax = 2700; // Target 100% = ~4700
 
     me->tps0_calibMin = 146;
     me->tps0_calibMax = 816;
@@ -48,8 +45,8 @@ void TorqueEncoder_new(TorqueEncoder *me)
 // Updates all values based on sensor readings, safety checks, etc
 void TorqueEncoder_update(TorqueEncoder *me)
 {
-    me->tps0_value = me->tps0->sensorValue;
-    me->tps1_value = me->tps1->sensorValue;
+    me->tps0_value = TPS0->sensorValue;
+    me->tps1_value = TPS1->sensorValue;
 
     me->travelPercent = 0;
 
@@ -84,10 +81,10 @@ void TorqueEncoder_resetCalibration(TorqueEncoder *me)
 {
     me->calibrated = FALSE;
 
-    me->tps0_calibMin = me->tps0->sensorValue;
-    me->tps0_calibMax = me->tps0->sensorValue;
-    me->tps1_calibMin = me->tps1->sensorValue;
-    me->tps1_calibMax = me->tps1->sensorValue;
+    me->tps0_calibMin = TPS0->sensorValue;
+    me->tps0_calibMax = TPS0->sensorValue;
+    me->tps1_calibMin = TPS1->sensorValue;
+    me->tps1_calibMax = TPS1->sensorValue;
 }
 
 void TorqueEncoder_startCalibration(TorqueEncoder *me, ubyte1 secondsToRun)
@@ -125,22 +122,22 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder *me, ubyte1 *errorCount)
         if (IO_RTC_GetTimeUS(me->timestamp_calibrationStart) < (ubyte4)(me->calibrationRunTime) * 1000 * 1000)
         {
             // The calibration itself
-            if (me->tps0->sensorValue < me->tps0_calibMin)
+            if (TPS0->sensorValue < me->tps0_calibMin)
             {
-                me->tps0_calibMin = me->tps0->sensorValue;
+                me->tps0_calibMin = TPS0->sensorValue;
             }
-            if (me->tps0->sensorValue > me->tps0_calibMax)
+            if (TPS0->sensorValue > me->tps0_calibMax)
             {
-                me->tps0_calibMax = me->tps0->sensorValue;
+                me->tps0_calibMax = TPS0->sensorValue;
             }
 
-            if (me->tps1->sensorValue < me->tps1_calibMin)
+            if (TPS1->sensorValue < me->tps1_calibMin)
             {
-                me->tps1_calibMin = me->tps1->sensorValue;
+                me->tps1_calibMin = TPS1->sensorValue;
             }
-            if (me->tps1->sensorValue > me->tps1_calibMax)
+            if (TPS01->sensorValue > me->tps1_calibMax)
             {
-                me->tps1_calibMax = me->tps1->sensorValue;
+                me->tps1_calibMax = TPS1->sensorValue;
             }
         }
         else // Calibration shutdown
