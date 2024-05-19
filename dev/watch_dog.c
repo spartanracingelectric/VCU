@@ -21,10 +21,9 @@ void WatchDog_reset(WatchDog *wd)
 
 void WatchDog_pet(WatchDog *wd)
 {
-    IO_RTC_StartTime(&wd->timestamp);
     if (!wd->running)
     {
-        if (IO_RTC_GetTimeUS(wd->timestamp) >= wd->timeout)
+        if (IO_RTC_GetTimeUS(wd->timestamp) <= wd->timeout)
         {
             wd->mood++;
             if (wd->mood == BMS_WATCHDOG_CLEAR)
@@ -37,9 +36,15 @@ void WatchDog_pet(WatchDog *wd)
             wd->mood = 0; // reset the counter if the messages are spaced too far apart
         }
     }
+    IO_RTC_StartTime(&wd->timestamp);
 }
 
 bool WatchDog_check(WatchDog *wd)
 {
-    return (wd->running && IO_RTC_GetTimeUS(wd->timestamp) >= wd->timeout);
+    if (IO_RTC_GetTimeUS(wd->timestamp) > wd->timeout)
+    {
+        wd->running = FALSE;
+        wd->mood = 0;
+    }
+    return (wd->running && IO_RTC_GetTimeUS(wd->timestamp) <= wd->timeout);
 }

@@ -57,7 +57,8 @@ void vcu_initializeADC(void)
 
     // Digital PWM outputs ---------------------------------------------------
     //  RTD Sound
-    RTD_Sound = *PWMOutput_new(IO_PWM_01, 750, 0.0);
+    // RTD_Sound = *PWMOutput_new(IO_PWM_01, 750, 0.0);
+    RTD_Sound = *DigitalOutput_new(IO_DO_13, FALSE);
 
     // Rad Fans (SR-14 and above)
     Rad_Fans = *PWMOutput_new(IO_PWM_02, 100, 0.9);
@@ -183,8 +184,9 @@ DigitalOutput Accum_Fans;
 DigitalOutput Bullshit;
 DigitalOutput DRS_Open;
 DigitalOutput DRS_Close;
+DigitalOutput RTD_Sound;
 
-PWMOutput RTD_Sound;
+// PWMOutput RTD_Sound;
 PWMOutput Rad_Fans;
 PWMOutput Accum_Fan;
 
