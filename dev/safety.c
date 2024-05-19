@@ -420,13 +420,13 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
         //sprintf(message, "LVS battery %.03fV good.\n", (float4)LVBattery->sensorValue / 1000);
     }
 
-    // if(WatchDog_check(&wd) == FALSE){
-    //     me->faults |= F_bpsSignalFailure;
-    // }
-    // else
-    // {
-    //     me->faults &= ~F_bpsSignalFailure;
-    // }
+    if(WatchDog_check(&wd) == FALSE){
+        me->faults |= F_bpsSignalFailure;
+    }
+    else
+    {
+        me->faults &= ~F_bpsSignalFailure;
+    }
 
     
     //===================================================================
