@@ -157,7 +157,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
-    me->lowerTorqueLim = me->torqueMaximumDNm - 700;
+    me->lowerTorqueLim = 1700; // hard coded value, but set as parameter i guess?
 
     me->regen_mode = REGENMODE_OFF;
     me->regen_torqueLimitDNm = 0;
@@ -290,6 +290,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
+    ubyte1 powerLimFlag = 0;
     //derating will change pedal mappings
     // for derating and power lim to work together, power lim needs to adjust to max torque set by derating
     #if DERATE_ENABLED == 1
@@ -299,14 +300,16 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
             if (me->torqueMaximumDNm > 760) {
                 me->torqueMaximumDNm -= 150; // derate step down
                 me->lowerTorqueLim -= 150; // because these two variable are used in the power_lim_takeaway_scalar, they should decrement the same to main constant takeaway for this state in derating
+                powerLimFlag = 1;
             }
         }
         else if (avgTemp >= 40.0 * BMS_TEMPERATURE_SCALE) {
-            me->torqueMaximumDNm = (1700 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1700;
+            me->torqueMaximumDNm = (1700 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1200;
             me->lowerTorqueLim = 1200;
+            powerLimFlag = 1;
         }
         else if (avgTemp >= 15.0 * BMS_TEMPERATURE_SCALE) {
-            me->torqueMaximumDNm = (2400 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1700;
+            me->torqueMaximumDNm = (2400 > me->torqueMaximumDNm) ? me->torqueMaximumDNm : 1900;
             me->lowerTorqueLim = 1900;
         }
         else {
@@ -334,24 +337,28 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     #endif
 
     //power lim
-    // sbyte4 dummyPower = 75321;
-    sbyte2 takeaway = 0;
-    if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
-    {
-        takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
-        // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
+    #if POWER_LIM_ENABLED == 1
+        // sbyte4 dummyPower = 75321;
+        sbyte2 takeaway = 0;
+        if (MCM_getPower(me) > POWER_LIM_LOWER_POWER_THRESH)
+        {   
+            powerLimFlag = 1;
+            takeaway = (sbyte2)((MCM_getPower(me) - POWER_LIM_LOWER_POWER_THRESH) / 100);
+            // takeaway = (sbyte2)(dummyPower - POWER_LIM_LOWER_POWER_THRESH)/100;
 
-        sbyte2 adjustedMaxTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim));
-        if (torqueOutput > adjustedMaxTorque)
-        {                                                                                       // if newTorque is greater than powerlim adjust max torque
-            torqueOutput = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim)); // set it to powerlim adjust max torque
-            // me->torqueMaximumDNm = newTorque; 
+            sbyte2 adjustedMaxTorque = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim));
+            if (torqueOutput > adjustedMaxTorque)
+            {                                                                                       // if newTorque is greater than powerlim adjust max torque
+                torqueOutput = me->torqueMaximumDNm - (takeaway * POWER_LIM_TAKEAWAY_SCALAR(me->torqueMaximumDNm, me->lowerTorqueLim)); // set it to powerlim adjust max torque
+                // put this to a timer?
+                me->torqueMaximumDNm = torqueOutput; 
+            }
         }
-    }
+        if (powerLimFlag == 1 && torqueOutput < 750) {
+            torqueOutput = 750;
+        }
+    #endif
 
-    if (torqueOutput < 750) {
-        torqueOutput = 750;
-    }
     
 
     MCM_commands_setTorqueDNm(me, torqueOutput);
