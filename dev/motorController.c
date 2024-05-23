@@ -101,6 +101,7 @@ struct _MotorController
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
+    sbyte2 test_torque;
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
@@ -294,7 +295,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         // torqueOutput = appsTorque + bpsTorque;
         torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    me->commands_torque = torqueOutput;
+    me->test_torque = torqueOutput;
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -310,6 +311,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->InverterOverride = ENABLED;
     else
         me->InverterOverride = UNKNOWN;
+}
+
+sbyte2 MCM_getTestTorque(MotorController *me) {
+    return me->test_torque;
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
