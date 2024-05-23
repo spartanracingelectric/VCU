@@ -163,7 +163,6 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->regen_percentAPPSForCoasting = 0;
     me->regen_minimumSpeedKPH = minRegenSpeedKPH;       //Assigned by main
     me->regen_SpeedRampStart = regenRampdownStartSpeed; //Assigned by main
-    me->test_torque = 0;
 
     //me->faultHistory = { 0,0,0,0,0,0,0,0 };  //Todo: read from eeprom instead of defaulting to 0
 
