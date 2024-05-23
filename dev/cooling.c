@@ -111,10 +111,10 @@ void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTem
 //     */
 // }
 
-void Cooling_System_enactCoolingPump(CoolingSystem *me) {
+void CoolingSystem_enactCoolingPump(CoolingSystem *me) {
     Light_set(Cooling_waterPump, me -> waterPumpPercent);
 }
 
-void Cooling_System_enactCoolingFans(CoolingSystem *me) {
+void CoolingSystem_enactCoolingFans(CoolingSystem *me) {
     Light_set(Cooling_RadFans, me->radFanPercent);
 }
