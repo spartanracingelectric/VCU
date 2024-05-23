@@ -165,7 +165,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->regen_SpeedRampStart = regenRampdownStartSpeed; //Assigned by main
 
     //me->faultHistory = { 0,0,0,0,0,0,0,0 };  //Todo: read from eeprom instead of defaulting to 0
-
+    me->test_torque = 0;
     me->startupStage = 0; //Off
 
     me->relayState = FALSE; //Low
