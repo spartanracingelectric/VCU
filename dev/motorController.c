@@ -97,7 +97,8 @@ struct _MotorController
     //----------------------------------------------------------------------------
     //struct _commands {
     ubyte4 timeStamp_lastCommandSent; //from IO_RTC_StartTime(&)
-    ubyte2 updateCount;               //Number of updates since lastCommandSent
+    ubyte2 updateCount;   
+    ubyte1 cycleCounter;            //Number of updates since lastCommandSent
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
@@ -175,6 +176,8 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LaunchControl_TorqueLimit = 0;
 
     me->LCState = FALSE;
+
+    me->cycleCounter = 0;
     /*
 me->setTorque = &setTorque;
 me->setInverter = &setInverter;
@@ -276,27 +279,41 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDischarge(me, DISABLED);
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
-    sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
-    sbyte2 bpsTorque = 0;
+    // sbyte2 torqueOutput = 0;
+    // sbyte2 appsTorque = 0;
+    // sbyte2 bpsTorque = 0;
 
     float4 appsOutputPercent;
+    float4 bpsOutputPercent;
+    ubyte1 errorCount;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    BrakePressureSensor_getPedalTravel(bps, &errorCount, &bpsOutputPercent);
 
-    appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+    // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    if(me->LCState == TRUE){
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0){
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else {
-        // torqueOutput = appsTorque + bpsTorque;
-        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    // if(me->LCState == TRUE){
+    //     torqueOutput = me->LaunchControl_TorqueLimit;
+    // } else if (me->LaunchControl_TorqueLimit == 0){
+    //     torqueOutput = me->LaunchControl_TorqueLimit;
+    // } else {
+    //     // torqueOutput = appsTorque + bpsTorque;
+    //     torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    // }
+
+    if (bpsOutputPercent > 0.25) {
+        if (me->cycleCounter >= 50) {
+            me->torqueMaximumDNm = (me->torqueMaximumDNm > 1700) ? me->torqueMaximumDNm - 70 : 1700;
+            me->cycleCounter = 0;
+        }
     }
-    me->test_torque = torqueOutput;
-    MCM_commands_setTorqueDNm(me, torqueOutput);
+    else {
+        me->torqueMaximumDNm = 2400;
+    }
+    me->cycleCounter++;
+    me->test_torque = me->torqueMaximumDNm * appsOutputPercent;
+    // MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
@@ -314,7 +331,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 }
 
 sbyte2 MCM_getTestTorque(MotorController *me) {
-    return me->test_torque;
+    return me->test_torque/10;
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
@@ -616,7 +633,7 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
-    me->commands_torque = newTorque;
+    me->commands_torque = newTorque;   
 }
 
 void MCM_commands_setDirection(MotorController *me, Direction newDirection)
