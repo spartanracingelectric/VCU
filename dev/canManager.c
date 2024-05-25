@@ -348,6 +348,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0xA0:
         case 0xA1:
         case 0xA2:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         case 0xA3:
         case 0xA4:
         case 0xA5:
@@ -485,11 +486,13 @@ void canOutput_sendSensorMessages(CanManager* me)
 void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
+    IO_CAN_DATA_FRAME canMessages1[me->can1_write_messageLimit];
     ubyte1 errorCount;
     float4 tempPedalPercent;   //Pedal percent float (a decimal between 0 and 1
     ubyte1 tps0Percent;  //Pedal percent int   (a number from 0 to 100)
     ubyte1 tps1Percent;
     ubyte2 canMessageCount = 0;
+    ubyte2 canMessage1Count = 0;
     ubyte2 canMessageID = 0x500;
     ubyte1 byteNum;
 
@@ -837,6 +840,22 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     //Place the can messsages into the FIFO queue ---------------------------------------------------
     //IO_CAN_WriteFIFO(canFifoHandle_HiPri_Write, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
+
+    canMessage1Count++;
+    byteNum = 0;
+    canMessages1[canMessage1Count - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages1[canMessage1Count - 1].id = 0xA2;
+    canMessages1[canMessageCount - 1].data[byteNum++] = MCM_getMotorTemp(mcm);
+    canMessages1[canMessage1Count - 1].data[byteNum++] = MCM_getMotorTemp(mcm) >> 8;
+    canMessages1[canMessage1Count - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
+    canMessages1[canMessage1Count - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
+    canMessages1[canMessage1Count - 1].data[byteNum++] = MCM_getMotorTemp(mcm);
+    canMessages1[canMessage1Count - 1].data[byteNum++] = MCM_getMotorTemp(mcm) >> 8;
+    canMessages1[canMessage1Count - 1].data[byteNum++] = 0;
+    canMessages1[canMessage1Count - 1].data[byteNum++] = 0;
+    canMessages1[canMessage1Count - 1].length = byteNum;
+
+    CanManager_send(me, CAN1_LOPRI, canMessages1, canMessage1Count);
     //IO_CAN_WriteFIFO(canFifoHandle_LoPri_Write, canMessages, canMessageCount);  
 
 }
