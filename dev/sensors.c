@@ -170,6 +170,7 @@ void Light_set(Light light, float4 percent)
 
     case Cooling_RadFans:  // Radiator Fans
         IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
+        IO_DO_Set(IO_DO_03, TRUE);
         break;
 
     case Cooling_batteryFans:

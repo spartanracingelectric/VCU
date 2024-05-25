@@ -366,9 +366,18 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
-        
-        CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+        // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+
+        //New Code: Pump, ALWAYS ON
+        CoolingSystem_calculationsPump(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        CoolingSystem_enactCoolingPump(cs);
+
+        //New Code: Fans, ONLY on if HVIL is on
+        if(Sensor_HVILTerminationSense.sensorValue == TRUE) {
+            CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+            CoolingSystem_enactCoolingFans(cs);
+        }
 
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
