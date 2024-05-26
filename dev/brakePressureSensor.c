@@ -76,7 +76,8 @@ BrakePressureSensor *BrakePressureSensor_new(void)
         me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
         //me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
         //BPS0 only
-        me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
+        // me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
+        me->percent = 0.0;
         me->brakesAreOn = me->percent > BRAKES_ON_PERCENT;
     }
 
@@ -243,7 +244,8 @@ void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, uby
 -------------------------------------------------------------------*/
 void BrakePressureSensor_getPedalTravel(BrakePressureSensor *me, ubyte1 *errorCount, float4 *pedalPercent)
 {
-    *pedalPercent = me->percent;
+    // *pedalPercent = me->percent;
+    *pedalPercent = 0.0;  //no float identifier?
 
     //What about other error states?
     //Voltage outside of calibration range
