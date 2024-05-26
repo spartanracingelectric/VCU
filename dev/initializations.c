@@ -146,6 +146,7 @@ void vcu_initializeADC(bool benchMode)
     //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PU_10K);   //TCS Switch A
     Sensor_LCButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PU_10K); // Launch Control Enable Button
     Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PU_10K); //DRS Button
+    Sensor_TestButton.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PU_10K); //Test Button
 
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
@@ -202,6 +203,7 @@ Sensor Sensor_LVBattery;
 
 Sensor Sensor_TCSKnob;
 Sensor Sensor_RTDButton;
+Sensor Sensor_TestButton;
 Sensor Sensor_EcoButton;
 Sensor Sensor_TCSSwitchUp;
 Sensor Sensor_LCButton;

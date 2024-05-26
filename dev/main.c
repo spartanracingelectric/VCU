@@ -121,6 +121,7 @@ extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
 
 extern Sensor Sensor_RTDButton;
+extern Sensor Sensor_TestButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSButton;
@@ -316,7 +317,7 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE)) // temp make rtd button rtd button in lv
+        if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) || Sensor_LCButton.sensorValue == FALSE || Sensor_DRSButton.sensorValue == FALSE || Sensor_TestButton.sensorValue == FALSE) // temp make rtd button rtd button in lv
         {
             lc->EcobuttonDebug+=1;
             if (timestamp_EcoButton == 0)
