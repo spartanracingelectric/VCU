@@ -146,6 +146,7 @@ void vcu_initializeADC(bool benchMode)
     //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PU_10K);   //TCS Switch A
     Sensor_LCButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); // Launch Control Enable Button
     Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //DRS Button
+    // TODO unoccupied I/O on VCU
     Sensor_TestButton.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K); //Test Button
 
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused

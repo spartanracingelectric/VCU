@@ -204,7 +204,8 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
+    // ! to remove -- retired functionality
+    // ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
@@ -218,7 +219,7 @@ void main(void)
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
-    LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
+    LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
 
     //----------------------------------------------------------------------------
@@ -269,6 +270,7 @@ void main(void)
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
         if (Sensor_TestButton.sensorValue == TRUE ) {
+            // TODO rewire Sensor_TestButton 
             lc->buttonDebug |= 0x02;
         }
         else {
@@ -368,7 +370,7 @@ void main(void)
         slipRatioCalculation(wss, lc);
 
         //Cool DRS things
-        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
+        DRS_update(drs, mcm0, tps, bps);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()

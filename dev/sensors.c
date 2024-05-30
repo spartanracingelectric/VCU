@@ -141,7 +141,7 @@ void sensors_updateSensors(void)
     Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_LCButton.sensorValue);
     Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
     Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_DRSButton.sensorValue);
-    Sensor_TestButton.ioErr_signalGet= IO_DI_Get(IO_DI_02, &Sensor_TestButton.sensorValue);
+    Sensor_TestButton.ioErr_signalGet= IO_DI_Get(IO_DI_02, &Sensor_TestButton.sensorValue); // ! unoccupied
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)

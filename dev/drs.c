@@ -46,15 +46,16 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, ubyte1 pot_DRS_LC) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
 
-    // .sensorvalue true/false are switched to account for Pull Up
-    if(pot_DRS_LC == 1) {
-        me->currentDRSMode = AUTO;
-    } else {
-        //update_knob(me); Change to when we have a working rotary
-        me->currentDRSMode = MANUAL;
-    }
+    // permanantly in pot_DRS_LC == 0 (! retired functionality of pot_DRS_LC)
+    // if(pot_DRS_LC == 1) {
+    //     me->currentDRSMode = AUTO;
+    // } else {
+    //     //update_knob(me); Change to when we have a working rotary
+    //     me->currentDRSMode = MANUAL;
+    // }
+    me->currentDRSMode = MANUAL; 
 
     switch(me->currentDRSMode)
         {
@@ -80,7 +81,6 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 break;
         }
     
-
 }
 
 void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
