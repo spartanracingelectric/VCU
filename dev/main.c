@@ -388,11 +388,19 @@ void main(void)
         CoolingSystem_calculationsPump(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         CoolingSystem_enactCoolingPump(cs);
 
-        //New Code: Fans, ONLY on if HVIL is on
-        if(Sensor_HVILTerminationSense.sensorValue == TRUE) {
-            CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
-            CoolingSystem_enactCoolingFans(cs);
-        }
+        // //New Code: Fans, ONLY on if HVIL is on
+        // if(Sensor_HVILTerminationSense.sensorValue == TRUE) {
+        //     CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        //     CoolingSystem_enactCoolingFans(cs);
+        // }
+
+        // changed to always on, regardless of HVIL status
+        // NOTE temporarily changing the way we control PWM
+        // CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_enactCoolingFans(cs);
+        // NOTE -- 100% duty cycle PWM: 
+        IO_DO_Set(IO_DO_02, TRUE);
+        
 
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
