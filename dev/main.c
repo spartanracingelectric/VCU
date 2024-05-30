@@ -384,22 +384,23 @@ void main(void)
         // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
-        //New Code: Pump, ALWAYS ON
-        CoolingSystem_calculationsPump(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
-        CoolingSystem_enactCoolingPump(cs);
+        // New Code: Pump, ALWAYS ON
+        // CoolingSystem_calculationsPump(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_enactCoolingPump(cs);
 
-        // //New Code: Fans, ONLY on if HVIL is on
+        // New Code: Fans, ONLY on if HVIL is on
         // if(Sensor_HVILTerminationSense.sensorValue == TRUE) {
         //     CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         //     CoolingSystem_enactCoolingFans(cs);
         // }
 
         // changed to always on, regardless of HVIL status
-        // NOTE temporarily changing the way we control PWM
+        // NOTE temporarily changing the way we control PWM for BOTH coller and pump 
         // CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCoolingFans(cs);
         // NOTE -- 100% duty cycle PWM: 
         IO_DO_Set(IO_DO_02, TRUE);
+        IO_DO_Set(IO_DO_03, TRUE);
         
 
         //Assign motor controls to MCM command message
