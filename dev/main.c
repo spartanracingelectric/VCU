@@ -332,7 +332,7 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) ) // temp make rtd button rtd button in lv
+        if (Sensor_EcoButton.sensorValue == TRUE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) ) // temp make rtd button rtd button in lv
         {
             if (timestamp_EcoButton == 0)
             {
