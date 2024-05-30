@@ -268,18 +268,31 @@ void main(void)
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
-        // if (Sensor_RTDButton.sensorValue == FALSE ) {
-        //     lc->buttonDebug += 1;
-        // }
-        // if (Sensor_DRSButton.sensorValue == FALSE ) {
-        //     lc->buttonDebug += 2;
-        // }
-        // if (Sensor_EcoButton.sensorValue == FALSE ) {
-        //     lc->buttonDebug += 4;
-        // }
-        // if (Sensor_LCButton.sensorValue == FALSE) {
-        //     lc->buttonDebug += 8;
-        // }
+        if (Sensor_TestButton.sensorValue == TRUE ) {
+            lc->buttonDebug |= 0x02;
+        }
+        else {
+            lc->buttonDebug &= ~0x02;
+        }
+        if (Sensor_DRSButton.sensorValue == TRUE ) { // mark gives 02
+            lc->buttonDebug |= 0x01;
+        }
+        else {
+            lc->buttonDebug &= ~0x01;
+        }
+        if (Sensor_EcoButton.sensorValue == TRUE ) { // cal gives 04
+           lc->buttonDebug |= 0x04;
+        }
+        else {
+            lc->buttonDebug &= ~0x04;
+        }
+        if (Sensor_LCButton.sensorValue == TRUE) { //drs gives 08
+          lc->buttonDebug |= 0x08;
+        }
+        else {
+            lc->buttonDebug &= ~0x08;
+        }
+
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
@@ -317,9 +330,8 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) || Sensor_LCButton.sensorValue == FALSE || Sensor_DRSButton.sensorValue == FALSE || Sensor_TestButton.sensorValue == FALSE) // temp make rtd button rtd button in lv
+        if (Sensor_EcoButton.sensorValue == FALSE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) ) // temp make rtd button rtd button in lv
         {
-            lc->EcobuttonDebug+=1;
             if (timestamp_EcoButton == 0)
             {
                 SerialManager_send(serialMan, "Eco button detected\n");

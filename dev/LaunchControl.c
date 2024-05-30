@@ -67,7 +67,7 @@ LaunchControl *LaunchControl_new(ubyte1 potLC){
     me->LCStatus = FALSE;
     me->potLC = potLC;
     me->pidController = (PIDController*)malloc(sizeof(struct _PIDController));
-    me->EcobuttonDebug = 0;
+    me->buttonDebug = 0;
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
@@ -132,6 +132,6 @@ sbyte2 getCalculatedTorque(){
     return Calctorque;
 }
 
-ubyte1 getEcoButtonDebug(LaunchControl *me) {
-    return me->EcobuttonDebug;
+ubyte1 getButtonDebug(LaunchControl *me) {
+    return me->buttonDebug;
 }

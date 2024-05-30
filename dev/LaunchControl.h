@@ -26,7 +26,7 @@ typedef struct _LaunchControl {
     PIDController *pidController;
     ubyte1 potLC;
 
-    ubyte1 EcobuttonDebug;
+    ubyte1 buttonDebug;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new(ubyte1 potLC);
@@ -34,6 +34,6 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
 void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
 bool getLaunchControlStatus(LaunchControl *lc);
 sbyte2 getCalculatedTorque();
-ubyte1 getEcoButtonDebug(LaunchControl *lc);
+ubyte1 getButtonDebug(LaunchControl *lc);
 
 #endif
