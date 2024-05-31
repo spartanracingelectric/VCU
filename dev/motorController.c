@@ -320,7 +320,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->torqueMaximumDNm -= takeaway;
     }
 
-    if (powerDrawEveryHalfkW >= me->HighPowerThreshold - 1) {
+    if (powerDrawEveryHalfkW >= (me->HighPowerThreshold - 1)*2) {
         me->torqueMaximumDNm = me->CrawlTorque;
     }
 
