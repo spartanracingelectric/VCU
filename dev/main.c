@@ -441,6 +441,7 @@ void main(void)
             // cooling on in hv
             IO_DO_Set(IO_DO_02, TRUE);
             IO_DO_Set(IO_DO_03, TRUE);
+            launchControlTorqueCalculation(lc, tps, bps, mcm0);
         }
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
@@ -449,7 +450,7 @@ void main(void)
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         // MCM_updatePowerLimit(mcm0);     // UPDATE power limits based on sensor controls
 
-        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
