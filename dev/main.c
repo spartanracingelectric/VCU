@@ -408,6 +408,8 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
+        MCM_updatePowerLimit(mcm0);     // UPDATE power limits based on sensor controls
+
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
@@ -423,6 +425,7 @@ void main(void)
         /*******************************************/
         //MOVE INTO SAFETYCHECKER
         //SafetyChecker_setErrorLight(sc);
+
         Light_set(Light_dashError, (SafetyChecker_getFaults(sc) == 0) ? 0 : 1);
         //Handle motor controller startup procedures
         MCM_relayControl(mcm0, &Sensor_HVILTerminationSense);

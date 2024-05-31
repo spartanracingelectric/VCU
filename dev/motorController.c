@@ -26,6 +26,7 @@ extern Sensor Sensor_TCSSwitchDown; // used currently for regen
 extern Sensor Sensor_TCSKnob;       // used currently for regen
 extern Sensor Sensor_HVILTerminationSense;
 
+
 /*****************************************************************************
  * Motor Controller (MCM)
  ******************************************************************************
@@ -133,12 +134,22 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
+    ubyte2 CrawlTorque; 
+    ubyte2 LowPowerThreshold; 
+    ubyte2 HighPowerThreshold; 
+    ubyte2 TorqueTakeaway; 
+
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
     me->serialMan = sm;
+
+    me->CrawlTorque = 750; 
+    me->LowPowerThreshold = 70; 
+    me->HighPowerThreshold = 80; 
+    me->TorqueTakeaway = 150; 
 
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
@@ -174,16 +185,17 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LaunchControl_TorqueLimit = 0;
     me->HVILOverride = FALSE;
     me->LCState = FALSE;
-    /*
-me->setTorque = &setTorque;
-me->setInverter = &setInverter;
-me->setDischarge = &setDischarge;
-me->setTorqueLimit = &setTorqueLimit;
-me->updateLockoutStatus = &updateLockoutStatus;
-me->updateInverterStatus = &updateInverterStatus;
-me->getLockoutStatus = &getLockoutStatus;
-me->getInverterStatus = &getInverterStatus;
-        */
+/**
+ * 
+    me->setTorque = &setTorque;
+    me->setInverter = &setInverter;
+    me->setDischarge = &setDischarge;
+    me->setTorqueLimit = &setTorqueLimit;
+    me->updateLockoutStatus = &updateLockoutStatus;
+    me->updateInverterStatus = &updateInverterStatus;
+    me->getLockoutStatus = &getLockoutStatus;
+    me->getInverterStatus = &getInverterStatus;
+*/
     return me;
 }
 
@@ -286,13 +298,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     
 
     sbyte2 powerDraw = (sbyte2)(int)(MCM_getPower(me)/1000);
-    if (powerDraw > 70) {
-        sbyte2 takeaway = (powerDraw - 70) * 150;
+    if (powerDraw > me->LowPowerThreshold) {
+        sbyte2 takeaway = (powerDraw - me->LowPowerThreshold) * me->TorqueTakeaway; 
         me->torqueMaximumDNm -= takeaway;
     }
 
-    if (powerDraw >= 79) {
-        me->torqueMaximumDNm = 750;
+    if (powerDraw >= me->HighPowerThreshold) {
+        me->torqueMaximumDNm = me->CrawlTorque;
     }
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
@@ -793,6 +805,21 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
     
 }
 
+/**
+ * manage power limit functionality based on "PUSH TO PASS" requirements 
+ *      for endurance runs. 
+*/
+void MCM_updatePowerLimit(MotorController *me) {
+    if (Sensor_EcoButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == TRUE) {
+        // when eco button + HV --> button is "PUSH TO PASS"
+        me->LowPowerThreshold = 70; 
+        me->HighPowerThreshold = 80; 
+    } 
+    // otherwise, go for regular values
+    me->LowPowerThreshold = 50; 
+    me->HighPowerThreshold = 60; 
+}
+
 ubyte1 MCM_getRegenMode(MotorController *me)
 {
     return me->regen_mode;
@@ -878,3 +905,5 @@ float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* me)
 {
     return me->regen_percentAPPSForCoasting;
 }
+
+
