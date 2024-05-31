@@ -242,6 +242,8 @@ void main(void)
     /*******************************************/
     /* main loop, executed periodically with a defined cycle time (here: 5 ms) */
     ubyte4 timestamp_mainLoopStart = 0;
+    ubyte4 coolingOnTimer = 0;
+    ubyte1 coolingOn = 0;
     //IO_RTC_StartTime(&timestamp_calibStart);
     SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
     while (1)
@@ -333,7 +335,7 @@ void main(void)
         }
 
         // TODO temporary -- but wrap this in a if statement checking HV status.  
-        if (Sensor_EcoButton.sensorValue == TRUE) {
+        if (Sensor_HVILTerminationSense.sensorValue == TRUE && Sensor_EcoButton.sensorValue == TRUE) {
             // push TO PASS !!! 
             MCM_setHighPowerLimit(mcm0); 
         } else {
@@ -412,9 +414,34 @@ void main(void)
         // CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCoolingFans(cs);
         // NOTE -- 100% duty cycle PWM: 
-        IO_DO_Set(IO_DO_02, TRUE);
-        IO_DO_Set(IO_DO_03, TRUE);
-
+        
+        if (coolingOnTimer == 0) {
+            if (Sensor_LCButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == FALSE) {
+                IO_RTC_StartTime(&coolingOnTimer);
+                coolingOn = ~coolingOn;
+            }    
+        }  
+        else {
+            if (IO_RTC_GetTimeUS(coolingOnTimer) > 1000000) {
+                coolingOnTimer = 0;
+            }
+        }
+        
+        if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
+            if (coolingOn == 0) {
+                IO_DO_Set(IO_DO_02, FALSE);
+                IO_DO_Set(IO_DO_03, FALSE);
+            }
+            else {
+                IO_DO_Set(IO_DO_02, TRUE);
+                IO_DO_Set(IO_DO_03, TRUE);
+            }
+        }
+        else {
+            // cooling on in hv
+            IO_DO_Set(IO_DO_02, TRUE);
+            IO_DO_Set(IO_DO_03, TRUE);
+        }
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag

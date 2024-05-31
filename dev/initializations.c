@@ -34,7 +34,7 @@ void vcu_initializeADC(bool benchMode)
     IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //mcm0 Relay
     IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
     // NOTE temporary initialized to TRUE
-    IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, TRUE); //Water pump signal (No longer using PWM signal for the Water Pump)
+    IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
     IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
