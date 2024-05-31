@@ -37,6 +37,10 @@ void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
 void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
+ubyte2 MCM_getTorqueTakeaway(MotorController *me); 
+ubyte2 MCM_getHighPowerThreshold(MotorController *me); 
+ubyte2 MCM_getLowPowerThreshold(MotorController *me); 
+ubyte2 MCM_getCrawlTorque(MotorController *me); 
 
 sbyte2 MCM_commands_getTorque(MotorController* me); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 Direction MCM_commands_getDirection(MotorController* me);

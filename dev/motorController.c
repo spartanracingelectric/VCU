@@ -141,6 +141,22 @@ struct _MotorController
 
 };
 
+ubyte2 MCM_getTorqueTakeaway(MotorController *me) {
+    return me->TorqueTakeaway; 
+}
+
+ubyte2 MCM_getHighPowerThreshold(MotorController *me) {
+    return me->HighPowerThreshold; 
+}
+
+ubyte2 MCM_getLowPowerThreshold(MotorController *me) {
+    return me->LowPowerThreshold; 
+}
+
+ubyte2 MCM_getCrawlTorque(MotorController *me) {
+    return me->CrawlTorque; 
+}
+
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));

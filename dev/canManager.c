@@ -719,12 +719,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getButtonDebug(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getLowPowerThreshold(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getLowPowerThreshold(mcm) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getHighPowerThreshold(mcm); 
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getHighPowerThreshold(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 24;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50B: Launch Control
