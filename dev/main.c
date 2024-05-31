@@ -332,30 +332,33 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == TRUE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) ) // temp make rtd button rtd button in lv
-        {
-            if (timestamp_EcoButton == 0)
+        // perform all only when LV
+        if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
+            if (Sensor_EcoButton.sensorValue == TRUE || (Sensor_RTDButton.sensorValue == FALSE)) 
             {
-                SerialManager_send(serialMan, "Eco button detected\n");
-                IO_RTC_StartTime(&timestamp_EcoButton);
+                if (timestamp_EcoButton == 0)
+                {
+                    SerialManager_send(serialMan, "Eco button detected\n");
+                    IO_RTC_StartTime(&timestamp_EcoButton);
+                }
+                else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
+                {
+                    SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
+                    //calibrateTPS(TRUE, 5);
+                    TorqueEncoder_startCalibration(tps, 5);
+                    BrakePressureSensor_startCalibration(bps, 5);
+                    Light_set(Light_dashEco, 1);
+                    //DIGITAL OUTPUT 4 for STATUS LED
+                }
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
+            else
             {
-                SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
-                //calibrateTPS(TRUE, 5);
-                TorqueEncoder_startCalibration(tps, 5);
-                BrakePressureSensor_startCalibration(bps, 5);
-                Light_set(Light_dashEco, 1);
-                //DIGITAL OUTPUT 4 for STATUS LED
+                if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000)
+                {
+                    SerialManager_send(serialMan, "Eco mode requested\n");
+                }
+                timestamp_EcoButton = 0;
             }
-        }
-        else
-        {
-            if (IO_RTC_GetTimeUS(timestamp_EcoButton) > 10000 && IO_RTC_GetTimeUS(timestamp_EcoButton) < 1000000)
-            {
-                SerialManager_send(serialMan, "Eco mode requested\n");
-            }
-            timestamp_EcoButton = 0;
         }
         TorqueEncoder_update(tps);
         //Every cycle: if the calibration was started and hasn't finished, check the values again
@@ -401,7 +404,6 @@ void main(void)
         // NOTE -- 100% duty cycle PWM: 
         IO_DO_Set(IO_DO_02, TRUE);
         IO_DO_Set(IO_DO_03, TRUE);
-        
 
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
