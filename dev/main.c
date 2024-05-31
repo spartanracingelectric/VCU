@@ -332,6 +332,15 @@ void main(void)
             // } 
         }
 
+        // TODO temporary -- but wrap this in a if statement checking HV status.  
+        if (Sensor_EcoButton.sensorValue == TRUE) {
+            // push TO PASS !!! 
+            MCM_setHighPowerLimit(mcm0); 
+        } else {
+            // regular. 
+            MCM_setLowPowerLimit(mcm0); 
+        }
+
         // perform all only when LV
         if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
             if (Sensor_EcoButton.sensorValue == TRUE || (Sensor_RTDButton.sensorValue == FALSE)) 
@@ -346,7 +355,8 @@ void main(void)
                     SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                     //calibrateTPS(TRUE, 5);
                     TorqueEncoder_startCalibration(tps, 5);
-                    BrakePressureSensor_startCalibration(bps, 5);
+                    BrakePressureSensor_startCalibration(bps, 5); 
+
                     Light_set(Light_dashEco, 1);
                     //DIGITAL OUTPUT 4 for STATUS LED
                 }
@@ -410,7 +420,7 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        MCM_updatePowerLimit(mcm0);     // UPDATE power limits based on sensor controls
+        // MCM_updatePowerLimit(mcm0);     // UPDATE power limits based on sensor controls
 
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);

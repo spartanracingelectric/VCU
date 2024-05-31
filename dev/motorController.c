@@ -821,17 +821,12 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
     
 }
 
-/**
- * manage power limit functionality based on "PUSH TO PASS" requirements 
- *      for endurance runs. 
-*/
-void MCM_updatePowerLimit(MotorController *me) {
-    if (Sensor_EcoButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == TRUE) {
-        // when eco button + HV --> button is "PUSH TO PASS"
-        me->LowPowerThreshold = 70; 
-        me->HighPowerThreshold = 80; 
-    } 
-    // otherwise, go for regular values
+void MCM_setHighPowerLimit(MotorController *me) {
+    me->LowPowerThreshold = 70; 
+    me->HighPowerThreshold = 80; 
+}
+
+void MCM_setLowPowerLimit(MotorController *me) {
     me->LowPowerThreshold = 50; 
     me->HighPowerThreshold = 60; 
 }

@@ -1,0 +1,124 @@
+Conversion Warnings Log
+
+
+MSG_ID: 256 	MSG_TYPE: S 	MSG_NAME: EMeter_Measurement
+	SIG_NAME: EMeter_Current, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: EMeter_Voltage, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1024 	MSG_TYPE: S 	MSG_NAME: EMeter_Status
+	SIG_NAME: EMeter_VoltageGain, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: EMeter_CurrentGain, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: EMeter_OverVoltage, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: EMeter_OverPower, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: EMeter_Logging, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1200 	MSG_TYPE: S 	MSG_NAME: DAQ_LF_Tire_Temp_Ch1_4
+	SIG_NAME: LF_Temperature_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1201 	MSG_TYPE: S 	MSG_NAME: DAQ_LF_Tire_Temp_Ch5_8
+	SIG_NAME: LF_Temperature_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1202 	MSG_TYPE: S 	MSG_NAME: DAQ_LF_Tire_Temp_Ch9_12
+	SIG_NAME: LF_Temperature_12, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_11, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_10, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_9, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1203 	MSG_TYPE: S 	MSG_NAME: DAQ_LF_Tire_Temp_Ch13_16
+	SIG_NAME: LF_Temperature_16, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_15, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_14, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LF_Temperature_13, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1204 	MSG_TYPE: S 	MSG_NAME: DAQ_RF_Tire_Temp_Ch1_4
+	SIG_NAME: RF_Temperature_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1205 	MSG_TYPE: S 	MSG_NAME: DAQ_RF_Tire_Temp_Ch5_8
+	SIG_NAME: RF_Temperature_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1206 	MSG_TYPE: S 	MSG_NAME: DAQ_RF_Tire_Temp_Ch9_12
+	SIG_NAME: RF_Temperature_12, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_11, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_10, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_9, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1207 	MSG_TYPE: S 	MSG_NAME: DAQ_RF_Tire_Temp_Ch13_16
+	SIG_NAME: RF_Temperature_16, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_15, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_14, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RF_Temperature_13, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1208 	MSG_TYPE: S 	MSG_NAME: DAQ_LR_Tire_Temp_Ch1_4
+	SIG_NAME: LR_Temperature_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1209 	MSG_TYPE: S 	MSG_NAME: DAQ_LR_Tire_Temp_Ch5_8
+	SIG_NAME: LR_Temperature_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1210 	MSG_TYPE: S 	MSG_NAME: DAQ_LR_Tire_Temp_Ch9_12
+	SIG_NAME: LR_Temperature_12, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_11, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_10, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_9, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1211 	MSG_TYPE: S 	MSG_NAME: DAQ_LR_Tire_Temp_Ch13_16
+	SIG_NAME: LR_Temperature_16, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_15, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_14, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: LR_Temperature_13, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1212 	MSG_TYPE: S 	MSG_NAME: DAQ_RR_Tire_Temp_Ch1_4
+	SIG_NAME: RR_Temperature_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1213 	MSG_TYPE: S 	MSG_NAME: DAQ_RR_Tire_Temp_Ch5_8
+	SIG_NAME: RR_Temperature_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1214 	MSG_TYPE: S 	MSG_NAME: DAQ_RR_Tire_Temp_Ch9_12
+	SIG_NAME: RR_Temperature_12, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_11, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_10, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_9, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1215 	MSG_TYPE: S 	MSG_NAME: DAQ_RR_Tire_Temp_Ch13_16
+	SIG_NAME: RR_Temperature_16, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_15, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_14, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: RR_Temperature_13, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1290 	MSG_TYPE: S 	MSG_NAME: Ground_Speed
+	SIG_NAME: lowPowerThresh, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: highPowerThresh, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1291 	MSG_TYPE: S 	MSG_NAME: Launch_Control
+	SIG_NAME: StartTorque, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1808 	MSG_TYPE: S 	MSG_NAME: S2C_PressureTabs
+	SIG_NAME: Wind_Speed, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: Pitot_Tube1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: Pitot_Tube2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+BA_DEF_DEF_ " "  : Match not Found in Param List
+BA_DEF_DEF_ " "  : Match not Found in Param List
+BA_DEF_DEF_ " 0;"  : Match not Found in Param List

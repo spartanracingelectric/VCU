@@ -364,9 +364,8 @@ BO_ 1289 MCM_RTD_HVIL: 8 VCU
 
 BO_ 1290 Ground_Speed: 8 mcm
  SG_ SpeedKph : 0|16@1+ (1,0) [0|200] "km/h" mcm
- SG_ CMDTorque : 16|16@1+ (1,0) [0|2500] "DNm" mcm
- SG_ lowPowerThresh : 32|16@1+ (1, 0) [0|100] "kW" mcm
- SG_ highPowerThresh : 48|16@1+ (1, 0) [0|100] "kW" mcm
+ SG_ lowPowerThresh : 16|16@1+ (1, 0) [0|100] "kW" mcm
+ SG_ highPowerThresh : 32|16@1+ (1, 0) [0|100] "kW" mcm
 
 BO_ 1291 Launch_Control: 8 mcm
  SG_ LCReady : 0|8@1+ (1,0) [0|1] "Launch Control Ready" 
