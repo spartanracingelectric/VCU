@@ -312,14 +312,15 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     me->torqueMaximumDNm = 2400;
     
-
-    sbyte2 powerDraw = (sbyte2)(int)(MCM_getPower(me)/1000);
-    if (powerDraw > me->LowPowerThreshold) {
-        sbyte2 takeaway = (powerDraw - me->LowPowerThreshold) * me->TorqueTakeaway; 
+    // MCM_getPower return type is sbyte4
+    // adjusting to double value
+    sbyte2 powerDrawEveryHalfkW = (sbyte2)(int)(MCM_getPower(me)/500);
+    if (powerDrawEveryHalfkW > me->LowPowerThreshold*2) {
+        sbyte2 takeaway = (powerDrawEveryHalfkW - (me->LowPowerThreshold*2)) * me->TorqueTakeaway; 
         me->torqueMaximumDNm -= takeaway;
     }
 
-    if (powerDraw >= me->HighPowerThreshold - 1) {
+    if (powerDrawEveryHalfkW >= me->HighPowerThreshold - 1) {
         me->torqueMaximumDNm = me->CrawlTorque;
     }
 
