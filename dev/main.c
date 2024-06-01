@@ -441,7 +441,8 @@ void main(void)
             // cooling on in hv
             IO_DO_Set(IO_DO_02, TRUE);
             IO_DO_Set(IO_DO_03, TRUE);
-            launchControlTorqueCalculation(lc, tps, bps, mcm0);
+            // launchControlTorqueCalculation(lc, tps, bps, mcm0);
+            launchControlThrottleCalculation(lc, tps, bps, mcm0); 
         }
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);

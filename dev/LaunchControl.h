@@ -29,6 +29,8 @@ typedef struct _LaunchControl {
     ubyte1 buttonDebug;
 } LaunchControl;
 
+void performStandardControl(); 
+
 LaunchControl *LaunchControl_new();
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);
 void launchControlTorqueCalculation(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);

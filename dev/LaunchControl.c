@@ -81,21 +81,58 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     me->slipRatio = filt_speed;
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
+
+void performStandardControl(TorqueEncoder *tps, LaunchControl *me) {
+    if (tps->travelPercent = 0) {
+        float curr_throttle = 0.7; 
+    }
+    float curr_throttle = tps->travelPercent; 
+
+    tps->travelPercent = me->slipRatio >= 0.2 ? (tps->travelPercent + 0.02) : (tps->travelPercent - 0.02); 
+}
+
+// ! ALSO PERFORMS THROTTLE CONTROL. 
+void launchControlThrottleCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
+    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
+
+    if (Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < 0.35) {
+        me->LCReady = TRUE;                     // begin ready condition for LC. 
+    } 
+    if (me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE) {
+        // init condition for LC control
+        // TODO make init control -- for setting begin throttle 0
+        tps->travelPercent = 0;  me->lcTorque = 0; 
+    }
+    if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
+        me->LCStatus = TRUE;
+        // LC control -- begin at 0.708 throttle
+        if(speedKph > 3){
+            performStandardControl(tps, me); 
+        }
+    }
+    if(bps->percent > .05 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
+        me->LCStatus = FALSE;
+        me->LCReady = FALSE;
+        me->lcTorque = -1;
+    }
+    // Update launch control state and torque limit
+    MCM_update_LaunchControl_State(mcm, me->LCStatus);
+}
+
 void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
     
-    
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-     if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < .35) {
+    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < .35) {
         me->LCReady = TRUE;
-     }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+    }
+    if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
-     }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
+    }
+    if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         me->lcTorque = me->pidController->errorSum; // Set to the initial torque
         if(speedKph > 3){
@@ -112,9 +149,11 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     MCM_update_LaunchControl_State(mcm, me->LCStatus);
     MCM_update_LaunchControl_TorqueLimit(mcm, me->lcTorque * 10);
 }
+
 bool getLaunchControlStatus(LaunchControl *me){
     return me->LCStatus;
 }
+
 sbyte2 getCalculatedTorque(){
     return Calctorque;
 }

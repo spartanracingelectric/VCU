@@ -724,9 +724,7 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 }
 
 void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
-
      me->LaunchControl_TorqueLimit = lcTorqueLimit;
-
 }
 
 void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
