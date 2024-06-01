@@ -49,7 +49,7 @@ struct _MotorController
     //Positive = accel, negative = regen
     //Reverse not allowed
     ubyte2 torqueMaximumDNm; //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
-
+    float4 prevAPPsPercent;
     //Regen torque calculations in whole Nm..?
     RegenMode regen_mode;                //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
     ubyte2 regen_torqueLimitDNm;         //Tuneable value.  Regen torque (in Nm) at full regen.  Positive value.
@@ -139,6 +139,9 @@ struct _MotorController
     ubyte2 HighPowerThreshold; 
     ubyte2 TorqueTakeaway; 
 
+    ubyte1 cycleCounter;
+    ubyte4 joltTimer;
+
 };
 
 ubyte2 MCM_getTorqueTakeaway(MotorController *me) {
@@ -166,6 +169,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LowPowerThreshold = 70; 
     me->HighPowerThreshold = 80; 
     me->TorqueTakeaway = 150; 
+    me->cycleCounter = 0;
 
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
@@ -181,6 +185,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
+    me->prevAPPsPercent = 0.0f;
 
     me->regen_mode = REGENMODE_OFF;
     me->regen_torqueLimitDNm = 0;
@@ -310,21 +315,54 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    me->torqueMaximumDNm = 2400;
     
-
-    sbyte2 powerDraw = (sbyte2)(int)(MCM_getPower(me)/1000);
-    if (powerDraw > me->LowPowerThreshold) {
-        sbyte2 takeaway = (powerDraw - me->LowPowerThreshold) * me->TorqueTakeaway; 
-        me->torqueMaximumDNm -= takeaway;
+    if (me->cycleCounter == 0) {   
+        me->torqueMaximumDNm = 2400;
     }
-
-    if (powerDraw >= me->HighPowerThreshold - 1) {
-        me->torqueMaximumDNm = me->CrawlTorque;
+    else {     //used for tracking jolt
+        me->cycleCounter--;
+        if (me->torqueMaximumDNm > 2000) {
+            me->torqueMaximumDNm-=25;
+        }
+        else {
+            me->cycleCounter = 0;
+        }
+    }
+    
+    float powerDraw = (float)(MCM_getPower(me)/1000);
+    if (powerDraw > 72.0f) {  
+        //at around 3000 rpm (if my math is right) powerLimMaxTorque will attempt to hold 78 kw. 
+        sbyte2 powerLimMaxTorque = (sbyte2)((int)((78 * 9549.2966f) / (float)(me->motorRPM)) * 8);  // should be a macro
+        if (me->torqueMaximumDNm > 2000) {
+            me->torqueMaximumDNm-=20;
+        }
+        if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
+            me->torqueMaximumDNm = powerLimMaxTorque;
+        }
+    }
+    //phew that was a close one. last resort
+    else if (powerDraw > 79.0f) {  
+        me->torqueMaximumDNm-=750;
+    }
+    //purely for testing
+    else if (powerDraw > 80.0f ) {
+        me->torqueMaximumDNm = 0;
+    }
+    //this is bad for accel but, perhaps good for autox and endurance? different jolt thresholds for the two events?
+    // 70kw will also trigger the same response to 40kw... 
+    else if (powerDraw > 45.0f && appsOutputPercent - me->prevAPPsPercent > 0.5) { 
+        me->cycleCounter = 20;
     }
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+    if (me->joltTimer == 0) {
+        IO_RTC_StartTime(&me->joltTimer);
+    }
+    else if (IO_RTC_GetTimeUS(me->joltTimer) >= 40000) { 
+        me->prevAPPsPercent = appsOutputPercent;
+        me->joltTimer = 0;
+    }
 
     if(me->LCState == TRUE){
         torqueOutput = me->LaunchControl_TorqueLimit;

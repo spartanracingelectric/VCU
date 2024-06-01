@@ -47,7 +47,7 @@ BrakePressureSensor *BrakePressureSensor_new(void)
 
 
     me->bps0_calibMin = 489;
-    me->bps0_calibMax = 2290;
+    me->bps0_calibMax = 2729;
     me->calibrated = TRUE;
 
 
