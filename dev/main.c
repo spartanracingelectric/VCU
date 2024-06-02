@@ -271,32 +271,6 @@ void main(void)
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
 
-        if (Sensor_TestButton.sensorValue == TRUE ) {
-            // TODO rewire Sensor_TestButton 
-            lc->buttonDebug |= 0x02;
-        }
-        else {
-            lc->buttonDebug &= ~0x02;
-        }
-        if (Sensor_DRSButton.sensorValue == TRUE ) { // mark gives 02
-            lc->buttonDebug |= 0x01;
-        }
-        else {
-            lc->buttonDebug &= ~0x01;
-        }
-        if (Sensor_EcoButton.sensorValue == TRUE ) { // cal gives 04
-           lc->buttonDebug |= 0x04;
-        }
-        else {
-            lc->buttonDebug &= ~0x04;
-        }
-        if (Sensor_LCButton.sensorValue == TRUE) { //drs gives 08
-          lc->buttonDebug |= 0x08;
-        }
-        else {
-            lc->buttonDebug &= ~0x08;
-        }
-
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;

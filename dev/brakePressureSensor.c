@@ -15,7 +15,7 @@
 
 // TODO: #94 Make this CAN configurable and store in EEPROM
 // This value is used for controlling the brake light and triggering the TPS-BPS implausibility fault
-#define BRAKES_ON_PERCENT .08
+#define BRAKES_ON_PERCENT .15
 
 BrakePressureSensor *BrakePressureSensor_new(void)
 {

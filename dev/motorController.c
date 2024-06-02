@@ -316,52 +316,32 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
-    if (me->cycleCounter == 0) {   
+    if (me->joltTimer == 0) {
         me->torqueMaximumDNm = 2400;
     }
-    else {     //used for tracking jolt
-        me->cycleCounter--;
-        if (me->torqueMaximumDNm > 2000) {
-            me->torqueMaximumDNm-=25;
+    else {
+        if (IO_RTC_GetTimeUS(me->joltTimer) >= 2000000) { 
+            me->joltTimer = 0;
+            me->torqueMaximumDNm = 2400;
         }
         else {
-            me->cycleCounter = 0;
+            me->torqueMaximumDNm = 1500;
         }
     }
-    
+
     float powerDraw = (float)(MCM_getPower(me)/1000);
-    if (powerDraw > 72.0f) {  
-        //at around 3000 rpm (if my math is right) powerLimMaxTorque will attempt to hold 78 kw. 
-        sbyte2 powerLimMaxTorque = (sbyte2)((int)((78 * 9549.2966f) / (float)(me->motorRPM)) * 8);  // should be a macro
+    if (powerDraw > 79.0f) {
+        me->torqueMaximumDNm = 1500;
+        IO_RTC_StartTime(me->joltTimer);
+    }
+    else if (powerDraw > 72.0f && me->joltTimer == 0) {
+        sbyte2 powerLimMaxTorque = (sbyte2)((int)((powerDraw * 9549.2966f) / (float)(me->motorRPM)) * 8);  
         if (me->torqueMaximumDNm > 2000) {
-            me->torqueMaximumDNm-=20;
+            me->torqueMaximumDNm-=10;
         }
         if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
             me->torqueMaximumDNm = powerLimMaxTorque;
         }
-    }
-    //phew that was a close one. last resort
-    else if (powerDraw > 79.0f) {  
-        me->torqueMaximumDNm-=750;
-    }
-    //purely for testing
-    else if (powerDraw > 80.0f ) {
-        me->torqueMaximumDNm = 0;
-    }
-    //this is bad for accel but, perhaps good for autox and endurance? different jolt thresholds for the two events?
-    // 70kw will also trigger the same response to 40kw... 
-    else if (powerDraw > 45.0f && appsOutputPercent - me->prevAPPsPercent > 0.5) { 
-        me->cycleCounter = 20;
-    }
-
-    // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-    if (me->joltTimer == 0) {
-        IO_RTC_StartTime(&me->joltTimer);
-    }
-    else if (IO_RTC_GetTimeUS(me->joltTimer) >= 40000) { 
-        me->prevAPPsPercent = appsOutputPercent;
-        me->joltTimer = 0;
     }
 
     if(me->LCState == TRUE){
