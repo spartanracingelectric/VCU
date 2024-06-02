@@ -204,8 +204,6 @@ void main(void)
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    // ! to remove -- retired functionality
-    // ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
@@ -426,7 +424,8 @@ void main(void)
                 coolingOnTimer = 0;
             }
         }
-        
+
+        float4 LCappspercent; 
         if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
             if (coolingOn == 0) {
                 IO_DO_Set(IO_DO_02, FALSE);
@@ -442,7 +441,7 @@ void main(void)
             IO_DO_Set(IO_DO_02, TRUE);
             IO_DO_Set(IO_DO_03, TRUE);
             // launchControlTorqueCalculation(lc, tps, bps, mcm0);
-            launchControlThrottleCalculation(lc, tps, bps, mcm0); 
+            LCappspercent = launchControlThrottleCalculation(lc, tps, bps, mcm0); // perform calculation for APPS output percent
         }
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
@@ -450,9 +449,7 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         // MCM_updatePowerLimit(mcm0);     // UPDATE power limits based on sensor controls
-
-        
-        MCM_calculateCommands(mcm0, tps, bps);
+        MCM_calculateCommands(mcm0, tps, bps, LCappspercent);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 

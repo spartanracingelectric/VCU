@@ -29,7 +29,8 @@ typedef struct _LaunchControl {
     ubyte1 buttonDebug;
 } LaunchControl;
 
-void performStandardControl(); 
+float4 KanyeController(TorqueEncoder *tps, LaunchControl *me, float4 prev, bool begin); 
+float4 launchControlThrottleCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm); 
 
 LaunchControl *LaunchControl_new();
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *lc);

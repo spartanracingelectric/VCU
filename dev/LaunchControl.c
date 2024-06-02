@@ -82,44 +82,47 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
 
-void performStandardControl(TorqueEncoder *tps, LaunchControl *me) {
-    if (tps->travelPercent = 0) {
-        float curr_throttle = 0.7; 
-    }
+float4 KanyeController(TorqueEncoder *tps, LaunchControl *me, float4 prev, bool begin) {
     float curr_throttle = tps->travelPercent; 
-
-    tps->travelPercent = me->slipRatio >= 0.2 ? (tps->travelPercent + 0.02) : (tps->travelPercent - 0.02); 
+    return (float4)(me->slipRatio >= 0.2 ? (curr_throttle + 0.02) : (curr_throttle - 0.02)); 
 }
 
 // ! ALSO PERFORMS THROTTLE CONTROL. 
-void launchControlThrottleCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
+float4 launchControlThrottleCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
 
     if (Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < 0.35) {
+        MCM_update_LaunchControl_State(mcm, me->LCStatus);
         me->LCReady = TRUE;                     // begin ready condition for LC. 
+        return 0.0f; 
     } 
     if (me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE) {
         // init condition for LC control
         // TODO make init control -- for setting begin throttle 0
-        tps->travelPercent = 0;  me->lcTorque = 0; 
+        MCM_update_LaunchControl_State(mcm, me->LCStatus);
+        return 0.0f; 
     }
     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         // LC control -- begin at 0.708 throttle
+        MCM_update_LaunchControl_State(mcm, me->LCStatus);
         if(speedKph > 3){
-            performStandardControl(tps, me); 
+            return KanyeController(tps, me, tps->travelPercent, FALSE); 
+        } else {
+            // need to maintain speed without adjustments
+            return KanyeController(tps, me, tps->travelPercent, TRUE); 
         }
     }
     if(bps->percent > .05 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
         me->LCStatus = FALSE;
         me->LCReady = FALSE;
         me->lcTorque = -1;
+        MCM_update_LaunchControl_State(mcm, me->LCStatus);
     }
-    // Update launch control state and torque limit
-    MCM_update_LaunchControl_State(mcm, me->LCStatus);
 }
 
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
+// LC with torque control
+void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm) {
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?

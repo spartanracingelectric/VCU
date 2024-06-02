@@ -292,7 +292,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
+void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, float4 LCappspercent)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -328,7 +328,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
     if(me->LCState == TRUE){
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->torqueMaximumDNm * LCappspercent; 
     } else if (me->LaunchControl_TorqueLimit == 0){
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else {
