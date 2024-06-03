@@ -320,12 +320,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->torqueMaximumDNm = 2400;
     }
     else {
-        if (IO_RTC_GetTimeUS(me->joltTimer) >= 2000000) { 
+        me->torqueMaximumDNm = 1500;
+        if (IO_RTC_GetTimeUS(me->joltTimer) >= 1000000) { 
             me->joltTimer = 0;
             me->torqueMaximumDNm = 2400;
-        }
-        else {
-            me->torqueMaximumDNm = 1500;
         }
     }
 
@@ -335,12 +333,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         IO_RTC_StartTime(me->joltTimer);
     }
     else if (powerDraw > 72.0f && me->joltTimer == 0) {
-        sbyte2 powerLimMaxTorque = (sbyte2)((int)((powerDraw * 9549.2966f) / (float)(me->motorRPM)) * 8);  
-        if (me->torqueMaximumDNm > 2000) {
-            me->torqueMaximumDNm-=10;
-        }
+        me->torqueMaximumDNm = 2000;
+        sbyte2 powerLimMaxTorque = (sbyte2)((int)((powerDraw * 9549.2966f) / (float)(me->motorRPM)) * 8);   // * 8 instead of 10 to make value lower?
         if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
             me->torqueMaximumDNm = powerLimMaxTorque;
+        }
+        if (me->torqueMaximumDNm < 1500) {
+            me->torqueMaximumDNm = 1500;
         }
     }
 
