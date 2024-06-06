@@ -317,29 +317,29 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
     if (me->joltTimer == 0) {
-        me->torqueMaximumDNm = 2400;
-    }
-    else {
-        me->torqueMaximumDNm = 1500;
-        if (IO_RTC_GetTimeUS(me->joltTimer) >= 1000000) { 
-            me->joltTimer = 0;
+        if (me->motorRPM >= 4000) {
+            me->torqueMaximumDNm = 1500;
+        }
+        else if (me->motorRPM >= 3500) {
+            me->torqueMaximumDNm = 1700;
+        }
+        else if (me->motorRPM >= 3000) {
+            me->torqueMaximumDNm = 1900;
+        }
+        else if (me->motorRPM >= 2500) {
+            me->torqueMaximumDNm = 2000;
+        }
+        else if (me->motorRPM >= 2000) {
+            me->torqueMaximumDNm = 2200;
+        }
+        else {
             me->torqueMaximumDNm = 2400;
         }
+        IO_RTC_StartTime(&me->joltTimer);
     }
-
-    float powerDraw = (float)(MCM_getPower(me)/1000);
-    if (powerDraw > 79.0f) {
-        me->torqueMaximumDNm = 1500;
-        IO_RTC_StartTime(me->joltTimer);
-    }
-    else if (powerDraw > 72.0f && me->joltTimer == 0) {
-        me->torqueMaximumDNm = 2000;
-        sbyte2 powerLimMaxTorque = (sbyte2)((int)((powerDraw * 9549.2966f) / (float)(me->motorRPM)) * 8);   // * 8 instead of 10 to make value lower?
-        if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
-            me->torqueMaximumDNm = powerLimMaxTorque;
-        }
-        if (me->torqueMaximumDNm < 1500) {
-            me->torqueMaximumDNm = 1500;
+    else {
+        if (IO_RTC_GetTimeUS(me->joltTimer) >= 500000) {
+            me->joltTimer = 0;
         }
     }
 
