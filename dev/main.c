@@ -1,3 +1,27 @@
+/*****************************************************************************
+* SRE-2 Vehicle Control Firmware for the TTTech HY-TTC 50 Controller (VCU)
+******************************************************************************
+* For project info and history, see https://github.com/spartanracingelectric/SRE-2
+* For software/development questions, email rusty@pedrosatech.com
+******************************************************************************
+* Files
+* The Git repository does not contain the complete firmware for SRE-2.  Modules
+* provided by TTTech can be found on the CD that accompanied the VCU. These 
+* files can be identified by our naming convetion: TTTech files start with a
+* prefix in all caps (such as IO_Driver.h), except for ptypes_xe167.h which
+* they also provided.
+* For instructions on setting up a build environment, see the SRE-2 getting-
+* started document, Programming for the HY-TTC 50, at http://1drv.ms/1NQUppu
+******************************************************************************
+* Organization
+* Our code is laid out in the following manner:
+* 
+*****************************************************************************/
+
+//-------------------------------------------------------------------
+//VCU Initialization Stuff
+//-------------------------------------------------------------------
+
 //VCU/C headers
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +30,8 @@
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "IO_RTC.h"
 #include "IO_UART.h"
+//#include "IO_CAN.h"
+//#include "IO_PWM.h"
 
 //Our code
 #include "initializations.h"
@@ -24,7 +50,6 @@
 #include "bms.h"
 #include "LaunchControl.h"
 #include "drs.h"
-#include "watchdog.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -80,7 +105,6 @@ APDB appl_db =
         0 /* ubyte4 headerCRC          */
 };
 
-extern WatchDog wd;
 extern Sensor Sensor_TPS0;
 extern Sensor Sensor_TPS1;
 extern Sensor Sensor_BPS0;
@@ -97,6 +121,7 @@ extern Sensor Sensor_SAS;
 extern Sensor Sensor_TCSKnob;
 
 extern Sensor Sensor_RTDButton;
+extern Sensor Sensor_TestButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSButton;
@@ -175,28 +200,26 @@ void main(void)
     //defaultSendDelayus---------------------------------------------+         |
     //SerialManager* sm--------------------------------------------------------+
 
-    WatchDog_new(&wd, 50000);
-
     //----------------------------------------------------------------------------
     // Object representations of external devices
     // Most default values for things should be specified here
     //----------------------------------------------------------------------------
-    ubyte1 pot_DRS_LC = 1; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
+    // ! to remove -- retired functionality
+    // ubyte1 pot_DRS_LC = 0; // 0 is for DRS and 1 is for launch control/Auto DRS - CHANGE HERE FOR POT MODE
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2000, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
     WheelSpeeds *wss = WheelSpeeds_new(WHEEL_DIAMETER, WHEEL_DIAMETER, NUM_BUMPS, NUM_BUMPS);
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
-    LaunchControl *lc = LaunchControl_new(pot_DRS_LC);
+    LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
 
     //----------------------------------------------------------------------------
@@ -219,7 +242,9 @@ void main(void)
     /*******************************************/
     /* main loop, executed periodically with a defined cycle time (here: 5 ms) */
     ubyte4 timestamp_mainLoopStart = 0;
-    //IO_RTC_StartTime(&timestamp_calibStart);
+    ubyte4 coolingOnTimer = 0;
+    ubyte1 coolingOn = 0;
+        //IO_RTC_StartTime(&timestamp_calibStart);
     SerialManager_send(serialMan, "VCU initializations complete.  Entering main loop.\n");
     while (1)
     {
@@ -245,6 +270,33 @@ void main(void)
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
+
+        if (Sensor_TestButton.sensorValue == TRUE ) {
+            // TODO rewire Sensor_TestButton 
+            lc->buttonDebug |= 0x02;
+        }
+        else {
+            lc->buttonDebug &= ~0x02;
+        }
+        if (Sensor_DRSButton.sensorValue == TRUE ) { // mark gives 02
+            lc->buttonDebug |= 0x01;
+        }
+        else {
+            lc->buttonDebug &= ~0x01;
+        }
+        if (Sensor_EcoButton.sensorValue == TRUE ) { // cal gives 04
+           lc->buttonDebug |= 0x04;
+        }
+        else {
+            lc->buttonDebug &= ~0x04;
+        }
+        if (Sensor_LCButton.sensorValue == TRUE) { //drs gives 08
+          lc->buttonDebug |= 0x08;
+        }
+        else {
+            lc->buttonDebug &= ~0x08;
+        }
+
         /*switch (CanManager_getReadStatus(canMan, CAN0_HIPRI))
         {
             case IO_E_OK: SerialManager_send(serialMan, "IO_E_OK: everything fine\n"); break;
@@ -282,7 +334,7 @@ void main(void)
             // } 
         }
 
-        if (Sensor_EcoButton.sensorValue == FALSE)
+        if (Sensor_EcoButton.sensorValue == TRUE || (Sensor_RTDButton.sensorValue == FALSE && Sensor_HVILTerminationSense.sensorValue == FALSE) ) // temp make rtd button rtd button in lv
         {
             if (timestamp_EcoButton == 0)
             {
@@ -320,7 +372,7 @@ void main(void)
         slipRatioCalculation(wss, lc);
 
         //Cool DRS things
-        DRS_update(drs, mcm0, tps, bps, pot_DRS_LC);
+        DRS_update(drs, mcm0, tps, bps);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
@@ -331,9 +383,37 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+
+        //New Code: Pump, ALWAYS ON
+          if (coolingOnTimer == 0) {
+            if (Sensor_LCButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == FALSE) {
+                IO_RTC_StartTime(&coolingOnTimer);
+                coolingOn = ~coolingOn;
+            }    
+        }  
+        else {
+            if (IO_RTC_GetTimeUS(coolingOnTimer) > 1000000) {
+                coolingOnTimer = 0;
+            }
+        }
         
-        CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
+        if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
+            if (coolingOn == 0) {
+                IO_DO_Set(IO_DO_02, FALSE);
+                IO_DO_Set(IO_DO_03, FALSE);
+            }
+            else {
+                IO_DO_Set(IO_DO_02, TRUE);
+                IO_DO_Set(IO_DO_03, TRUE);
+            }
+        }
+        else {
+            // cooling on in hv
+            IO_DO_Set(IO_DO_02, TRUE);
+            IO_DO_Set(IO_DO_03, TRUE);
+        }
 
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);

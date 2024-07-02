@@ -149,8 +149,8 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     //me->startRTDS = FALSE;
 
     me->motorRPM = 0;
-    me->DC_Voltage = 0;
-    me->DC_Current = 0;
+    me->DC_Voltage = 13;
+    me->DC_Current = 13;
 
     me->commands_direction = initialDirection;
     me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
@@ -172,7 +172,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->motor_temp = 99;
 
     me->LaunchControl_TorqueLimit = 0;
-
+    me->HVILOverride = FALSE;
     me->LCState = FALSE;
     /*
 me->setTorque = &setTorque;
@@ -276,29 +276,30 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
-    sbyte2 bpsTorque = 0;
+    // sbyte2 appsTorque = 0;
+    // sbyte2 bpsTorque = 0;
 
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    
 
-    appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+    // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
     if(me->LCState == TRUE){
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else if (me->LaunchControl_TorqueLimit == 0){
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else {
-        torqueOutput = appsTorque + bpsTorque;
-        //torqueOutput = me->torqueMaximumDNm * tps->percent;  //REMOVE THIS LINE TO ENABLE REGEN
+        // torqueOutput = appsTorque + bpsTorque;
+        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
     
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
-    me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
+    // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
 
     //Temporarily disable MCM relay control via HVILOverride
     //me->HVILOverride = FALSE;
@@ -315,7 +316,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 {
     //If HVIL Term Sense is low (HV is down)
-    if (HVILTermSense->sensorValue == FALSE && me->HVILOverride == FALSE)
+    if (HVILTermSense->sensorValue == FALSE  && me->HVILOverride == FALSE)
     {
         //If we just noticed the HVIL went low
         if (me->previousHVILState == TRUE)
@@ -331,7 +332,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
+                IO_DO_Set(IO_DO_04, FALSE); //Need MCM relay object
                 me->relayState = FALSE;
             }
             else
@@ -360,7 +361,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_00, TRUE);
+        IO_DO_Set(IO_DO_04, TRUE);
         me->relayState = TRUE;
     }
 }

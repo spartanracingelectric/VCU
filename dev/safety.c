@@ -301,7 +301,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     bool tpsAbove25Percent = (tps->travelPercent > .25); //Rules is 25% this is a hack that is made to check
 
     //If mechanical brakes actuated && tps > 25%
-    if (bps->brakesAreOn && tpsAbove25Percent)
+    if (bps->percent >=  BRAKES_APPS_THRESH && tpsAbove25Percent)
     {
         // Set the TPS/BPS implaisibility VCU fault
         me->faults |= F_tpsbpsImplausible;

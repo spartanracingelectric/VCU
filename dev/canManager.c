@@ -17,7 +17,6 @@
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
 #include "drs.h"
-#include "watchdog.h"
 
 
 struct _CanManager {
@@ -80,8 +79,6 @@ struct _CanMessageNode
     canHistoryNode* right;
 };
 */
-
-extern WatchDog wd;
 
 CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
                          , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
@@ -331,7 +328,8 @@ bool CanManager_dataChangedSinceLastTransmit(IO_CAN_DATA_FRAME* canMessage) //bi
 void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, SafetyChecker* sc)
 {
     IO_CAN_DATA_FRAME canMessages[(channel == CAN0_HIPRI ? me->can0_read_messageLimit : me->can1_read_messageLimit)];
-    ubyte1 canMessageCount;  //FIFO queue only holds 128 messages max
+    ubyte1 canMessageCount;
+      //FIFO queue only holds 128 messages max
 
     //Read messages from hipri channel 
     *(channel == CAN0_HIPRI ? &me->ioErr_can0_read : &me->ioErr_can1_read) =
@@ -351,6 +349,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0xA0:
         case 0xA1:
         case 0xA2:
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
         case 0xA3:
         case 0xA4:
         case 0xA5:
@@ -375,7 +374,6 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x600:
         case 0x602: //Faults
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
-            // WatchDog_pet(&wd);
             break;
         case 0x604:
         case 0x608:
@@ -387,11 +385,9 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
-            // WatchDog_pet(&wd);
             break;
         case 0x623: //Cell Temperature Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
-            // WatchDog_pet(&wd);
             break;
         case 0x624:
         //1st Module
@@ -429,8 +425,6 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
         case 0x629:
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
-            WatchDog_pet(&wd);
-
             break;
 
         case 0x702:
@@ -458,7 +452,7 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
 
     //Echo message on lopri channel
     //IO_CAN_WriteFIFO(me->can1_writeHandle, canMessages, messagesReceived);
-    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
+    // CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount);
     //IO_CAN_WriteMsg(canFifoHandle_LoPri_Write, canMessages);
 }
 
@@ -498,8 +492,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     ubyte1 tps0Percent;  //Pedal percent int   (a number from 0 to 100)
     ubyte1 tps1Percent;
     ubyte2 canMessageCount = 0;
+    // ubyte2 canMessage1Count = 0;
     ubyte2 canMessageID = 0x500;
     ubyte1 byteNum;
+    // ubyte1 byteNum1;
 
     TorqueEncoder_getIndividualSensorPercent(tps, 0, &tempPedalPercent); //borrow the pedal percent variable
     tps0Percent = 0xFF * tempPedalPercent;
@@ -726,12 +722,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte4)MCM_getGroundSpeedKPH(mcm) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)getButtonDebug(lc);
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 16;
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 24;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50B: Launch Control
@@ -746,7 +742,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)lc->lcTorque;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50C: SAS (Steering Angle Sensor) and DRS
@@ -829,22 +825,27 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = 0xC0;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorque(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorque(mcm) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] =  MCM_commands_getTorque(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getDirection(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
+    
+    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
+
+    
     
     //----------------------------------------------------------------------------
     //Additional sensors
     //----------------------------------------------------------------------------
 
     //Place the can messsages into the FIFO queue ---------------------------------------------------
-    //IO_CAN_WriteFIFO(canFifoHandle_HiPri_Write, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
-    CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount);  //Important: Only transmit one message (the MCU message)
+    //IO_CAN_WriteFIFO
+      //Important: Only transmit one message (the MCU message)
+
     //IO_CAN_WriteFIFO(canFifoHandle_LoPri_Write, canMessages, canMessageCount);  
 
 }

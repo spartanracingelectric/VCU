@@ -11,6 +11,8 @@
 #include "serial.h"
 #include "wheelSpeeds.h"
 
+#define BRAKES_APPS_THRESH 0.24
+
 /*
 typedef enum { CHECK_tpsOutOfRange    , CHECK_bpsOutOfRange
              , CHECK_tpsOpenOrShort   , CHECK_bpsOpenOrShort
