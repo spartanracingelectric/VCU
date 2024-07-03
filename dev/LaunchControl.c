@@ -59,14 +59,14 @@ Proportional test first with other output 0, get midway with target and then tun
 Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for kp to get target
 */
 /* Start of Launch Control */
-LaunchControl *LaunchControl_new(ubyte1 potLC){
+LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->slipRatio = 0;
     me->lcTorque = -1;
     me->LCReady = FALSE;
     me->LCStatus = FALSE;
-    me->potLC = potLC;
     me->pidController = (PIDController*)malloc(sizeof(struct _PIDController));
+    me->buttonDebug = 0;
     return me;
 }
 void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
@@ -85,33 +85,21 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
     sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
+    
+    
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-     if(Sensor_LCButton.sensorValue == FALSE && speedKph < 5 && bps->percent < .35 && steeringAngle > -35 && steeringAngle < 35) {
+     if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < .35) {
         me->LCReady = TRUE;
      }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
         me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
-        // if(me->potLC == 1){
-        //     if (Sensor_DRSKnob.sensorValue == 0)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 1.1)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 2.2)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 3.3)
-        //     {    me->lcTorque = lcTest; }
-        //     else if (Sensor_DRSKnob.sensorValue <= 4.4)
-        //     {    me->lcTorque = lcTest; }
-        // }  else {
-        //     me->lcTorque = lcTest;
-        // }
         initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE && tps->travelPercent > .90){
+     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
         me->LCStatus = TRUE;
         me->lcTorque = me->pidController->errorSum; // Set to the initial torque
         if(speedKph > 3){
-            Calctorque = calculatePIDController(me->pidController, -0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
             me->lcTorque = Calctorque; // Test PID Controller before uncommenting
         }
     }
@@ -129,4 +117,8 @@ bool getLaunchControlStatus(LaunchControl *me){
 }
 sbyte2 getCalculatedTorque(){
     return Calctorque;
+}
+
+ubyte1 getButtonDebug(LaunchControl *me) {
+    return me->buttonDebug;
 }

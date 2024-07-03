@@ -35,7 +35,11 @@ typedef struct _CoolingSystem
 } CoolingSystem;
 
 CoolingSystem *CoolingSystem_new(SerialManager *sm);
-void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
-void CoolingSystem_enactCooling(CoolingSystem *me);
+// void CoolingSystem_calculations(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
+void CoolingSystem_calculationsFan(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense);
+// void CoolingSystem_enactCooling(CoolingSystem *me);
+void CoolingSystem_enactCoolingPump(CoolingSystem *me);
+void CoolingSystem_enactCoolingFans(CoolingSystem *me);
 
 #endif

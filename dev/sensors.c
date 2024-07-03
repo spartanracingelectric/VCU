@@ -40,6 +40,7 @@ extern Sensor Sensor_BenchTPS0;
 extern Sensor Sensor_BenchTPS1;
 
 extern Sensor Sensor_RTDButton;
+extern Sensor Sensor_TestButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSButton;
 extern Sensor Sensor_DRSKnob;
@@ -137,9 +138,10 @@ void sensors_updateSensors(void)
     Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
     Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
     // Sensor_TCSSwitchUp.ioErr_signalGet = IO_DI_Get(IO_DI_02, &Sensor_TCSSwitchUp.sensorValue);
-    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_LCButton.sensorValue);
+    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_LCButton.sensorValue);
     Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
-    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_DRSButton.sensorValue);
+    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_DRSButton.sensorValue);
+    Sensor_TestButton.ioErr_signalGet= IO_DI_Get(IO_DI_02, &Sensor_TestButton.sensorValue); // ! unoccupied
 
     //Other stuff ---------------------------------------------------
     //Battery voltage (at VCU internal electronics supply input)
@@ -170,10 +172,11 @@ void Light_set(Light light, float4 percent)
 
     case Cooling_RadFans:  // Radiator Fans
         IO_PWM_SetDuty(IO_PWM_02, duty, NULL);
+        IO_DO_Set(IO_DO_03, TRUE);
         break;
 
     case Cooling_batteryFans:
-        IO_DO_Set(IO_DO_04, power);
+        // IO_DO_Set(IO_DO_04, power);
         break;
 
         //--------------------------------------------

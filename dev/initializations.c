@@ -12,7 +12,6 @@
 #include "sensors.h"
 #include "initializations.h"
 //#include "can.h"
-#include "watchdog.h"
 
 /*****************************************************************************
 * ADC
@@ -32,11 +31,10 @@ void vcu_initializeADC(bool benchMode)
 
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
-    IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
+    IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //mcm0 Relay
     IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
-    IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Battery fan relay - not used on SRE-4
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
     IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
     IO_DO_Init(IO_DO_07);    IO_DO_Set(IO_DO_07, FALSE); //DRS Close
@@ -144,10 +142,12 @@ void vcu_initializeADC(bool benchMode)
     //Switches
     //----------------------------------------------------------------------------
     Sensor_RTDButton.ioErr_signalInit = IO_DI_Init(IO_DI_00, IO_DI_PU_10K);     //RTD Button
-    Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PU_10K);     //Eco Button
+    Sensor_EcoButton.ioErr_signalInit = IO_DI_Init(IO_DI_01, IO_DI_PD_10K);     //Eco Button
     //Sensor_TCSSwitchUp.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PU_10K);   //TCS Switch A
-    Sensor_LCButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PU_10K); // Launch Control Enable Button
-    Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PU_10K); //DRS Button
+    Sensor_LCButton.ioErr_signalInit = IO_DI_Init(IO_DI_03, IO_DI_PD_10K); // Launch Control Enable Button
+    Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //DRS Button
+    // TODO unoccupied I/O on VCU
+    Sensor_TestButton.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K); //Test Button
 
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
@@ -168,7 +168,7 @@ void vcu_ADCWasteLoop(void)
 
         IO_PWM_SetDuty(IO_PWM_01, 0, NULL);
 
-        IO_DO_Set(IO_DO_00, FALSE); //False = low
+        IO_DO_Set(IO_DO_04, FALSE); //False = low
         IO_DO_Set(IO_DO_01, FALSE); //HVIL shutdown relay
 
         //IO_DI (digital inputs) supposed to take 2 cycles before they return valid data
@@ -204,6 +204,7 @@ Sensor Sensor_LVBattery;
 
 Sensor Sensor_TCSKnob;
 Sensor Sensor_RTDButton;
+Sensor Sensor_TestButton;
 Sensor Sensor_EcoButton;
 Sensor Sensor_TCSSwitchUp;
 Sensor Sensor_LCButton;
@@ -211,7 +212,6 @@ Sensor Sensor_HVILTerminationSense;
 
 Sensor Sensor_DRSButton;
 Sensor Sensor_DRSKnob;
-WatchDog wd;
 //Switches
 //precharge failure
 

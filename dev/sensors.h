@@ -176,6 +176,7 @@ extern Sensor Sensor_SAS;  // = { 4 };
 //Switches
 //precharge failure
 extern Sensor Sensor_RTDButton;
+extern Sensor Sensor_TestButton;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_TCSSwitchUp;
 extern Sensor Sensor_LCButton;
