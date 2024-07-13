@@ -282,7 +282,20 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    
+
+    // should be a macro in the header
+    ubyte2 power_limit = 20; 
+    float powerDraw = (float)(MCM_getPower(me)/1000);
+    if (powerDraw > (power_limit - 5)) {
+        sbyte2 powerLimMaxTorque = (sbyte2)((int)(( (power_limit - 2) * 9549.2966f) / (float)(me->motorRPM)) * 10);
+
+        if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
+            me->torqueMaximumDNm = powerLimMaxTorque;
+        }
+    }
+    else{
+        me->torqueMaximumDNm = 2400;
+    }
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
