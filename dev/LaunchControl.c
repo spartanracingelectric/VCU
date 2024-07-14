@@ -70,7 +70,10 @@ LaunchControl *LaunchControl_new(){// this goes outside the while loop
     me->LCReady = FALSE;
     me->LCStatus = FALSE;
     me->pidController = PID_new(20, 0, 0, 0.2);
-    me->pidController->total_error = 170; // setting PID total error @ init torque = 170 Nm?
+    me->pidController->total_error = 0; // setting PID total error @ init torque = 170 Nm?
+
+ // setting PID total error @ init torque = 170 Nm?
+
     me->buttonDebug = 0;
     return me;
 }
@@ -108,8 +111,15 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
 
            PID_dtUpdate(me->pidController, 0.01);// updates the dt 
             //float Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
-           ubyte2 PIDtorque= PID_compute(me->pidController,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
-            me->lcTorque = PIDtorque; // adds the ajusted value from the pid to the torqueval         }
+
+           float4 PIDtorque= (float4)PID_compute(me->pidController,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+            float4 appsTqPercent;
+            TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+            ubyte2 tor= MCM_getMaxTorqueDNm(mcm);
+            me->lcTorque = (ubyte2)(tor * appsTqPercent)+PIDtorque; // adds the ajusted value from the pid to the torqueval         }
+
+                }
+
     }
      }
     if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
