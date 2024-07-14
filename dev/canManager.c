@@ -844,7 +844,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->PLstatus;
-    canMessages[canMessageCount - 1].data[byteNum++] = pl->powerLimittq;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->PLoffsetpid;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->error;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_voltage;           //table input
     canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_voltage >> 8;

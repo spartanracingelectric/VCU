@@ -18,7 +18,7 @@
 typedef struct _PowerLimit {
     PID *pid; 
     HashTable* hashtable;
-    sbyte2 powerLimittq; 
+    sbyte2 PLoffsetpid; 
     bool PLstatus;
     sbyte2 error; 
 

@@ -77,7 +77,7 @@ PowerLimit* PL_new(){
 
     me-> PLstatus = FALSE;
    // me->pid = PID_new(1, 0, 0, 0);// fill this in  
-    me->powerLimittq = 0.0; 
+    me->PLoffsetpid = 0.0; 
     me->error = 0.0; 
 
     me->ht_inp_voltage = 0.0;
@@ -136,11 +136,12 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
         ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
-        me->powerLimittq= (tq * appsTqPercent) + me->error;
+      //  me->PLoffsetpid= (tq * appsTqPercent) + me->error;
+         me->PLoffsetpid=me->error; 
     }
     else {
         me-> PLstatus = FALSE;
     }
-    MCM_update_PowerLimit_TorqueLimit(mcm, me->powerLimittq);
+    MCM_update_PowerLimit_TorqueLimit(mcm, me->PLoffsetpid);
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 }
