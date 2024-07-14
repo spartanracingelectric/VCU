@@ -125,7 +125,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;
 
-    ubyte2 kwhtovoltage =(ubyte2) (KWH_LIMIT / current);
+    ubyte2 kwhtovoltage = (ubyte2) ((KWH_LIMIT*1000) / current);
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
