@@ -12,7 +12,7 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
-#define TORQUE_LIMIT 78
+#define KWH_LIMIT 78
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {

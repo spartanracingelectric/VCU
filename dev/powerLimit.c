@@ -124,10 +124,10 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;
 
-    if(kilowatts > TORQUE_LIMIT) {
+    if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
         sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
-        sbyte2 tqsetpoint =  TORQUE_LIMIT;
+        sbyte2 tqsetpoint = (sbyte2) get(me->hashtable, KWH_LIMIT, wheelspeed);
         me->ht_output = estimatedtq;
         
         PID_setpointUpdate(pid,tqsetpoint);
