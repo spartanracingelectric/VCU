@@ -118,9 +118,12 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
   
     sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
-    sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-    sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
-    sbyte4 current = BMS_getPackCurrent(bms)/1000;
+   /// sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
+   // sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
+   // sbyte4 current = BMS_getPackCurrent(bms)/1000;
+   sbyte4 kilowatts =  MCM_getPower(mcm); // divide by 1000 to get watts --> kilowatts
+   sbyte4 voltage = MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
+ sbyte4 current = MCM_getDCCurrent(mcm);
 
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;

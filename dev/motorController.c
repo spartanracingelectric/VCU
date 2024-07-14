@@ -693,6 +693,7 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
     return me->commands_torqueLimit;
 }
 
+
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
 {
     me->lockoutStatus = newState;
@@ -724,7 +725,10 @@ void MCM_update_PowerLimit_State(MotorController *me, bool newPLState){
 
     me->PLState = newPLState;
 
-}//----------------------------------------------------PL-------------------------------
+}
+
+
+//----------------------------------------------------PL-------------------------------
 
 Status MCM_getLockoutStatus(MotorController *me)
 {
@@ -815,6 +819,14 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
 
 sbyte4 MCM_getMotorRPM(MotorController *me){
     return me->motorRPM;
+}
+
+sbyte4 MCM_getDCVoltage (MotorController *me){
+    return me->DC_Voltage;
+}
+
+sbyte4 MCM_getDCCurrent(MotorController *me){
+    return me->DC_Current;
 }
 
 ubyte1 MCM_getRegenMode(MotorController *me)
