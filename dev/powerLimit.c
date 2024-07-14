@@ -95,9 +95,7 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     ubyte4 floorCeiling = get(torque_hashtable, voltageFloor, rpmCeiling);
     ubyte4 ceilingCeiling = get(torque_hashtable, voltageCeiling, rpmCeiling);
     // Error check
-    if (floorFloor == -1 || ceilingFloor == -1 || floorCeiling == -1 || ceilingCeiling == -1) {
-        return -1;
-    }
+   
     // Calculate interpolation values
     ubyte4 horizontal_Interp = (((ceilingFloor - floorFloor) / voltageIncrement) + ((ceilingCeiling - floorCeiling) / voltageIncrement)) / 2.0;
     ubyte4 vertical_Interp = (((floorCeiling - floorFloor) / rpmIncrement) + ((ceilingCeiling - ceilingFloor) / rpmIncrement)) / 2.0;

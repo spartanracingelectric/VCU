@@ -382,6 +382,8 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x612:
         case 0x613:
         case 0x620:
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
@@ -741,7 +743,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque(lc) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)lc->lcTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->lcTorque;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
