@@ -109,14 +109,17 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     ubyte4 gainValueHoriz = fmod(voltage, voltageIncrement);
     ubyte4 gainValueVertical = fmod(rpm, rpmIncrement);
     // Combine interpolated values
-    ubyte2 calibratedTorque = (gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
+    ubyte2 calibratedTorque = 123;
+    
+    //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
+
     return calibratedTorque;  // Adjust gain if necessary
 }
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
   
     sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
     sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-    sbyte4 voltage = BMS_getPackVoltage(bms);// CHECK THE UNITS FOR THIS
+    sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
 
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;
