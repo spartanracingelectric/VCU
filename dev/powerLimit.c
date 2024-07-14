@@ -76,7 +76,7 @@ PowerLimit* PL_new(){
     populatePLHashTable(me->hashtable); 
 
     me-> PLstatus = FALSE;
-    me->pid = PID_new(1, 0, 0, 0);// fill this in  
+   // me->pid = PID_new(1, 0, 0, 0);// fill this in  
     me->powerLimittq = 0.0; 
     me->error = 0.0; 
 
@@ -112,7 +112,7 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     ubyte2 calibratedTorque = (gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
     return calibratedTorque;  // Adjust gain if necessary
 }
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws){
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
   
     sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
     sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
@@ -127,9 +127,9 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         sbyte2 tqsetpoint = (sbyte2) get(me->hashtable, TORQUE_LIMIT, wheelspeed);
         me->ht_output = estimatedtq;
         
-        PID_setpointUpdate(me->pid,tqsetpoint);
-        PID_dtUpdate(me->pid, 0.01);// 10ms 
-        sbyte2 piderror = PID_compute(me->pid, estimatedtq); 
+        PID_setpointUpdate(pid,tqsetpoint);
+        PID_dtUpdate(pid, 0.01);// 10ms 
+        sbyte2 piderror = PID_compute(pid, estimatedtq); 
         me->error = piderror; 
 
         float4 appsTqPercent;

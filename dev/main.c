@@ -226,7 +226,7 @@ void main(void)
     //--------------------------------------------------------------------------------------------------------------------
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
-
+    PID *PLpid = PID_new(1,0,0,0);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -431,7 +431,7 @@ void main(void)
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        powerLimitTorqueCalculation(tps, mcm0, pl, bms,  wss);
+        powerLimitTorqueCalculation(tps, mcm0, pl, bms,  wss,PLpid);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

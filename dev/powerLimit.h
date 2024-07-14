@@ -29,7 +29,7 @@ typedef struct _PowerLimit {
 } PowerLimit;
 
 
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws);
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void populatePLHashTable(HashTable* table);
 
 ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm);
