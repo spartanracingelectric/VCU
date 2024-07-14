@@ -120,14 +120,17 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
     sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
     sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
+    sbyte4 current = BMS_getPackCurrent(bms)/1000;
 
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;
 
+    ubyte2 kwhtovoltage =(ubyte2) (KWH_LIMIT / current);
+
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
         sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
-        sbyte2 tqsetpoint = (sbyte2) get(me->hashtable, KWH_LIMIT, wheelspeed);
+        sbyte2 tqsetpoint = (sbyte2) get(me->hashtable, kwhtovoltage, wheelspeed);
         me->ht_output = estimatedtq;
         
         PID_setpointUpdate(pid,tqsetpoint);
