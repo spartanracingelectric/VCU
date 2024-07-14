@@ -7,13 +7,14 @@
 #include "bms.h"
 #include "wheelSpeeds.h"
 #include "torqueEncoder.h"
+#include "math.h"
 
 void populatePLHashTable(HashTable* table)
 {
     /*
-    voltage is x axis
-    rpm is y axis 
-    values are in tq nM
+voltage is x axis
+rpm is y axis 
+values are in tq nM
 
 const float4 Voltage_MIN = 283.200;
 const float4 Volage_MAX = 403.200;
@@ -49,6 +50,23 @@ const ubyte1 NUM_S = 25;
 	{115.50, 115.50, 122.30, 136.94, 145.10, 151.42, 156.73, 76.27, 76.06, 76.08, 75.98, 75.93, 75.98, 76.02, 76.08, 76.15, 76.25, 76.35, 76.56, 76.37, 76.75, 76.92, 77.28, 77.34, 77.54},
 	{115.50, 115.50, 115.50, 126.68, 137.79, 145.02, 150.81, 155.76, 72.28, 72.12, 72.07, 72.03, 72.03, 72.13, 72.16, 72.22, 72.28, 72.37, 72.46, 72.57, 72.62, 72.76, 72.99, 73.15, 73.24}
     };
+    
+      float4 Voltage_MIN = 283.200;
+     float4 Voltage_MAX = 403.200;
+     sbyte4 RPM_MIN = 100;
+     sbyte4 RPM_MAX = 6000;
+     ubyte1 NUM_V = 25;
+     ubyte1 NUM_S = 25;
+    float4 voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
+    sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
+    for (ubyte1 row = 0; row < NUM_S; row++) {
+        for (ubyte1 column = 0; column < NUM_V; column++) {
+            float4 voltage = Voltage_MIN + column * voltageStep;
+            sbyte4 rpm = RPM_MIN + row * rpmStep;
+            ubyte4 value = lookupTable[row][column];
+            insert(table, voltage, rpm, value);
+        }
+    }
 }
 
 PowerLimit* PL_new(){
@@ -62,20 +80,47 @@ PowerLimit* PL_new(){
      me-> error = 0.0; 
     return me;
 }
-
+ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
+    // Define the increment steps
+    const float4 voltageIncrement = (403.200 - 283.200) / 24;  // Assuming 25 steps between 283.200 and 403.200
+    const sbyte4 rpmIncrement = (6000 - 100) / 24;  // Assuming 25 steps between 100 and 6000
+    // Find the floor and ceiling values for voltage and rpm
+    float4 voltageFloor = floorToNearestIncrement(voltage, voltageIncrement);
+    float4 voltageCeiling = ceilToNearestIncrement(voltage, voltageIncrement);
+    sbyte4 rpmFloor = floorToNearestIncrement(rpm, rpmIncrement);
+    sbyte4 rpmCeiling = ceilToNearestIncrement(rpm, rpmIncrement);
+    // Retrieve torque values from the hash table for the four corners
+    ubyte4 floorFloor = get(torque_hashtable, voltageFloor, rpmFloor);
+    ubyte4 ceilingFloor = get(torque_hashtable, voltageCeiling, rpmFloor);
+    ubyte4 floorCeiling = get(torque_hashtable, voltageFloor, rpmCeiling);
+    ubyte4 ceilingCeiling = get(torque_hashtable, voltageCeiling, rpmCeiling);
+    // Error check
+    if (floorFloor == -1 || ceilingFloor == -1 || floorCeiling == -1 || ceilingCeiling == -1) {
+        return -1;
+    }
+    // Calculate interpolation values
+    ubyte4 horizontal_Interp = (((ceilingFloor - floorFloor) / voltageIncrement) + ((ceilingCeiling - floorCeiling) / voltageIncrement)) / 2.0;
+    ubyte4 vertical_Interp = (((floorCeiling - floorFloor) / rpmIncrement) + ((ceilingCeiling - ceilingFloor) / rpmIncrement)) / 2.0;
+    // Calculate gains
+    ubyte4 gainValueHoriz = fmod(voltage, voltageIncrement);
+    ubyte4 gainValueVertical = fmod(rpm, rpmIncrement);
+    // Combine interpolated values
+    ubyte2 calibratedTorque = (gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
+    return calibratedTorque;  // Adjust gain if necessary
+}
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws){
   
   sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
   sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-  //sbyte4 voltage = BMS_getPower_W(bms)/1000;
+  sbyte4 voltage = BMS_getPackVoltage(bms);// CHECK THE UNITS FOR THIS
     if(kilowatts> 78)
     {
         me-> PLstatus = TRUE;
-        sbyte2 estimatedtq = (sbyte2) get(me->hashtable,kilowatts,wheelspeed );
+        sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage  ,wheelspeed);
         sbyte2 tqsetpoint = (sbyte2) get(me->hashtable,78,wheelspeed );
         
     PID_setpointUpdate(me->pid,tqsetpoint);
-    PID_dtUpdate(me->pid, 0.01);
+    PID_dtUpdate(me->pid, 0.01);// 10ms 
     sbyte2 piderror = PID_compute(me->pid, estimatedtq); 
     me->error = piderror; 
     float4 appsTqPercent;
