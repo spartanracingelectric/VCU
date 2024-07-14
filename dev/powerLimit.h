@@ -12,6 +12,8 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
+#define TORQUE_LIMIT 78
+
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
     PID *pid; 
@@ -19,6 +21,10 @@ typedef struct _PowerLimit {
     sbyte2 powerLimittq; 
     bool PLstatus;
     sbyte2 error; 
+
+    sbyte4 ht_inp_voltage;
+    sbyte4 ht_inp_wheelspeed;
+    sbyte2 ht_output;
 
 } PowerLimit;
 

@@ -427,10 +427,10 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
 
-      launchControlTorqueCalculation(lc, tps, bps, mcm0);
-     //---------------------------------------------------------------------------------------------------------
+        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
-     //---------------------------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------
         powerLimitTorqueCalculation(tps, mcm0, pl, bms,  wss);
         MCM_calculateCommands(mcm0, tps, bps);
 
@@ -461,7 +461,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 

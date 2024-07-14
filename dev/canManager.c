@@ -16,6 +16,7 @@
 #include "serial.h"
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
+#include "powerLimit.h"
 #include "drs.h"
 
 
@@ -486,7 +487,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, PowerLimit *pl, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -821,7 +822,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
     // canMessages[canMessageCount - 1].length = byteNum;
 
-    //Motor controller command message
+    //510: Motor controller command message
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
@@ -836,6 +837,24 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
     
+
+    //511: Power Limit
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->PLstatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->powerLimittq;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->error;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_voltage;           //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_voltage >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_wheelspeed;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_wheelspeed >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_output;               //table output
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2) BMS_getPower_W(bms)/1000; // actual power in kw (truncated)
+    canMessages[canMessageCount - 1].length = byteNum;
+
+
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
 
     
