@@ -112,6 +112,7 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     ubyte2 calibratedTorque = 123;
     
     //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
+
     return calibratedTorque;  // Adjust gain if necessary
 }
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
