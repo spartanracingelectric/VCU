@@ -789,7 +789,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getRelayState(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2) BMS_getPower_W(bms)/1000; // actual power in kw (truncated) POWER LIMIT STUFF
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
@@ -851,7 +851,6 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_wheelspeed;        //table input
     canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_inp_wheelspeed >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->ht_output;               //table output
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2) BMS_getPower_W(bms)/1000; // actual power in kw (truncated)
     canMessages[canMessageCount - 1].length = byteNum;
 
 
