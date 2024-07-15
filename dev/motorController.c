@@ -293,8 +293,15 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
             me->torqueMaximumDNm = powerLimMaxTorque;
         }
     }
-    else{
-        me->torqueMaximumDNm = 2400;
+    else {
+        if (me->torqueMaximumDNm < 2400) {
+            me->torqueMaximumDNm+=50;
+        }
+
+        if (me->torqueMaximumDNm > 2400) {
+            me->torqueMaximumDNm = 2400;
+        }
+        
     }
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
