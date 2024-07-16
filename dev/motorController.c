@@ -133,7 +133,7 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
-     sbyte2 PowerLimit_TorqueLimit;
+    sbyte2 PowerLimit_TorqueLimit;
     bool PLState;
 
 

@@ -86,7 +86,7 @@ PowerLimit* PL_new(){
 
     return me;
 }
-ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
+sbyte2 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
     // Define the increment steps
     const float4 voltageIncrement = (403.200 - 283.200) / 24;  // Assuming 25 steps between 283.200 and 403.200
     const sbyte4 rpmIncrement = (6000 - 100) / 24;  // Assuming 25 steps between 100 and 6000
@@ -109,7 +109,7 @@ ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     ubyte4 gainValueHoriz = fmod(voltage, voltageIncrement);
     ubyte4 gainValueVertical = fmod(rpm, rpmIncrement);
     // Combine interpolated values
-    ubyte2 calibratedTorque = 123;
+    sbyte2 calibratedTorque = 123;
     
     //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
 
@@ -119,21 +119,24 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
   
     sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
    /// sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-   // sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
-   // sbyte4 current = BMS_getPackCurrent(bms)/1000;
+    sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
+    sbyte4 current = BMS_getPackCurrent(bms)/1000;
    sbyte4 kilowatts =  MCM_getPower(mcm); // divide by 1000 to get watts --> kilowatts
-   sbyte4 voltage = MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
- sbyte4 current = MCM_getDCCurrent(mcm);
+  // sbyte4 voltage = MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
+ //sbyte4 current = MCM_getDCCurrent(mcm);
 
+// no load pack voltage calc: record voltage 
     me->ht_inp_voltage = voltage;
     me->ht_inp_wheelspeed = wheelspeed;
 
-    ubyte2 kwhtovoltage = (ubyte2) ((KWH_LIMIT*1000) / current);
+    ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
-        sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
-        sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
+        sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*3.14*wheelspeed)) *10;// *10 for nm-> Dnm
+        sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*3.14* wheelspeed)) *10;// *10 for nm-> Dnm
+       // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
+       // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
         me->ht_output = estimatedtq;
         
         PID_setpointUpdate(pid,tqsetpoint);
@@ -145,8 +148,8 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
         ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
-      //  me->PLoffsetpid= (tq * appsTqPercent) + me->error;
-         me->PLoffsetpid=me->error; 
+        // me->PLoffsetpid= (tq * appsTqPercent) + me->error;
+        me->PLoffsetpid=me->error; 
     }
     else {
         me-> PLstatus = FALSE;
