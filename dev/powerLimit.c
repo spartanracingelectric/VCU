@@ -9,6 +9,22 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
+#ifndef CALCS
+#define CALCS
+    
+#define    VOLTAGE_MIN 283.200
+#define    VOLTAGE_MAX 403.200
+#define    RPM_MIN 100
+#define    RPM_MAX 6000
+#define    NUM_V 25
+#define    NUM_S 25
+    //float4 voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
+#define    VOLTAGE_STEP 5
+    //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 20.833333333
+#define    RPM_STEP 20.8333
+
+#endif
+
 void populatePLHashTable(HashTable* table)
 {
     /*
@@ -50,19 +66,11 @@ void populatePLHashTable(HashTable* table)
         {115.50, 115.50, 122.30, 136.94, 145.10, 151.42, 156.73, 76.27,  76.06,  76.08,  75.98,  75.93,  75.98,  76.02,  76.08,  76.15,  76.25,  76.35,  76.56,  76.37,  76.75,  76.92,  77.28,  77.34,  77.54},
         {115.50, 115.50, 115.50, 126.68, 137.79, 145.02, 150.81, 155.76, 72.28,  72.12,  72.07,  72.03,  72.03,  72.13,  72.16,  72.22,  72.28,  72.37,  72.46,  72.57,  72.62,  72.76,  72.99,  73.15,  73.24}
     };
-    
-    float4 Voltage_MIN = 283.200;
-    float4 Voltage_MAX = 403.200;
-    sbyte4 RPM_MIN = 100;
-    sbyte4 RPM_MAX = 6000;
-    ubyte1 NUM_V = 25;
-    ubyte1 NUM_S = 25;
-    float4 voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
-    sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
-    for (ubyte1 row = 0; row < NUM_S; row++) {
-        for (ubyte1 column = 0; column < NUM_V; column++) {
-            float4 voltage = Voltage_MIN + column * voltageStep;
-            sbyte4 rpm = RPM_MIN + row * rpmStep;
+
+    for (ubyte1 row = 0; row < NUM_S; ++row) {
+        for (ubyte1 column = 0; column < NUM_V; ++column) {
+            float4 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
+            sbyte4 rpm = RPM_MIN + row * RPM_STEP;
             ubyte4 value = lookupTable[row][column];
             insert(table, voltage, rpm, value);
         }
@@ -86,15 +94,12 @@ PowerLimit* PL_new(){
 
     return me;
 }
-sbyte2 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
-    // Define the increment steps
-    const float4 voltageIncrement = (403.200 - 283.200) / 24;  // Assuming 25 steps between 283.200 and 403.200
-    const sbyte4 rpmIncrement = (6000 - 100) / 24;  // Assuming 25 steps between 100 and 6000
+ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
     // Find the floor and ceiling values for voltage and rpm
-    float4 voltageFloor = floorToNearestIncrement(voltage, voltageIncrement);
-    float4 voltageCeiling = ceilToNearestIncrement(voltage, voltageIncrement);
-    sbyte4 rpmFloor = floorToNearestIncrement(rpm, rpmIncrement);
-    sbyte4 rpmCeiling = ceilToNearestIncrement(rpm, rpmIncrement);
+    float4 voltageFloor = floorToNearestIncrement(voltage, VOLTAGE_STEP);
+    float4 voltageCeiling = ceilToNearestIncrement(voltage, VOLTAGE_STEP);
+    sbyte4 rpmFloor = floorToNearestIncrement(rpm, RPM_STEP);
+    sbyte4 rpmCeiling = ceilToNearestIncrement(rpm, RPM_STEP);
     // Retrieve torque values from the hash table for the four corners
     ubyte4 floorFloor = get(torque_hashtable, voltageFloor, rpmFloor);
     ubyte4 ceilingFloor = get(torque_hashtable, voltageCeiling, rpmFloor);
@@ -103,11 +108,11 @@ sbyte2 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sb
     // Error check
    
     // Calculate interpolation values
-    ubyte4 horizontal_Interp = (((ceilingFloor - floorFloor) / voltageIncrement) + ((ceilingCeiling - floorCeiling) / voltageIncrement)) / 2.0;
-    ubyte4 vertical_Interp = (((floorCeiling - floorFloor) / rpmIncrement) + ((ceilingCeiling - ceilingFloor) / rpmIncrement)) / 2.0;
+    ubyte4 horizontal_Interp = (((ceilingFloor - floorFloor) / VOLTAGE_STEP) + ((ceilingCeiling - floorCeiling) / VOLTAGE_STEP)) / 2.0;
+    ubyte4 vertical_Interp = (((floorCeiling - floorFloor) / RPM_STEP) + ((ceilingCeiling - ceilingFloor) / RPM_STEP)) / 2.0;
     // Calculate gains
-    ubyte4 gainValueHoriz = fmod(voltage, voltageIncrement);
-    ubyte4 gainValueVertical = fmod(rpm, rpmIncrement);
+    ubyte4 gainValueHoriz = fmod(voltage, VOLTAGE_STEP);
+    ubyte4 gainValueVertical = fmod(rpm, RPM_STEP);
     // Combine interpolated values
     sbyte2 calibratedTorque = 123;
     
@@ -133,16 +138,18 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
-        sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*3.14*wheelspeed)) *10;// *10 for nm-> Dnm
-        sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*3.14* wheelspeed)) *10;// *10 for nm-> Dnm
+        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*3.14*wheelspeed)) *10;// *10 for nm-> Dnm
+        sbyte2 estimatedtq = (sbyte2) kilowatts/wheelspeed*95.54;
+        //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*3.14* wheelspeed)) *10;// *10 for nm-> Dnm
+        sbyte2 tqsetpoint = (sbyte2) KWH_LIMIT/wheelspeed*95.54;
+
        // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
        // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
         me->ht_output = estimatedtq;
         
         PID_setpointUpdate(pid,tqsetpoint);
-        PID_dtUpdate(pid, 0.01);// 10ms 
-        sbyte2 piderror = PID_compute(pid, estimatedtq); 
-        me->error = piderror; 
+        PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+        me->error = PID_compute(pid, estimatedtq); 
 
         float4 appsTqPercent;
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
