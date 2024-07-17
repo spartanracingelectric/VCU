@@ -85,82 +85,95 @@ PowerLimit* PL_new(){
 
     me-> PLstatus = FALSE;
    // me->pid = PID_new(1, 0, 0, 0);// fill this in  
-    me->PLoffsetpid = 0.0; 
-    me->error = 0.0; 
+    me->mcm_voltage = 0.0; 
+     me->mcm_current = 0.0; 
+      me->power = 0.0; 
+       me->wheelspeed = 0.0; 
 
-    me->ht_inp_voltage = 0.0;
-    me->ht_inp_wheelspeed = 0.0;
-    me->ht_output = 0.0;
-
+        me->LUT_val = 0.0; 
+         me->error = 0.0; 
+          me->estimatedtq = 0.0; 
+           me->setpointtq = 0.0; 
+     
     return me;
 }
-ubyte4 getTorque(PowerLimit* pl, HashTable* torque_hashtable, float4 voltage, sbyte4 rpm) {
-    // Find the floor and ceiling values for voltage and rpm
-    float4 voltageFloor = floorToNearestIncrement(voltage, VOLTAGE_STEP);
-    float4 voltageCeiling = ceilToNearestIncrement(voltage, VOLTAGE_STEP);
-    sbyte4 rpmFloor = floorToNearestIncrement(rpm, RPM_STEP);
-    sbyte4 rpmCeiling = ceilToNearestIncrement(rpm, RPM_STEP);
+float4 getTorque(PowerLimit* me, HashTable* torque_hashtable, float4 voltage, float4 rpm){    // Find the floor and ceiling values for voltage and rpm
+    float4 voltageFloor = (float4)floorToNearestIncrement(voltage, VOLTAGE_STEP);
+    float4 voltageCeiling = (float4)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
+    float4 rpmFloor = (float4)floorToNearestIncrement(rpm, RPM_STEP);
+    float4 rpmCeiling = (float4)ceilToNearestIncrement(rpm, RPM_STEP);
     // Retrieve torque values from the hash table for the four corners
-    ubyte4 floorFloor = get(torque_hashtable, voltageFloor, rpmFloor);
-    ubyte4 ceilingFloor = get(torque_hashtable, voltageCeiling, rpmFloor);
-    ubyte4 floorCeiling = get(torque_hashtable, voltageFloor, rpmCeiling);
-    ubyte4 ceilingCeiling = get(torque_hashtable, voltageCeiling, rpmCeiling);
+    float4 floorFloor = (float4)get(torque_hashtable, voltageFloor, rpmFloor);
+    float4 ceilingFloor =(float4) get(torque_hashtable, voltageCeiling, rpmFloor);
+    float4 floorCeiling = (float4)get(torque_hashtable, voltageFloor, rpmCeiling);
+    float4 ceilingCeiling = (float4)get(torque_hashtable, voltageCeiling, rpmCeiling);
     // Error check
    
     // Calculate interpolation values
-    ubyte4 horizontal_Interp = (((ceilingFloor - floorFloor) / VOLTAGE_STEP) + ((ceilingCeiling - floorCeiling) / VOLTAGE_STEP)) / 2.0;
-    ubyte4 vertical_Interp = (((floorCeiling - floorFloor) / RPM_STEP) + ((ceilingCeiling - ceilingFloor) / RPM_STEP)) / 2.0;
+    float4 horizontal_Interp = (float4)(((ceilingFloor - floorFloor) / VOLTAGE_STEP) + ((ceilingCeiling - floorCeiling) / VOLTAGE_STEP)) / 2.0;
+    float4 vertical_Interp =(float4) (((floorCeiling - floorFloor) / RPM_STEP) + ((ceilingCeiling - ceilingFloor) / RPM_STEP)) / 2.0;
     // Calculate gains
-    ubyte4 gainValueHoriz = fmod(voltage, VOLTAGE_STEP);
-    ubyte4 gainValueVertical = fmod(rpm, RPM_STEP);
+    float4 gainValueHoriz = (float4)fmod(voltage, VOLTAGE_STEP);
+    float4 gainValueVertical = (float4)fmod(rpm, RPM_STEP);
     // Combine interpolated values
-    sbyte2 calibratedTorque = 123;
-    
-    //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
+    float4 calibratedTorque = 123;
 
+    me->LUT_val = calibratedTorque;
+    //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + floorFloor;
     return calibratedTorque;  // Adjust gain if necessary
 }
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
   
-    sbyte4 wheelspeed = MCM_getMotorRPM(mcm);
+   
    /// sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-    sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
-    sbyte4 current = BMS_getPackCurrent(bms)/1000;
-   sbyte4 kilowatts =  MCM_getPower(mcm); // divide by 1000 to get watts --> kilowatts
-  // sbyte4 voltage = MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
- //sbyte4 current = MCM_getDCCurrent(mcm);
+   // sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
+   // sbyte4 current = BMS_getPackCurrent(bms)/1000;
+   float4 wheelspeed = (float4)MCM_getMotorRPM(mcm);
+   float4 kilowatts =  (float4)(MCM_getPower(mcm)/1000); // divide by 1000 to get watts --> kilowatts
 
-// no load pack voltage calc: record voltage 
-    me->ht_inp_voltage = voltage;
-    me->ht_inp_wheelspeed = wheelspeed;
+//-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
+  float4 voltage = (float4)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
+ float4 current = (float4)MCM_getDCCurrent(mcm);
 
-    ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
+ me->mcm_current = current; 
+  me->mcm_voltage = voltage; 
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// -------------------------------------no load pack voltage calc: record voltage -------------------------------------
+
+//-------------> need to do this this for LUT
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+    me->power = kilowatts;
+    me->wheelspeed = wheelspeed;
+
+    ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
         //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*3.14*wheelspeed)) *10;// *10 for nm-> Dnm
-        sbyte2 estimatedtq = (sbyte2) kilowatts/wheelspeed*95.54;
+        float4 predictedtq = (float4) kilowatts/wheelspeed*95.54;
         //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*3.14* wheelspeed)) *10;// *10 for nm-> Dnm
-        sbyte2 tqsetpoint = (sbyte2) KWH_LIMIT/wheelspeed*95.54;
+        float4 tqsetpoint = (float4) KWH_LIMIT/wheelspeed*95.54;
 
        // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
        // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
-        me->ht_output = estimatedtq;
-        
+        me->estimatedtq = predictedtq;
+        me->setpointtq = tqsetpoint;
+
         PID_setpointUpdate(pid,tqsetpoint);
         PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-        me->error = PID_compute(pid, estimatedtq); 
+        me->error = PID_compute(pid, predictedtq); 
 
-        float4 appsTqPercent;
-        TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+       // float4 appsTqPercent;
+       // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
-        ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
+        //ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
         // me->PLoffsetpid= (tq * appsTqPercent) + me->error;
-        me->PLoffsetpid=me->error; 
     }
     else {
         me-> PLstatus = FALSE;
     }
-    MCM_update_PowerLimit_TorqueLimit(mcm, me->PLoffsetpid);
+    MCM_update_PowerLimit_TorqueLimit(mcm, me->error);
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 }

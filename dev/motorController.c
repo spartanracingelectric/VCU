@@ -133,7 +133,7 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
-    sbyte2 PowerLimit_TorqueLimit;
+    float4 PowerLimit_TorqueLimit;
     bool PLState;
 
 
@@ -308,7 +308,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->LaunchControl_TorqueLimit;
     } 
     else if(me->PLState == TRUE){
-      torqueOutput = me->PowerLimit_TorqueLimit+ appsTorque + bpsTorque; 
+      torqueOutput = me->PowerLimit_TorqueLimit+ appsTorque + bpsTorque; // we still need to fix the typecasting here float4--> sbyte2
     }
     else {
       torqueOutput = appsTorque + bpsTorque;
@@ -715,9 +715,8 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
 
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PowerLimit_TorqueLimit(MotorController *me, sbyte2 PLTorqueLimit){
-
-     me->PowerLimit_TorqueLimit = PLTorqueLimit;
+void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float4 PLTorqueoffset){
+     me->PowerLimit_TorqueLimit = PLTorqueoffset;
 
 }
 
