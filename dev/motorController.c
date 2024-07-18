@@ -133,6 +133,14 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
+    float PowerLimit_TorqueLimit;
+    bool PLState;
+
+
+    //---------------------------------------------------------------------------------------------------
+    // copy lc variable for power limit; 
+    //---------------------------------------------------------------------------------------------------
+
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -172,8 +180,13 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->motor_temp = 99;
 
     me->LaunchControl_TorqueLimit = 0;
-    me->HVILOverride = FALSE;
     me->LCState = FALSE;
+
+    me-> PowerLimit_TorqueLimit =0.0;
+    me-> PLState =FALSE;
+
+    me->HVILOverride = FALSE;
+ 
     /*
 me->setTorque = &setTorque;
 me->setInverter = &setInverter;
@@ -276,26 +289,48 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     sbyte2 torqueOutput = 0;
-    // sbyte2 appsTorque = 0;
-    // sbyte2 bpsTorque = 0;
+    sbyte2 appsTorque = 0;
+    sbyte2 bpsTorque = 0;
 
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
 
-    // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+  /* TESTING PURPOSEs ONLY FOR HARDCODING
+  float4 wheelspeed = (float4)MCM_getMotorRPM(me);
+ float4 kilowatts =  (float4)((float4)MCM_getPower(me)/1000); // divide by 1000 to get watts --> kilowatts
+  if(kilowatts > KWH_LIMIT) {
+      
+        float4 predictedtq = (float4)(kilowatts*9549.0/wheelspeed)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
+        float4 test =(float4)(KWH_LIMIT*9549.0*10.0);
+        float4 tqsetpoint = (float4)(test/wheelspeed); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
 
-    if(me->LCState == TRUE){
+        sbyte2 error = (sbyte2)((sbyte2)predictedtq - (sbyte2)tqsetpoint);
+       appsTorque =  appsTorque - error;
+  }
+  */ 
+    if(me->LCState == TRUE)
+    {
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0){
+    } else if (me->LaunchControl_TorqueLimit == 0)
+    {
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else {
-        // torqueOutput = appsTorque + bpsTorque;
-        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    } 
+    else if(me->PLState == TRUE){
+     float torquetemp = me->PowerLimit_TorqueLimit+ (float)appsTorque + (float) bpsTorque;
+      torqueOutput = (sbyte2)(int)torquetemp;
     }
-    
+    else if(torqueOutput > 2000.0)
+    { // saftey checks 
+        torqueOutput = 0.0;
+    }
+    else {
+      torqueOutput = appsTorque + bpsTorque;
+       // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -674,6 +709,7 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
     return me->commands_torqueLimit;
 }
 
+
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
 {
     me->lockoutStatus = newState;
@@ -694,6 +730,20 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
     me->LCState = newLCState;
 
 }
+//----------------------------------------------------PL-------------------------------
+void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float PLTorqueoffset){
+     me->PowerLimit_TorqueLimit = PLTorqueoffset;
+
+}
+
+void MCM_update_PowerLimit_State(MotorController *me, bool newPLState){
+
+    me->PLState = newPLState;
+
+}
+
+
+//----------------------------------------------------PL-------------------------------
 
 Status MCM_getLockoutStatus(MotorController *me)
 {
@@ -780,6 +830,19 @@ sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
 
     return groundKPH;
     
+}
+
+sbyte4 MCM_getMotorRPM(MotorController *me){
+    return me->motorRPM;
+}
+
+sbyte4 MCM_getDCVoltage (MotorController *me){
+    return me->DC_Voltage;
+}
+
+sbyte4 MCM_getDCCurrent(MotorController *me){
+    return me->DC_Current;
+
 }
 
 ubyte1 MCM_getRegenMode(MotorController *me)
