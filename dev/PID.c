@@ -20,7 +20,7 @@
 
 
 // VCU will run this once, outside of the while loop 
-PID* PID_new(ubyte2 kp, ubyte2 ki, ubyte2 kd, ubyte2 setpoint) {
+PID* PID_new(float4 kp, float4 ki, float4 kd, float4 setpoint) {
     PID* me = (PID*)malloc(sizeof(PID));
     me->kp = kp;
     me->ki = ki;
@@ -28,31 +28,31 @@ PID* PID_new(ubyte2 kp, ubyte2 ki, ubyte2 kd, ubyte2 setpoint) {
     me->setpoint = setpoint; 
     me->prev_error=0.0;
     me->total_error=0.0;
-    me->dt=0.0;
+    me->dt=0.01; // tick rate of vcu
 
     return me;
 }
 
 
 // Within the while loop in VCU 
-void PID_setpointUpdate(PID *pid, ubyte2 setpoint) {
+void PID_setpointUpdate(PID *pid, float4 setpoint) {
     pid->setpoint = setpoint; 
 }
 
 
-void PID_dtUpdate(PID *pid, ubyte4 new_dt) {
+void PID_dtUpdate(PID *pid, float4 new_dt) {
     pid->dt = new_dt;
 }
 
 
 //sensorVal for yaw PID is from IMU
-ubyte2 PID_compute(PID *pid, ubyte2 sensorVal) {
-    ubyte2 error = pid->setpoint - sensorVal; 
-    ubyte2 proportional = pid->kp*error; 
-    ubyte2 integral = pid->ki * (pid->total_error + error)* pid->dt;
-    ubyte2 derivative =  pid->kd * (error - pid->prev_error)/ pid->dt;
+float4 PID_compute(PID *pid, float4 sensorVal) {
+    float4 error = pid->setpoint - sensorVal; 
+    float4 proportional = pid->kp*error; 
+    float4 integral = pid->ki * (pid->total_error + error)* pid->dt;
+    float4 derivative =  pid->kd * (error - pid->prev_error)/ pid->dt;
 
-    ubyte2 output = proportional + integral + derivative;
+    float4 output = proportional + integral + derivative;
     pid->prev_error = error;
     pid->total_error += error* pid->dt; 
 

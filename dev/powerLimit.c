@@ -22,6 +22,8 @@
 #define    VOLTAGE_STEP 5
     //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 20.833333333
 #define    RPM_STEP 20.8333
+#define    PI 3.14159
+#define    BAD_UNIT_OFFSET 100 //harleen is getting a math minor and cant multiply
 
 #endif
 
@@ -151,10 +153,10 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
-        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*3.14*wheelspeed)) *10;// *10 for nm-> Dnm
-        float4 predictedtq = (float4) kilowatts/wheelspeed*95.54;
-        //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*3.14* wheelspeed)) *10;// *10 for nm-> Dnm
-        float4 tqsetpoint = (float4) KWH_LIMIT/wheelspeed*95.54;
+        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*PI*wheelspeed)) *10;// *10 for nm-> Dnm
+        float4 predictedtq = (float4)(kilowatts*9549/wheelspeed)*10;
+        //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*PI* wheelspeed)) *10;// *10 for nm-> Dnm
+        float4 tqsetpoint = (float4)(20*9549/wheelspeed)*10;
 
        // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
        // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
@@ -162,8 +164,9 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         me->setpointtq = tqsetpoint;
 
         PID_setpointUpdate(pid,tqsetpoint);
-        PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-        me->error = PID_compute(pid, predictedtq); 
+        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+        float4 error = PID_compute(pid, predictedtq);
+        me->error =  error;
 
        // float4 appsTqPercent;
        // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);

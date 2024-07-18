@@ -826,6 +826,7 @@ sbyte4 MCM_getDCVoltage (MotorController *me){
 
 sbyte4 MCM_getDCCurrent(MotorController *me){
     return me->DC_Current;
+
 }
 
 ubyte1 MCM_getRegenMode(MotorController *me)
