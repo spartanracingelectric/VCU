@@ -16,6 +16,7 @@
 #include "serial.h"
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
+#include "powerLimit.h"
 #include "drs.h"
 
 
@@ -382,6 +383,8 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x612:
         case 0x613:
         case 0x620:
+            BMS_parseCanMessage(bms, &canMessages[currMessage]);
+            break;
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
@@ -484,7 +487,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, PowerLimit *pl, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -737,11 +740,11 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->LCStatus;
-    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque();
-    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque() >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque(lc);
+    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque(lc) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)lc->lcTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->lcTorque;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
@@ -786,9 +789,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getRelayState(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2) BMS_getPower_W(bms)/1000; // actual power in kw (truncated) POWER LIMIT STUFF
+    canMessages[canMessageCount - 1].data[byteNum++] =  (sbyte2) BMS_getPower_W(bms)/1000 >>8;//POWER LIMIT STUFF
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)BMS_getPackCurrent(bms)/1000;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50F: MCM Power Debug
@@ -819,7 +822,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
     // canMessages[canMessageCount - 1].length = byteNum;
 
-    //Motor controller command message
+    //510: Motor controller command message
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
@@ -834,6 +837,38 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
     
+
+ //511: MCM Values For Power Limit
+   canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].data[byteNum++] =(ubyte2)(pl->mcm_voltage);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->mcm_voltage))>> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->mcm_current);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->mcm_current))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->power);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->power))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->wheelspeed);
+    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->wheelspeed))>> 8;       //table output
+    canMessages[canMessageCount - 1].length = byteNum;
+
+    //512: Power Limit
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].data[byteNum++] =(ubyte2)(pl->LUT_val);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->LUT_val))>> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->error);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->error))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->estimatedtq);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->estimatedtq))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->setpointtq);
+    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->setpointtq))>> 8;       //table output
+    canMessages[canMessageCount - 1].length = byteNum;
+
+
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
 
     

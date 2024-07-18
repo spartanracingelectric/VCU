@@ -81,6 +81,10 @@ Status MCM_getInverterStatus(MotorController* me);
 void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
 void MCM_update_LaunchControl_State(MotorController *me, bool newLCState);
 
+void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float4 PLTorqueoffset);
+void MCM_update_PowerLimit_State(MotorController *me, bool newPLState);
+sbyte4 MCM_getMotorRPM(MotorController *me);
+
 sbyte4 MCM_getPower(MotorController* me);
 ubyte2 MCM_getCommandedTorque(MotorController* me);
 
@@ -122,5 +126,8 @@ void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage)
 
 ubyte1 MCM_getStartupStage(MotorController* me);
 void MCM_setStartupStage(MotorController* me, ubyte1 stage);
+
+sbyte4 MCM_getDCVoltage (MotorController *me);
+sbyte4 MCM_getDCCurrent(MotorController *me);
 
 #endif // _MOTORCONTROLLER_H
