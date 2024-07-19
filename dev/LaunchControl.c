@@ -107,6 +107,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         if(speedKph > 3)
         {
 
+            PID_setpointUpdate(me->pidController, 0.2);
             //PID_dtUpdate(me->pidController, 0.01);// updates the dt 
             //float Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
             float4 PIDtorque= (float4)PID_compute(me->pidController,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
