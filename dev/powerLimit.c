@@ -99,6 +99,7 @@ PowerLimit* PL_new(){
      
     return me;
 }
+// this function needs to be HEAVILY debugged for double linear interpolation 
 float4 getTorque(PowerLimit* me, HashTable* torque_hashtable, float4 voltage, float4 rpm){    // Find the floor and ceiling values for voltage and rpm
     float4 voltageFloor = (float4)floorToNearestIncrement(voltage, VOLTAGE_STEP);
     float4 voltageCeiling = (float4)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
@@ -131,7 +132,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
    // sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
    // sbyte4 current = BMS_getPackCurrent(bms)/1000;
    float4 wheelspeed = (float4)MCM_getMotorRPM(mcm);
-   float4 kilowatts =  (float4)(MCM_getPower(mcm)/1000); // divide by 1000 to get watts --> kilowatts
+   float4 kilowatts =  (float4)((float4)MCM_getPower(mcm)/1000); // divide by 1000 to get watts --> kilowatts
 
 //-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
   float4 voltage = (float4)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
@@ -153,10 +154,12 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
     if(kilowatts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
-        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*PI*wheelspeed)) *10;// *10 for nm-> Dnm
-        float4 predictedtq = (float4)(kilowatts*9549/wheelspeed)*10;
+        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*PI*wheelspeed)) *10;// *10 for nm-> Dnm (this is in thousands)
+        float4 predictedtq = (float4)(kilowatts*9549.0/wheelspeed)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
         //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*PI* wheelspeed)) *10;// *10 for nm-> Dnm
-        float4 tqsetpoint = (float4)(20*9549/wheelspeed)*10;
+        float4 test =(float4)(KWH_LIMIT*9549.0*10.0);
+        float4 tqsetpoint = (float4)(test/wheelspeed); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+        //(float4)(20*9549/wheelspeed)*10;
 
        // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
        // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
@@ -165,8 +168,8 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
         PID_setpointUpdate(pid,tqsetpoint);
         //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-        float4 error = PID_compute(pid, predictedtq);
-        me->error =  error;
+        float4 err =  PID_compute(pid, predictedtq);
+        me->error =  err;
 
        // float4 appsTqPercent;
        // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);

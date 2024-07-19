@@ -221,9 +221,7 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
-    //-----------------------------------------------------------------------------------------------------------------------
-    // init the power limit and the hashtable; 
-    //--------------------------------------------------------------------------------------------------------------------
+
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
     PID *PLpid = PID_new(1,0,0,0);

@@ -310,11 +310,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     else if(me->PLState == TRUE){
       torqueOutput = me->PowerLimit_TorqueLimit+ appsTorque + bpsTorque; // we still need to fix the typecasting here float4--> sbyte2
     }
+    else if(torqueOutput > 2000.0){// saftey checks 
+        torqueOutput = 0.0;
+    }
     else {
       torqueOutput = appsTorque + bpsTorque;
        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?

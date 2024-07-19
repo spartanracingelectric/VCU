@@ -47,7 +47,9 @@ void PID_dtUpdate(PID *pid, float4 new_dt) {
 
 //sensorVal for yaw PID is from IMU
 float4 PID_compute(PID *pid, float4 sensorVal) {
-    float4 error = pid->setpoint - sensorVal; 
+    float4 set = pid->setpoint;
+    float4 error = (float4)(set - sensorVal); 
+    /* we still need to check this there are some typecasting errors 
     float4 proportional = pid->kp*error; 
     float4 integral = pid->ki * (pid->total_error + error)* pid->dt;
     float4 derivative =  pid->kd * (error - pid->prev_error)/ pid->dt;
@@ -55,6 +57,6 @@ float4 PID_compute(PID *pid, float4 sensorVal) {
     float4 output = proportional + integral + derivative;
     pid->prev_error = error;
     pid->total_error += error* pid->dt; 
-
-    return output;
+   */
+    return error;
 }
