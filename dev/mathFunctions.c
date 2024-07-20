@@ -116,8 +116,8 @@ sbyte4 swap_int32(sbyte4 val)
 }
 
 ubyte2 floorToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return (value / increment) * increment;
+    return (value / increment) * increment; // value & 0xFFF8
 }
 ubyte2 ceilToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return ((value + increment - 1) / increment) * increment;
+    return ((value + increment - 1) / increment) * increment; // floorval & 0xFFFD
 }
