@@ -21,7 +21,7 @@
     //float4 voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
 #define    VOLTAGE_STEP 5
     //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 20.833333333
-#define    RPM_STEP 20.8333
+#define    RPM_STEP 245.8333
 #define    PI 3.14159
 #define    BAD_UNIT_OFFSET 100 //harleen is getting a math minor and cant multiply
 

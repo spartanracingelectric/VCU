@@ -331,8 +331,8 @@ sbyte4 steering_degrees(){
     sbyte4 min_angle = -90;
     sbyte4 max_angle = 90;
     
-    sbyte4 voltage_range = max_voltage - min_voltage;
-    sbyte4 angle_range = max_angle - min_angle;
+    sbyte4 voltage_range = 1600; // max_voltage - min_voltage;
+    sbyte4 angle_range = 180; //max_angle - min_angle;
     sbyte4 voltage = Sensor_SAS.sensorValue;
 
     sbyte4 deg = min_angle + (angle_range * (voltage - min_voltage)) / voltage_range;
