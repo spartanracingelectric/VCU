@@ -52,7 +52,7 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     //That would mean we could probably make our own ranges up
     me->tps0->specMin = 100; // Target 0% = ~250
     me->tps0->specMax = 4900; // Target 100% = ~2000
-    me->tps1->specMin = 100; // Target 0% = ~2650
+    me->tps1->specMin = 2000; // Target 0% = ~2650
     me->tps1->specMax = 4900; // Target 100% = ~4700
 
     me->tps0_calibMin = 146;
@@ -174,8 +174,10 @@ void TorqueEncoder_calibrationCycle(TorqueEncoder* me, ubyte1* errorCount)
             //float4 pedalBottomPlay = .95;
 
             //Shrink the calibrated range slightly
-            float4 shrink0 = (me->tps0_calibMax - me->tps0_calibMin) * .05;
-            float4 shrink1 = (me->tps1_calibMax - me->tps1_calibMin) * .05;
+            float4 lowsidePercent = 0.05;
+            float4 highsidePercent = 0.05;
+            float4 shrink0 = (me->tps0_calibMax - me->tps0_calibMin) * lowsidePercent;
+            float4 shrink1 = (me->tps1_calibMax - me->tps1_calibMin) * highsidePercent;
             me->tps0_calibMin += shrink0;
             me->tps0_calibMax -= shrink0;
             me->tps1_calibMin += shrink1;
