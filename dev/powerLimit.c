@@ -137,7 +137,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
   float voltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
  float current = (float)MCM_getDCCurrent(mcm);
 
-  float watts = (float)(voltage * current); // divide by 1000 to get watts --> kilowatts
+  float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
     float kilowatts = (float)(watts/1000.0);
 // me->mcm_current = current; 
  // me->mcm_voltage = voltage; 
@@ -147,24 +147,35 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
 //-------------> need to do this this for LUT
 //----------------------------------------------------------------------------------------------------------------------------------------------------
-    me->power = watts;
+    me->power = kilowatts;
     me->wheelspeed = wheelspeed;
 
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
 
-    if(kilowatts > KWH_LIMIT) {
+    if(watts > KWH_LIMIT) {
         me-> PLstatus = TRUE;
 
-        float gain = 9.5490;
+        float gain = 9.549;
         float decitq = 10.0; 
         //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*PI*wheelspeed)) *10;// *10 for nm-> Dnm (this is in thousands)
-        float predictedtq = (float)(watts*gain/wheelspeed)*decitq;// (+ val: should be in thousands---> read in tens on CAN 
+      
         //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*PI* wheelspeed)) *10;// *10 for nm-> Dnm
-        float tqsetpoint =(float)(KWH_LIMIT*gain/wheelspeed)*decitq;// (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+    
         //(float)(20*9549/wheelspeed)*10;
 
        // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
        // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
+
+         //float tqsetpoint =(float)(KWH_LIMIT);// (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+        //float tqsetpoint =(float)(KWH_LIMIT*gain);
+        // float tqsetpoint =(float)(KWH_LIMIT*gain/wheelspeed);
+         float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+       
+        //float predictedtq =(float)(watts);// (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+       // float predictedtq =(float)(watts*gain);
+        // float predictedtq =(float)(watts*gain/wheelspeed);
+         float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
+
         me->estimatedtq = predictedtq;
         me->setpointtq = tqsetpoint;
 
