@@ -47,16 +47,19 @@ void PID_dtUpdate(PID *pid, float new_dt) {
 
 //sensorVal for yaw PID is from IMU
 float PID_compute(PID *pid, float sensorVal) {
+   //pid->kp = 1.0; // this is here severely for checking can messages. 
+    //pid->ki = 1.0;
     float set = pid->setpoint;
     float error = (float)(set - sensorVal); 
-    /* we still need to check this there are some typecasting errors 
-    float proportional = pid->kp*error; 
-    float integral = pid->ki * (pid->total_error + error)* pid->dt;
-    float derivative =  pid->kd * (error - pid->prev_error)/ pid->dt;
+   
+    float proportional = (float)(pid->kp*error); 
 
+    float integral = (float)(pid->ki * (pid->total_error + error)* pid->dt);
+    float derivative = (float)(pid->kd * (error - pid->prev_error)/ pid->dt);
+ 
     float output = proportional + integral + derivative;
     pid->prev_error = error;
     pid->total_error += error* pid->dt; 
-   */
-    return error;
+  
+    return (float)(pid->kp);
 }
