@@ -12,7 +12,7 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
-#define KWH_LIMIT 10.0
+#define KWH_LIMIT 20.0
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
@@ -22,18 +22,18 @@ typedef struct _PowerLimit {
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
-      float4 mcm_voltage; 
-    float4 mcm_current; 
-   float4 power;
-   float4 wheelspeed;
+      float mcm_voltage; 
+    float mcm_current; 
+   float power;
+   float wheelspeed;
 
 
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 
-    float4 LUT_val;
-    float4 error; 
-    float4 estimatedtq; // in dNm
-    float4 setpointtq;// in dNm
+    float LUT_val;
+    float error; 
+    float estimatedtq; // in dNm
+    float setpointtq;// in dNm
 
 } PowerLimit;
 
@@ -41,7 +41,7 @@ typedef struct _PowerLimit {
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void populatePLHashTable(HashTable* table);
 
-float4 getTorque(PowerLimit* me, HashTable* torque_hashtable, float4 voltage, float4 rpm);
+float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, float rpm);
 PowerLimit* PL_new(); 
 
 #endif //_PID_H
