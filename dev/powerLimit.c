@@ -140,7 +140,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     float appsTqPercent;
     TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
     float watts = (float)(appsTqPercent * 100000.0); 
-    float kilowatts = (float)(watts/1000.0);
+    float kilowatts = (float)(watts/10.0);
     float wheelspeed = (float)(watts*0.045);
 //--------------------------------------------------------------------------------------
     
