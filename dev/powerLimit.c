@@ -127,18 +127,23 @@ float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, floa
 }
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
   
-   
-   /// sbyte4 kilowatts =  BMS_getPower_W(bms)/1000; // divide by 1000 to get watts --> kilowatts
-   // sbyte4 voltage = BMS_getPackVoltage(bms)/1000;// CHECK THE UNITS FOR THIS
-   // sbyte4 current = BMS_getPackCurrent(bms)/1000;
-   float wheelspeed = (float)MCM_getMotorRPM(mcm);
 
 //-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
   float voltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
  float current = (float)MCM_getDCCurrent(mcm);
 
-  float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+   //float wheelspeed = (float)MCM_getMotorRPM(mcm);
+ // float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+   // float kilowatts = (float)(watts/1000.0);
+
+//----------------------------------------TESTINTG-------------------------------------------------
+    float appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+    float watts = (float)(appsTqPercent * 100000.0); 
     float kilowatts = (float)(watts/1000.0);
+    float wheelspeed = (float)(watts*0.045);
+//--------------------------------------------------------------------------------------
+    
 // me->mcm_current = current; 
  // me->mcm_voltage = voltage; 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -156,25 +161,14 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         me-> PLstatus = TRUE;
 
         float gain = 9.549;
-        float decitq = 10.0; 
-        //sbyte2 estimatedtq = (sbyte2)((kilowatts*60)/(2*PI*wheelspeed)) *10;// *10 for nm-> Dnm (this is in thousands)
-      
-        //sbyte2 tqsetpoint = (sbyte2)((KWH_LIMIT*60)/(2*PI* wheelspeed)) *10;// *10 for nm-> Dnm
-    
-        //(float)(20*9549/wheelspeed)*10;
-
-       // sbyte2 estimatedtq = (sbyte2) getTorque(me,me->hashtable, voltage, wheelspeed);
-       // sbyte2 tqsetpoint = (sbyte2) getTorque(me,me->hashtable, kwhtovoltage, wheelspeed);
-
-         //float tqsetpoint =(float)(KWH_LIMIT);// (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
-        //float tqsetpoint =(float)(KWH_LIMIT*gain);
-        // float tqsetpoint =(float)(KWH_LIMIT*gain/wheelspeed);
-         float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+        float decitq = 10.0;
+   
+        float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
        
-        //float predictedtq =(float)(watts);// (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
-       // float predictedtq =(float)(watts*gain);
-        // float predictedtq =(float)(watts*gain/wheelspeed);
-         float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
+        float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
+
+         //float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+       //  float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
 
         me->estimatedtq = predictedtq;
         me->setpointtq = tqsetpoint;

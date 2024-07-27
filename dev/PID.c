@@ -43,7 +43,11 @@ void PID_setpointUpdate(PID *pid, float setpoint) {
 void PID_dtUpdate(PID *pid, float new_dt) {
     pid->dt = new_dt;
 }
-
+void PID_setgain(PID *pid, float kp, float ki, float kd){
+    pid-> kp = kp;
+     pid-> ki = ki;
+      pid-> kd = kd;
+}
 
 //sensorVal for yaw PID is from IMU
 float PID_compute(PID *pid, float sensorVal) {
@@ -61,5 +65,5 @@ float PID_compute(PID *pid, float sensorVal) {
     pid->prev_error = error;
     pid->total_error += error* pid->dt; 
   
-    return (float)(pid->kp);
+    return output;
 }
