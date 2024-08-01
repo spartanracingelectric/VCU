@@ -133,7 +133,7 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
-    float4 PowerLimit_TorqueLimit;
+    float PowerLimit_TorqueLimit;
     bool PLState;
 
 
@@ -182,7 +182,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LaunchControl_TorqueLimit = 0;
     me->LCState = FALSE;
 
-    me-> PowerLimit_TorqueLimit =0;
+    me-> PowerLimit_TorqueLimit =0.0;
     me-> PLState =FALSE;
 
     me->HVILOverride = FALSE;
@@ -731,7 +731,7 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
 
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float4 PLTorqueoffset){
+void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float PLTorqueoffset){
      me->PowerLimit_TorqueLimit = PLTorqueoffset;
 
 }
