@@ -7,7 +7,7 @@
 #include "bms.h"
 #include "wheelSpeeds.h"
 #include "torqueEncoder.h"
-#include "math.h"
+#include "mathFunctions.h"
 
 #ifndef CALCS
 #define CALCS
@@ -132,18 +132,18 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
   float voltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
  float current = (float)MCM_getDCCurrent(mcm);
 
-   //float wheelspeed = (float)MCM_getMotorRPM(mcm);
- // float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-   // float kilowatts = (float)(watts/1000.0);
+   float wheelspeed = (float)MCM_getMotorRPM(mcm);
+  float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+   float kilowatts = (float)(watts/1000.0);
 
-//----------------------------------------TESTINTG-------------------------------------------------
+/*----------------------------------------TESTINTG-------------------------------------------------
     float appsTqPercent;
     TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
     float watts = (float)(appsTqPercent * 100000.0); 
     float kilowatts = (float)(watts/10.0);
     float wheelspeed = (float)(watts*0.045);
-//--------------------------------------------------------------------------------------
-    
+--------------------------------------------------------------------------------------
+   */ 
 // me->mcm_current = current; 
  // me->mcm_voltage = voltage; 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,9 +163,14 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         float gain = 9.549;
         float decitq = 10.0;
    
+
+    ubyte2 maxtq = MCM_getTorqueMax(mcm);
+    float4 appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+           
         float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
        
-        float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
+        float predictedtq = (float)(appsTqPercent*maxtq);
 
          //float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
        //  float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
