@@ -849,3 +849,59 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     //IO_CAN_WriteFIFO(canFifoHandle_LoPri_Write, canMessages, canMessageCount);  
 
 }
+
+void canOutput_sendDebugMessage1(CanManager* me, MotorController* mcm, TorqueEncoder* tps)
+{
+    IO_CAN_DATA_FRAME canMessages[me->can1_write_messageLimit];
+    ubyte1 errorCount;
+    float4 tempPedalPercent;   //Pedal percent float (a decimal between 0 and 1
+    ubyte1 tps0Percent;  //Pedal percent int   (a number from 0 to 100)
+    ubyte1 tps1Percent;
+    ubyte2 canMessageCount = 0;
+    // ubyte2 canMessage1Count = 0;
+    ubyte2 canMessageID = 0x500;
+    ubyte1 byteNum;
+    // ubyte1 byteNum1;
+
+    TorqueEncoder_getIndividualSensorPercent(tps, 0, &tempPedalPercent); //borrow the pedal percent variable
+    tps0Percent = 0xFF * tempPedalPercent;
+    TorqueEncoder_getIndividualSensorPercent(tps, 1, &tempPedalPercent);
+    tps1Percent = 0xFF * (tempPedalPercent);
+    //tps1Percent = 0xFF * (1 - tempPedalPercent);  //OLD: flipped over pedal percent (this value for display in CAN only)
+
+    TorqueEncoder_getPedalTravel(tps, &errorCount, &tempPedalPercent); //getThrottlePercent(TRUE, &errorCount);
+    ubyte1 throttlePercent = 0xFF * tempPedalPercent;
+
+    //500: TPS 0
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1; //500
+    canMessages[canMessageCount - 1].data[byteNum++] = throttlePercent;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps0Percent;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_TPS0.sensorValue; // tps->tps0_value;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_TPS0.sensorValue >> 8; //tps->tps0_value >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps0_calibMin;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps0_calibMin >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps0_calibMax;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps0_calibMax >> 8;
+    canMessages[canMessageCount - 1].length = byteNum;
+
+    //TPS 1
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].data[byteNum++] = throttlePercent;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps1Percent;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_value;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_value >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_calibMin;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_calibMin >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_calibMax;
+    canMessages[canMessageCount - 1].data[byteNum++] = tps->tps1_calibMax >> 8;
+    canMessages[canMessageCount - 1].length = byteNum;
+
+    CanManager_send(me, CAN1_LOPRI, canMessages, canMessageCount); 
+
+}
