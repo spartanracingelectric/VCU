@@ -156,14 +156,20 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     me->wheelspeed = wheelspeed;
 
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
-
-    if(watts > KWH_LIMIT) {
+    float powerlimitbuffer = 5000; //kwh buffer 
+    float newpowerlimit = KWH_LIMIT-5000; 
+    if(watts > newpowerlimit) {
         me-> PLstatus = TRUE;
 
         float gain = 9.549;
         float decitq = 10.0;
    
-        float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+
+    ubyte2 maxtq = MCM_getTorqueMax(mcm);
+    float4 appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+           
+        float tqsetpoint =(float)((newpowerlimit*gain/wheelspeed)*decitq);
        
         float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
 
