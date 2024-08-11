@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "numeric": "c",
-        "powerlimit.h": "c",
-        "drs.h": "c",
-        "sensorcalculations.h": "c"
-    }
-}

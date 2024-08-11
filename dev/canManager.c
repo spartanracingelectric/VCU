@@ -17,7 +17,6 @@
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
 #include "drs.h"
-#include "powerLimit.c"
 
 
 struct _CanManager {
@@ -485,7 +484,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs, PowerLimit *pl)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -805,22 +804,6 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 8);
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 16);
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 24);
-    canMessages[canMessageCount - 1].length = byteNum;
-
-
-    // torque and stuff
-    canMessageCount++;
-    byteNum = 0;
-    canMessages[canMessageCount - 1].id = 0x511;
-    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->ki) >> 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->ki) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->ki) >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->ki) >> 24;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->kp) >> 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->kp) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->kp) >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->kp) >> 24;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //511: SoftBSPD

@@ -14,8 +14,6 @@
 #include "readyToDriveSound.h"
 #include "serial.h"
 
-#include "powerLimit.h"
-
 #include "canManager.h"
 
 extern Sensor Sensor_BenchTPS0;
@@ -135,16 +133,12 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
-    ubyte1 runset;
-
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
 {
     MotorController *me = (MotorController *)malloc(sizeof(struct _MotorController));
     me->serialMan = sm;
-
-    me->runset = 0;
 
     me->canMessageBaseId = canMessageBaseID;
     //Dummy timestamp for last MCU message
@@ -270,7 +264,7 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 * > Enable inverter
 * > Play RTDS
 ****************************************************************************/
-void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps, PowerLimit *pl)
+void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
     //----------------------------------------------------------------------------
     // Control commands
@@ -290,8 +284,25 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
 
     // should be a macro in the header
-    
-    
+    ubyte2 power_limit = 40; 
+    float powerDraw = (float)(MCM_getPower(me)/1000);
+    if (powerDraw > (power_limit - 1)) {
+        sbyte2 powerLimMaxTorque = (sbyte2)((int)((( (power_limit - 2) * (float)(me->motorRPM))) / (9549.2966)) * 10) ;
+
+        if ( powerLimMaxTorque < me->torqueMaximumDNm ) {
+            me->torqueMaximumDNm = powerLimMaxTorque;
+        }
+    }
+    else {
+        if (me->torqueMaximumDNm < 2400) {
+            me->torqueMaximumDNm+=50;
+        }
+
+        if (me->torqueMaximumDNm > 2400) {
+            me->torqueMaximumDNm = 2400;
+        }
+        
+    }
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
@@ -305,7 +316,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
     
-    MCM_commands_setTorqueDNm(me, torqueOutput, pl);
+    MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
@@ -618,21 +629,10 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
 *
 ****************************************************************************/
 //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
-void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque, PowerLimit *pl)
-{   
-    me->runset = 1;
-    float powerDraw = (float)MCM_getPower(me) / 1000.0f;
-    if (powerDraw > pl->setPoint) {
-        float controlOutput = control(pl, powerDraw);
-        newTorque+=(int)(controlOutput * 10);
-    }
-
+void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
+{
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
-}
-
-ubyte1 MCM_getRunSet(MotorController *me) {
-    return me->runset;
 }
 
 void MCM_commands_setDirection(MotorController *me, Direction newDirection)

@@ -50,7 +50,6 @@
 #include "bms.h"
 #include "LaunchControl.h"
 #include "drs.h"
-#include "powerLimit.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -222,7 +221,6 @@ void main(void)
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
-    PowerLimit *pl = powerLimitNew(40, 0.1f, 0.05f);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -423,7 +421,7 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
-        MCM_calculateCommands(mcm0, tps, bps, pl);
+        MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
 
@@ -452,7 +450,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs, pl);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 
