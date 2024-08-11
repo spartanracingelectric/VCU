@@ -7,6 +7,7 @@
 #include "torqueEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
+#include "powerLimit.h"
 //#include "safety.h"
 #include "serial.h"
 
@@ -30,7 +31,7 @@ MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID,
 //----------------------------------------------------------------------------
 //CAN Message Parameters
 //Note: Speed Command (angular velocity) not used when in torque mode
-void MCM_commands_setTorqueDNm(MotorController* me, sbyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+void MCM_commands_setTorqueDNm(MotorController* me, sbyte2 torque, PowerLimit *pl); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 void MCM_commands_setDirection(MotorController* me, Direction rotation);
 void MCM_commands_setInverter(MotorController* me, Status inverterState);
 void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
@@ -113,7 +114,7 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
 //----------------------------------------------------------------------------
 // void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
-void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps, PowerLimit *pl);
 
 void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
@@ -122,5 +123,6 @@ void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage)
 
 ubyte1 MCM_getStartupStage(MotorController* me);
 void MCM_setStartupStage(MotorController* me, ubyte1 stage);
+ubyte1 MCM_getRunSet(MotorController *me);
 
 #endif // _MOTORCONTROLLER_H
