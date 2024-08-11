@@ -13,8 +13,6 @@
 #include "math.h"
 
 #define KWH_LIMIT 50000.0 // watts
-#define KWH_THRESHOLD 50000.0 // watts
-
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
