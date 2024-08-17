@@ -42,7 +42,7 @@ void PID_setpointUpdate(PID *pid, float setpoint) {
 void PID_dtUpdate(PID *pid, float dt) {
     pid->dt  = dt;
 }
-void PID_setgain(PID *pid, float Kp, float Ki, float Kd){
+void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
     pid-> Kp = Kp;
     pid-> Ki = Ki;
     pid-> Kd = Kd;
