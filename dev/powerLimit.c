@@ -9,21 +9,20 @@
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
 
-#ifndef CALCS
-#define CALCS
+#ifndef     CALCS
+#define     CALCS
     
-#define    VOLTAGE_MIN 283.200
-#define    VOLTAGE_MAX 403.200
-#define    RPM_MIN 100
-#define    RPM_MAX 6000
-#define    NUM_V 25
-#define    NUM_S 25
-    //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
-#define    VOLTAGE_STEP 5
-    //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
-#define    RPM_STEP 245.8333
-#define    PI 3.14159
-#define    BAD_UNIT_OFFSET 100 //harleen is getting a math minor and cant multiply
+#define     VOLTAGE_MIN  283.200
+#define     VOLTAGE_MAX  403.200
+#define     RPM_MIN      100
+#define     RPM_MAX      6000
+#define     NUM_V        25
+#define     NUM_S        25
+            //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
+#define     VOLTAGE_STEP 5
+            //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
+#define     RPM_STEP     245.8333
+#define     PI           3.14159
 
 #endif
 
