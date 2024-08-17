@@ -28,7 +28,7 @@ PID* PID_new(float kp, float ki, float kd, float setpoint) {
     me->setpoint = setpoint; 
     me->prev_error=0.0;
     me->total_error=0.0;
-    me->dt=0.01; // tick rate of vcu
+    me->dt=0.01; // cycle rate in seconds of VCU
 
     return me;
 }
@@ -45,22 +45,19 @@ void PID_dtUpdate(PID *pid, float new_dt) {
 }
 void PID_setgain(PID *pid, float kp, float ki, float kd){
     pid-> kp = kp;
-     pid-> ki = ki;
-      pid-> kd = kd;
+    pid-> ki = ki;
+    pid-> kd = kd;
 }
 
 //sensorVal for yaw PID is from IMU
 float PID_compute(PID *pid, float sensorVal) {
-   //pid->kp = 1.0; // this is here severely for checking can messages. 
+    //pid->kp = 1.0; // this is here severely for checking can messages. 
     //pid->ki = 1.0;
     float set = pid->setpoint;
     float error = (float)(set - sensorVal); 
-   
     float proportional = (float)(pid->kp*error); 
-
     float integral = (float)(pid->ki * (pid->total_error + error)* pid->dt);
     float derivative = (float)(pid->kd * (error - pid->prev_error)/ pid->dt);
- 
     float output = proportional + integral + derivative;
     pid->prev_error = error;
     pid->total_error += error* pid->dt; 
