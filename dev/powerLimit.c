@@ -134,9 +134,9 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     float voltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
     float current = (float)MCM_getDCCurrent(mcm);
 
-   float wheelspeed = (float)MCM_getMotorRPM(mcm);
-  float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-   float kilowatts = (float)(watts/1000.0);
+    //float wheelspeed = (float)MCM_getMotorRPM(mcm);
+    // float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+    // float kilowatts = (float)(watts/1000.0);
 
 /*----------------------------------------TESTINTG-------------------------------------------------
     float appsTqPercent;
@@ -147,7 +147,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 --------------------------------------------------------------------------------------
    */ 
 // me->mcm_current = current; 
- // me->mcm_voltage = voltage; 
+// me->mcm_voltage = voltage; 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // -------------------------------------no load pack voltage calc: record voltage -------------------------------------
