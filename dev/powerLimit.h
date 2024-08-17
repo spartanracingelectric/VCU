@@ -22,9 +22,10 @@ typedef struct _PowerLimit {
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
-   // float mcm_current; 
-   float power;
-   float wheelspeed;
+    float mcm_voltage; 
+    float mcm_current; 
+    float power;
+    float wheelspeed;
 
 
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
