@@ -10,7 +10,6 @@
 
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 
-
 // Define a structure for the PID controller
 typedef struct _PID {
     float kP; // Proportional gain

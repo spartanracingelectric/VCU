@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include "pid.h"
 
-
 // VCU will run this once, outside of the while loop 
 PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     PID* pid = (PID*)malloc(sizeof(PID));
@@ -32,16 +31,15 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     return pid;
 }
 
-
 // Within the while loop in VCU 
 void PID_setpointUpdate(PID *pid, float setpoint) {
     pid->setpoint = setpoint; 
 }
 
-
 void PID_dtUpdate(PID *pid, float dt) {
     pid->dt  = dt;
 }
+
 void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
     pid-> Kp = Kp;
     pid-> Ki = Ki;
