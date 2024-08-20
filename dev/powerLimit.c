@@ -159,7 +159,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     float powerlimitbuffer = 5000; //kwh buffer 
-    float newpowerlimit    = KWH_LIMIT-5000; 
+    float newpowerlimit = KWH_LIMIT-powerlimitbuffer; 
     if(watts > newpowerlimit) {
         me-> PLstatus = TRUE;
 
