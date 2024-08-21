@@ -24,11 +24,11 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
     {
         if (retVal < 0)
         {
-            retVal = 0;
+            return retVal = 0;
         }
         if (retVal > 1)
         {
-            retVal = 1;
+            return retVal = 1;
         }
     }
 
