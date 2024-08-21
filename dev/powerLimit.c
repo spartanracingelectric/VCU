@@ -99,20 +99,20 @@ PowerLimit* PL_new(){
 }
 // this function needs to be HEAVILY debugged for double linear interpolation 
 float getTorque(PowerLimit* me, HashTable* torqueHashtable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
-    float voltageFloor      = (float)floorToNearestIncrement(voltage, VOLTAGE_STEP);
-    float voltageCeiling    = (float)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
-    float rpmFloor          = (float)floorToNearestIncrement(rpm, RPM_STEP);
-    float rpmCeiling        = (float)ceilToNearestIncrement(rpm, RPM_STEP);
-    // Retrieve torque values from the hash table for the four corners
-    float lowerFloor   = (float)get(torqueHashtable, voltageFloor, rpmFloor);
-    float upperFloor   = (float)get(torqueHashtable, voltageCeiling, rpmFloor);
-    float lowerCeiling = (float)get(torqueHashtable, voltageFloor, rpmCeiling);
-    float upperCeiling = (float)get(torqueHashtable, voltageCeiling, rpmCeiling);
+    float voltageFloor   = (float)floorToNearestIncrement(voltage, VOLTAGE_STEP);
+    float voltageCeiling = (float)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
+    float rpmFloor       = (float)floorToNearestIncrement(rpm, RPM_STEP);
+    float rpmCeiling     = (float)ceilToNearestIncrement(rpm, RPM_STEP);
+    // Retrieve torque values from the hash table for the four corners, xy convention
+    float vFloorRFloor     = (float)get(torqueHashtable, voltageFloor, rpmFloor);
+    float vCeilingRFloor   = (float)get(torqueHashtable, voltageCeiling, rpmFloor);
+    float vFloorRCeiling   = (float)get(torqueHashtable, voltageFloor, rpmCeiling);
+    float vCeilingRCeiling = (float)get(torqueHashtable, voltageCeiling, rpmCeiling);
     // Error check
    
     // Calculate interpolation values
-    float horizontalInterpolation = (float)(((upperFloor - lowerFloor) / VOLTAGE_STEP) + ((upperCeiling - lowerCeiling) / VOLTAGE_STEP)) / 2.0;
-    float verticalInterpolation   = (float)(((lowerCeiling - lowerFloor) / RPM_STEP) + ((upperCeiling - upperFloor) / RPM_STEP)) / 2.0;
+    float horizontalInterpolation = (float)(((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
+    float verticalInterpolation   = (float)(((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
     // Calculate gains
     float gainValueHorizontal = (float)fmod(voltage, VOLTAGE_STEP);
     float gainValueVertical   = (float)fmod(rpm, RPM_STEP);
@@ -120,7 +120,7 @@ float getTorque(PowerLimit* me, HashTable* torqueHashtable, float voltage, float
     float calibratedTorque  = 123;
 
     me->valueLUT = calibratedTorque;
-    //(gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + lowerFloor;
+    //(gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + lowerFloor;
     return calibratedTorque;  // Adjust gain if necessary
 }
 */ 
