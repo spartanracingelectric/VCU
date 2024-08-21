@@ -224,7 +224,7 @@ void main(void)
 
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
-    PID *PLpid = PID_new(100.0,100.0,100.0,0.0);
+    PID *plPID = PID_new(1.0,0.0,0.0,0.0);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -430,8 +430,7 @@ void main(void)
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         
-        PID_setgain(PLpid, 1.0, 0.0, 0.0);
-        powerLimitTorqueCalculation(tps, mcm0, pl, bms, wss,PLpid);
+        powerLimitTorqueCalculation(tps, mcm0, pl, bms, wss,plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
@@ -461,7 +460,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs,PLpid);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs,plPID);
         canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);

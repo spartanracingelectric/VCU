@@ -48,10 +48,7 @@ void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
 
 //sensorVal for yaw PID is from IMU
 float PID_compute(PID *pid, float sensorValue) {
-    //pid->Kp = 1.0; // this is here severely for checking can messages. 
-    //pid->Ki = 1.0;
-    float setpoint     = pid->setpoint;
-    float currentError = (float)(setpoint - sensorValue); 
+    float currentError = (float)(pid->setpoint - sensorValue); 
     float proportional = (float)(pid->Kp * currentError); 
     float integral     = (float)(pid->Ki * (pid->totalError + currentError) * pid->dt);
     float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
