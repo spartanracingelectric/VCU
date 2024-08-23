@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include "pid.h"
 
-// VCU will run this once, outside of the while loop 
 PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
@@ -28,11 +27,10 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->setpoint      = setpoint; 
     pid->previousError = 0.0;
     pid->totalError    = 0.0;
-    pid->dt            = 0.01; // cycle rate in seconds of VCU
+    pid->dt            = 0.01;
     return pid;
 }
 
-// Within the while loop in VCU 
 void PID_setpointUpdate(PID *pid, float setpoint) {
     pid->setpoint = setpoint; 
 }
