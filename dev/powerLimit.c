@@ -33,13 +33,6 @@ void populatePLHashTable(HashTable* table)
     voltage is x axis
     rpm is y axis 
     values are in tq nM
-
-    const float Voltage_MIN = 283.200;
-    const float Volage_MAX = 403.200;
-    const sbyte4 RPM_MIN = 100;
-    const sbyte4 RPM _MAX = 6000;
-    const ubyte1 NUM_V = 25;
-    const ubyte1 NUM_S = 25;
     */
     ubyte4 lookupTable[25][25] = {
         {230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
@@ -72,7 +65,7 @@ void populatePLHashTable(HashTable* table)
     for (ubyte1 row = 0; row < NUM_S; ++row) {
         for(ubyte1 column = 0; column < NUM_V; ++column) {
             float4 noLoadVoltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
-            sbyte4 rpm = RPM_MIN + row * RPM_STEP;
+            sbyte4 rpm   = RPM_MIN + row * RPM_STEP;
             ubyte4 value = lookupTable[row][column];
             insert(table, noLoadVoltage, rpm, value);
         }
@@ -127,7 +120,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     float mcmVoltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
     float mcmCurrent = (float)MCM_getDCCurrent(mcm);
     me->wheelspeed   = (float)MCM_getMotorRPM(mcm);
-    me->watts        = (float)((MCM_getPower(mcm)));
+    me->watts        = (float)MCM_getPower(mcm);
 
 //----------------------------------------TESTING-------------------------------------------------
 
@@ -152,27 +145,23 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
-
         ubyte2 maxtq = MCM_getTorqueMax(mcm);
         float4 appsTqPercent;
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
            
-        float tqsetpoint  =(float)((PL_INIT/me->wheelspeed)*UNIT_CONVERSTION);
-        float predictedtq =(float)((me->watts/me->wheelspeed)*UNIT_CONVERSTION);
-        // float tqsetpoint =(float)((KWH_LIMIT*gain/wheelspeed)*decitq);
-        // float predictedtq =(float)((watts*gain/wheelspeed)*decitq);
+        float tqsetpoint  = (float)((PL_INIT/me->wheelspeed)*UNIT_CONVERSTION);
+        float predictedtq = (float)((me->watts/me->wheelspeed)*UNIT_CONVERSTION);
+        // float tqsetpoint  = (float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+        // float predictedtq = (float)((watts*gain/wheelspeed)*decitq);
 
         me->estimatedTQ = predictedtq;
         me->setpointTQ  = tqsetpoint;
-
         PID_setpointUpdate(pid,tqsetpoint);
-        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
         me->error =  PID_compute(pid, predictedtq);
-
         // float appsTqPercent;
         // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
-        //ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
+        // ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
         // me->PLoffsetpid= (tq * appsTqPercent) + me->error;
     }
     else {

@@ -13,14 +13,13 @@
 
 // Define a structure for the PID controller
 typedef struct _PID {
-    float Kp; // Proportional gain
-    float Ki; // Integral gain
-    float Kd; // Derivative gain
-    float setpoint; //Reference,Target value
-    float previousError; // Previous error
-    float totalError; // total error 
-    float dt;//basically the time interval of each sensor value this is in a 
-    // dt will be a seperate param in method 
+    float Kp;               // Proportional gain
+    float Ki;               // Integral     gain
+    float Kd;               // Derivative   gain
+    float setpoint;         // Target value
+    float previousError;
+    float totalError;
+    float dt;               // Time interval between PID updates in seconds (VCU tick speed)
 } PID;
 
 PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
