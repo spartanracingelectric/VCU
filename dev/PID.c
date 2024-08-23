@@ -1,6 +1,7 @@
 /*****************************************************************************
  * pid.c - Proportional-Integral-Derivative (PID) controller
  * Initial Author: Harleen Sandhu / Mehul Williams
+ * Supporting Author: Shaun Gilmore
  ******************************************************************************
  * General purpose PID controller, initially designed for Torque Vectoring.
  * 
@@ -46,16 +47,14 @@ void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
     pid-> Kd = Kd;
 }
 
-//sensorVal for yaw PID is from IMU
 float PID_compute(PID *pid, float sensorValue) {
     float currentError = (float)(pid->setpoint - sensorValue);
+    pid->totalError   += currentError;
     float proportional = (float)(pid->Kp * currentError);
-    float integral     = (float)(pid->Ki * (pid->totalError + currentError) * pid->dt);
+    float integral     = (float)(pid->Ki * pid->totalError * pid->dt);
     float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
-    float output       = proportional + integral + derivative;
     pid->previousError = currentError;
-    pid->totalError   += currentError * pid->dt;
-    return output;
+    return proportional + integral + derivative;
 }
 
 
