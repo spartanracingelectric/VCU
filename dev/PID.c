@@ -1,7 +1,7 @@
 /*****************************************************************************
  * pid.c - Proportional-Integral-Derivative (PID) controller
  * Initial Author: Harleen Sandhu / Mehul Williams
- * Supporting Author: Shaun Gilmore
+ * Additional Author: Shaun Gilmore
  ******************************************************************************
  * General purpose PID controller, initially designed for Torque Vectoring.
  * 
