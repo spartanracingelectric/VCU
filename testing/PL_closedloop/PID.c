@@ -15,44 +15,70 @@
  * Proportional test first with other output 0, get midway with target and then tune other items. There are many factors of noise.
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
-
 #include <stdlib.h>
-#include "pid.h"
+#include "PID.h"
 
-PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
+PID* PID_new(int Kp, int Ki, int Kd, int setpoint) {
+    // for some reason the kp ki kd values are not updated correctly so we reinit them 
+    // Kp Ki & Kd are in deci units, aka a Kp of 12 is actually 1.2.
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
     pid->setpoint      = setpoint; 
-    pid->previousError = 0.0;
-    pid->totalError    = 0.0;
-    pid->dt            = 0.01;
+    pid->previousError = 0;
+    pid->totalError    = 0;
+    pid->dH            = 100; // 100 Hz aka 10 ms cycle time
+    pid->output        = 0;
     return pid;
 }
+void PID_updateGainValues(PID* pid, int Kp, int Ki, int Kd){
+    pid->Kp = Kp;
+    pid->Ki = Ki;
+    pid->Kd = Kd;
+}
 
-void PID_setpointUpdate(PID *pid, float setpoint) {
+void PID_setTotalError(PID* pid, int error){
+    pid->totalError = error;
+}
+
+void PID_updateSetpoint(PID *pid, int setpoint) {
     pid->setpoint = setpoint; 
 }
 
-void PID_dtUpdate(PID *pid, float dt) {
-    pid->dt  = dt;
+int PID_computeOutput(PID *pid, int sensorValue) {
+    int currentError =  pid->setpoint - sensorValue;
+    int proportional =  (pid->Kp * currentError) / 10; //proportional
+    int integral     =  (pid->Ki * (pid->totalError + currentError) / pid->dH) / 10; //integral
+    int derivative   =  (pid->Kd * (currentError - pid->previousError) * pid->dH) / 10; //derivative
+    pid->previousError  = currentError;
+    pid->totalError    += currentError;
+    pid->output = (int)(proportional + integral + derivative); //divide by 10 because Kp & Ki & Kd are in deci- units to preserve complete accuracy for the tenth's place
+    return pid->output;
 }
 
-void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
-    pid-> Kp = Kp;
-    pid-> Ki = Ki;
-    pid-> Kd = Kd;
+/** GETTER FUNCTIONS **/
+
+int PID_getKp(PID *pid){
+    return pid->Kp;
 }
 
-float PID_compute(PID *pid, float sensorValue) {
-    float currentError = (float)(pid->setpoint - sensorValue);
-    pid->totalError   += currentError;
-    float proportional = (float)(pid->Kp * currentError);
-    float integral     = (float)(pid->Ki * pid->totalError * pid->dt);
-    float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
-    pid->previousError = currentError;
-    return proportional + integral + derivative;
+int PID_getKi(PID *pid){
+    return pid->Ki;
 }
 
+int PID_getKd(PID *pid){
+    return pid->Kd;
+}
 
+int PID_getSetpoint(PID *pid){
+    return pid->setpoint;
+}
+
+int PID_getTotalError(PID* pid){
+    return pid->totalError;
+}
+
+int PID_getOutput(PID* pid){
+    return pid->output;
+}

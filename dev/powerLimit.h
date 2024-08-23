@@ -34,11 +34,9 @@ typedef struct _PowerLimit {
 
 } PowerLimit;
 
-
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void populatePLHashTable(HashTable* table);
-
-float getTorque(PowerLimit* me, HashTable* torqueHashtable, float voltage, float rpm);
+float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm);
 PowerLimit* PL_new(); 
 
 #endif //_PID_H
