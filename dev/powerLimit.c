@@ -114,6 +114,7 @@ float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage,
     //(gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + lowerFloor;
     return calibratedTorque;  // Adjust gain if necessary
 }
+
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
 //-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
 
@@ -123,25 +124,24 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     me->watts        = (float)MCM_getPower(mcm);
 
 //----------------------------------------TESTING-------------------------------------------------
-
+//
 //    float appsTqPercent;
 //    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
 //    float watts = (float)(appsTqPercent * 100000.0); 
 //    float kilowatts = (float)(watts/10.0);
 //    float wheelspeed = (float)(watts*0.045);
-
+//
 //--------------------------------------------------------------------------------------
-    
+//
 // me->currentMCM = current; 
 // me->voltageMCM = voltage; 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
-
+//
 // -------------------------------------no load pack voltage calc: record voltage -------------------------------------
-
+//
 //-------------> need to do this this for LUT
 //----------------------------------------------------------------------------------------------------------------------------------------------------
-
-
+//
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
