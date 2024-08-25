@@ -111,7 +111,7 @@ float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage,
     // Combine interpolated values
     float calibratedTorque  = 123;
     me->valueLUT = calibratedTorque;
-    //(gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + lowerFloor;
+    // return (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + lowerFloor;
     return calibratedTorque;  // Adjust gain if necessary
 }
 
