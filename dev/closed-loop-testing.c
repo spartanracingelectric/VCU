@@ -35,11 +35,12 @@ if (driverTQ <0)
 
 MCMpowerCalced = driverTQ * RPM / 9.549;
 RPM += driverTQ/231*90;
-if(MCMpowerCalced > 45000.0 && RPM < 5000)
-{
-    printf("\nIteration:,%d",i);
+//if(MCMpowerCalced > 45000.0 && RPM < 5000)
+//{
+    printf("\nIteration:%d",i);
     printf("\t\tMCMpowerCalced = %f",MCMpowerCalced);
+    printf("\t\tNew driverTQ = %f", driverTQ);
     printf("\t\tNew RPM = %f", RPM);
-}
+//}
 }
 }

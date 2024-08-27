@@ -51,7 +51,7 @@ float PID_compute(PID *pid, float sensorValue) {
     float integral     = (float)(pid->Ki * (pid->totalError + currentError * pid->dt));
     float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
     pid->previousError = currentError;
-    pid->totalError   += currentError * 0.01;
+    pid->totalError   += currentError * pid->dt;
     return proportional + integral + derivative;
 }
 
