@@ -300,13 +300,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
      appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
      bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
   /* TESTING PURPOSEs ONLY FOR HARDCODING
-  float4 wheelspeed = (float4)MCM_getMotorRPM(me);
+  float4 motorRPM = (float4)MCM_getMotorRPM(me);
  float4 kilowatts =  (float4)((float4)MCM_getPower(me)/1000); // divide by 1000 to get watts --> kilowatts
   if(kilowatts > KWH_LIMIT) {
       
-        float4 predictedtq = (float4)(kilowatts*9549.0/wheelspeed)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
+        float4 predictedtq = (float4)(kilowatts*9549.0/motorRPM)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
         float4 test =(float4)(KWH_LIMIT*9549.0*10.0);
-        float4 tqsetpoint = (float4)(test/wheelspeed); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+        float4 tqsetpoint = (float4)(test/motorRPM); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
 
         sbyte2 error = (sbyte2)((sbyte2)predictedtq - (sbyte2)tqsetpoint);
        appsTorque =  appsTorque - error;

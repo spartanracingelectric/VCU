@@ -848,8 +848,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 8);
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 16);
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 24);  
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->wheelspeed);
-    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->wheelspeed))>> 8;      
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->motorRPM);
+    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->motorRPM))>> 8;      
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl-> power);
     canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl-> power))>> 8;      
     canMessages[canMessageCount - 1].length = byteNum;
