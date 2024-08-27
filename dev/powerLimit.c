@@ -81,7 +81,7 @@ PowerLimit* PL_new(){
     me->voltageMCM  = 0.0;
     me->currentMCM  = 0.0;
     me->watts       = 0.0;
-    me->wheelspeed  = 0.0;
+    me->motorRPM    = 0.0;
     me->valueLUT    = 0.0;
     me->error       = 0.0;
     me->estimatedTQ = 0.0;
@@ -120,7 +120,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
     float mcmVoltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
     float mcmCurrent = (float)MCM_getDCCurrent(mcm);
-    me->wheelspeed   = (float)MCM_getMotorRPM(mcm);
+    me->motorRPM     = (float)MCM_getMotorRPM(mcm);
     me->watts        = (float)MCM_getPower(mcm);
 
 //----------------------------------------TESTING-------------------------------------------------
@@ -129,7 +129,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 //    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
 //    float watts = (float)(appsTqPercent * 100000.0); 
 //    float kilowatts = (float)(watts/10.0);
-//    float wheelspeed = (float)(watts*0.045);
+//    float motorRPM = (float)(watts*0.045);
 //
 //--------------------------------------------------------------------------------------
 //
@@ -149,15 +149,15 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         float4 appsTqPercent;
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
            
-        float tqsetpoint  = (float)((PL_INIT/me->wheelspeed)*UNIT_CONVERSTION);
-        float predictedtq = (float)((me->watts/me->wheelspeed)*UNIT_CONVERSTION);
-        // float tqsetpoint  = (float)((KWH_LIMIT*gain/wheelspeed)*decitq);
-        // float predictedtq = (float)((watts*gain/wheelspeed)*decitq);
+        float tqsetpoint  = (float)((PL_INIT/me->motorRPM)*UNIT_CONVERSTION);
+        float idealTQ = (float)((me->watts/me->motorRPM)*UNIT_CONVERSTION);
+        // float tqsetpoint  = (float)((KWH_LIMIT*gain/motorRPM)*decitq);
+        // float predictedtq = (float)((watts*gain/motorRPM)*decitq);
 
-        me->estimatedTQ = predictedtq;
+        me->estimatedTQ = idealTQ;
         me->setpointTQ  = tqsetpoint;
         PID_setpointUpdate(pid,tqsetpoint);
-        me->error =  PID_compute(pid, predictedtq);
+        me->error =  PID_compute(pid, idealTQ);
         // float appsTqPercent;
         // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
