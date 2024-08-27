@@ -6,7 +6,7 @@ int main(){
 //PID *plPID = PID_new(1.0,0.0,0.0,0.0);
 float powerLimit = 50000.0;
 float driverTQ = 231.0;
-float RPM = 3090.0;
+float RPM = 300.0;
 float setpointTQ = 0.0;
 float totalError = 0.0;
 float previousError = 0.0;
@@ -14,24 +14,25 @@ float offsetTQ = 0.0;
 float MCMpowerCalced = 0.0;
 // 
 //
-float Kp = 2;
+float ratioTQ = 1.0;
+float previousTQ = driverTQ;
+float Kp = 2.0;
 float Ki = 0.0;
 float Kd = 0.0;
 float NewTheoryRPM = 0.0;
 float NewMCMpowerCalced = 0.0;
 float PowerOffset = 0.0;
-for(int i =0; i < 30; ++i){
+for(int i =0; i < 100; ++i){
 
 setpointTQ = powerLimit *9.549/RPM;
 //printf("\nsetpointTQ = %f", setpointTQ);
 
 //plPID PID_compute(PID *pid, float sensorValue);
 float currentError = (float)(setpointTQ - driverTQ);
-totalError   += currentError;
 float proportional = (float)(Kp * currentError);
 //printf("\nproportional = %f", proportional);
 
-float integral     = (float)(Ki * totalError * 0.01);
+float integral = integral + (float)(Ki * (totalError + (currentError * 0.01)));
 //printf("\nintegral = %f", integral);
 
 float derivative   = (float)(Kd * (currentError - previousError) / 0.01);
@@ -40,22 +41,46 @@ float derivative   = (float)(Kd * (currentError - previousError) / 0.01);
 previousError = currentError;
 
 offsetTQ = proportional + integral + derivative;
-//printf("\nPID output = %f", offsetTQ);
 
+totalError   += currentError*0.01;
+
+//printf("\nPID output = %f", offsetTQ);
+previousTQ = driverTQ;
 driverTQ += offsetTQ;
 //printf("\nNon adjusted DRIVERSTQ = %f", driverTQ);
 if (driverTQ > 231)
     driverTQ = 231;
+if (driverTQ <0)
+    driverTQ = 0;
 //printf("\nAdjusted DRIVERSTQ = %f", driverTQ);
 
-//print
-
 NewMCMpowerCalced = driverTQ * RPM / 9.549;
-PowerOffset = abs(MCMpowerCalced - NewMCMpowerCalced);
+PowerOffset = MCMpowerCalced - NewMCMpowerCalced;
 MCMpowerCalced = NewMCMpowerCalced;
-printf("\nPowerOffset = %f", PowerOffset);
-//printf("\nMCMpowerCalced = %f",MCMpowerCalced);
-RPM = RPM + (offsetTQ*20);
+RPM += driverTQ/231*90;
+//printf("\nPowerOffset = %f", PowerOffset);
+if(MCMpowerCalced > 45000.0 && RPM < 5000)
+{
+printf("\nIteration:,%d",i);
+printf("\t\tMCMpowerCalced = %f",MCMpowerCalced);
+printf("\t\tNew RPM = %f", RPM);
+
+}
+/**
+NewTheoryRPM = RPM + (offsetTQ*20);
+if(abs(NewTheoryRPM-RPM)>20) // Based on theory from datasheet & josie.
+{
+    if (NewTheoryRPM > RPM)
+    RPM +=20;
+    if(NewTheoryRPM < RPM)
+    RPM -=20;
+}
+else
+{
+RPM = NewTheoryRPM;
+}
 //printf("\nNew RPM = %f", RPM);
+**/
+
 }
 }
