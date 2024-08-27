@@ -23,7 +23,7 @@ typedef struct _PowerLimit {
     float voltageMCM; 
     float currentMCM; 
     float power;
-    float wheelspeed;
+    float motorRPM;
 
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 
