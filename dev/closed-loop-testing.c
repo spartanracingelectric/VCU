@@ -12,12 +12,15 @@ float totalError = 0.0;
 float previousError = 0.0;
 float offsetTQ = 0.0;
 float MCMpowerCalced = 0.0;
-float Kp = 2.0;
+// 
+//
+float Kp = 2;
 float Ki = 0.0;
 float Kd = 0.0;
+float NewTheoryRPM = 0.0;
 float NewMCMpowerCalced = 0.0;
 float PowerOffset = 0.0;
-for(int i =0; i < 10; ++i){
+for(int i =0; i < 30; ++i){
 
 setpointTQ = powerLimit *9.549/RPM;
 //printf("\nsetpointTQ = %f", setpointTQ);
@@ -48,7 +51,7 @@ if (driverTQ > 231)
 //print
 
 NewMCMpowerCalced = driverTQ * RPM / 9.549;
-PowerOffset = MCMpowerCalced - NewMCMpowerCalced;
+PowerOffset = abs(MCMpowerCalced - NewMCMpowerCalced);
 MCMpowerCalced = NewMCMpowerCalced;
 printf("\nPowerOffset = %f", PowerOffset);
 //printf("\nMCMpowerCalced = %f",MCMpowerCalced);
