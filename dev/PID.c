@@ -28,6 +28,8 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->previousError = 0.0;
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
+
+    pid->previousSetpoint = setpoint;
     return pid;
 }
 
@@ -55,4 +57,9 @@ float PID_compute(PID *pid, float sensorValue) {
     return proportional + integral + derivative;
 }
 
-
+float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ)
+{
+    float efficiencyTQ = commandedTQ - idealTQ / commandedTQ;
+    return (pid->setpoint + PID_compute(pid, idealTQ))/efficiencyTQ;
+    //returns the new torque commanded value, which takes the ideal offset from PID_compute, then calulates the final ideal torque output, then converts it using the earlier tqefficency calculation to account for losses inbetween what is requested by the MCU and how much tq is used to move the car forward. 
+}
