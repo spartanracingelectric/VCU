@@ -47,7 +47,7 @@ else if(RPM < 5000)
 else if (RPM < 6000)
         deltaRPM = 90 - deltaA - deltaB - deltaC;
 
-printf("\ndeltaRPM = %f \n",deltaRPM);
+//printf("\ndeltaRPM = %f \n",deltaRPM);
 if (deltaRPM > 90.0)
     deltaRPM = 90.0;
 if (deltaRPM < 0.0)
