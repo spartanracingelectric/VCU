@@ -4,7 +4,7 @@
 int main(){
 
 //PID *plPID = PID_new(1.0,0.0,0.0,0.0);
-float powerLimit = 50000.0;
+float powerLimit = 80000.0;
 float driverTQ = 231.0;
 float RPM = 300.0;
 float setpointTQ = 0.0;
@@ -16,7 +16,7 @@ float previousTQ = driverTQ;
 float Kp = 2.0;
 float Ki = 0.0;
 float Kd = 0.0;
-for(int i =0; i < 100; ++i){
+for(int i =0; i < 500; ++i){
 setpointTQ = powerLimit *9.549/RPM;
 float currentError = (float)(setpointTQ - driverTQ);
 float proportional = (float)(Kp * currentError);
