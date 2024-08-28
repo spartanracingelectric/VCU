@@ -35,17 +35,17 @@ if (driverTQ <0)
 
 MCMpowerCalced = driverTQ * RPM / 9.549;
 //unsustantiated guesswork for max RPM delta as it relates to current RPM, as the ability to change RPM decreases as RPM increases;
-float deltaA = (RPM-2000)/6000*90*0.9;
-float deltaB = (RPM-4000)/6000*90*0.05;
-float deltaC = (RPM-5000)/6000*90*0.05;
+float deltaA = (RPM-2000)/4000*70;
+float deltaB = (RPM-4000)/5000*10;
+float deltaC = (RPM-5000)/6000*10;
 
 float deltaRPM = 90;
 if (RPM<4000)
         deltaRPM = 90 - deltaA;
 else if(RPM < 5000)
-        deltaRPM = 90 - deltaA - deltaB;
+        deltaRPM = 20 - deltaB;
 else if (RPM < 6000)
-        deltaRPM = 90 - deltaA - deltaB - deltaC;
+        deltaRPM = 10 - deltaC;
 
 //printf("\ndeltaRPM = %f \n",deltaRPM);
 if (deltaRPM > 90.0)
