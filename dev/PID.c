@@ -50,10 +50,10 @@ void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
 float PID_compute(PID *pid, float sensorValue) {
     float currentError = (float)(pid->setpoint - sensorValue);
     float proportional = (float)(pid->Kp * currentError);
-    float integral     = (float)(pid->Ki * (pid->totalError + currentError * pid->dt));
+    float integral     = (float)(pid->Ki * (pid->totalError + currentError) * pid->dt);
     float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
     pid->previousError = currentError;
-    pid->totalError   += currentError * pid->dt;
+    pid->totalError   += currentError;
     return proportional + integral + derivative;
 }
 
