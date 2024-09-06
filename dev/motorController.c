@@ -683,7 +683,7 @@ void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
     me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     me->commands_torqueLimit = newTorqueLimit;
 }
-sbyte2 MCM_commands_getTorque(MotorController *me)
+sbyte2 MCM_commands_PL_getTorque(MotorController *me)
 {
     return me->commands_torque;
 }
@@ -699,7 +699,7 @@ Status MCM_commands_getDischarge(MotorController *me)
 {
     return me->commands_discharge;
 }
-sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
+sbyte2 MCM_commands_PL_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
@@ -731,7 +731,7 @@ void MCM_updateTorqueOffset(MotorController *me, float offsetTQ){
 
 }
 
-void MCM_update_PowerLimit_State(MotorController *me, bool newPLState){
+void MCM_updatePowerLimitState(MotorController *me, bool newPLState){
 
     me->PLState = newPLState;
 
@@ -787,7 +787,7 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
     return IO_RTC_GetTimeUS(me->timeStamp_lastCommandSent);
 }
 
-ubyte2 MCM_getTorqueMax(MotorController *me)
+ubyte2 MCM_PL_getTorqueMax(MotorController *me)
 {
     return me->torqueMaximumDNm;
 }

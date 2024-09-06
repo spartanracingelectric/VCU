@@ -27,7 +27,7 @@
 
 #endif
 
-void populatePLHashTable(HashTable* table)
+void PL_populateHashTable(HashTable* table)
 {
     /*
     voltage is x axis
@@ -75,7 +75,7 @@ void populatePLHashTable(HashTable* table)
 PowerLimit* PL_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
     me->hashtable = HashTable_new();
-    populatePLHashTable(me->hashtable);
+    PL_populateHashTable(me->hashtable);
     me-> plStatus = FALSE;
    // me->pid = PID_new(1, 0, 0, 0);// fill this in  
     me->voltageMCM  = 0.0;
@@ -90,7 +90,7 @@ PowerLimit* PL_new(){
 }
 
 // this function needs to be HEAVILY debugged for double linear interpolation 
-float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
+float PL_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
     float voltageFloor   = (float)floorToNearestIncrement(noLoadVoltage, VOLTAGE_STEP);
     float voltageCeiling = (float)ceilToNearestIncrement(noLoadVoltage, VOLTAGE_STEP);
     float rpmFloor       = (float)floorToNearestIncrement(rpm, RPM_STEP);
@@ -115,7 +115,7 @@ float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage,
     return calibratedTorque;  // Adjust gain if necessary
 }
 
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+void PL_calculateTorqueOffset(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
 //-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
 
     float mcmVoltage   = (float)MCM_getDCVoltage(mcm);
@@ -133,15 +133,15 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
-        ubyte2 maxtq  = MCM_getTorqueMax(mcm);
+        ubyte2 maxtq  = MCM_PL_getTorqueMax(mcm);
         float4 appsTqPercent;
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        me->offset = PID_compute(pid, me->watts);
+        me->offset = PID_computeOffset(pid, me->watts);
         offsetTQ   = commandedTQ * ((ubyte2)(me->offset / me->watts * 100));
     }
     else {
         me-> plStatus = FALSE;
     }
     MCM_updateTorqueOffset(mcm, offsetTQ);
-    MCM_update_PowerLimit_State(mcm, me->plStatus);
+    MCM_updatePowerLimitState(mcm, me->plStatus);
 }

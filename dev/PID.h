@@ -23,7 +23,7 @@ typedef struct _PID {
 } PID;
 
 PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
-void  PID_setpointUpdate(PID *pid, float setpoint);
-float PID_compute(PID *pid, float sensorValue);
+void  PID_updateSetpoint(PID *pid, float setpoint);
+float PID_computeOffset(PID *pid, float sensorValue);
 
 #endif //_PID_H
