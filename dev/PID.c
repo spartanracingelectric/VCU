@@ -24,7 +24,7 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-    pid->setpoint = setpoint; 
+    pid->setpoint      = setpoint; 
     pid->previousError = 0.0;
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
@@ -32,20 +32,20 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
 
 }
 
-void PID_resetpidOffset(PID* pid, float4 error){
-    pid->totalError = error;
-}
-void PID_setpointUpdate(PID *pid, float setpoint) {
-    pid->setpoint = setpoint; 
+void PID_updateSetpoint(PID *pid, float setpoint) {
+    pid->setpoint = setpoint;
 }
 
 float PID_computeOffset(PID *pid, float sensorValue) {
-    float currentError = (float)(pid->setpoint - sensorValue);
-    float proportional = (float)(pid->Kp * currentError);
-    float integral     = (float)(pid->Ki * (pid->totalError + currentError) * pid->dt);
-    float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
+    float currentError =  pid->setpoint - sensorValue;
+    float proportional =  pid->Kp * currentError; //proportional
+    float integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
+    float derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
     pid->previousError = currentError;
     pid->totalError   += currentError;
-    //Comphrehensive check to ensure PID only outputs when overshooting setpoint, to not run afoul of rules.
-    return (proportional + integral + derivative < 0) ? proportional + integral + derivative : 0;
+    return proportional + integral + derivative;
+}
+
+void PID_resetPIDerror(PID* pid, float4 error){
+    pid->totalError = (float)(error);
 }
