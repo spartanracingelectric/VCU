@@ -24,15 +24,15 @@ HashTable* HashTable_new() {
 
 
 // Hash function 
-ubyte1 hash(ubyte2 key1, ubyte2 key2) {
+ubyte1 HashTable_hash(ubyte2 key1, ubyte2 key2) {
     // A simple hash function combining key1 and key2
     return (key1 + key2) % TABLE_SIZE;
 }
 
 
 // Insert a key-value pair into the hash table
-void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
-    ubyte1 index = hash(key1, key2);
+void HashTable_insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
+    ubyte1 index = HashTable_hash(key1, key2);
     
     // Create a new entry
     HashEntry* entry = (HashEntry*)malloc(sizeof(HashEntry));
@@ -55,8 +55,8 @@ void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
 
 
 // Retrieve a value from the hash table
-ubyte4 get(HashTable* table, ubyte2 key1, ubyte2 key2) {
-    ubyte1 index = hash(key1, key2);
+ubyte4 HashTable_get(HashTable* table, ubyte2 key1, ubyte2 key2) {
+    ubyte1 index = HashTable_hash(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
         if (entry->key1 == key1 && entry->key2 == key2) {

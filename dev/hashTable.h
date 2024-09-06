@@ -28,9 +28,9 @@ typedef struct _HashTable{
 
 
 HashTable* HashTable_new();
-ubyte1 hash(ubyte2 key1, ubyte2 key2);
-void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value);
-ubyte4 get(HashTable* table, ubyte2 key1, ubyte2 key2);
+ubyte1 HashTable_hash(ubyte2 key1, ubyte2 key2);
+void HashTable_insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value);
+ubyte4 HashTable_get(HashTable* table, ubyte2 key1, ubyte2 key2);
 void destroyHashTable(HashTable* table);
 
 
