@@ -133,8 +133,8 @@ struct _MotorController
     sbyte2 launchControlTorqueLimit;
     bool launchControlState;
 
-    float plTorqueOffset;
-    bool PLState;
+    ubyte2 plTorqueCommand;
+    bool plState;
 
 
     //---------------------------------------------------------------------------------------------------
@@ -182,8 +182,8 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->launchControlTorqueLimit = 0;
     me->launchControlState = FALSE;
 
-    me-> plTorqueOffset =0.0;
-    me-> PLState =FALSE;
+    me-> plTorqueCommand = 0;
+    me-> plState =FALSE;
 
     me->HVILOverride = FALSE;
  
@@ -312,24 +312,22 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
        appsTorque =  appsTorque - error;
   }
   */ 
-    
     if(me->launchControlState == TRUE)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0)
+        torqueOutput = me->launchControlTorqueLimit;
+    } else if (me->launchControlTorqueLimit == 0)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->launchControlTorqueLimit;
     } 
-    else if(me->PLState == TRUE){
-        torqueOutput = (sbyte2)(int)(me->plTorqueOffset) + appsTorque + bpsTorque;
+    else if(me->plState == TRUE && (me->plTorqueCommand) <= appsTorque){
+        torqueOutput = (me->plTorqueCommand) + bpsTorque;
     }
     else {
         torqueOutput = appsTorque + bpsTorque;
         // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    //saftey Check. torqueOutput Should never rise above 240. Leaving a +25% buffer in case of rounding errors or comical math
-    if(torqueOutput > 300.0)
-    {
+    if(torqueOutput > 250.0)
+    { // saftey checks 
         torqueOutput = 0.0;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
@@ -705,7 +703,7 @@ Status MCM_commands_getDischarge(MotorController *me)
 {
     return me->commands_discharge;
 }
-sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
+sbyte2 MCM_commands_PL_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
@@ -730,18 +728,23 @@ void MCM_update_LC_state(MotorController *me, bool newState)
     me->launchControlState = newState;
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_updateTorqueOffset(MotorController *me, float offsetTQ){
-     me->plTorqueOffset = offsetTQ;
+void MCM_update_PL_torqueCommand(MotorController *me, float torqueCommand)
+{
+    me->plTorqueCommand = (ubyte2)(torqueCommand);
+}
 
+void MCM_get_PL_torqueCommand(MotorController *me)
+{
+    return me->plTorqueCommand;
 }
 
 void MCM_update_PL_state(MotorController *me, bool newState)
 {
-    me->plActive = newState;
+    me->plState = newState;
 }
 bool MCM_get_PL_state(MotorController *me)
 {
-    return me->plActive;
+    return me->plState;
 }
 
 //----------------------------------------------------PL-------------------------------
