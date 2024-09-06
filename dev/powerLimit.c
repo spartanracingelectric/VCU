@@ -28,6 +28,7 @@
 
 #endif
 
+
 #define POWERLIMIT_METHOD   1 // STATES: 1-3 are for the 3 different PL methods currently in place
 #define CAN_VERBOSE         0 // To be implemented later, but idea is want to check if can manager and here to see if we should be setting & transmitting certain values over can for debugging
 
