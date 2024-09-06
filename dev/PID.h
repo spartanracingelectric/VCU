@@ -16,17 +16,14 @@ typedef struct _PID {
     float Kp;               // Proportional gain
     float Ki;               // Integral     gain
     float Kd;               // Derivative   gain
-    float setpoint;         // Target value
-    float previousError;
+    float *setpoint;         // Target value
+    float *previousError;
     float totalError;
     float dt;               // Time interval between PID updates in seconds (VCU tick speed)
 } PID;
 
 PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
-void PID_resetpidOffset(PID* pid, float4 error);
-void  PID_setpointUpdate(PID *pid, float setpoint);
-void  PID_setGain(PID *pid, float Kp, float Ki, float Kd);
-void  PID_dtUpdate(PID *pid, float dt);
+void  PID_updateSetpoint(PID *pid, float setpoint);
 float PID_computeOffset(PID *pid, float sensorValue);
-float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ);
+
 #endif //_PID_H
