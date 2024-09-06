@@ -81,7 +81,7 @@ Status MCM_getInverterStatus(MotorController* me);
 void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
 void MCM_update_LaunchControl_State(MotorController *me, bool newLCState);
 
-void MCM_update_PowerLimit_TorqueCommand(MotorController *me, float PLTorqueoffset);
+void MCM_updateTorqueOffset(MotorController *me, float offsetTQ);
 void MCM_update_PowerLimit_State(MotorController *me, bool newPLState);
 sbyte4 MCM_getMotorRPM(MotorController *me);
 
