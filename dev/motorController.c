@@ -801,7 +801,7 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController *me)
     return IO_RTC_GetTimeUS(me->timeStamp_lastCommandSent);
 }
 
-ubyte2 MCM_PL_getTorqueMax(MotorController *me)
+ubyte2 MCM_getTorqueMax(MotorController *me)
 {
     return me->torqueMaximumDNm;
 }

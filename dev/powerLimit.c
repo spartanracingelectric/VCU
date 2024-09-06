@@ -104,7 +104,7 @@ void PL_populateHashTable(HashTable* table)
             float4 noLoadVoltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             sbyte4 rpm   = RPM_MIN + row * RPM_STEP;
             ubyte4 value = lookupTable[row][column];
-            insert(table, noLoadVoltage, rpm, value);
+            HashTable_insert(table, noLoadVoltage, rpm, value);
         }
     }
 }
@@ -114,12 +114,11 @@ PowerLimit* PL_new(){
     me->hashtable = HashTable_new();
     PL_populateHashTable(me->hashtable);
     me-> plStatus = FALSE;
-   // me->pid = PID_new(1, 0, 0, 0);// fill this in  
+    // me->pid = PID_new(1, 0, 0, 0);// fill this in  
     me->voltageMCM  = 0.0;
     me->currentMCM  = 0.0;
     me->watts       = 0.0;
     me->motorRPM    = 0.0;
-    me->valueLUT    = 0.0;
     me->offset      = 0.0;
     me->estimatedTQ = 0.0;
     me->setpointTQ  = 0.0;
@@ -133,17 +132,29 @@ float PL_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVolta
     float rpmFloor       = (float)floorToNearestIncrement(rpm, RPM_STEP);
     float rpmCeiling     = (float)ceilToNearestIncrement(rpm, RPM_STEP);
     // Retrieve torque values from the hash table for the four corners, xy convention
-    float vFloorRFloor     = (float)get(torqueHashtable, voltageFloor, rpmFloor);
-    float vCeilingRFloor   = (float)get(torqueHashtable, voltageCeiling, rpmFloor);
-    float vFloorRCeiling   = (float)get(torqueHashtable, voltageFloor, rpmCeiling);
-    float vCeilingRCeiling = (float)get(torqueHashtable, voltageCeiling, rpmCeiling);
+    float vFloorRFloor     = (float)HashTable_get(torqueHashtable, voltageFloor, rpmFloor);
+    float vCeilingRFloor   = (float)HashTable_get(torqueHashtable, voltageCeiling, rpmFloor);
+    float vFloorRCeiling   = (float)HashTable_get(torqueHashtable, voltageFloor, rpmCeiling);
+    float vCeilingRCeiling = (float)HashTable_get(torqueHashtable, voltageCeiling, rpmCeiling);
     // Error check
 >>>>>>> fd174af (Among other things, an attent to rename new functions to follow the SYSTEM_actionItem naming convention loosely in place in the VCU)
 
+<<<<<<< HEAD
     //parameters we need for calculations//
     float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
     float driversRequestedtq = appsTqPercent*maxtq; 
     float rpm = (float)MCM_getMotorRPM(mcm);
+=======
+    // Calculate interpolation values
+    float horizontalInterpolation = (float)(((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
+    float verticalInterpolation   = (float)(((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
+    // Calculate gains
+    float gainValueHorizontal = (float)fmod(noLoadVoltage, VOLTAGE_STEP);
+    float gainValueVertical   = (float)fmod(rpm, RPM_STEP);
+    // Combine interpolated values
+    return (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
+}
+>>>>>>> 439764b (More EDITS_toNames)
 
 <<<<<<< HEAD
     
@@ -165,33 +176,26 @@ float PL_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVolta
 
 =======
 void PL_calculateTorqueOffset(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
-//-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
+    me->watts          = MCM_getPower(mcm);
 
-    float mcmVoltage   = (float)MCM_getDCVoltage(mcm);
-    float mcmCurrent   = (float)MCM_getDCCurrent(mcm);
-    me->motorRPM       = (float)MCM_getMotorRPM(mcm);
-    me->watts          = (float)MCM_getPower(mcm);
-    ubyte2 commandedTQ = MCM_getCommandedTorque(mcm);
-    ubyte2 offsetTQ    = 0;
-
-// -------------------------------------no load pack voltage calc: record voltage -------------------------------------
-//
-//-------------> need to do this this for LUT
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-//
-    ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
-        ubyte2 maxtq  = MCM_PL_getTorqueMax(mcm);
-        float4 appsTqPercent;
-        TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+        ubyte2 maxTQ       = MCM_getTorqueMax(mcm);
+        float4 appsPercentTQ; //apps =? acceleration pedal pressure sensor.
+        TorqueEncoder_getOutputPercent(tps, &appsPercentTQ);
         me->offset = PID_computeOffset(pid, me->watts);
+<<<<<<< HEAD
         offsetTQ   = commandedTQ * ((ubyte2)(me->offset / me->watts * 100));
 >>>>>>> fd174af (Among other things, an attent to rename new functions to follow the SYSTEM_actionItem naming convention loosely in place in the VCU)
+=======
+        ubyte2 offsetTQ   = appsPercentTQ * maxTQ ((ubyte2)(me->offset / me->watts * 100));
+        MCM_updateTorqueOffset(mcm, offsetTQ);
+>>>>>>> 439764b (More EDITS_toNames)
     }
     else {
         me-> plStatus = FALSE;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     float plfinaltq=  me->plfinaltq;
@@ -403,6 +407,9 @@ float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
 #endif
 =======
     MCM_updateTorqueOffset(mcm, offsetTQ);
+=======
+
+>>>>>>> 439764b (More EDITS_toNames)
     MCM_updatePowerLimitState(mcm, me->plStatus);
 }
 >>>>>>> fd174af (Among other things, an attent to rename new functions to follow the SYSTEM_actionItem naming convention loosely in place in the VCU)
