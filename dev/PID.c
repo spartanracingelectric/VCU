@@ -15,7 +15,6 @@
  * Proportional test first with other output 0, get midway with target and then tune other items. There are many factors of noise.
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
-
 #include <stdlib.h>
 #include "pid.h"
 
@@ -33,14 +32,11 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
 
 }
 
-void PID_resetpidOffset(PID* pid, float4 error){
-    pid->totalError = error;
-}
-void PID_setpointUpdate(PID *pid, float setpoint) {
+void PID_updateSetpoint(PID *pid, float setpoint) {
     pid->setpoint = setpoint; 
 }
 
-float PID_compute(PID *pid, float sensorValue) {
+float PID_computeOffset(PID *pid, float sensorValue) {
     float currentError = (float)(pid->setpoint - sensorValue);
     float proportional = (float)(pid->Kp * currentError);
     float integral     = (float)(pid->Ki * (pid->totalError + currentError) * pid->dt);
