@@ -37,16 +37,6 @@ void PID_setpointUpdate(PID *pid, float setpoint) {
     pid->setpoint = setpoint; 
 }
 
-void PID_dtUpdate(PID *pid, float dt) {
-    pid->dt  = dt;
-}
-
-void PID_setGain(PID *pid, float Kp, float Ki, float Kd){
-    pid-> Kp = Kp;
-    pid-> Ki = Ki;
-    pid-> Kd = Kd;
-}
-
 float PID_compute(PID *pid, float sensorValue) {
     float currentError = (float)(pid->setpoint - sensorValue);
     float proportional = (float)(pid->Kp * currentError);
@@ -54,12 +44,6 @@ float PID_compute(PID *pid, float sensorValue) {
     float derivative   = (float)(pid->Kd * (currentError - pid->previousError) / pid->dt);
     pid->previousError = currentError;
     pid->totalError   += currentError;
-    return proportional + integral + derivative;
-}
-
-float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ)
-{
-    float efficiencyTQ = commandedTQ - idealTQ / commandedTQ;
-    return (pid->setpoint + PID_compute(pid, idealTQ))/efficiencyTQ;
-    //returns the new torque commanded value, which takes the ideal offset from PID_compute, then calulates the final ideal torque output, then converts it using the earlier tqefficency calculation to account for losses inbetween what is requested by the MCU and how much tq is used to move the car forward. 
+    //Comphrehensive check to ensure PID only outputs when overshooting setpoint, to not run afoul of rules.
+    return (proportional + integral + derivative < 0) ? proportional + integral + derivative : 0;
 }

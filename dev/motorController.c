@@ -133,7 +133,7 @@ struct _MotorController
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
 
-    float PowerLimit_TorqueLimit;
+    float plTorqueOffset;
     bool PLState;
 
 
@@ -182,7 +182,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->LaunchControl_TorqueLimit = 0;
     me->LCState = FALSE;
 
-    me-> PowerLimit_TorqueLimit =0.0;
+    me-> plTorqueOffset =0.0;
     me-> PLState =FALSE;
 
     me->HVILOverride = FALSE;
@@ -320,12 +320,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->LaunchControl_TorqueLimit;
     } 
     else if(me->PLState == TRUE){
-     float torquetemp = me->PowerLimit_TorqueLimit+ (float)appsTorque + (float) bpsTorque;
-      torqueOutput = (sbyte2)(int)torquetemp;
-    }
-    else if(torqueOutput > 2000.0)
-    { // saftey checks 
-        torqueOutput = 0.0;
+        torqueOutput = (sbyte2)(int)(me->plTorqueOffset) + appsTorque + bpsTorque;
     }
     else {
       torqueOutput = appsTorque + bpsTorque;
@@ -731,8 +726,8 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
 
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float PLTorqueoffset){
-     me->PowerLimit_TorqueLimit = PLTorqueoffset;
+void MCM_updateTorqueOffset(MotorController *me, float offsetTQ){
+     me->plTorqueOffset = offsetTQ;
 
 }
 

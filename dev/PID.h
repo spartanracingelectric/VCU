@@ -24,8 +24,6 @@ typedef struct _PID {
 
 PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
 void  PID_setpointUpdate(PID *pid, float setpoint);
-void  PID_setGain(PID *pid, float Kp, float Ki, float Kd);
-void  PID_dtUpdate(PID *pid, float dt);
 float PID_compute(PID *pid, float sensorValue);
 
 #endif //_PID_H

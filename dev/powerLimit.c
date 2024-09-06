@@ -83,7 +83,7 @@ PowerLimit* PL_new(){
     me->watts       = 0.0;
     me->motorRPM    = 0.0;
     me->valueLUT    = 0.0;
-    me->error       = 0.0;
+    me->offset      = 0.0;
     me->estimatedTQ = 0.0;
     me->setpointTQ  = 0.0;
     return me;
@@ -118,25 +118,13 @@ float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage,
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
 //-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
 
-    float mcmVoltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
-    float mcmCurrent = (float)MCM_getDCCurrent(mcm);
-    me->motorRPM     = (float)MCM_getMotorRPM(mcm);
-    me->watts        = (float)MCM_getPower(mcm);
+    float mcmVoltage   = (float)MCM_getDCVoltage(mcm);
+    float mcmCurrent   = (float)MCM_getDCCurrent(mcm);
+    me->motorRPM       = (float)MCM_getMotorRPM(mcm);
+    me->watts          = (float)MCM_getPower(mcm);
+    ubyte2 commandedTQ = MCM_getCommandedTorque(mcm);
+    ubyte2 offsetTQ    = 0;
 
-//----------------------------------------TESTING-------------------------------------------------
-//
-//    float appsTqPercent;
-//    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-//    float watts = (float)(appsTqPercent * 100000.0); 
-//    float kilowatts = (float)(watts/10.0);
-//    float motorRPM = (float)(watts*0.045);
-//
-//--------------------------------------------------------------------------------------
-//
-// me->currentMCM = current; 
-// me->voltageMCM = voltage; 
-//------------------------------------------------------------------------------------------------------------------------------------------------------
-//
 // -------------------------------------no load pack voltage calc: record voltage -------------------------------------
 //
 //-------------> need to do this this for LUT
@@ -145,28 +133,15 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
-        ubyte2 maxtq = MCM_getTorqueMax(mcm);
+        ubyte2 maxtq  = MCM_getTorqueMax(mcm);
         float4 appsTqPercent;
         TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-           
-        float tqsetpoint  = (float)((PL_INIT/me->motorRPM)*UNIT_CONVERSTION);
-        float idealTQ = (float)((me->watts/me->motorRPM)*UNIT_CONVERSTION);
-        // float tqsetpoint  = (float)((KWH_LIMIT*gain/motorRPM)*decitq);
-        // float predictedtq = (float)((watts*gain/motorRPM)*decitq);
-
-        me->estimatedTQ = idealTQ;
-        me->setpointTQ  = tqsetpoint;
-        PID_setpointUpdate(pid,tqsetpoint);
-        me->error =  PID_compute(pid, idealTQ);
-        // float appsTqPercent;
-        // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        // the torqueMaximumDNm is 2000, scale it accordingly 
-        // ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
-        // me->PLoffsetpid= (tq * appsTqPercent) + me->error;
+        me->offset = PID_compute(pid, me->watts);
+        offsetTQ   = commandedTQ * ((ubyte2)(me->offset / me->watts * 100));
     }
     else {
         me-> plStatus = FALSE;
     }
-    MCM_update_PowerLimit_TorqueLimit(mcm, me->error);
-    MCM_update_PowerLimit_State(mcm, me->plStatus); 
+    MCM_updateTorqueOffset(mcm, offsetTQ);
+    MCM_update_PowerLimit_State(mcm, me->plStatus);
 }

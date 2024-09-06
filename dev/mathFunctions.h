@@ -29,5 +29,5 @@ ubyte4 swap_uint32(ubyte4 val);
 sbyte4 swap_int32(sbyte4 val);
 
 ubyte2 floorToNearestIncrement(ubyte2 value, ubyte2 increment);
-ubyte2 ceilToNearestIncrement(ubyte2 value, ubyte2 increment);
+ubyte2 ceilingToNearestIncrement(ubyte2 value, ubyte2 increment);
 #endif //  _MATHFUNCTIONS_H
