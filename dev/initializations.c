@@ -31,10 +31,11 @@ void vcu_initializeADC(bool benchMode)
 
     //Digital/power outputs ---------------------------------------------------
     //Relay power outputs
-    IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //mcm0 Relay
+    IO_DO_Init(IO_DO_00);    IO_DO_Set(IO_DO_00, FALSE); //mcm0 Relay
     IO_DO_Init(IO_DO_01);    IO_DO_Set(IO_DO_01, FALSE); //VCU-BMS Shutdown Relay
     IO_DO_Init(IO_DO_02);    IO_DO_Set(IO_DO_02, FALSE); //Water pump signal (No longer using PWM signal for the Water Pump)
     IO_DO_Init(IO_DO_03);    IO_DO_Set(IO_DO_03, FALSE); //Fan relay - motor fan and radiator fan are on same circuit
+    // IO_DO_Init(IO_DO_04);    IO_DO_Set(IO_DO_04, FALSE); //Pin: 142 empty pin
     IO_DO_Init(IO_DO_05);    IO_DO_Set(IO_DO_05, benchMode); //power output for switches - only used on bench
     IO_DO_Init(IO_DO_06);    IO_DO_Set(IO_DO_06, FALSE); //DRS Open
     IO_DO_Init(IO_DO_07);    IO_DO_Set(IO_DO_07, FALSE); //DRS Close
