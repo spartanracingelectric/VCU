@@ -91,14 +91,14 @@ PowerLimit* PL_new(){
 // this function needs to be HEAVILY debugged for double linear interpolation 
 float PL_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
     float voltageFloor   = (float)floorToNearestIncrement(noLoadVoltage, VOLTAGE_STEP);
-    float voltageCeiling = (float)ceilToNearestIncrement(noLoadVoltage, VOLTAGE_STEP);
+    float voltageCeiling = (float)ceilingToNearestIncrement(noLoadVoltage, VOLTAGE_STEP);
     float rpmFloor       = (float)floorToNearestIncrement(rpm, RPM_STEP);
-    float rpmCeiling     = (float)ceilToNearestIncrement(rpm, RPM_STEP);
+    float rpmCeiling     = (float)ceilingToNearestIncrement(rpm, RPM_STEP);
     // Retrieve torque values from the hash table for the four corners, xy convention
-    float vFloorRFloor     = (float)HashTable_get(torqueHashtable, voltageFloor, rpmFloor);
-    float vCeilingRFloor   = (float)HashTable_get(torqueHashtable, voltageCeiling, rpmFloor);
-    float vFloorRCeiling   = (float)HashTable_get(torqueHashtable, voltageFloor, rpmCeiling);
-    float vCeilingRCeiling = (float)HashTable_get(torqueHashtable, voltageCeiling, rpmCeiling);
+    float vFloorRFloor     = (float)HashTable_getValue(torqueHashtable, voltageFloor, rpmFloor);
+    float vCeilingRFloor   = (float)HashTable_getValue(torqueHashtable, voltageCeiling, rpmFloor);
+    float vFloorRCeiling   = (float)HashTable_getValue(torqueHashtable, voltageFloor, rpmCeiling);
+    float vCeilingRCeiling = (float)HashTable_getValue(torqueHashtable, voltageCeiling, rpmCeiling);
     // Error check
 
     // Calculate interpolation values

@@ -55,7 +55,7 @@ void HashTable_insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) 
 
 
 // Retrieve a value from the hash table
-ubyte4 HashTable_get(HashTable* table, ubyte2 key1, ubyte2 key2) {
+ubyte4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
     ubyte1 index = HashTable_hash(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
