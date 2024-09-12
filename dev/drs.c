@@ -46,7 +46,8 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps /*add watch dog parameter*/) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps /*add watch dog parameter & steering angle
+*/) {
 
     // permanantly in pot_DRS_LC == 0 (! retired functionality of pot_DRS_LC)
     // if(pot_DRS_LC == 1) {
@@ -75,7 +76,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                     DRS_close(me);
                 }
                 break;
-            case AUTO:
+            case ASSISTIVE:
             /* 
             1. Check if button is pressed & DRS engaged (should be false)
             2. Open DRS & Log time the button is pressed
