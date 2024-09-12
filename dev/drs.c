@@ -46,7 +46,7 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps /*add watch dog parameter*/) {
 
     // permanantly in pot_DRS_LC == 0 (! retired functionality of pot_DRS_LC)
     // if(pot_DRS_LC == 1) {
@@ -66,15 +66,27 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 DRS_open(me);           
                 break;
             case MANUAL:
-                if(Sensor_DRSButton.sensorValue == TRUE) {
+                if(Sensor_DRSButton.sensorValue == TRUE) { 
                     me->buttonPressed = TRUE;
                     DRS_open(me);
-                } else {
+                } 
+                else {
                     me->buttonPressed = FALSE;
                     DRS_close(me);
                 }
                 break;
             case AUTO:
+            /* 
+            1. Check if button is pressed & DRS engaged (should be false)
+            2. Open DRS & Log time the button is pressed
+            3. Wait at least 5 cycle (50ms) to check if button pressed again
+
+            4. To close check if button is pressed & DRS engaged (should be true)
+            5. Close DRS & Log time the button is pressed
+            6. Wait at least 5 cycle (50ms) to check if button pressed again
+
+            7. ALWAYS BEING CHECKED: Exit conditions (Brake pressure is ??% or streering angle is 15% to right or left) then close DRS
+            */
                 runAuto(me, mcm, tps, bps);
                 break;
             default:
