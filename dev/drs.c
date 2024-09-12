@@ -128,7 +128,7 @@ void update_knob(DRS *me) {
         else if (Sensor_DRSKnob.sensorValue <= 1.1)
         {    me->currentDRSMode = MANUAL;}
         else if (Sensor_DRSKnob.sensorValue <= 2.2)
-        {    me->currentDRSMode = AUTO;}
+        {    me->currentDRSMode = ASSISTIVE;}
         else if (Sensor_DRSKnob.sensorValue <= 3.3)
         {    me->currentDRSMode = STAY_OPEN;}
         else if (Sensor_DRSKnob.sensorValue > 3.3)
