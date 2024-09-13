@@ -92,6 +92,25 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
 
             7. ALWAYS BEING CHECKED: Exit conditions (Brake pressure is ??% or streering angle is 15% to right or left) then close DRS
             */
+
+           //if drsSafety == 1 & 5 cycles has passed from log time
+           //set drsSafety == 0
+
+            if(Sensor_DRSButton.sensorValue == true &&  me->drsFlap == 0){ //check if button is pressed && drs is inactive && if drsSafety == 0
+                DRS_open(me); //open drs
+                //log time, set boolean value drsSafety to 1       
+            }
+
+            if(Sensor_DRSButton.sensorValue == true && me->drsFlap == 1){ //check if button is pressed %% drs is active && if drsSafety == 0
+                DRS_close(me); ///close drs
+                //log time, set boolean value drsSafety to 1
+            }
+
+
+            if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open 
+                drs_close(me);
+            }
+
                 runAuto(me, mcm, tps, bps);
                 break;
             default:
