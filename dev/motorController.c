@@ -319,11 +319,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     {
         torqueOutput = me->LaunchControl_TorqueLimit;
     } 
-    else if(me->PLState == TRUE){
-        if((sbyte2)(int)(me->plTorqueOffset) < appsTorque)
-        {
-        torqueOutput = (sbyte2)(int)(me->plTorqueOffset) + bpsTorque;\
-        }    
+    else if(me->PLState == TRUE && (sbyte2)(int)(me->plTorqueOffset) <= appsTorque){
+        torqueOutput = (sbyte2)(int)(me->plTorqueOffset) + bpsTorque;
     }
     else {
       torqueOutput = appsTorque + bpsTorque;
