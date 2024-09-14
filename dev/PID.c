@@ -36,11 +36,10 @@ void PID_updateSetpoint(PID *pid, float setpoint) {
 
 float PID_computeOffset(PID *pid, float sensorValue) {
     float currentError = *pid->setpoint - sensorValue;
-    float pidOutput    =  pid->Kp * currentError; //proportional
-    pidOutput         +=  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
-    pidOutput         +=  pid->Kd * (currentError - *pid->previousError) / pid->dt; //derivative
-   *pid->previousError = &currentError;
+    float proportional =  pid->Kp * currentError; //proportional
+    float integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
+    float derivative   =  pid->Kd * (currentError - *pid->previousError) / pid->dt; //derivative
+    pid->previousError = &currentError;
     pid->totalError   += currentError;
-    //Comprehensive check to ensure PID only outputs an offset when overshooting setpoint, to not run afoul of rules.
-    return pidOutput ? pidOutput : 0;
+    return proportional + integral + derivative;
 }

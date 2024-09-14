@@ -117,10 +117,9 @@ void PL_calculateTorqueOffset(TorqueEncoder* tps, MotorController* mcm, PowerLim
     if(me->watts > PL_INIT) {
         me-> plStatus = TRUE;
         ubyte2 maxTQ       = MCM_getTorqueMax(mcm);
-        float4 appsPercentTQ; //apps =? acceleration pedal pressure sensor.
-        TorqueEncoder_getOutputPercent(tps, &appsPercentTQ);
+        sbyte2 commandedTorque = MCM_commands_PL_getTorque(me);
         me->offset = PID_computeOffset(pid, me->watts);
-        ubyte2 offsetTQ   = appsPercentTQ * maxTQ ((ubyte2)(me->offset / me->watts * 100));
+        ubyte2 offsetTQ   = commandedTorque * (1 + maxTQ ((ubyte2)(me->offset / me->watts * 100)));
         MCM_updateTorqueOffset(mcm, offsetTQ);
     }
     else {
