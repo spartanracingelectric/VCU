@@ -393,7 +393,7 @@ BO_ 1296 VCU_80kW_Debug: 8 VCU
 ////////////////////////////////////////////////////////////
 
 BO_ 1297 Power_Limit_MCM: 8 mcm
- SG_ PLStatus : 0|8@1+ (1,0) [0|1] "" VCU
+ SG_ plState : 0|8@1+ (1,0) [0|1] "" VCU
  SG_ PLwheelspeed : 8|16@1+ (1,0) [0|30000] "" VCU
  SG_ PLpower : 24|16@1+ (1,0) [0|90000] "" VCU
  SG_ PLLUTtq : 40|16@1+ (1,0) [0|90000] "" VCU

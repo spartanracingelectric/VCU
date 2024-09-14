@@ -16,7 +16,7 @@
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
 #include <stdlib.h>
-#include "pid.h"
+#include "PID.h"
 
 PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
@@ -24,33 +24,30 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-    pid->setpoint = setpoint; 
+    pid->setpoint      = setpoint; 
     pid->previousError = 0.0;
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
     return pid;
 
 }
-
-void PID_updateSetpoint(PID *pid, float setpoint) {
-    pid->*setpoint = &setpoint;
+void PID_setTotalError(PID* pid, float4 error){
+    pid->totalError = error;
 }
-
-float PID_computeOffset(PID *pid, float sensorValue) {
-    float currentError = *pid->setpoint - sensorValue;
-    float pidOutput    =  pid->Kp * currentError; //proportional
-    pidOutput         +=  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
-    pidOutput         +=  pid->Kd * (currentError - *pid->previousError) / pid->dt; //derivative
-   *pid->previousError = &currentError;
+void PID_updateSetpoint(PID *pid, float4 setpoint) {
+    pid->setpoint = setpoint; 
+}
+void PID_setGain(PID *pid, float4 Kp, float4 Ki, float4 Kd){
+    pid-> Kp = Kp;
+    pid-> Ki = Ki;
+    pid-> Kd = Kd;
+}
+sbyte2 PID_computeOffset(PID *pid, float4 sensorValue) {
+    float4 currentError =  pid->setpoint - sensorValue;
+    float4 proportional =  pid->Kp * currentError; //proportional
+    float4 integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
+    float4 derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
+    pid->previousError = currentError;
     pid->totalError   += currentError;
-    return proportional + integral + derivative;
-}
-
-float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ)
-{
-    float efficiencyTQ = commandedTQ - idealTQ / commandedTQ;
-    return (pid->setpoint + PID_computeOffset(pid, idealTQ))/efficiencyTQ;
-    //returns the new torque commanded value, which takes the ideal offset from PID_computeOffset, then calulates the final ideal torque output, then converts it using the earlier tqefficency calculation to account for losses inbetween what is requested by the MCU and how much tq is used to move the car forward. 
-    //Comphrehensive check to ensure PID only outputs when overshooting setpoint, to not run afoul of rules.
-    return (proportional + integral + derivative < 0) ? proportional + integral + derivative : 0;
+    return (sbyte2)(proportional + integral + derivative);
 }
