@@ -90,7 +90,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
 
             7. ALWAYS BEING CHECKED: Exit conditions (Brake pressure is ??% or streering angle is 15% to right or left) then close DRS
             */
-                runAuto(me, mcm, tps, bps);
+                DRS_Assistive(me, tps, bps);
                 break;
             default:
                 break;
@@ -123,7 +123,7 @@ void DRS_close(DRS *me) {
 
 }
 
-void DRS_Assistive(DRS *me){
+void DRS_Assistive(DRS *me, TorqueEncoder *tps, BrakePressureSensor *bps){
     ubyte4 timestamp_startTime = 0;
     ubyte4 timestamp_EcoButton = 0;
 
@@ -142,7 +142,23 @@ void DRS_Assistive(DRS *me){
         else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 100000) // pressed longer than 0.1 sec
         {
             // SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n"); // i dont think we need this
-            // code here
+            //if drsSafety == 1 & 5 cycles has passed from log time
+           //set drsSafety == 0
+
+            if(Sensor_DRSButton.sensorValue == true &&  me->drsFlap == 0){ //check if button is pressed && drs is inactive && if drsSafety == 0
+                DRS_open(me); //open drs
+                //log time, set boolean value drsSafety to 1       
+            }
+
+            if(Sensor_DRSButton.sensorValue == true && me->drsFlap == 1){ //check if button is pressed %% drs is active && if drsSafety == 0
+                DRS_close(me); ///close drs
+                //log time, set boolean value drsSafety to 1
+            }
+
+
+            if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open 
+                drs_close(me);
+            }
             me->drsFlap = 0; 
             timestamp_EcoButton = 0; //timer rest
         }
