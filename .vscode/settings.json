@@ -1,5 +1,6 @@
 {
+    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "derating.h": "c"
+        "torqueencoder.h": "c"
     }
 }

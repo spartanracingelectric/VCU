@@ -844,14 +844,14 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 16);
-    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_getPower(mcm) >> 24);  
+    canMessages[canMessageCount - 1].data[byteNum++] = (pl->PLstatus);
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->wheelspeed);
     canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->wheelspeed))>> 8;      
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl-> power);
-    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl-> power))>> 8;      
+    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl-> power))>> 8;  
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; 
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;  
+       canMessages[canMessageCount - 1].data[byteNum++] = 0;     
     canMessages[canMessageCount - 1].length = byteNum;
 
     //512: Power Limit
@@ -859,13 +859,13 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;;
-    canMessages[canMessageCount - 1].data[byteNum++] = (pl->PLstatus);
+    canMessages[canMessageCount - 1].data[byteNum++] = (pl->plStatus);
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)(int)(pl->error);
     canMessages[canMessageCount - 1].data[byteNum++] = ((sbyte2)(int)(pl->error))>> 8;        //table input
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->estimatedtq);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->estimatedtq))>> 8;        //table input
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->setpointtq);
-    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->setpointtq))>> 8; 
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->estimatedTQ);
+    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->estimatedTQ))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->setpointTQ);
+    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->setpointTQ))>> 8; 
     canMessages[canMessageCount - 1].data[byteNum++] = 0;      //table output
     canMessages[canMessageCount - 1].length = byteNum;
 
