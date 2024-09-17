@@ -88,7 +88,7 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
 
             7. ALWAYS BEING CHECKED: Exit conditions (Brake pressure is ??% or streering angle is 15% to right or left) then close DRS
             */
-                runAuto(me, mcm, tps, bps);
+                DRS_Assistive(me);
                 break;
             default:
                 break;
@@ -119,6 +119,33 @@ void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_07, TRUE);
     me->drsFlap = 0;
 
+}
+
+void DRS_Assistive(DRS *me){
+    ubyte4 timestamp_startTime = 0;
+    ubyte4 timestamp_EcoButton = 0;
+
+    SerialManager *serialMan = SerialManager_new();
+    IO_RTC_StartTime(&timestamp_startTime);
+
+    // while(1) //looped?
+    // {
+    if(Sensor_DRSButton.sensorValue == TRUE)
+    {
+        if (timestamp_EcoButton == 0)
+        {
+            SerialManager_send(serialMan, "Eco button detected\n");
+            IO_RTC_StartTime(&timestamp_EcoButton);
+        }
+        else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 100000) // pressed longer than 0.1 sec
+        {
+            // SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n"); // i dont think we need this
+            // code here
+            me->drsFlap = 0; 
+            timestamp_EcoButton = 0; //timer rest
+        }
+    }
+    // }
 }
 
 //Change to future regarding rotary voltage values
