@@ -320,8 +320,14 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->LaunchControl_TorqueLimit;
     } 
     else if(me->PLState == TRUE){
-     float torquetemp = me->PowerLimit_TorqueLimit+ (float)appsTorque + (float) bpsTorque;
-      torqueOutput = (sbyte2)(int)torquetemp;
+     float torquetemp = me->PowerLimit_TorqueLimit; 
+     if(torquetemp < (appsTorque+bpsTorque))
+     {
+        torqueOutput = (sbyte2)(int)torquetemp;
+     }
+     else{
+        torqueOutput = appsTorque + bpsTorque;
+     }
     }
     else if(torqueOutput > 2000.0)
     { // saftey checks 
