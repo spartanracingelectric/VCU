@@ -225,7 +225,9 @@ void main(void)
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
     PID *plPID = PID_new(1.0,0.0,0.0,0.0);
-
+    PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
+    PID_resetPIDerror(lcPID, 170.0);
+//---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
     // //----------------------------------------------------------------------------
@@ -424,12 +426,11 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-
-        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        slipRatioCalculation(wss, lc);
+        launchControlTorqueCalculation(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        
         powerLimitTorqueCalculation(tps, mcm0, pl, bms, wss, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 

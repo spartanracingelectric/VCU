@@ -266,6 +266,6 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 }
 
 
-// TODO: write case 3: tqpid+lut and case 4: powerpid+lut in the same syntax and comment it out
+// TODO: write case 3: tqpid+lut
 */
 
