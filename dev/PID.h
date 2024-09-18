@@ -22,10 +22,11 @@ typedef struct _PID {
     float4 dt;               // Time interval between PID updates in seconds (VCU tick speed)
 } PID;
 
-PID*  PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint);
-void  PID_setTotalError(PID* pid, float4 error);
-void  PID_updateSetpoint(PID *pid, float4 setpoint);
-void  PID_updateInterval(PID *pid, float4 dt);
-void  PID_setGain(PID *pid,  float4 Kp, float4 Ki, float4 Kd);
-sbyte2 PID_computeOffset(PID *pid, float4 sensorValue);
+PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
+void PID_resetPIDerror(PID* pid, float4 error);
+void  PID_setpointUpdate(PID *pid, float setpoint);
+void  PID_setGain(PID *pid, float Kp, float Ki, float Kd);
+void  PID_dtUpdate(PID *pid, float dt);
+float PID_compute(PID *pid, float sensorValue);
+float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ);
 #endif //_PID_H

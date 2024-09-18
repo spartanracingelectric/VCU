@@ -18,23 +18,24 @@
 #include <stdlib.h>
 #include "PID.h"
 
-PID* PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint) {
+PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-    pid->setpoint      = setpoint; 
+    pid->setpoint = setpoint; 
     pid->previousError = 0.0;
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
     return pid;
 
 }
-void PID_setTotalError(PID* pid, float4 error){
+
+void PID_resetPIDerror(PID* pid, float4 error){
     pid->totalError = error;
 }
-void PID_updateSetpoint(PID *pid, float4 setpoint) {
+void PID_setpointUpdate(PID *pid, float setpoint) {
     pid->setpoint = setpoint; 
 }
 void PID_setGain(PID *pid, float4 Kp, float4 Ki, float4 Kd){
