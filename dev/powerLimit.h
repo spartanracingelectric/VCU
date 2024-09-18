@@ -16,7 +16,7 @@
 typedef struct _PowerLimit {
     PID *pid; 
     HashTable* hashtable;
-    bool plStatus;
+    bool PLstatus;
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
