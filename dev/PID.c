@@ -23,23 +23,23 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-   *pid->setpoint      = &setpoint; 
-   *pid->previousError
+    pid->setpoint      = setpoint; 
+    pid->previousError
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
     return pid;
 }
 
 void PID_updateSetpoint(PID *pid, float setpoint) {
-    pid->*setpoint = &setpoint;
+    pid->setpoint = setpoint;
 }
 
 float PID_computeOffset(PID *pid, float sensorValue) {
-    float currentError = *pid->setpoint - sensorValue;
+    float currentError =  pid->setpoint - sensorValue;
     float proportional =  pid->Kp * currentError; //proportional
     float integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
-    float derivative   =  pid->Kd * (currentError - *pid->previousError) / pid->dt; //derivative
-    pid->previousError = &currentError;
+    float derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
+    pid->previousError = currentError;
     pid->totalError   += currentError;
     return proportional + integral + derivative;
 }
