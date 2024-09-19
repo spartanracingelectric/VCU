@@ -590,8 +590,8 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
     case 0x0A8:
         //0,1 Flux Command
         //2,3 flux feedback
-        //4,5 id feedback
-        //6,7 iq feedback
+        //me->ID = ((ubyte2)mcmCanMessage->data[5] << 8 | mcmCanMessage->data[4]) / 10;//4,5 id feedback
+        //me->IQ = ((ubyte2)mcmCanMessage->data[7] << 8 | mcmCanMessage->data[6]) / 10;//6,7 iq feedback
         break;
 
     case 0x0A9:
