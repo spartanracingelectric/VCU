@@ -64,8 +64,8 @@ void populatePLHashTable(HashTable* table)
 
     for (ubyte1 row = 0; row < NUM_S; ++row) {
         for(ubyte1 column = 0; column < NUM_V; ++column) {
-            float4 noLoadVoltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
-            sbyte4 rpm   = RPM_MIN + row * RPM_STEP;
+            ubyte2 noLoadVoltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
+            ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
             ubyte4 value = lookupTable[row][column];
             insert(table, noLoadVoltage, rpm, value);
         }
@@ -85,35 +85,39 @@ PowerLimit* PL_new(){
     me->plfinaltq = 0.0; 
     me->pidsetpoint = 0.0; 
     me->pidactual = 0.0; 
+    me->LUTtq=0.0;
      
     return me;
 }
-/*this function needs to be HEAVILY debugged for double linear interpolation 
+//@shaun do this
+float noloadvoltagecalc(){
+    return -1; 
+}
 float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
     float voltageFloor = (float)floorToNearestIncrement(voltage, VOLTAGE_STEP);
     float voltageCeiling = (float)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
     float rpmFloor = (float)floorToNearestIncrement(rpm, RPM_STEP);
     float rpmCeiling = (float)ceilToNearestIncrement(rpm, RPM_STEP);
     // Retrieve torque values from the hash table for the four corners
-    float floorFloor = (float)get(torque_hashtable, voltageFloor, rpmFloor);
-    float ceilingFloor =(float) get(torque_hashtable, voltageCeiling, rpmFloor);
-    float floorCeiling = (float)get(torque_hashtable, voltageFloor, rpmCeiling);
-    float ceilingCeiling = (float)get(torque_hashtable, voltageCeiling, rpmCeiling);
+    float vFloorRFloor = (float)get(torque_hashtable, voltageFloor, rpmFloor);
+    float vCeilingRFloor =(float) get(torque_hashtable, voltageCeiling, rpmFloor);
+    float vFloorRCeiling = (float)get(torque_hashtable, voltageFloor, rpmCeiling);
+    float vCeilingRCeiling = (float)get(torque_hashtable, voltageCeiling, rpmCeiling);
     // Error check
 
     // Calculate interpolation values
     float horizontalInterpolation = (float)(((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
     float verticalInterpolation   = (float)(((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
     // Calculate gains
-    float gainValueHorizontal = (float)fmod(noLoadVoltage, VOLTAGE_STEP);
+    float gainValueHorizontal = (float)fmod(voltage, VOLTAGE_STEP);
     float gainValueVertical   = (float)fmod(rpm, RPM_STEP);
     // Combine interpolated values
-    float calibratedTorque  = 123;
-    me->valueLUT = calibratedTorque;
-    // return (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + lowerFloor;
+    float calibratedTorque  = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
+    
+    me->LUTtq = calibratedTorque; 
     return calibratedTorque;  // Adjust gain if necessary
 }
-*/ 
+
 /*
 // THIS IS THE SUPER OLD CODE THATS REALLY MESSY BE AWARE 
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
@@ -176,6 +180,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 }
   */
 
+/*
 // this is case1: tqpid + equation
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
@@ -265,7 +270,51 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
 }
 
-
-// TODO: write case 3: tqpid+lut
 */
+// TODO: write case 3: tqpid+lut
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+{
+       // calc stuff//
+       ubyte2 maxtq = MCM_getTorqueMax(mcm);
+       float appsTqPercent;
+       TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+        float gain = 9.549;
+        float decitq = 10.0;
+
+    //parameters we need for calculations//
+    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+    float driversRequestedtq = appsTqPercent*maxtq; 
+    float wheelspeed = (float)MCM_getMotorRPM(mcm);
+
+    
+    if(watts > KWH_THRESHOLD)
+     {// kwhlimit should be changed to another paramter we make for plthreshold
+        me-> PLstatus = TRUE;
+      // still need to make/ update all the struct parameters aka values for can validation 
+      float noloadvoltage = noloadvoltagecalc();
+       float pidsetpoint = (float)(getTorque(me, me->hashtable,noloadvoltage,wheelspeed));
+       float pidactual = (float)((watts*gain/wheelspeed)*decitq);
+       PID_setpointUpdate(pid,pidsetpoint);
+        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+       float piderror =  PID_compute(pid, pidactual);
+       float PLfinalTQ = pidactual+ piderror;
+       
+
+       me->piderror = piderror;
+       me->plfinaltq =PLfinalTQ; 
+       me->pidsetpoint = pidsetpoint;
+       me->pidactual = pidactual;
+
+    }
+    else {
+        me-> PLstatus = FALSE;
+    }
+
+    float plfinaltq=  me->plfinaltq;
+    MCM_update_PowerLimit_TorqueLimit(mcm, plfinaltq); 
+    MCM_update_PowerLimit_State(mcm, me->PLstatus); 
+
+    // in mcm.c input the if statement for the tps
+}
+
 
