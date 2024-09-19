@@ -224,7 +224,7 @@ void main(void)
 
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
-    PID *plPID = PID_new(1.0,0.0,0.0,0.0);
+    PID *plPID = PID_new(1.0,0.0,0.0,80000.0);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
