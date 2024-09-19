@@ -24,7 +24,7 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     pid->Ki = Ki;
     pid->Kd = Kd;
     pid->setpoint      = setpoint; 
-    pid->previousError
+    pid->previousError = 0.0;
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
     return pid;
