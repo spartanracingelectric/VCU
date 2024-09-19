@@ -108,8 +108,8 @@ void PL_calculateTorqueOffset(TorqueEncoder* tps, MotorController* mcm, PowerLim
         me-> plStatus = TRUE;
         ubyte2 maxTQ       = MCM_getTorqueMax(mcm);
         sbyte2 commandedTQ = MCM_commands_PL_getTorque(me);
-        me->offset         = PID_computeOffset(pid, me->watts);
-        ubyte2 offsetTQ    = commandedTQ * (1 + maxTQ ((ubyte2)(me->offset / me->watts * 100))); //offsetTQ is the complete torque request
+        me->offset         = PID_computeOffset(plPID, me->watts);
+        ubyte2 offsetTQ    = (ubyte2)commandedTQ * (1 + maxTQ ((ubyte2)(me->offset / me->watts * 100))); //offsetTQ is the complete torque request
         MCM_updateTorqueOffset(mcm, offsetTQ);
     }
     else {

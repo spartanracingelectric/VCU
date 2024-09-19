@@ -433,7 +433,7 @@ void main(void)
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         
-        PL_calculateTorqueOffset(tps, mcm0, pl, bms, wss, plPID);
+        PL_calculateTorqueOffset( mcm0, pl, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

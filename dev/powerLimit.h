@@ -14,8 +14,6 @@
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    PID *pid; 
-    HashTable* hashtable;
     bool plStatus;
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
@@ -33,9 +31,7 @@ typedef struct _PowerLimit {
 
 } PowerLimit;
 
-void PL_calculateTorqueOffset(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
-void PL_populateHashTable(HashTable* table);
-float PL_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm);
+void PL_calculateTorqueOffset(MotorController* mcm, PowerLimit* me, PID* plPID);
 PowerLimit* PL_new(); 
 
 #endif //_PID_H

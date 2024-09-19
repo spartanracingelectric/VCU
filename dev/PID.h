@@ -16,7 +16,7 @@ typedef struct _PID {
     float Kp;               // Proportional gain
     float Ki;               // Integral     gain
     float Kd;               // Derivative   gain
-    float setpoint;         // Target value
+    float setpoint;         // Target       value
     float previousError;
     float totalError;
     float dt;               // Time interval between PID updates in seconds (VCU tick speed)
