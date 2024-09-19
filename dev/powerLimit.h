@@ -20,11 +20,10 @@ typedef struct _PowerLimit {
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
-    float voltageMCM; 
-    float currentMCM; 
-    float power;
-    float motorRPM;
-
+   // float mcm_current; 
+   float power;
+   float wheelspeed;
+    float LUTtq;
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 
     float valueLUT;
@@ -36,6 +35,7 @@ typedef struct _PowerLimit {
 
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void populatePLHashTable(HashTable* table);
+float noloadvoltagecalc();
 float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm);
 PowerLimit* PL_new(); 
 
