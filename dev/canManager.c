@@ -841,6 +841,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 
  //511: MCM Values For Power Limit
    canMessageCount++;
+/**
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;;
@@ -853,9 +854,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] =  ((ubyte2)(pl->LUTtq)) >>8;  
     canMessages[canMessageCount - 1].data[byteNum++] = 0;     
     canMessages[canMessageCount - 1].length = byteNum;
-
+*/
     //512: Power Limit
     canMessageCount++;
+/**
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;
@@ -869,9 +871,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->plfinaltq)); 
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->plfinaltq))>> 8;     //table output
     canMessages[canMessageCount - 1].length = byteNum;
-
+*/
  //513: Power Limit PID
     canMessageCount++;
+/**
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;;
@@ -885,7 +888,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0; 
     canMessages[canMessageCount - 1].data[byteNum++] = 0;      //table output
     canMessages[canMessageCount - 1].length = byteNum;
-
+*/
 
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
 
