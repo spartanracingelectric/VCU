@@ -21,8 +21,8 @@
 #define VOLTAGE_STEP     (float4) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
 #define RPM_STEP         (sbyte4) 245.8333 //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
 #define PI               (float4) 3.14159
-#define KWH_LIMIT        (float4) 50000.0  // watts
-#define PL_INIT          (float4) 45000.0  // 5kwh buffer to init PL before PL limit is hit
+#define KWH_LIMIT        (float4) 55000.0  // watts
+#define PL_INIT          (float4) 55000.0  // 5kwh buffer to init PL before PL limit is hit
 #define UNIT_CONVERSTION (float4) 95.49    // 9.549 *10.0 to convert to deci-newtonmeters
 
 #endif
@@ -94,6 +94,7 @@ float noloadvoltagecalc(){
     return -1; 
 }
 float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
+    /*
     float voltageFloor = (float)floorToNearestIncrement(voltage, VOLTAGE_STEP);
     float voltageCeiling = (float)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
     float rpmFloor = (float)floorToNearestIncrement(rpm, RPM_STEP);
@@ -115,6 +116,9 @@ float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, floa
     float calibratedTorque  = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
     
     me->LUTtq = calibratedTorque; 
+    */
+
+     float calibratedTorque = (float)get(torque_hashtable,voltage,rpm);
     return calibratedTorque;  // Adjust gain if necessary
 }
 
@@ -292,7 +296,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
      {// kwhlimit should be changed to another paramter we make for plthreshold
         me-> PLstatus = TRUE;
       // still need to make/ update all the struct parameters aka values for can validation 
-      float noloadvoltage = noloadvoltagecalc();
+      float noloadvoltage = 300;
        float pidsetpoint = (float)(getTorque(me, me->hashtable,noloadvoltage,wheelspeed));
        float pidactual = (float)((watts*gain/wheelspeed)*decitq);
        PID_setpointUpdate(pid,pidsetpoint);
