@@ -43,3 +43,7 @@ float PID_computeOffset(PID *pid, float sensorValue) {
     pid->totalError   += currentError;
     return proportional + integral + derivative;
 }
+
+void PID_resetPIDerror(PID* pid, float4 error){
+    pid->totalError = error;
+}
