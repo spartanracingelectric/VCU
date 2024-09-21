@@ -84,11 +84,11 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     me->slipRatio = filt_speed;
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcpid)
+void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcpid, PID *lcpid)
 {
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
-    sbyte2 mcm_Torque_max = (MCM_commands_PL_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
+    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
     
     
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
@@ -105,10 +105,10 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
         if(speedKph > 3)
         {
 
-            PID_updateSetpoint(me->pidController, 0.2);
+            PID_setpointUpdate(lcpid, 0.2);
             //PID_dtUpdate(me->pidController, 0.01);// updates the dt 
             //float Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
-            float4 PIDtorque= (float4)PID_computeOffset(me->pidController,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+            float4 PIDtorque= (float4)PID_compute(lcpid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
             float4 appsTqPercent;
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             ubyte2 torque= MCM_getMaxTorqueDNm(mcm);

@@ -46,11 +46,6 @@ float PID_computeOffset(PID *pid, float sensorValue) {
     return proportional + integral + derivative;
 }
 
-float PID_efficiencycheck(PID *pid, float commandedTQ, float motorRPM, float idealTQ)
-{
-    float efficiencyTQ = commandedTQ - idealTQ / commandedTQ;
-    return (pid->setpoint + PID_computeOffset(pid, idealTQ))/efficiencyTQ;
-    //returns the new torque commanded value, which takes the ideal offset from PID_computeOffset, then calulates the final ideal torque output, then converts it using the earlier tqefficency calculation to account for losses inbetween what is requested by the MCU and how much tq is used to move the car forward. 
-    //Comphrehensive check to ensure PID only outputs when overshooting setpoint, to not run afoul of rules.
-    return (proportional + integral + derivative < 0) ? proportional + integral + derivative : 0;
+void PID_resetPIDerror(PID* pid, float4 error){
+    pid->totalError = error;
 }

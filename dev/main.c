@@ -427,13 +427,12 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         slipRatioCalculation(wss, lc);
-        PID_setGain(lcPID, 20.0, 0.0, 0.0);
         launchControlTorqueCalculation(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         
-        PL_calculateTorqueOffset( mcm0, pl, plPID);
+        PL_calculateTorqueOffset(mcm0, pl, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
