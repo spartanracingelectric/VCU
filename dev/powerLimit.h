@@ -16,6 +16,7 @@
 typedef struct _PowerLimit {
     bool plStatus;
     float watts;
+    float offset;
 } PowerLimit;
 
 void PL_calculateTorqueOffset(MotorController* mcm, PowerLimit* me, PID* plPID);
