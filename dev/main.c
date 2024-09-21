@@ -375,7 +375,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        slipRatioCalculation(wss, lc);
+        LaunchControl_slipRatioCalculation(wss, lc);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -426,8 +426,8 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        slipRatioCalculation(wss, lc);
-        launchControlTorqueCalculation(lc, tps, bps, mcm0,lcPID);
+        LaunchControl_slipRatioCalculation(wss, lc);
+        LaunchControl_torqueCalculation(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------

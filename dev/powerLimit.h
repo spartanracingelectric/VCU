@@ -14,7 +14,7 @@
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    bool plStatus;
+    bool plState;
     float watts;
     float offset;
 } PowerLimit;

@@ -130,11 +130,11 @@ struct _MotorController
     //_commands commands;
     //};
 
-    sbyte2 LaunchControl_TorqueLimit;
-    bool LCState;
+    sbyte2 launchControlTorqueLimit;
+    bool launchControlState;
 
-    float plTorqueOffset;
-    bool PLState;
+    float plTorqueCommand;
+    bool plState;
 
 
     //---------------------------------------------------------------------------------------------------
@@ -179,11 +179,11 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->motor_temp = 99;
 
-    me->LaunchControl_TorqueLimit = 0;
-    me->LCState = FALSE;
+    me->launchControlTorqueLimit = 0;
+    me->launchControlState = FALSE;
 
-    me-> plTorqueOffset =0.0;
-    me-> PLState =FALSE;
+    me-> plTorqueCommand =0.0;
+    me-> plState =FALSE;
 
     me->HVILOverride = FALSE;
  
@@ -312,19 +312,23 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
        appsTorque =  appsTorque - error;
   }
   */ 
-    if(me->LCState == TRUE)
+    if(me->launchControlState == TRUE)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0)
+        torqueOutput = me->launchControlTorqueLimit;
+    } else if (me->launchControlTorqueLimit == 0)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->launchControlTorqueLimit;
     } 
-    else if(me->PLState == TRUE && (sbyte2)(int)(me->plTorqueOffset) <= appsTorque){
-        torqueOutput = (sbyte2)(int)(me->plTorqueOffset) + bpsTorque;
+    else if(me->plState == TRUE && (sbyte2)(int)(me->plTorqueCommand) <= appsTorque){
+        torqueOutput = (sbyte2)(int)(me->plTorqueCommand) + bpsTorque;
     }
     else {
       torqueOutput = appsTorque + bpsTorque;
        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    }
+    if(torqueOutput > 250.0)
+    { // saftey checks 
+        torqueOutput = 0.0;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
@@ -714,26 +718,26 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
     me->inverterStatus = newState;
 }
 
-void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
+void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
 
-     me->LaunchControl_TorqueLimit = lcTorqueLimit;
+     me->launchControlTorqueLimit = lcTorqueLimit;
 
 }
 
-void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
+void MCM_update_LC_state(MotorController *me, bool newState){
 
-    me->LCState = newLCState;
+    me->launchControlState = newState;
 
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_updateTorqueOffset(MotorController *me, float offsetTQ){
-     me->plTorqueOffset = offsetTQ;
+void MCM_update_PL_torqueCommand(MotorController *me, float torqueCommand){
+     me->plTorqueCommand = torqueCommand;
 
 }
 
-void MCM_updatePowerLimitState(MotorController *me, bool newPLState){
+void MCM_update_PL_state(MotorController *me, bool newState){
 
-    me->PLState = newPLState;
+    me->plState = newState;
 
 }
 
