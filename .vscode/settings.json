@@ -1,6 +1,10 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
+        "launchcontrol.h": "c",
+        "wheelspeeds.h": "c"
+    },
+    "files.associations": {
         "torqueencoder.h": "c",
         "sensorcalculations.h": "c"
     }

@@ -16,7 +16,7 @@
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
 #include <stdlib.h>
-#include "pid.h"
+#include "PID.h"
 
 PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
