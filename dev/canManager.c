@@ -855,19 +855,19 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;     
     canMessages[canMessageCount - 1].length = byteNum;
 */
+/**
     //512: Power Limit
     canMessageCount++;
-/**
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;;
-    canMessages[canMessageCount - 1].data[byteNum++] = (pl->plState);
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)(int)(pl->error);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((sbyte2)(int)(pl->error))>> 8;        //table input
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->estimatedTQ);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->estimatedTQ))>> 8;        //table input
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->setpointTQ);
-    canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->setpointTQ))>> 8; 
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(pl->plState);
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_get_PL_state(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)(pl->offset);        
+    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)(pl->offset)>> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_get_PL_torqueCommand(mcm);        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_get_PL_torqueCommand(mcm)>> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0; 
     canMessages[canMessageCount - 1].data[byteNum++] = 0;      //table output
     canMessages[canMessageCount - 1].length = byteNum;
 */
