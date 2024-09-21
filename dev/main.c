@@ -226,7 +226,7 @@ void main(void)
 
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
-    PID *plPID = PID_new(1.0,1.0,0.0,0.0);
+    PID *plPID = PID_new(1.0,0.0,0.0,0.0);
     PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
     PID_resetPIDerror(lcPID, 170.0);
 //---------------------------------------------------------------------------------------------------------
@@ -237,9 +237,9 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
     ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
@@ -429,11 +429,12 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         slipRatioCalculation(wss, lc);
+        PID_setGain(lcPID, 20.0, 0.0, 0.0);
         launchControlTorqueCalculation(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        PID_setGain(plPID, 1.0, 1.0, 0.0);
+        PID_setGain(plPID, 1.0, 0.0, 0.0);
         powerLimitTorqueCalculation(tps, mcm0, pl, bms, wss, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 

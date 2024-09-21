@@ -741,12 +741,12 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->LCReady;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->LCStatus;
-    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = getCalculatedTorque(lc) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = me->lcTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = me->lcTorque >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->lcTorque;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50C: SAS (Steering Angle Sensor) and DRS
@@ -858,9 +858,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;;
+    canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)(int)(pl->piderror);
-    canMessages[canMessageCount - 1].data[byteNum++] = ((sbyte2)(int)(pl->piderror))>> 8;        //table input
+    canMessages[canMessageCount - 1].data[byteNum++] = ((sbyte2)(int)(pl->piderror))>>8;        //table input
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->pidactual);
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->pidactual))>> 8;        //table input
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->pidsetpoint);
