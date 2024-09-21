@@ -2,7 +2,7 @@
 #include <math.h>
 #include "IO_RTC.h"
 #include "IO_DIO.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "wheelSpeeds.h"
 #include "mathFunctions.h"
 #include "initializations.h"
