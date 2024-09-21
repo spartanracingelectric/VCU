@@ -133,7 +133,7 @@ struct _MotorController
     sbyte2 launchControlTorqueLimit;
     bool launchControlState;
 
-    float plTorqueCommand;
+    ubyte2 plTorqueCommand;
     bool plState;
 
 
@@ -182,7 +182,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->launchControlTorqueLimit = 0;
     me->launchControlState = FALSE;
 
-    me-> plTorqueCommand =0.0;
+    me-> plTorqueCommand = 0;
     me-> plState =FALSE;
 
     me->HVILOverride = FALSE;
@@ -319,8 +319,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     {
         torqueOutput = me->launchControlTorqueLimit;
     } 
-    else if(me->plState == TRUE && (sbyte2)(int)(me->plTorqueCommand) <= appsTorque){
-        torqueOutput = (sbyte2)(int)(me->plTorqueCommand) + bpsTorque;
+    else if(me->plState == TRUE && (me->plTorqueCommand) <= appsTorque){
+        torqueOutput = (me->plTorqueCommand) + bpsTorque;
     }
     else {
       torqueOutput = appsTorque + bpsTorque;
@@ -718,29 +718,34 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
     me->inverterStatus = newState;
 }
 
-void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
-
-     me->launchControlTorqueLimit = lcTorqueLimit;
-
+void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit)
+{
+    me->launchControlTorqueLimit = lcTorqueLimit;
 }
 
-void MCM_update_LC_state(MotorController *me, bool newState){
-
+void MCM_update_LC_state(MotorController *me, bool newState)
+{
     me->launchControlState = newState;
-
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PL_torqueCommand(MotorController *me, float torqueCommand){
-     me->plTorqueCommand = torqueCommand;
-
+void MCM_update_PL_torqueCommand(MotorController *me, float torqueCommand)
+{
+    me->plTorqueCommand = (ubyte2)(torqueCommand);
 }
 
-void MCM_update_PL_state(MotorController *me, bool newState){
+void MCM_get_PL_torqueCommand(MotorController *me)
+{
+    return me->plTorqueCommand;
+}
 
+void MCM_update_PL_state(MotorController *me, bool newState)
+{
     me->plState = newState;
-
 }
-
+bool MCM_get_PL_state(MotorController *me)
+{
+    return me->plState;
+}
 
 //----------------------------------------------------PL-------------------------------
 
