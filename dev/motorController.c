@@ -329,13 +329,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = appsTorque + bpsTorque;
      }
     }
+    else if(torqueOutput > 2000.0)
+    { // saftey checks 
+        torqueOutput = 0.0;
+    }
     else {
       torqueOutput = appsTorque + bpsTorque;
        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
-    }
-    if(torqueOutput > 250.0)
-    { // saftey checks 
-        torqueOutput = 0.0;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
