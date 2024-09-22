@@ -321,21 +321,21 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
    // } 
     else if(me->PLState == TRUE){
      float torquetemp = me->PowerLimit_TorqueLimit; 
-     if(torquetemp < (appsTorque+bpsTorque))
+     if(torquetemp < appsTorque)
      {
-        torqueOutput = (sbyte2)(int)torquetemp;
+        torqueOutput = (sbyte2)(int)torquetemp + bpsTorque;
      }
      else{
         torqueOutput = appsTorque + bpsTorque;
      }
     }
-    else if(torqueOutput > 2000.0)
-    { // saftey checks 
-        torqueOutput = 0.0;
-    }
     else {
       torqueOutput = appsTorque + bpsTorque;
        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    }
+    if(torqueOutput > 250.0)
+    { // saftey checks 
+        torqueOutput = 0.0;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
