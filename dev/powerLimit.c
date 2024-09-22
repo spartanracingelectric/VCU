@@ -185,7 +185,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 }
   */
 
-/*
+
 // this is case1: tqpid + equation
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
@@ -276,6 +276,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 }
 
 */
+/*
 // TODO: write case 3: tqpid+lut
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
@@ -319,7 +320,9 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     MCM_update_PowerLimit_TorqueLimit(mcm, plfinaltq); 
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 
-    // in mcm.c input the if statement for the tps
+
+    
 }
+*/
 
 

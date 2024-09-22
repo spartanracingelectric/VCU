@@ -113,6 +113,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             ubyte2 torque= MCM_getMaxTorqueDNm(mcm);
             me->lcTorque =(ubyte2)(torque * appsTqPercent) + PIDtorque; // adds the ajusted value from the pid to the torqueval}
+            me->potLC= lcpid->totalError;
         }
      }
     if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
