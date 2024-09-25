@@ -400,7 +400,7 @@ BO_ 1297 Power_Limit_MCM: 8 mcm
 
 //todo
  BO_ 1298 Power_Limit_Vals: 8 mcm
- SG_ PLpiderror : 0|16@1- (0.01,0) [-10000|10000] "" VCU
+ SG_ PLpidOffset : 0|16@1- (0.01,0) [-10000|10000] "" VCU
  SG_ PL_pidactual : 16|16@1+ (0.01,0) [0|90000] "" VCU
  SG_ PL_pidsetpoint : 32|16@1+ (0.01,0) [0|90000] "" VCU
  SG_ PL_finaltq : 48|16@1+ (0.01,0) [0|900] "" VCU 
