@@ -2,6 +2,7 @@
  * hashTable.c - Hash Table implementation
  * Initial Author: Harleen Sandhu / Mehul Williams
  * Additional Author: Shaun Gilmore
+ * Additional Author: Shaun Gilmore
  ******************************************************************************
  * General purpose hash table implementation, initially designed for yaw values in Torque Vectoring.
  ****************************************************************************/
@@ -24,6 +25,7 @@ HashTable* HashTable_new() {
 }
 
 // Hash function 
+ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2) {
 ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2) {
     // A simple hash function combining key1 and key2
     return (key1 + key2) % TABLE_SIZE;
@@ -56,7 +58,7 @@ void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 val
 
 
 // Retrieve a value from the hash table
-ubyte1 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
+float4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
     ubyte1 index = HashTable_getHashIndex(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
