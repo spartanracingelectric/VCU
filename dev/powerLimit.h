@@ -20,27 +20,27 @@
 typedef struct _PowerLimit {
     PID *pid; 
     HashTable* hashtable;
-    bool PLstatus;
+    bool plStatus;
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
    // float mcm_current; 
-   float power;
-   float wheelspeed;
+    float power;
+    float rpm;
     float LUTtq;
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 // we need up update can.c/  dbc for all these 
-    sbyte2 pidOffset;
-    sbyte2 plTorqueCommand; 
-    float4 pidSetpoint; // in dNm
-    float4 pidActual;// in dNm
+    float pidOffset;
+    float plfinaltq; 
+    float pidsetpoint; // in dNm
+    float pidactual;// in dNm
 
 } PowerLimit;
 
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void populatePLHashTable(HashTable* table);
 float noloadvoltagecalc();
-float getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm);
+float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashtable, float noLoadVoltage, float rpm);
 PowerLimit* PL_new(); 
 
 #endif //_PID_H
