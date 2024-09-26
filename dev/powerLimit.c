@@ -60,7 +60,7 @@ void PL_calculateTorqueOffset(MotorController* mcm, PowerLimit* me, PID* plPID){
         int maxTQ            = MCM_getTorqueMax(mcm);
         sbyte2 commandedTQ   = MCM_commands_PL_getTorque(me);
         me->offset           = PID_computeOffset(plPID, me->watts);
-        ubyte2 torqueCommand = (ubyte2)commandedTQ * (1 + ((ubyte2)(me->offset / me->watts))); //offsetTQ is the complete torque request
+        ubyte2 torqueCommand = (ubyte2)commandedTQ * (1 + ((ubyte2)(me->offset / me->watts)));
         MCM_update_PL_torqueCommand(mcm, torqueCommand);
     }
     else { me->plState    = FALSE; }
