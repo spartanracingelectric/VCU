@@ -335,8 +335,9 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
       torqueOutput = appsTorque + bpsTorque;
        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    if(torqueOutput > 2500.0)
-    { // saftey checks 
+    //saftey Check. torqueOutput Should never rise above 240. Leaving a +25% buffer in case of rounding errors or comical math
+    if(torqueOutput > 300.0)
+    {
         torqueOutput = 0.0;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
@@ -739,7 +740,7 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
 
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float PLTorqueoffset){
+void MCM_update_PowerLimit_TorqueCommand(MotorController *me, float PLTorqueoffset){
      me->PowerLimit_TorqueLimit = PLTorqueoffset;
 
 }

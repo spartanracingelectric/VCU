@@ -11,15 +11,15 @@
 
 #ifndef CALCS
 #define CALCS
-
-#define VOLTAGE_MIN      (float4) 283.200
-#define VOLTAGE_MAX      (float4) 403.200
-#define RPM_MIN          (sbyte4) 100
-#define RPM_MAX          (sbyte4) 6000
+ 
+#define VOLTAGE_MIN      (float4) 283.200 
+#define VOLTAGE_MAX      (float4) 403.200 // need to redefine min & max V&RPM to be rasonable areass of hitting PL & overshooting the max pack voltage to make the key gen quicker (no floats)
+#define RPM_MIN          (ubyte4) 100 // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
+#define RPM_MAX          (ubyte4) 6000
 #define NUM_V            (ubyte1) 25
 #define NUM_S            (ubyte1) 25
-#define VOLTAGE_STEP     (float4) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
-#define RPM_STEP         (sbyte4) 245.8333 //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
+#define VOLTAGE_STEP     (ubyte1) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
+#define RPM_STEP         (ubyte1) 245.8333 //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
 #define PI               (float4) 3.14159
 #define KWH_LIMIT        (float4) 55000.0  // watts
 #define PL_INIT          (float4) 55000.0  // 5kwh buffer to init PL before PL limit is hit
@@ -42,7 +42,6 @@ void populatePLHashTable(HashTable* table)
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------    
     ubyte4 lookupTable[25][25] = {
-    const float4 POWER_LIM_LUT[25][25] = {
 	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
 	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
 	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
@@ -70,10 +69,10 @@ void populatePLHashTable(HashTable* table)
 	{0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 16.20, 43.99, 62.09, 75.58, 86.50, 96.13, 104.29, 112.74, 119.81, 124.55, 125.38, 125.68, 125.68, 125.75, 125.88, 125.94}};
     for (ubyte1 row = 0; row < NUM_S; ++row) {
         for(ubyte1 column = 0; column < NUM_V; ++column) {
-            ubyte2 noLoadVoltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
+            ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
             ubyte4 value = lookupTable[row][column];
-            insert(table, noLoadVoltage, rpm, value);
+            insert(table, voltage, rpm, value);
         }
     }
 }
@@ -87,45 +86,52 @@ PowerLimit* PL_new(){
     me->power = 0.0; 
     me->wheelspeed = 0.0; 
 
-    me->piderror = 0.0; 
+    me->pidOffset = 0.0; 
     me->plfinaltq = 0.0; 
     me->pidsetpoint = 0.0; 
     me->pidactual = 0.0; 
-    me->LUTtq=0.0;
+    me->LUTtq = 0.0;
      
     return me;
 }
-//@shaun do this
-float noloadvoltagecalc(){
-    return -1; 
-}
-float getTorque(PowerLimit* me, HashTable* torque_hashtable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
-    /*
-    float voltageFloor = (float)floorToNearestIncrement(voltage, VOLTAGE_STEP);
-    float voltageCeiling = (float)ceilToNearestIncrement(voltage, VOLTAGE_STEP);
-    float rpmFloor = (float)floorToNearestIncrement(rpm, RPM_STEP);
-    float rpmCeiling = (float)ceilToNearestIncrement(rpm, RPM_STEP);
+
+float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
+    
+    ubyte4 voltageFloor      = get_lowerStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 voltageCeiling    = get_upperStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 rpmFloor          = get_lowerStepInterval(rpm, RPM_STEP);
+    ubyte4 rpmCeiling        = get_upperStepInterval(rpm, RPM_STEP);
+
     // Retrieve torque values from the hash table for the four corners
-    float vFloorRFloor = (float)get(torque_hashtable, voltageFloor, rpmFloor);
-    float vCeilingRFloor =(float) get(torque_hashtable, voltageCeiling, rpmFloor);
-    float vFloorRCeiling = (float)get(torque_hashtable, voltageFloor, rpmCeiling);
-    float vCeilingRCeiling = (float)get(torque_hashtable, voltageCeiling, rpmCeiling);
-    // Error check
+    float4 vFloorRFloor      = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
+    float4 vFloorRCeiling    = HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
+    float4 vCeilingRFloor    = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
+    float4 vCeilingRCeiling  = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
 
     // Calculate interpolation values
-    float horizontalInterpolation = (float)(((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
-    float verticalInterpolation   = (float)(((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
-    // Calculate gains
-    float gainValueHorizontal = (float)fmod(voltage, VOLTAGE_STEP);
-    float gainValueVertical   = (float)fmod(rpm, RPM_STEP);
-    // Combine interpolated values
-    float calibratedTorque  = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
+    float4 stepDivider = (float4)(VOLTAGE_STEP * RPM_STEP);
+    float4 torqueFloorFloor = vFloorRFloor * (float4)(voltageCeiling * rpmCeiling);
+    float4 torqueFloorCeiling = vFloorRCeiling * (float4)(voltageCeiling * rpmFloor);
+    float4 torqueCeilingFloor = vCeilingRFloor * (float4)(voltageFloor * rpmCeiling);
+    float4 torqueCeilingCeiling = vCeilingRCeiling * (float4)(voltageFloor * rpmFloor);
+
+    // Final TQ from LUT
+    float4 TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
     
-    me->LUTtq = calibratedTorque; 
+    /*
+    float4 horizontalInterpolation = (((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
+    float4 verticalInterpolation   = (((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
+
+    // Calculate gains
+    float4 gainValueHorizontal = (float4)fmod(voltage, VOLTAGE_STEP);
+    float4 gainValueVertical   = (float4)fmod(rpm, RPM_STEP);
+
+    // Combine interpolated values
+    me->LUTtq = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
     */
 
-     float calibratedTorque = (float)get(torque_hashtable,voltage,rpm);
-    return calibratedTorque;  // Adjust gain if necessary
+    me->LUTtq = TQ;
+    return me->LUTtq;  // Adjust gain if necessary
 }
 
 /*
@@ -176,7 +182,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         me->estimatedTQ = idealTQ;
         me->setpointTQ  = tqsetpoint;
         PID_setpointUpdate(pid,tqsetpoint);
-        me->error =  PID_compute(pid, idealTQ);
+        me->error =  PID_computeOffset(pid, idealTQ);
         // float appsTqPercent;
         // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
         // the torqueMaximumDNm is 2000, scale it accordingly 
@@ -186,7 +192,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     else {
         me-> plStatus = FALSE;
     }
-    MCM_update_PowerLimit_TorqueLimit(mcm, me->error);
+    MCM_update_PowerLimit_TorqueCommand(mcm, me->error);
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 }
   */
@@ -195,12 +201,12 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 // this is case1: tqpid + equation
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
-       // calc stuff//
-       ubyte2 maxtq = MCM_getTorqueMax(mcm);
-       float appsTqPercent;
-       TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        float gain = 9.549;
-        float decitq = 10.0;
+    // calc stuff//
+    ubyte2 maxtq = MCM_getTorqueMax(mcm);
+    float appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+    float gain = 9.549;
+    float decitq = 10.0;
 
     //parameters we need for calculations//
     float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
@@ -211,19 +217,18 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     if(watts > KWH_THRESHOLD)
      {// kwhlimit should be changed to another paramter we make for plthreshold
         me-> PLstatus = TRUE;
-      // still need to make/ update all the struct parameters aka values for can validation 
-       float pidsetpoint = (float)((KWH_LIMIT*gain/wheelspeed)*decitq);
-       float pidactual = (float)((watts*gain/wheelspeed)*decitq);
-       PID_setpointUpdate(pid,pidsetpoint);
+        // still need to make/ update all the struct parameters aka values for can validation 
+        float pidsetpoint = (float)((KWH_LIMIT*gain/wheelspeed)*decitq);
+        float pidactual = (float)((watts*gain/wheelspeed)*decitq);
+        PID_setpointUpdate(pid,pidsetpoint);
         //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-       float piderror =  PID_compute(pid, pidactual);
-       float PLfinalTQ = pidactual+ piderror;
-       
+        float pidOffset =  PID_computeOffset(pid, pidactual);
+        float PLfinalTQ = pidactual + pidOffset;
 
-       me->piderror = piderror;
-       me->plfinaltq =PLfinalTQ; 
-       me->pidsetpoint = pidsetpoint;
-       me->pidactual = pidactual;
+        me->pidOffset = pidOffset;
+        me->plfinaltq =PLfinalTQ; 
+        me->pidsetpoint = pidsetpoint;
+        me->pidactual = pidactual;
 
     }
     else {
@@ -231,7 +236,7 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     }
 
     float plfinaltq=  me->plfinaltq;
-    MCM_update_PowerLimit_TorqueLimit(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
+    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 
     // in mcm.c input the if statement for the tps
@@ -261,13 +266,13 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
 
        PID_setpointUpdate(pid,pidsetpoint);
         //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-       float piderror =  PID_compute(pid, pidactual);
-       float PLgoalPower = pidactual+ piderror;
+       float pidOffset =  PID_computeOffset(pid, pidactual);
+       float PLgoalPower = pidactual+ pidOffset;
        float PLfinalTQ = (float)((PLgoalPower*gain/wheelspeed)*decitq);
 
 
        
-       me->piderror = piderror;
+       me->pidOffset = pidOffset;
        me->plfinaltq =PLfinalTQ; 
        me->pidsetpoint = pidsetpoint;
        me->pidactual = pidactual;
@@ -276,59 +281,54 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
         me-> PLstatus = FALSE;
     }
    float plfinaltq=  me->plfinaltq;
-    MCM_update_PowerLimit_TorqueLimit(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
+    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
 
 }
 
 */
-/*
-// TODO: write case 3: tqpid+lut
+
+/** LUT METHOD */
 void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
-       // calc stuff//
-       ubyte2 maxtq = MCM_getTorqueMax(mcm);
-       float appsTqPercent;
-       TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        float gain = 9.549;
-        float decitq = 10.0;
+    sbyte4 watts = MCM_getPower(mcm);
+    if( watts > KWH_THRESHOLD ){
+    // Always set the flag
+    me-> PLstatus = TRUE;
+
+    // Getting APPS OUTPUT
+    ubyte2 maxTQ = MCM_getTorqueMax(mcm);
+    float appsPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsPercent);
+    float appsTorque = appsPercent * maxTQ; 
 
     //parameters we need for calculations//
-    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-    float driversRequestedtq = appsTqPercent*maxtq; 
-    float wheelspeed = (float)MCM_getMotorRPM(mcm);
+    sbyte4 motorRPM = MCM_getMotorRPM(mcm);
+    sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
+    sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
-    
-    if(watts > KWH_THRESHOLD)
-     {// kwhlimit should be changed to another paramter we make for plthreshold
-        me-> PLstatus = TRUE;
-      // still need to make/ update all the struct parameters aka values for can validation 
-      float noloadvoltage = 300;
-       float pidsetpoint = (float)(getTorque(me, me->hashtable,noloadvoltage,wheelspeed));
-       float pidactual = (float)((watts*gain/wheelspeed)*decitq);
-       PID_setpointUpdate(pid,pidsetpoint);
-        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-       float piderror =  PID_compute(pid, pidactual);
-       float PLfinalTQ = pidactual+ piderror;
-       
+    // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
+    sbyte4 noLoadVoltage = (mcmCurrent * 0.027) + mcmVoltage;
+    float4 pidsetpoint = PowerLimit_getTorque(me, me->hashtable, noLoadVoltage, motorRPM);
+    float4 pidactual = (float4)MCM_getCommandedTorque(mcm);
 
-       me->piderror = piderror;
-       me->plfinaltq =PLfinalTQ; 
-       me->pidsetpoint = pidsetpoint;
-       me->pidactual = pidactual;
+    PID_setpointUpdate(pid, pidsetpoint);
+    //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+    float offset =  PID_computeOffset(pid, pidactual);
+    float torqueRequest = pidactual + offset;
+    // Setting member values for CAN message debugging. Will change to an if / define to easily toggle in the future.
+    me->pidOffset = offset;
+    me->plfinaltq = torqueRequest; 
+    me->pidsetpoint = pidsetpoint;
+    me->pidactual = pidactual;
 
     }
     else {
         me-> PLstatus = FALSE;
     }
-
-    float plfinaltq=  me->plfinaltq;
-    MCM_update_PowerLimit_TorqueLimit(mcm, plfinaltq); 
+    MCM_update_PowerLimit_TorqueCommand(mcm, torqueRequest); 
     MCM_update_PowerLimit_State(mcm, me->PLstatus); 
-
-
-    
 }
-*/
+
 
 

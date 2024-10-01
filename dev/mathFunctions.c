@@ -115,9 +115,9 @@ sbyte4 swap_int32(sbyte4 val)
     return (val << 16) | ((val >> 16) & 0xFFFF);
 }
 
-ubyte2 floorToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return (value / increment) * increment; // value & 0xFFF8
+float4 get_lowerStepInterval(float4 value, float4 increment) {
+    return value - (value % increment);
 }
-ubyte2 ceilToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return ((value + increment - 1) / increment) * increment; // floorval & 0xFFFD
+float4 get_upperStepInterval(float4 value, float4 increment) {
+    return get_lowerStepInterval(value, increment) + increment; //For simplicity and understanding, keeping the function call. To decrease total function time, convert to pointers.
 }
