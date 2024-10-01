@@ -1,6 +1,7 @@
 /*****************************************************************************
  * hashTable.h - Hash Table implementation
  * Initial Author: Harleen Sandhu / Mehul Williams
+ * Additional Author: Shaun Gilmore
  ******************************************************************************
  * General purpose hash table implementation, initially designed for yaw values in Torque Vectoring.
  ****************************************************************************/
@@ -16,7 +17,7 @@
 typedef struct _HashEntry {
     ubyte2 key1;
     ubyte2 key2;
-    ubyte4 value;
+    float4 value;
     struct _HashEntry* next; // For chaining in case of collisions
 } HashEntry;
 
@@ -28,9 +29,9 @@ typedef struct _HashTable{
 
 
 HashTable* HashTable_new();
-ubyte1 hash(ubyte2 key1, ubyte2 key2);
-void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value);
-ubyte4 get(HashTable* table, ubyte2 key1, ubyte2 key2);
+ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2);
+void HashTable_insertValue(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value);
+ubyte4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2);
 void destroyHashTable(HashTable* table);
 
 

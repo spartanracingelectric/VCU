@@ -108,7 +108,7 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             PID_setpointUpdate(lcpid, 0.2);
             //PID_dtUpdate(me->pidController, 0.01);// updates the dt 
             //float Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
-            float4 PIDtorque= (float4)PID_compute(lcpid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+            float4 PIDtorque= (float4)PID_computeOffset(lcpid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
             float4 appsTqPercent;
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             ubyte2 torque= MCM_getMaxTorqueDNm(mcm);
