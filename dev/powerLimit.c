@@ -18,8 +18,8 @@
 //#define RPM_MAX          (ubyte2) 6000
 //#define NUM_V            (ubyte1) 25
 //#define NUM_S            (ubyte1) 25
-//#define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
-//#define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
+#define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
+#define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); 
 
 #define PI               (float4) 3.14159
 #define KWH_LIMIT        (float4) 80000.0  // watts
@@ -27,6 +27,166 @@
 #define UNIT_CONVERSTION (float4) 95.49    // 9.549 *10.0 to convert to deci-newtonmeters
 
 #endif
+
+#define POWERLIMIT_METHOD   1 // STATES: 1-3 are for the 3 different PL methods currently in place
+#define CAN_VERBOSE         0 // To be implemented later, but idea is want to check if can manager and here to see if we should be setting & transmitting certain values over can for debugging
+
+PowerLimit* PL_new(){
+    PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
+    if(POWERLIMIT_METHOD == 3)
+    {
+        me->hashtable = HashTable_new();
+        PowerLimit_populateHashTable(me->hashtable); 
+    }
+
+    me->plStatus = FALSE;   
+    me->power = 0.0; 
+    me->rpm = 0.0; 
+
+    me->pidOffset = 0.0; 
+    me->plfinaltq = 0.0; 
+    me->pidsetpoint = 0.0; 
+    me->pidactual = 0.0; 
+    me->LUTtq = 0.0;
+     
+    return me;
+}
+
+/* tqpid + equation */
+#ifdef POWERLIMIT_METHOD == 1
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+{
+    // calc stuff//
+    ubyte2 maxtq = MCM_getTorqueMax(mcm);
+    float appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+    float gain = 9.549;
+    float decitq = 10.0;
+
+    //parameters we need for calculations//
+    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+    float driversRequestedtq = appsTqPercent*maxtq; 
+    float rpm = (float)MCM_getMotorRPM(mcm);
+
+    
+    if(watts > KWH_THRESHOLD)
+     {// kwhlimit should be changed to another paramter we make for plthreshold
+        me-> plStatus = TRUE;
+        // still need to make/ update all the struct parameters aka values for can validation 
+        float pidsetpoint = (float)((KWH_LIMIT*gain/rpm)*decitq);
+        float pidactual = (float)((watts*gain/rpm)*decitq);
+        PID_setpointUpdate(pid,pidsetpoint);
+        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+        float pidOffset =  PID_computeOffset(pid, pidactual);
+        float PLfinalTQ = pidactual + pidOffset;
+
+        me->pidOffset = pidOffset;
+        me->plfinaltq =PLfinalTQ; 
+        me->pidsetpoint = pidsetpoint;
+        me->pidactual = pidactual;
+
+    }
+    else {
+        me-> plStatus = FALSE;
+    }
+
+    float plfinaltq=  me->plfinaltq;
+    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
+    MCM_update_PowerLimit_State(mcm, me->plStatus); 
+
+    // in mcm.c input the if statement for the tps
+}
+
+/* powerpid */
+#elif POWERLIMIT_METHOD == 2
+/*
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+{
+     ubyte2 maxtq = MCM_getTorqueMax(mcm);
+       float appsTqPercent;
+       TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+        float gain = 9.549;
+        float decitq = 10.0;
+
+    //parameters we need for calculations//
+    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
+    float driversRequestedtq = appsTqPercent*maxtq; 
+    float wheelspeed = (float)MCM_getMotorRPM(mcm);
+
+    
+    if(watts > KWH_THRESHOLD)
+     {// kwhlimit should be changed to another paramter we make for plthreshold
+        me-> plStatus = TRUE;
+      // still need to make/ update all the struct parameters aka values for can validation 
+       float pidsetpoint = (float)(KWH_LIMIT);
+       float pidactual = (float)(watts);
+
+       PID_setpointUpdate(pid,pidsetpoint);
+        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+       float pidOffset =  PID_computeOffset(pid, pidactual);
+       float PLgoalPower = pidactual+ pidOffset;
+       float PLfinalTQ = (float)((PLgoalPower*gain/wheelspeed)*decitq);
+
+
+       
+       me->pidOffset = pidOffset;
+       me->plfinaltq =PLfinalTQ; 
+       me->pidsetpoint = pidsetpoint;
+       me->pidactual = pidactual;
+    }
+    else {
+        me-> plStatus = FALSE;
+    }
+   float plfinaltq=  me->plfinaltq;
+    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
+    MCM_update_PowerLimit_State(mcm, me->plStatus); 
+
+}
+
+*/
+
+#elif POWERLIMIT_METHOD == 3
+/** LUT METHOD */
+void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+{
+    sbyte4 watts = MCM_getPower(mcm);
+    if( watts > KWH_THRESHOLD ){
+    // Always set the flag
+    me-> plStatus = TRUE;
+
+    // Getting APPS OUTPUT
+    ubyte2 maxTQ = MCM_getTorqueMax(mcm);
+    float appsPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsPercent);
+    float appsTorque = appsPercent * maxTQ; 
+
+    //parameters we need for calculations//
+    ubyte4 motorRPM = (ubyte4)MCM_getMotorRPM(mcm);
+    sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
+    sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
+
+    // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
+    ubyte4 noLoadVoltage = (ubyte4)(mcmCurrent * 0.027) + (ubyte4)mcmVoltage;
+    float4 pidsetpoint = PowerLimit_getTorque(me, me->hashtable, noLoadVoltage, motorRPM);
+    float4 pidactual = (float4)MCM_getCommandedTorque(mcm);
+
+    PID_setpointUpdate(pid, pidsetpoint);
+    //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
+    float offset =  PID_computeOffset(pid, pidactual);
+    float torqueRequest = pidactual + offset;
+    // Setting member values for CAN message debugging. Will change to an if / define to easily toggle in the future.
+    me->pidOffset = offset;
+    me->plfinaltq = torqueRequest; 
+    me->pidsetpoint = pidsetpoint;
+    me->pidactual = pidactual;
+    MCM_update_PowerLimit_TorqueCommand(mcm, me->plfinaltq); 
+    }
+    else {
+        me-> plStatus = FALSE;
+    }
+    MCM_update_PowerLimit_State(mcm, me->plStatus); 
+}
+
 
 void PowerLimit_populateHashTable(HashTable* table)
 {
@@ -74,34 +234,14 @@ void PowerLimit_populateHashTable(HashTable* table)
     const ubyte2 RPM_MAX = 6000;
     const ubyte2 NUM_V = 25;
     const ubyte2 NUM_S = 25;
-    const ubyte2 VOLTAGE_STEP = 5;
-    const ubyte2 RPM_STEP = 160;
     for(ubyte2 row = 0; row < NUM_S; ++row) {
         for(ubyte2 column = 0; column < NUM_V; ++column) {
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
-            ubyte1 value = lookupTable[row][column];
+            ubyte1 value = lookupTable[(int)row][(int)column];
             HashTable_insertPair(lookupTable, voltage, rpm, value);
         }
     }
-}
-
-PowerLimit* PL_new(){
-    PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->hashtable = HashTable_new();
-    PowerLimit_populateHashTable(me->hashtable); 
-
-    me-> PLstatus = FALSE;   
-    me->power = 0.0; 
-    me->wheelspeed = 0.0; 
-
-    me->pidOffset = 0.0; 
-    me->plfinaltq = 0.0; 
-    me->pidsetpoint = 0.0; 
-    me->pidactual = 0.0; 
-    me->LUTtq = 0.0;
-     
-    return me;
 }
 
 float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
@@ -156,202 +296,4 @@ float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     me->LUTtq = TQ;
     return me->LUTtq;  // Adjust gain if necessary
 }
-
-/*
-// THIS IS THE SUPER OLD CODE THATS REALLY MESSY BE AWARE 
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
-{
-  
-  
-
-//-------------------------JUST CHECKING CAN INCASE WE NEED LUT------------------------------------------------------------------------------
-
-    float mcmVoltage = (float)MCM_getDCVoltage(mcm);// CHECK THE UNITS FOR THIS
-    float mcmCurrent = (float)MCM_getDCCurrent(mcm);
-    me->motorRPM     = (float)MCM_getMotorRPM(mcm);
-    me->watts        = (float)MCM_getPower(mcm);
-
-//----------------------------------------TESTING-------------------------------------------------
-//
-//    float appsTqPercent;
-//    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-//    float watts = (float)(appsTqPercent * 100000.0); 
-//    float kilowatts = (float)(watts/10.0);
-//    float motorRPM = (float)(watts*0.045);
-//
-//--------------------------------------------------------------------------------------
-//
-// me->currentMCM = current; 
-// me->voltageMCM = voltage; 
-//------------------------------------------------------------------------------------------------------------------------------------------------------
-//
-// -------------------------------------no load pack voltage calc: record voltage -------------------------------------
-//
-//-------------> need to do this this for LUT
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-//
-    ///ubyte2 kwhtovoltage = (ubyte2)((KWH_LIMIT*1000) / current);
-    if(me->watts > PL_INIT) {
-        me-> plStatus = TRUE;
-        ubyte2 maxtq = MCM_getTorqueMax(mcm);
-        float4 appsTqPercent;
-        TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-           
-        float tqsetpoint  = (float)((PL_INIT/me->motorRPM)*UNIT_CONVERSTION);
-        float idealTQ = (float)((me->watts/me->motorRPM)*UNIT_CONVERSTION);
-        // float tqsetpoint  = (float)((KWH_LIMIT*gain/motorRPM)*decitq);
-        // float predictedtq = (float)((watts*gain/motorRPM)*decitq);
-
-        me->estimatedTQ = idealTQ;
-        me->setpointTQ  = tqsetpoint;
-        PID_setpointUpdate(pid,tqsetpoint);
-        me->error =  PID_computeOffset(pid, idealTQ);
-        // float appsTqPercent;
-        // TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        // the torqueMaximumDNm is 2000, scale it accordingly 
-        // ubyte2 tq = MCM_getMaxTorqueDNm(mcm);
-        // me->PLoffsetpid= (tq * appsTqPercent) + me->error;
-    }
-    else {
-        me-> plStatus = FALSE;
-    }
-    MCM_update_PowerLimit_TorqueCommand(mcm, me->error);
-    MCM_update_PowerLimit_State(mcm, me->PLstatus); 
-}
-  */
-
-
-// this is case1: tqpid + equation
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
-{
-    // calc stuff//
-    ubyte2 maxtq = MCM_getTorqueMax(mcm);
-    float appsTqPercent;
-    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-    float gain = 9.549;
-    float decitq = 10.0;
-
-    //parameters we need for calculations//
-    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-    float driversRequestedtq = appsTqPercent*maxtq; 
-    float wheelspeed = (float)MCM_getMotorRPM(mcm);
-
-    
-    if(watts > KWH_THRESHOLD)
-     {// kwhlimit should be changed to another paramter we make for plthreshold
-        me-> PLstatus = TRUE;
-        // still need to make/ update all the struct parameters aka values for can validation 
-        float pidsetpoint = (float)((KWH_LIMIT*gain/wheelspeed)*decitq);
-        float pidactual = (float)((watts*gain/wheelspeed)*decitq);
-        PID_setpointUpdate(pid,pidsetpoint);
-        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-        float pidOffset =  PID_computeOffset(pid, pidactual);
-        float PLfinalTQ = pidactual + pidOffset;
-
-        me->pidOffset = pidOffset;
-        me->plfinaltq =PLfinalTQ; 
-        me->pidsetpoint = pidsetpoint;
-        me->pidactual = pidactual;
-
-    }
-    else {
-        me-> PLstatus = FALSE;
-    }
-
-    float plfinaltq=  me->plfinaltq;
-    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
-    MCM_update_PowerLimit_State(mcm, me->PLstatus); 
-
-    // in mcm.c input the if statement for the tps
-}
-
-/* this is case2: powerpid + equation
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
-{
-     ubyte2 maxtq = MCM_getTorqueMax(mcm);
-       float appsTqPercent;
-       TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-        float gain = 9.549;
-        float decitq = 10.0;
-
-    //parameters we need for calculations//
-    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-    float driversRequestedtq = appsTqPercent*maxtq; 
-    float wheelspeed = (float)MCM_getMotorRPM(mcm);
-
-    
-    if(watts > KWH_THRESHOLD)
-     {// kwhlimit should be changed to another paramter we make for plthreshold
-        me-> PLstatus = TRUE;
-      // still need to make/ update all the struct parameters aka values for can validation 
-       float pidsetpoint = (float)(KWH_LIMIT);
-       float pidactual = (float)(watts);
-
-       PID_setpointUpdate(pid,pidsetpoint);
-        //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-       float pidOffset =  PID_computeOffset(pid, pidactual);
-       float PLgoalPower = pidactual+ pidOffset;
-       float PLfinalTQ = (float)((PLgoalPower*gain/wheelspeed)*decitq);
-
-
-       
-       me->pidOffset = pidOffset;
-       me->plfinaltq =PLfinalTQ; 
-       me->pidsetpoint = pidsetpoint;
-       me->pidactual = pidactual;
-    }
-    else {
-        me-> PLstatus = FALSE;
-    }
-   float plfinaltq=  me->plfinaltq;
-    MCM_update_PowerLimit_TorqueCommand(mcm,  plfinaltq); // we need to change this on mcm.c / pl.c/.h 
-    MCM_update_PowerLimit_State(mcm, me->PLstatus); 
-
-}
-
-*/
-
-/** LUT METHOD */
-void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
-{
-    sbyte4 watts = MCM_getPower(mcm);
-    if( watts > KWH_THRESHOLD ){
-    // Always set the flag
-    me-> PLstatus = TRUE;
-
-    // Getting APPS OUTPUT
-    ubyte2 maxTQ = MCM_getTorqueMax(mcm);
-    float appsPercent;
-    TorqueEncoder_getOutputPercent(tps, &appsPercent);
-    float appsTorque = appsPercent * maxTQ; 
-
-    //parameters we need for calculations//
-    ubyte4 motorRPM = (ubyte4)MCM_getMotorRPM(mcm);
-    sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
-    sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
-
-    // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
-    ubyte4 noLoadVoltage = (ubyte4)(mcmCurrent * 0.027) + (ubyte4)mcmVoltage;
-    float4 pidsetpoint = PowerLimit_getTorque(me, me->hashtable, noLoadVoltage, motorRPM);
-    float4 pidactual = (float4)MCM_getCommandedTorque(mcm);
-
-    PID_setpointUpdate(pid, pidsetpoint);
-    //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
-    float offset =  PID_computeOffset(pid, pidactual);
-    float torqueRequest = pidactual + offset;
-    // Setting member values for CAN message debugging. Will change to an if / define to easily toggle in the future.
-    me->pidOffset = offset;
-    me->plfinaltq = torqueRequest; 
-    me->pidsetpoint = pidsetpoint;
-    me->pidactual = pidactual;
-
-    }
-    else {
-        me-> PLstatus = FALSE;
-    }
-    MCM_update_PowerLimit_TorqueCommand(mcm, torqueRequest); 
-    MCM_update_PowerLimit_State(mcm, me->PLstatus); 
-}
-
-
-
+#endif
