@@ -9,30 +9,31 @@
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
 
-#ifndef CALCS
-#define CALCS
+#ifndef POWERLIMITCONSTANTS
+#define POWERLIMITCONSTANTS
  
-#define VOLTAGE_MIN      (float4) 283.200 
-#define VOLTAGE_MAX      (float4) 403.200 // need to redefine min & max V&RPM to be rasonable areass of hitting PL & overshooting the max pack voltage to make the key gen quicker (no floats)
-#define RPM_MIN          (ubyte4) 100 // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
-#define RPM_MAX          (ubyte4) 6000
-#define NUM_V            (ubyte1) 25
-#define NUM_S            (ubyte1) 25
-#define VOLTAGE_STEP     (ubyte1) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
-#define RPM_STEP         (ubyte1) 245.8333 //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
+//#define VOLTAGE_MIN      (ubyte2) 280
+//#define VOLTAGE_MAX      (ubyte2) 405
+//#define RPM_MIN          (ubyte2) 2000 // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
+//#define RPM_MAX          (ubyte2) 6000
+//#define NUM_V            (ubyte1) 25
+//#define NUM_S            (ubyte1) 25
+//#define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1); // 5
+//#define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); // 245.8333
+
 #define PI               (float4) 3.14159
-#define KWH_LIMIT        (float4) 55000.0  // watts
+#define KWH_LIMIT        (float4) 80000.0  // watts
 #define PL_INIT          (float4) 55000.0  // 5kwh buffer to init PL before PL limit is hit
 #define UNIT_CONVERSTION (float4) 95.49    // 9.549 *10.0 to convert to deci-newtonmeters
 
 #endif
 
-void populatePLHashTable(HashTable* table)
+void PowerLimit_populateHashTable(HashTable* table)
 {
     /*
     voltage is x axis
     rpm is y axis 
-    values are in tq nM
+    values are torque in Nm
     */
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------
@@ -41,38 +42,46 @@ void populatePLHashTable(HashTable* table)
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------    
-    ubyte4 lookupTable[25][25] = {
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{212.61, 221.28, 225.74, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{185.55, 193.57, 202.84, 212.51, 218.27, 223.91, 230.14, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{161.10, 171.06, 178.66, 185.64, 193.73, 202.82, 208.51, 218.14, 221.57, 228.04, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{140.43, 149.85, 157.31, 165.28, 172.95, 179.33, 188.62, 193.76, 202.80, 209.71, 221.51, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85, 230.85},
-	{121.83, 130.78, 137.41, 146.11, 153.49, 160.86, 168.33, 173.86, 181.94, 187.59, 202.88, 218.16, 224.75, 225.33, 225.61, 225.93, 226.02, 226.13, 226.13, 226.23, 226.23, 226.34, 226.34, 226.34, 226.34},
-	{104.24, 112.98, 119.96, 127.63, 135.34, 141.80, 149.94, 156.70, 163.78, 170.26, 183.76, 199.21, 206.91, 210.19, 210.41, 210.63, 210.81, 211.02, 211.11, 211.17, 211.20, 211.15, 211.15, 211.15, 211.15},
-	{87.79, 95.47, 103.90, 111.85, 119.34, 126.36, 133.36, 140.26, 145.60, 153.37, 166.90, 180.32, 191.86, 196.66, 197.07, 197.38, 197.48, 197.62, 197.81, 197.81, 197.88, 197.91, 198.01, 197.96, 197.96},
-	{70.68, 79.67, 88.03, 95.39, 103.30, 110.80, 117.59, 124.60, 131.59, 137.59, 151.21, 164.24, 176.26, 183.83, 185.32, 185.55, 185.73, 185.87, 186.19, 186.09, 186.17, 186.22, 186.27, 186.29, 186.31},
-	{52.58, 62.90, 72.01, 80.51, 88.24, 96.03, 103.10, 109.92, 116.50, 122.13, 136.23, 149.90, 161.28, 171.45, 174.41, 175.01, 175.27, 175.53, 175.46, 175.87, 175.64, 175.79, 175.85, 175.70, 175.92},
-	{30.59, 44.40, 55.32, 64.53, 73.43, 81.09, 88.77, 95.88, 102.53, 109.18, 121.86, 135.62, 147.52, 157.34, 163.87, 165.70, 165.79, 166.01, 166.05, 166.16, 166.26, 166.41, 166.39, 166.45, 166.48},
-	{0.11, 18.65, 35.70, 47.73, 57.67, 66.43, 74.58, 81.62, 89.12, 95.85, 109.38, 122.02, 134.25, 143.99, 153.45, 156.15, 157.36, 157.52, 157.63, 157.74, 157.84, 157.92, 157.86, 158.03, 158.07},
-	{0.11, 0.11, 0.11, 25.82, 39.83, 50.40, 59.66, 67.89, 75.57, 82.42, 96.65, 110.18, 121.91, 131.84, 139.95, 149.35, 149.60, 149.86, 149.98, 150.09, 150.05, 150.13, 150.31, 150.38, 150.43},
-	{0.11, 0.11, 0.11, 0.11, 12.57, 31.21, 43.23, 52.99, 61.57, 69.21, 84.04, 98.27, 109.87, 119.89, 129.15, 137.39, 141.55, 142.90, 143.01, 143.11, 143.21, 143.29, 143.36, 143.35, 143.48},
-	{0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 21.16, 35.57, 46.22, 55.13, 71.45, 86.31, 98.28, 108.44, 117.36, 125.85, 133.56, 135.59, 137.13, 136.71, 136.68, 136.95, 137.07, 137.09, 137.07},
-	{0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 4.27, 26.92, 39.20, 58.48, 74.56, 86.97, 97.23, 106.49, 115.06, 122.08, 129.16, 130.37, 130.87, 131.04, 131.04, 131.12, 131.27, 131.33},
-	{0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 16.20, 43.99, 62.09, 75.58, 86.50, 96.13, 104.29, 112.74, 119.81, 124.55, 125.38, 125.68, 125.68, 125.75, 125.88, 125.94}};
-    for (ubyte1 row = 0; row < NUM_S; ++row) {
-        for(ubyte1 column = 0; column < NUM_V; ++column) {
+    const ubyte1 lookupTable[25][25] = {
+        {231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {221, 229, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {204, 214, 221, 228, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {186, 194, 204, 213, 221, 227, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {170, 179, 186, 197, 204, 213, 218, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {153, 164, 172, 179, 187, 197, 204, 213, 218, 224, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {139, 148, 157, 165, 174, 181, 189, 197, 204, 213, 222, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {127, 135, 144, 152, 158, 168, 175, 182, 189, 198, 208, 224, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {114, 122, 132, 138, 147, 155, 161, 170, 176, 184, 197, 213, 221, 223, 224, 223, 224, 224, 223, 224, 224, 224, 224, 224, 224},
+        {102, 111, 119, 127, 135, 142, 150, 157, 164, 171, 183, 200, 209, 213, 213, 213, 213, 214, 213, 214, 214, 214, 214, 214, 214},
+        {90, 99, 108, 115, 123, 132, 138, 146, 153, 159, 171, 186, 199, 203, 203, 204, 204, 204, 204, 204, 204, 204, 204, 204, 204},
+        {79, 88, 97, 104, 113, 120, 127, 135, 141, 148, 161, 176, 189, 194, 195, 195, 195, 195, 195, 196, 196, 196, 196, 196, 196},
+        {67, 77, 86, 94, 102, 110, 117, 124, 132, 138, 150, 164, 177, 184, 187, 187, 187, 187, 188, 188, 188, 188, 188, 188, 188},
+        {54, 65, 75, 83, 91, 99, 107, 114, 120, 128, 140, 154, 167, 177, 179, 180, 180, 180, 180, 180, 180, 180, 180, 181, 181},
+        {40, 53, 63, 73, 81, 89, 97, 104, 111, 118, 130, 144, 157, 166, 172, 173, 173, 173, 173, 173, 174, 174, 174, 174, 174},
+        {22, 39, 51, 62, 71, 80, 87, 95, 102, 109, 120, 135, 147, 157, 165, 166, 167, 167, 167, 167, 167, 167, 167, 167, 167},
+        {0, 21, 38, 50, 60, 69, 78, 85, 93, 99, 112, 126, 138, 148, 157, 160, 161, 161, 161, 161, 161, 161, 161, 161, 162},
+        {0, 0, 19, 36, 49, 59, 68, 76, 83, 91, 103, 117, 129, 140, 150, 155, 155, 155, 155, 156, 156, 156, 156, 156, 156},
+        {0, 0, 0, 18, 35, 47, 57, 66, 74, 81, 94, 109, 120, 132, 140, 148, 150, 150, 150, 151, 151, 151, 151, 151, 151},
+        {0, 0, 0, 0, 17, 34, 46, 56, 64, 73, 86, 100, 113, 123, 133, 142, 145, 146, 146, 146, 146, 146, 146, 146, 146},
+        {0, 0, 0, 0, 0, 15, 33, 45, 55, 63, 77, 92, 104, 116, 125, 134, 140, 141, 141, 141, 141, 141, 141, 142, 142},
+        {0, 0, 0, 0, 0, 0, 14, 32, 44, 53, 68, 84, 97, 108, 117, 126, 134, 136, 137, 137, 137, 137, 137, 137, 137},
+        {0, 0, 0, 0, 0, 0, 0, 12, 31, 43, 59, 76, 89, 100, 110, 119, 126, 131, 133, 133, 133, 133, 133, 133, 133},
+        {0, 0, 0, 0, 0, 0, 0, 0, 11, 30, 49, 68, 81, 93, 103, 112, 120, 127, 129, 129, 129, 129, 129, 129, 129},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 39, 59, 74, 86, 96, 104, 113, 120, 125, 126, 126, 126, 126, 126, 126}};
+    const ubyte2 VOLTAGE_MIN = 280;
+    const ubyte2 VOLTAGE_MAX = 405;
+    const ubyte2 RPM_MIN = 2000;
+    const ubyte2 RPM_MAX = 6000;
+    const ubyte2 NUM_V = 25;
+    const ubyte2 NUM_S = 25;
+    const ubyte2 VOLTAGE_STEP = 5;
+    const ubyte2 RPM_STEP = 160;
+    for(ubyte2 row = 0; row < NUM_S; ++row) {
+        for(ubyte2 column = 0; column < NUM_V; ++column) {
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
-            ubyte4 value = lookupTable[row][column];
-            insert(table, voltage, rpm, value);
+            ubyte1 value = lookupTable[row][column];
+            HashTable_insertPair(lookupTable, voltage, rpm, value);
         }
     }
 }
@@ -80,7 +89,7 @@ void populatePLHashTable(HashTable* table)
 PowerLimit* PL_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
     me->hashtable = HashTable_new();
-    populatePLHashTable(me->hashtable); 
+    PowerLimit_populateHashTable(me->hashtable); 
 
     me-> PLstatus = FALSE;   
     me->power = 0.0; 
@@ -95,12 +104,19 @@ PowerLimit* PL_new(){
     return me;
 }
 
-float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, float voltage, float rpm){    // Find the floor and ceiling values for voltage and rpm
+float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
-    ubyte4 voltageFloor      = get_lowerStepInterval(voltage, VOLTAGE_STEP);
-    ubyte4 voltageCeiling    = get_upperStepInterval(voltage, VOLTAGE_STEP);
-    ubyte4 rpmFloor          = get_lowerStepInterval(rpm, RPM_STEP);
-    ubyte4 rpmCeiling        = get_upperStepInterval(rpm, RPM_STEP);
+    // Calculating hashtable keys
+    ubyte4 voltageFloor      = ubyte4_lowerStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 voltageCeiling    = ubyte4_upperStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 rpmFloor          = ubyte4_lowerStepInterval(rpm, RPM_STEP);
+    ubyte4 rpmCeiling        = ubyte4_upperStepInterval(rpm, RPM_STEP);
+    
+    // Calculating these now to speed up interpolation later in method
+    ubyte4 voltageLowerDiff  = voltage - voltageFloor;
+    ubyte4 voltageUpperDiff  = voltageCeiling - voltage;
+    ubyte4 rpmLowerDiff      = rpm - rpmFloor;
+    ubyte4 rpmUpperDiff      = rpmCeiling - rpm;
 
     // Retrieve torque values from the hash table for the four corners
     float4 vFloorRFloor      = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
@@ -108,12 +124,19 @@ float PowerLimit_getTorque(PowerLimit* me, HashTable* torqueHashTable, float vol
     float4 vCeilingRFloor    = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
     float4 vCeilingRCeiling  = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
 
+    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same.
+    if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
+    {
+        me->LUTtq = vFloorRFloor;
+        return vFloorRFloor;
+    }
+
     // Calculate interpolation values
     float4 stepDivider = (float4)(VOLTAGE_STEP * RPM_STEP);
-    float4 torqueFloorFloor = vFloorRFloor * (float4)(voltageCeiling * rpmCeiling);
-    float4 torqueFloorCeiling = vFloorRCeiling * (float4)(voltageCeiling * rpmFloor);
-    float4 torqueCeilingFloor = vCeilingRFloor * (float4)(voltageFloor * rpmCeiling);
-    float4 torqueCeilingCeiling = vCeilingRCeiling * (float4)(voltageFloor * rpmFloor);
+    float4 torqueFloorFloor = vFloorRFloor * (float4)(voltageUpperDiff * rpmUpperDiff);
+    float4 torqueFloorCeiling = vFloorRCeiling * (float4)(voltageUpperDiff * rpmLowerDiff);
+    float4 torqueCeilingFloor = vCeilingRFloor * (float4)(voltageLowerDiff * rpmUpperDiff);
+    float4 torqueCeilingCeiling = vCeilingRCeiling * (float4)(voltageLowerDiff * rpmLowerDiff);
 
     // Final TQ from LUT
     float4 TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
@@ -303,12 +326,12 @@ void powerLimitTorqueCalculation(TorqueEncoder* tps, MotorController* mcm, Power
     float appsTorque = appsPercent * maxTQ; 
 
     //parameters we need for calculations//
-    sbyte4 motorRPM = MCM_getMotorRPM(mcm);
+    ubyte4 motorRPM = (ubyte4)MCM_getMotorRPM(mcm);
     sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
     sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
     // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
-    sbyte4 noLoadVoltage = (mcmCurrent * 0.027) + mcmVoltage;
+    ubyte4 noLoadVoltage = (ubyte4)(mcmCurrent * 0.027) + (ubyte4)mcmVoltage;
     float4 pidsetpoint = PowerLimit_getTorque(me, me->hashtable, noLoadVoltage, motorRPM);
     float4 pidactual = (float4)MCM_getCommandedTorque(mcm);
 

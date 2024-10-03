@@ -115,9 +115,15 @@ sbyte4 swap_int32(sbyte4 val)
     return (val << 16) | ((val >> 16) & 0xFFFF);
 }
 
-float4 get_lowerStepInterval(float4 value, float4 increment) {
+ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment) {
     return value - (value % increment);
 }
-float4 get_upperStepInterval(float4 value, float4 increment) {
-    return get_lowerStepInterval(value, increment) + increment; //For simplicity and understanding, keeping the function call. To decrease total function time, convert to pointers.
+ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
+    return ubyte4_lowerStepInterval(value, increment) + increment; //For simplicity and understanding, keeping the function call. To decrease total function time, convert to pointers.
+}
+float4 float4_lowerStepInterval(float4 value, float4 increment) {
+    return value - (float4)fmod(value % increment);
+}
+float4 float4_upperStepInterval(float4 value, float4 increment) {
+    return float4_lowerStepInterval(value, increment) + increment; //For simplicity and understanding, keeping the function call. To decrease total function time, convert to pointers.
 }
