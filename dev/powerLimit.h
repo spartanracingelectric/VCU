@@ -20,13 +20,13 @@
 typedef struct _PowerLimit {
     PID *pid; 
     HashTable* hashtable;
-    bool PLstatus;
+    bool plStatus;
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
    // float mcm_current; 
     float power;
-    float wheelspeed;
+    float rpm;
     float LUTtq;
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 // we need up update can.c/  dbc for all these 
