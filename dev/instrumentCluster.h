@@ -32,7 +32,7 @@ void IC_parseCanMessage(InstrumentCluster* me, MotorController* mcm, IO_CAN_DATA
 //Inter-object functions
 //----------------------------------------------------------------------------
 
-ubyte1 IC_getTorqueMapMode(InstrumentCluster *me);
+ubyte1 IC_PL_getTorqueMapMode(InstrumentCluster *me);
 ubyte1 IC_getLaunchControlSensitivity(InstrumentCluster *me);
 
 /*

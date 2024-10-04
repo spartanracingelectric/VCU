@@ -638,7 +638,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     //11 = B : Power up delay(Charge testing)
     //12 = C : Fault
     //13 = D : Contactors are off
-    ////////if (MCM_commands/*_getTorque(mcm) >= 0)
+    ////////if (MCM_commands/*_PL_getTorque(mcm) >= 0)
     ////////{*/
     ///////////*tempMultiplier = getPercent(BMS_getDCL(bms), 0, me->maxAmpsDischarge, TRUE);
     //////////if (tempMultiplier < 1)
@@ -675,7 +675,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
         multiplier = 1;
     }
-    MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+    MCM_commands_setTorqueDNm(mcm, MCM_commands_PL_getTorque(mcm) * multiplier);
 }
 
 //-------------------------------------------------------------------

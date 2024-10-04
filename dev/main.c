@@ -48,9 +48,10 @@
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "drs.h"
 #include "powerLimit.h"
+#include "PID.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -221,12 +222,11 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
-
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new(); 
-    PID *plPID = PID_new(1.0,0.0,0.0,0.0);
+    PID *plPID = PID_new(1.0,1.0,0.0,80000.0);
     PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
-    PID_resetpidOffset(lcPID, 170.0);
+    PID_setTotalError(lcPID, 170.0);
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -375,7 +375,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        slipRatioCalculation(wss, lc);
+        LaunchControl_slipRatioCalculation(wss, lc);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -426,14 +426,14 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        slipRatioCalculation(wss, lc);
+        LaunchControl_calculateSlipRatio(lc, wss);
         PID_setGain(lcPID, 20.0, 0.0, 0.0);
-        launchControlTorqueCalculation(lc, tps, bps, mcm0,lcPID);
+        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         PID_setGain(plPID, 1.0, 0.0, 0.0);
-        powerLimitTorqueCalculation(tps, mcm0, pl, bms, wss, plPID);
+        PL_calculateTorqueCommand(mcm0, pl, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

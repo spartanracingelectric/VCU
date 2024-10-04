@@ -2,7 +2,7 @@
 #include <math.h>
 #include "IO_RTC.h"
 #include "IO_DIO.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "wheelSpeeds.h"
 #include "mathFunctions.h"
 #include "initializations.h"
@@ -66,13 +66,13 @@ Kp will give you the difference between 0.1 current vs 0.2 target -> if you want
 LaunchControl *LaunchControl_new(){// this goes outside the while loop
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->slipRatio = 0;
-    me->lcTorque = -1;
-    me->LCReady = FALSE;
-    me->LCStatus = FALSE;
+    me->lcTorqueCommand = -1;
+    me->lcReady = FALSE;
+    me->lcState = FALSE;
     me->buttonDebug = 0;
     return me;
 }
-void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
+void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     float4 unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
     float4 filt_speed = unfilt_speed;
     if (unfilt_speed > 1.0) {
@@ -84,7 +84,7 @@ void slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
     me->slipRatio = filt_speed;
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
-void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcpid)
+void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcpid)
 {
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle = steering_degrees();
@@ -93,15 +93,15 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
     
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
      if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && bps->percent < .35) {
-        me->LCReady = TRUE;
+        me->lcReady = TRUE;
      }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
-        me->lcTorque = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
+     if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+        me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         //initPIDController(me->pidController, 20, 0, 0, 170); // Set your PID values here to change various setpoints /* Setting to 0 for off */ Kp, Ki, Kd // Set your delta time long enough for system response to previous change
      }
-     if(me->LCReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
-        me->LCStatus = TRUE;
-        me->lcTorque = lcpid->totalError; // Set to the initial torque
+     if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
+        me->lcState = TRUE;
+        me->lcTorqueCommand = lcpid->totalError; // Set to the initial torque
         if(speedKph > 3)
         {
 
@@ -112,26 +112,26 @@ void launchControlTorqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brake
             float4 appsTqPercent;
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             ubyte2 torque= MCM_getMaxTorqueDNm(mcm);
-            me->lcTorque =(ubyte2)(torque * appsTqPercent) + PIDtorque; // adds the ajusted value from the pid to the torqueval}
+            me->lcTorqueCommand =(ubyte2)(torque * appsTqPercent) + PIDtorque; // adds the ajusted value from the pid to the torqueval}
             me->potLC= lcpid->totalError;
         }
      }
-    if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->LCStatus == TRUE)){
-        me->LCStatus = FALSE;
-        me->LCReady = FALSE;
-        me->lcTorque = -1;
+    if(bps->percent > .05 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->lcState == TRUE)){
+        me->lcState = FALSE;
+        me->lcReady = FALSE;
+        me->lcTorqueCommand = -1;
     }
     // Update launch control state and torque limit
-    MCM_update_LaunchControl_State(mcm, me->LCStatus);
-    MCM_update_LaunchControl_TorqueLimit(mcm, me->lcTorque * 10);
+    MCM_update_LC_state(mcm, me->lcState);
+    MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10);
      }
-bool getLaunchControlStatus(LaunchControl *me){
-    return me->LCStatus;
+bool LaunchControl_getStatus(LaunchControl *me){
+    return me->lcState;
 }
-sbyte2 getCalculatedTorque(LaunchControl *me){
-    return me->lcTorque;
+sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){
+    return me->lcTorqueCommand;
 }
-ubyte1 getButtonDebug(LaunchControl *me) {
+ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
     return me->buttonDebug;
 }
 
