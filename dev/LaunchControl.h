@@ -25,7 +25,7 @@ typedef struct _LaunchControl {
     float4 slipRatio;
     sbyte2 lcTorque;
     bool lcReady;
-    bool lcState; // Just for CAN to showcase when enabled
+    bool lcActive; // Just for CAN to showcase when enabled
     ubyte1 potLC;
     ubyte1 buttonDebug;
 } LaunchControl;

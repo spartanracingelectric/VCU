@@ -133,8 +133,8 @@ struct _MotorController
     sbyte2 launchControlTorqueLimit;
     bool launchControlState;
 
-    ubyte2 plTorqueCommand;
-    bool plState;
+    sbyte2 plTorqueCommand;
+    bool plActive;
 
 
     //---------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->launchControlState = FALSE;
 
     me-> plTorqueCommand = 0;
-    me-> plState =FALSE;
+    me-> plActive = FALSE;
 
     me->HVILOverride = FALSE;
  
@@ -312,28 +312,26 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
        appsTorque =  appsTorque - error;
   }
   */ 
-    if(me->launchControlState == TRUE)
+    
+    if(me->lcActive == TRUE)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } //else if (me->LaunchControl_TorqueLimit == 0)// we dont even 
-    //{
-    //    torqueOutput = me->LaunchControl_TorqueLimit;
-   // } 
-    if(me->PLState == TRUE)
+        torqueOutput = me->lcTorqueCommand;
+    } 
+    if(me->plActive == TRUE)
     {
-      me->LCState == FALSE;
-     float torquetemp = me->PowerLimit_TorqueLimit; 
-     if(torquetemp < appsTorque)
-     {
-        torqueOutput = (sbyte2)(int)torquetemp + bpsTorque;
-     }
-     else{
+    me->lcActive == FALSE;
+    sbyte2 torquetemp = me->plTorqueCommand; 
+        if(torquetemp < appsTorque)
+        {
+        torqueOutput = torquetemp + bpsTorque;
+        }
+        else{
         torqueOutput = appsTorque + bpsTorque;
-     }
+        }
     }
     else {
-      torqueOutput = appsTorque + bpsTorque;
-       // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+        torqueOutput = appsTorque + bpsTorque;
+        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
     if(torqueOutput > 250.0)
     { // saftey checks 
@@ -737,9 +735,9 @@ void MCM_update_LC_state(MotorController *me, bool newState)
     me->launchControlState = newState;
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PL_torqueCommand(MotorController *me, float torqueCommand)
+void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)
 {
-    me->plTorqueCommand = (ubyte2)(torqueCommand);
+    me->plTorqueCommand = torqueCommand;
 }
 
 void MCM_get_PL_torqueCommand(MotorController *me)
@@ -749,11 +747,11 @@ void MCM_get_PL_torqueCommand(MotorController *me)
 
 void MCM_update_PL_state(MotorController *me, bool newState)
 {
-    me->plState = newState;
+    me->plActive = newState;
 }
 bool MCM_get_PL_state(MotorController *me)
 {
-    return me->plState;
+    return me->plActive;
 }
 
 //----------------------------------------------------PL-------------------------------

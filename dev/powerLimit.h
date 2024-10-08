@@ -14,7 +14,9 @@
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    bool plStatus;
+    PID *pid; 
+    HashTable* hashtable;
+    bool plState;
 
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
