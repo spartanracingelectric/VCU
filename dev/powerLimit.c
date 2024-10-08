@@ -39,7 +39,7 @@ PowerLimit* PL_new(){
         PL_populateHashTable(me->hashtable); 
     }
 
-    me->plStatus = FALSE;   
+    me->plState = FALSE;   
     me->power = 0.0; 
     me->rpm = 0.0; 
 
@@ -71,7 +71,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     
     if(watts > KWH_THRESHOLD)
      {// kwhlimit should be changed to another paramter we make for plthreshold
-        me-> plStatus = TRUE;
+        me-> plState = TRUE;
         // still need to make/ update all the struct parameters aka values for can validation 
         float pidSetpoint = (float)((KWH_LIMIT*gain/rpm)*decitq);
         float pidActual = (float)((watts*gain/rpm)*decitq);
@@ -87,12 +87,12 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
 
     }
     else {
-        me-> plStatus = FALSE;
+        me-> plState = FALSE;
     }
 
     float plTorqueCommand=  me->plTorqueCommand;
     MCM_update_PowerLimit_TorqueCommand(mcm,  plTorqueCommand); // we need to change this on mcm.c / pl.c/.h 
-    MCM_update_PL_setState(mcm, me->plStatus); 
+    MCM_update_PL_setState(mcm, me->plState); 
 
     // in mcm.c input the if statement for the tps
 }
@@ -123,7 +123,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     sbyte4 watts = MCM_getPower(mcm);
     if( watts > KWH_THRESHOLD ){
     // Always set the flag
-    me-> plStatus = TRUE;
+    me-> plState = TRUE;
 
     // Getting APPS OUTPUT
     ubyte2 torqueMax = MCM_getTorqueMax(mcm);
@@ -153,9 +153,9 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     MCM_update_PowerLimit_TorqueCommand(mcm, me->plTorqueCommand); 
     }
     else {
-        me-> plStatus = FALSE;
+        me-> plState = FALSE;
     }
-    MCM_update_PL_setState(mcm, me->plStatus); 
+    MCM_update_PL_setState(mcm, me->plState); 
 
 }
 
