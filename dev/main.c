@@ -372,6 +372,7 @@ void main(void)
         slipRatioCalculation(wss, lc);
 
         //Cool DRS things
+        DRS_update(drs, mcm0, tps, bps);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
@@ -419,7 +420,6 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        DRS_update(drs, mcm0, tps, bps);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 

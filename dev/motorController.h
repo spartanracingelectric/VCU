@@ -123,6 +123,4 @@ void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage)
 ubyte1 MCM_getStartupStage(MotorController* me);
 void MCM_setStartupStage(MotorController* me, ubyte1 stage);
 
-void MCM_update_MotorTuning_State(MotorController* me,bool MTstate);
-
 #endif // _MOTORCONTROLLER_H
