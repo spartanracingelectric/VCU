@@ -28,10 +28,11 @@ typedef struct _LaunchControl {
     bool lcActive; // Just for CAN to showcase when enabled
     ubyte1 potLC;
     ubyte1 buttonDebug;
+    sbyte2 lcTorqueCommand;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
-void LaunchControl_calculateSlipRatio(WheelSpeeds *wss, LaunchControl *lc);
+void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss);
 void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcpid);
 bool LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *lc);
