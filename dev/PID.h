@@ -22,7 +22,7 @@ typedef struct _PID {
     float4 dt;               // Time interval between PID updates in seconds (VCU tick speed)
 } PID;
 
-PID*  PID_new(float Kp, float Ki, float Kd, float setpoint);
+PID*  PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint);
 void  PID_setTotalError(PID* pid, float4 error);
 void  PID_updateSetpoint(PID *pid, float4 setpoint);
 void  PID_updateInterval(PID *pid, float4 dt);
