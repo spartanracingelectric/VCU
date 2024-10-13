@@ -28,7 +28,10 @@
 
 #endif
 
-#define POWERLIMIT_METHOD   2 // STATES: 1-3 are for the 3 different PL methods currently in place
+// #define POWERLIMIT_METHOD   2 // STATES: 1-3 are for the 3 different PL methods currently in place
+#define TQPID
+//#define PLPPID
+//#define LUT
 #define CAN_VERBOSE         0 // To be implemented later, but idea is want to check if can manager and here to see if we should be setting & transmitting certain values over can for debugging
 
 PowerLimit* PL_new(){
@@ -53,7 +56,7 @@ PowerLimit* PL_new(){
 }
 
 /* tqpid + equation */
-#ifdef POWERLIMIT_METHOD == 1
+#ifdef defined(TQPID)
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
     // calc stuff//
@@ -96,9 +99,8 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
 
     // in mcm.c input the if statement for the tps
 }
-#endif
 /* powerpid */
-#ifdef POWERLIMIT_METHOD == 2
+#elif defined(PLPPID)
 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     sbyte4 watts = MCM_getPower(mcm);
@@ -112,10 +114,9 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     else { me->plState    = FALSE; }
     MCM_set_PL_updateState(mcm, me->plState);
 }
-#endif
 
 
-#ifdef POWERLIMIT_METHOD == 3
+#elif defined(LUT)
 /** LUT METHOD */
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);
@@ -215,7 +216,7 @@ void PL_populateHashTable(HashTable* table)
     }
 }
 
-float PL_getTorqueFromLUTFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+float4 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
     // Calculating hashtable keys
     ubyte4 voltageFloor      = ubyte4_lowerStepInterval(voltage, VOLTAGE_STEP);
