@@ -31,21 +31,23 @@ PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
     return pid;
 
 }
-
-void PID_updateSetpoint(PID *pid, float setpoint) {
-    pid->setpoint = setpoint;
+void PID_setTotalError(PID* pid, float4 error){
+    pid->totalError = error;
 }
-
-float PID_computeOffset(PID *pid, float sensorValue) {
-    float currentError =  pid->setpoint - sensorValue;
-    float proportional =  pid->Kp * currentError; //proportional
-    float integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
-    float derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
+void PID_updateSetpoint(PID *pid, float4 setpoint) {
+    pid->setpoint = setpoint; 
+}
+void PID_setGain(PID *pid, float4 Kp, float4 Ki, float4 Kd){
+    pid-> Kp = Kp;
+    pid-> Ki = Ki;
+    pid-> Kd = Kd;
+}
+sbyte2 PID_computeOffset(PID *pid, float4 sensorValue) {
+    float4 currentError =  pid->setpoint - sensorValue;
+    float4 proportional =  pid->Kp * currentError; //proportional
+    float4 integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
+    float4 derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
     pid->previousError = currentError;
     pid->totalError   += currentError;
-    return proportional + integral + derivative;
-}
-
-void PID_resetPIDerror(PID* pid, float4 error){
-    pid->totalError = (float)(error);
+    return (sbyte2)(proportional + integral + derivative);
 }
