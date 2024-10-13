@@ -92,8 +92,8 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     }
 
     float plTorqueCommand=  me->plTorqueCommand;
-    MCM_update_PowerLimit_TorqueCommand(mcm,  plTorqueCommand); // we need to change this on mcm.c / pl.c/.h 
-    MCM_update_PL_setState(mcm, me->plState); 
+    MCM_update_PL_setTorqueCommand(mcm,  plTorqueCommand); // we need to change this on mcm.c / pl.c/.h 
+    MCM_set_PL_updateState(mcm, me->plState); 
 
     // in mcm.c input the if statement for the tps
 }
@@ -151,12 +151,12 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     me->plTorqueCommand = torqueRequest; 
     me->pidSetpoint = pidSetpoint;
     me->pidActual = pidActual;
-    MCM_update_PowerLimit_TorqueCommand(mcm, me->plTorqueCommand); 
+    MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand); 
     }
     else {
         me-> plState = FALSE;
     }
-    MCM_update_PL_setState(mcm, me->plState); 
+    MCM_set_PL_updateState(mcm, me->plState); 
 
 }
 

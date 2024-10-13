@@ -88,7 +88,7 @@ void LaunchControl_torqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brak
 {
     sbyte2 speedKph         = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle    = steering_degrees();
-    sbyte2 mcm_Torque_max   = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
+    sbyte2 mcm_Torque_max   = (MCM_getMaxTorqueDNm(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
 
     /* LC STATUS CONDITIONS */
     /*
@@ -115,11 +115,11 @@ void LaunchControl_torqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brak
         if(speedKph < 3)
         {
             me->lcTorqueCommand = -1;
-            MCM_update_LC_state(mcm, me->lcActive);
-            MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10);
-            break;
+            
+          
         }
-        PID_setpointUpdate(lcpid, 0.2);
+        else{
+        PID_updateSetpoint(lcpid, 0.2);
         //PID_dtUpdate(me->pidController, 0.01);// updates the dt 
         //float Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
         float4 torquePID = (float4)PID_computeOffset(lcpid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
@@ -128,6 +128,7 @@ void LaunchControl_torqueCalculation(LaunchControl *me, TorqueEncoder *tps, Brak
         ubyte2 torqueMax = MCM_getMaxTorqueDNm(mcm);
         me->lcTorqueCommand =(ubyte2)(torqueMax * appsTqPercent) + torquePID; // adds the ajusted value from the pid to the torqueval}
         me->potLC= lcpid->totalError;
+    }
     }
 
     if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->lcActive == TRUE) || (bps->percent > 0.05 && me->lcActive == TRUE)){

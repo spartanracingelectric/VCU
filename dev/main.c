@@ -375,7 +375,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        LaunchControl_slipRatioCalculation(wss, lc);
+        LaunchControl_calculateSlipRatio(wss, lc);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -431,8 +431,7 @@ void main(void)
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        
-        PL_calculateTorqueOffset(mcm0, pl, plPID);
+        PL_calculateTorqueCommand(tps,mcm0, pl,bms,wss, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

@@ -31,7 +31,7 @@ typedef struct _HashTable{
 HashTable* HashTable_new();
 ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2);
 void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 value);
-ubyte4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2);
+float4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2);
 void destroyHashTable(HashTable* table);
 
 
