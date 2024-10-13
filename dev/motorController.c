@@ -710,7 +710,7 @@ Status MCM_commands_getDischarge(MotorController *me)
 {
     return me->commands_discharge;
 }
-sbyte2 MCM_commands_PL_getTorqueLimit(MotorController *me)
+sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }

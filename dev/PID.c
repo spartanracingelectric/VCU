@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "PID.h"
 
-PID* PID_new(float Kp, float Ki, float Kd, float setpoint) {
+PID* PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
