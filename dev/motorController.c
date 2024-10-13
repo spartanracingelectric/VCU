@@ -313,13 +313,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
   }
   */ 
     
-    if(me->lcActive == TRUE)
+    if(me->launchControlState == TRUE)
     {
         torqueOutput = me->lcTorqueCommand;
     } 
     if(me->plActive == TRUE)
     {
-    me->lcActive == FALSE;
+    me->launchControlState == FALSE;
     sbyte2 torquetemp = me->plTorqueCommand; 
         if(torquetemp < appsTorque)
         {
@@ -710,7 +710,7 @@ Status MCM_commands_getDischarge(MotorController *me)
 {
     return me->commands_discharge;
 }
-sbyte2 MCM_commands_PL_getTorqueLimit(MotorController *me)
+sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
@@ -740,7 +740,7 @@ void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)
     me->plTorqueCommand = torqueCommand;
 }
 
-void MCM_get_PL_torqueCommand(MotorController *me)
+sbyte2 MCM_get_PL_torqueCommand(MotorController *me)
 {
     return me->plTorqueCommand;
 }
