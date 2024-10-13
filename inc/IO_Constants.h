@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright (c) 2010 TTTControl. All rights reserved. Confidential proprietory
- * Schönbrunnerstraße 7, A-1040 Wien, Austria. office@ttcontrol.com
+ * Schï¿½nbrunnerstraï¿½e 7, A-1040 Wien, Austria. office@ttcontrol.com
  **************************************************************************/
 /**********************************************************************//**
  * \file IO_Constants.h
