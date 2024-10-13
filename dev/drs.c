@@ -69,9 +69,13 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 if(Sensor_DRSButton.sensorValue == TRUE) {
                     me->buttonPressed = TRUE;
                     DRS_open(me);
+                    bool t = TRUE;
+                    MCM_update_MotorTuning_State(mcm,t);
                 } else {
                     me->buttonPressed = FALSE;
                     DRS_close(me);
+                    bool f = FALSE;
+                    MCM_update_MotorTuning_State(mcm,f);
                 }
                 break;
             case AUTO:

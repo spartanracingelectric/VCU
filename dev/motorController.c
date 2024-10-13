@@ -132,6 +132,7 @@ struct _MotorController
 
     sbyte2 LaunchControl_TorqueLimit;
     bool LCState;
+    bool MTState;
 
 };
 
@@ -291,7 +292,15 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else if (me->LaunchControl_TorqueLimit == 0){
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else {
+    }
+    else if(me->MTState == TRUE) {
+        if(me->commands_torque <0){
+            torqueOutput= 100.0;
+        }
+        else if(me->commands_torque>0){
+            torqueOutput = -100.0;
+        }
+    }  else {
         // torqueOutput = appsTorque + bpsTorque;
         torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
@@ -866,4 +875,8 @@ float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* me)
 float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* me)
 {
     return me->regen_percentAPPSForCoasting;
+}
+
+void MCM_update_MotorTuning_State(MotorController* me,bool MTstate){
+    me->MTState = MTstate;
 }
