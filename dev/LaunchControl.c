@@ -124,7 +124,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
             me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + torquePID; // adds the ajusted value from the pid to the torqueval}
-            me->potLC= lcpid->totalError;
+            me->potLC= lcPID->totalError;
         }
     }
 

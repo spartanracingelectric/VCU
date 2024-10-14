@@ -28,7 +28,7 @@
 
 #endif
 
-// #define POWERLIMIT_METHOD   2 // STATES: 1-3 are for the 3 different PL methods currently in place
+#define POWERLIMIT_METHOD   2 // STATES: 1-3 are for the 3 different PL methods currently in place
 #define TQPID
 //#define PLPPID
 //#define LUT
