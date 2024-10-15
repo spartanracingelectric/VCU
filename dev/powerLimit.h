@@ -12,8 +12,8 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
-#define KWH_LIMIT 50000.0 // watts
-#define KWH_THRESHOLD 50000.0 // watts
+#define KWH_LIMIT (float4) 50000.0 // watts
+#define KWH_THRESHOLD (float4) 50000.0 // watts
 
 
 // Define a structure for the PID controller
@@ -25,8 +25,8 @@ typedef struct _PowerLimit {
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
    // float mcm_current; 
-    float power;
-    float rpm;
+    float4 power;
+    float4 rpm;
     float4 lutTorque;
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 // we need up update can.c/  dbc for all these 
