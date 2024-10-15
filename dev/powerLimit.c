@@ -61,22 +61,22 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
 {
     // calc stuff//
     ubyte2 torqueMax = MCM_getTorqueMax(mcm);
-    float appsTqPercent;
+    float4 appsTqPercent;
     TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-    float gain = 9.549;
-    float decitq = 10.0;
+    float4 gain = 9.549; 
+    float4 decitq = 10.0; 
 
     //parameters we need for calculations//
-    float watts = (float)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts
-    float driversRequestedtq = appsTqPercent*torqueMax; 
-    float rpm = (float)MCM_getMotorRPM(mcm);
+    float4 watts = (float4)(MCM_getPower(mcm)); // divide by 1000 to get watts --> kilowatts 
+    float4 driversRequestedtq = appsTqPercent*torqueMax; 
+    float4 rpm = (float4)MCM_getMotorRPM(mcm);
 
     
     if(watts > KWH_THRESHOLD)
      {// kwhlimit should be changed to another paramter we make for plthreshold
         me-> plState = TRUE;
         // still need to make/ update all the struct parameters aka values for can validation 
-        float4 pidSetpoint = (float)((KWH_LIMIT*gain/rpm)*decitq);
+        float4 pidSetpoint = (float4)((KWH_LIMIT*gain/rpm)*decitq); 
         sbyte2 pidActual = (sbyte2)((watts*gain/rpm)*decitq);
         PID_updateSetpoint(pid,pidSetpoint);
         //PID_dtUpdate(pid, 0.01);// 10ms this update function sets the dt to the same exact value every iteration. why not just set when initializing the pid and then forgo this set?
