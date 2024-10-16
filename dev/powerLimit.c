@@ -66,8 +66,8 @@ PowerLimit* PL_new(){
      
     return me;
 }
-// set to 0 to invalidate code, to use change to POWERLIMIT_METHOD
-#ifdef 0
+// set to NOTDEFINED to invalidate code, to use change to POWERLIMIT_METHOD
+#ifdef POWERLIMIT_METHOD
 /** TQ CALCULATIONS **/ 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
@@ -87,8 +87,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     float4 rpm = (float4)MCM_getMotorRPM(mcm);
 
     
-    if(watts > POWERLIMIT_INIT)
-     {// kwhlimit should be changed to another paramter we make for plthreshold
+    if(watts > POWERLIMIT_INIT){
         me-> plState = TRUE;
         // still need to make/ update all the struct parameters aka values for can validation 
         float4 pidSetpoint = KWH_LIMIT *  gain / rpm * decitq; 
@@ -121,7 +120,7 @@ void PL_populateHashTable(HashTable* table)
 }
 #endif
 
-#ifdef 0
+#ifdef NOTDEFINED
 /** Power PID **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     sbyte4 watts = MCM_getPower(mcm);
@@ -142,7 +141,7 @@ void PL_populateHashTable(HashTable* table)
 }
 #endif
 
-#ifdef 0
+#ifdef NOTDEFINED
 /** LUT **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);
