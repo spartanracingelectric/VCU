@@ -47,7 +47,7 @@ sbyte2 PID_computeOffset(PID *pid, float4 sensorValue) {
     float4 proportional =  pid->Kp * currentError; //proportional
     float4 integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
     float4 derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
-    pid->previousError = currentError;
-    pid->totalError   += currentError;
+    pid->previousError  = currentError;
+    pid->totalError    += currentError;
     return (sbyte2)(proportional + integral + derivative);
 }

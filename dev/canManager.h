@@ -38,8 +38,8 @@ void CanManager_read(CanManager *me, CanChannel channel, MotorController *mcm, I
 void canOutput_sendSensorMessages(CanManager *me);
 void can1utput_sendSensorMessages(CanManager *me);
 //void canOutput_sendMCUControl(CanManager* me, MotorController* mcm, bool sendEvenIfNoChanges);
-void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc, PowerLimit *pl, DRS *drs, PID *pid);
-void canOutput_sendDebugMessage1(CanManager *me, MotorController *mcm, TorqueEncoder *tps);
+void canOutput_sendDebugMessage(CanManager *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, InstrumentCluster *ic, BatteryManagementSystem *bms, WheelSpeeds *wss, SafetyChecker *sc, LaunchControl *lc, PowerLimit *pl, DRS *drs, PID *plPID);
+void canOutout_sendDebugMessage1(CanManager *me, MotorController *mcm);
 
 ubyte1 CanManager_getReadStatus(CanManager *me, CanChannel channel);
 
