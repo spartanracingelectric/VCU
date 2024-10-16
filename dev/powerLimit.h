@@ -27,7 +27,8 @@ typedef struct _PowerLimit {
    // float mcm_current; 
     float4 power;
     float4 rpm;
-    float4 lutTorque;
+    sbyte2 lutTorque;
+
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 // we need up update can.c/  dbc for all these 
     sbyte2 pidOffset;
@@ -39,7 +40,7 @@ typedef struct _PowerLimit {
 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
 void PL_populateHashTable(HashTable* table);
-float4 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
+sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 PowerLimit* PL_new(); 
 
 #endif //_PID_H

@@ -32,8 +32,9 @@ ubyte1 HashTable_hash(ubyte2 key1, ubyte2 key2) {
 
 
 // Insert a key-value pair into the hash table
-void HashTable_insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
-    ubyte1 index = HashTable_hash(key1, key2);
+void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 value) {
+    // Getting hash key
+    ubyte1 index = HashTable_getHashIndex(key1, key2);
     
     // Create a new entry
     HashEntry* entry = (HashEntry*)malloc(sizeof(HashEntry));
@@ -56,8 +57,8 @@ void HashTable_insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) 
 
 
 // Retrieve a value from the hash table
-ubyte4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
-    ubyte1 index = HashTable_hash(key1, key2);
+ubyte1 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
+    ubyte1 index = HashTable_getHashIndex(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
         if (entry->key1 == key1 && entry->key2 == key2) {

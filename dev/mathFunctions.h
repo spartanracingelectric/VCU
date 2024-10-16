@@ -31,5 +31,5 @@ sbyte4 swap_int32(sbyte4 val);
 ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment);
 ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment);
 float4 float4_lowerStepInterval(float4 value, float4 increment);
- float4 float4_upperStepInterval(float4 value, float4 increment);
+float4 float4_upperStepInterval(float4 value, float4 increment);
 #endif //  _MATHFUNCTIONS_H

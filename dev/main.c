@@ -433,6 +433,9 @@ void main(void)
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         PID_setGain(plPID, 1.0, 0.0, 0.0);
+        // PLMETHOD 1:TQequation+TQPID
+         // PLMETHOD 2:TQequation+PWRPID
+          // PLMETHOD 3: LUT+TQPID
         PL_calculateTorqueCommand(tps,mcm0, pl,bms,wss, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
@@ -464,7 +467,6 @@ void main(void)
 
         //Send debug data
         canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs,plPID);
-        canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 
