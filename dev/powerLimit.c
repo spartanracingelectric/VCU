@@ -16,8 +16,8 @@
 //#define VOLTAGE_MAX      (ubyte2) 405
 //#define RPM_MIN          (ubyte2) 2000 // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
 //#define RPM_MAX          (ubyte2) 6000
-//#define NUM_V            (ubyte1) 25
-//#define NUM_S            (ubyte1) 25
+//#define NUM_V            (ubyte1) 26
+//#define NUM_S            (ubyte1) 26
 #define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
 #define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); 
 
@@ -66,15 +66,10 @@ PowerLimit* PL_new(){
      
     return me;
 }
-<<<<<<< Updated upstream
 // set to NOTDEFINED to invalidate code, to use change to POWERLIMIT_METHOD
 #ifdef POWERLIMIT_METHOD
 /** TQ CALCULATIONS **/ 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
-=======
-
-void PL_calculateTorqueCommand_1(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
->>>>>>> Stashed changes
 {
     
     
@@ -119,19 +114,11 @@ void PL_calculateTorqueCommand_1(TorqueEncoder* tps, MotorController* mcm, Power
     // in mcm.c input the if statement for the tps
 }
 
-<<<<<<< Updated upstream
-void PL_populateHashTable(HashTable* table)
-{
-    ubyte1 i = 0;
-}
 #endif
 
 #ifdef NOTDEFINED
 /** Power PID **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
-=======
-void PL_calculateTorqueCommand_2(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
->>>>>>> Stashed changes
     sbyte4 watts = MCM_getPower(mcm);
     if(watts > POWERLIMIT_INIT) {
         me->plState          = TRUE;
@@ -144,20 +131,11 @@ void PL_calculateTorqueCommand_2(TorqueEncoder* tps, MotorController* mcm, Power
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
-<<<<<<< Updated upstream
-void PL_populateHashTable(HashTable* table)
-{
-    ubyte1 i = 0;
-}
 #endif
 
 #ifdef NOTDEFINED
 /** LUT **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
-=======
-/** LUT METHOD */
-void PL_calculateTorqueCommand_3(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
->>>>>>> Stashed changes
     // sbyte4 watts = MCM_getPower(mcm);
     if( MCM_getPower(mcm) > KWH_THRESHOLD ){
         // Always set the flag
@@ -180,7 +158,7 @@ void PL_calculateTorqueCommand_3(TorqueEncoder* tps, MotorController* mcm, Power
 
         // Setting member values for CAN message debugging. Will change to an if / define to easily toggle in the future.
         me->pidOffset = offset;
-        me->plTorqueCommand = torqueRequest; 
+        me->plTorqueCommand = torqueRequest;
         me->pidSetpoint = pidSetpoint;
         me->pidActual = pidActual;
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -193,6 +171,67 @@ void PL_calculateTorqueCommand_3(TorqueEncoder* tps, MotorController* mcm, Power
 
 }
 
+sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+    
+    //LUT Lower Bounds
+    ubyte4 VOLTAGE_MIN = 280;
+    ubyte4 RPM_MIN = 2000;
+    
+    // Calculating hashtable keys
+    ubyte4 rpmInput = rpm - RPM_MIN;
+    ubyte4 voltageInput = voltage - VOLTAGE_MIN;
+    ubyte4 voltageFloor      = ubyte4_lowerStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
+    ubyte4 voltageCeiling    = ubyte4_upperStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
+    ubyte4 rpmFloor          = ubyte4_lowerStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
+    ubyte4 rpmCeiling        = ubyte4_upperStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
+    
+    // Calculating these now to speed up interpolation later in method
+    ubyte2 voltageLowerDiff  = (ubyte2)voltage - voltageFloor;
+    ubyte2 voltageUpperDiff  = (ubyte2)voltageCeiling - voltage;
+    ubyte2 rpmLowerDiff      = (ubyte2)rpm - rpmFloor;
+    ubyte2 rpmUpperDiff      = (ubyte2)rpmCeiling - rpm;
+
+    // Retrieve torque values from the hash table for the four corners
+    sbyte2 vFloorRFloor      = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
+    sbyte2 vFloorRCeiling    = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
+    sbyte2 vCeilingRFloor    = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
+    sbyte2 vCeilingRCeiling  = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
+
+    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same. However, due to infrequency of hitting exactly on bounds, perhaps not efficeint, except for maybe voltage. should do the math i guess
+    /*
+    if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
+    {
+        me->lutTorque = vFloorRFloor;
+        return vFloorRFloor;
+    }
+    */
+    // Calculate interpolation values
+    sbyte2 stepDivider          = VOLTAGE_STEP      * RPM_STEP;
+    sbyte2 torqueFloorFloor     = vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
+    sbyte2 torqueFloorCeiling   = vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
+    sbyte2 torqueCeilingFloor   = vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
+    sbyte2 torqueCeilingCeiling = vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
+
+    // Final TQ from LUT
+    sbyte2 TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
+    
+    /*
+    float4 horizontalInterpolation = (((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
+    float4 verticalInterpolation   = (((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
+
+    // Calculate gains
+    float4 gainValueHorizontal = (float4)fmod(voltage, VOLTAGE_STEP);
+    float4 gainValueVertical   = (float4)fmod(rpm, RPM_STEP);
+
+    // Combine interpolated values
+    me->lutTorque = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
+    */
+
+    me->lutTorque = TQ;
+    return me->lutTorque;  // Adjust gain if necessary
+}
+
+#endif
 
 void PL_populateHashTable(HashTable* table)
 {
@@ -251,62 +290,3 @@ void PL_populateHashTable(HashTable* table)
     }
 }
 
-sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-    
-    //LUT Lower Bounds
-    ubyte4 VOLTAGE_MIN = 280;
-    ubyte4 RPM_MIN = 2000;
-    
-    // Calculating hashtable keys
-    ubyte4 rpmInput = rpm - RPM_MIN;
-    ubyte4 voltageFloor      = ubyte4_lowerStepInterval(voltage, VOLTAGE_STEP);
-    ubyte4 voltageCeiling    = ubyte4_upperStepInterval(voltage, VOLTAGE_STEP);
-    ubyte4 rpmFloor          = ubyte4_lowerStepInterval(rpmInput, RPM_STEP);
-    ubyte4 rpmCeiling        = ubyte4_upperStepInterval(rpmInput, RPM_STEP);
-    
-    // Calculating these now to speed up interpolation later in method
-    ubyte2 voltageLowerDiff  = (ubyte2)voltage - voltageFloor;
-    ubyte2 voltageUpperDiff  = (ubyte2)voltageCeiling - voltage;
-    ubyte2 rpmLowerDiff      = (ubyte2)rpm - rpmFloor - RPM_MIN;
-    ubyte2 rpmUpperDiff      = (ubyte2)rpmCeiling - rpm + RPM_MIN;
-
-    // Retrieve torque values from the hash table for the four corners
-    sbyte2 vFloorRFloor      = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
-    sbyte2 vFloorRCeiling    = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
-    sbyte2 vCeilingRFloor    = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
-    sbyte2 vCeilingRCeiling  = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
-
-    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same. However, due to infrequency of hitting exactly on bounds, perhaps not efficeint, except for maybe voltage. should do the math i guess
-    if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
-    {
-        me->lutTorque = vFloorRFloor;
-        return vFloorRFloor;
-    }
-
-    // Calculate interpolation values
-    sbyte2 stepDivider          = VOLTAGE_STEP      * RPM_STEP;
-    sbyte2 torqueFloorFloor     = vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
-    sbyte2 torqueFloorCeiling   = vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
-    sbyte2 torqueCeilingFloor   = vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
-    sbyte2 torqueCeilingCeiling = vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
-
-    // Final TQ from LUT
-    sbyte2 TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
-    
-    /*
-    float4 horizontalInterpolation = (((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
-    float4 verticalInterpolation   = (((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
-
-    // Calculate gains
-    float4 gainValueHorizontal = (float4)fmod(voltage, VOLTAGE_STEP);
-    float4 gainValueVertical   = (float4)fmod(rpm, RPM_STEP);
-
-    // Combine interpolated values
-    me->lutTorque = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
-    */
-
-    me->lutTorque = TQ;
-    return me->lutTorque;  // Adjust gain if necessary
-}
-
-#endif
