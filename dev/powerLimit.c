@@ -50,10 +50,15 @@ PowerLimit* PL_new(){
      
     return me;
 }
+<<<<<<< Updated upstream
 // set to NOTDEFINED to invalidate code, to use change to POWERLIMIT_METHOD
 #ifdef POWERLIMIT_METHOD
 /** TQ CALCULATIONS **/ 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+=======
+
+void PL_calculateTorqueCommand_1(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+>>>>>>> Stashed changes
 {
     
     
@@ -98,6 +103,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     // in mcm.c input the if statement for the tps
 }
 
+<<<<<<< Updated upstream
 void PL_populateHashTable(HashTable* table)
 {
     ubyte1 i = 0;
@@ -107,6 +113,9 @@ void PL_populateHashTable(HashTable* table)
 #ifdef NOTDEFINED
 /** Power PID **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+=======
+void PL_calculateTorqueCommand_2(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+>>>>>>> Stashed changes
     sbyte4 watts = MCM_getPower(mcm);
     if(watts > POWERLIMIT_INIT) {
         me->plState          = TRUE;
@@ -119,6 +128,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
+<<<<<<< Updated upstream
 void PL_populateHashTable(HashTable* table)
 {
     ubyte1 i = 0;
@@ -128,6 +138,10 @@ void PL_populateHashTable(HashTable* table)
 #ifdef NOTDEFINED
 /** LUT **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+=======
+/** LUT METHOD */
+void PL_calculateTorqueCommand_3(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+>>>>>>> Stashed changes
     // sbyte4 watts = MCM_getPower(mcm);
     if( MCM_getPower(mcm) > KWH_THRESHOLD ){
         // Always set the flag
@@ -216,7 +230,7 @@ void PL_populateHashTable(HashTable* table)
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
             ubyte1 value = lookupTable[(int)row][(int)column];
-            HashTable_insertPair(lookupTable, voltage, rpm, value);
+            HashTable_insertPair(table, voltage, rpm, value);
         }
     }
 }
