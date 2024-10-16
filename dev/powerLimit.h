@@ -27,7 +27,8 @@ typedef struct _PowerLimit {
    // float mcm_current; 
     float4 power;
     float4 rpm;
-    float4 lutTorque;
+    sbyte2 lutTorque;
+    
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
 // we need up update can.c/  dbc for all these 
     sbyte2 pidOffset;

@@ -56,7 +56,7 @@ void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 val
 
 
 // Retrieve a value from the hash table
-float4 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
+ubyte1 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
     ubyte1 index = HashTable_getHashIndex(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
