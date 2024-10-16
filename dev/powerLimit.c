@@ -28,34 +28,48 @@
 
 #endif
 
-#define POWERLIMIT_METHOD   2 // STATES: 1-3 are for the 3 different PL methods currently in place
-#define TQPID 1
-//#define PLPPID
-#define LUT
+#define POWERLIMIT_METHOD
 #define CAN_VERBOSE         0 // To be implemented later, but idea is want to check if can manager and here to see if we should be setting & transmitting certain values over can for debugging
 
 PowerLimit* PL_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
+<<<<<<< HEAD
     if(POWERLIMIT_METHOD == 3)
     {
         me->hashtable = HashTable_new();
         PowerLimit_populateHashTable(me->hashtable); 
     }
+=======
+>>>>>>> 3198690 (Finally a working ifdef solution. Also, changed some things in Power PID to be casted as float4 since the integer math would just produce 0, instead of the intended values.)
 
-    me->plState = FALSE;   
+    me->hashtable = HashTable_new();
+    PL_populateHashTable(me->hashtable); 
+
+    me->plState = FALSE;
+
     me->power = 0.0; 
     me->rpm = 0.0; 
 
+<<<<<<< HEAD
     me->pidOffset = 0.0; 
     me->plfinaltq = 0.0; 
     me->pidsetpoint = 0.0; 
     me->pidactual = 0.0; 
     me->LUTtq = 0.0;
+=======
+    me->pidOffset = 0; 
+    me->plTorqueCommand = 0; 
+    me->pidSetpoint = 0.0; 
+    me->pidActual = 0.0;
+    me->lutTorque = 0;
+>>>>>>> 3198690 (Finally a working ifdef solution. Also, changed some things in Power PID to be casted as float4 since the integer math would just produce 0, instead of the intended values.)
      
     return me;
 }
-
-void PL_calculateTorqueCommand1(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+// set to 0 to invalidate code, to use change to POWERLIMIT_METHOD
+#ifdef 0
+/** TQ CALCULATIONS **/ 
+void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
     
     
@@ -100,27 +114,41 @@ void PL_calculateTorqueCommand1(TorqueEncoder* tps, MotorController* mcm, PowerL
 
     // in mcm.c input the if statement for the tps
 }
-/* powerpid */
 
-void PL_calculateTorqueCommand2(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
+}
+#endif
+
+#ifdef 0
+/** Power PID **/
+void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     sbyte4 watts = MCM_getPower(mcm);
     if(watts > POWERLIMIT_INIT) {
         me->plState          = TRUE;
         sbyte2 commandedTQ   = MCM_getCommandedTorque(mcm);
-        me->pidOffset           = PID_computeOffset(pid, watts);
-        sbyte2 torqueCommand = commandedTQ * (1 + (me->pidOffset / watts));
+        me->pidOffset           = PID_computeOffset(pid, (float4)watts);
+        sbyte2 torqueCommand = (sbyte2)((float4)commandedTQ * (1.0 + ((float4)me->pidOffset / (float4)watts)));
         MCM_update_PL_setTorqueCommand(mcm, torqueCommand);
     }
     else { me->plState    = FALSE; }
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
-/** LUT METHOD */
-void PL_calculateTorqueCommand3(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
+}
+#endif
+
+#ifdef 0
+/** LUT **/
+void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);
     if( MCM_getPower(mcm) > KWH_THRESHOLD ){
         // Always set the flag
-        me-> plState = TRUE;
+        me->plState = TRUE;
 
         //parameters we need for calculations//
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
@@ -237,11 +265,11 @@ sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     }
 
     // Calculate interpolation values
-    sbyte2 stepDivider = (VOLTAGE_STEP * RPM_STEP);
-    sbyte2 torqueFloorFloor = vFloorRFloor * voltageUpperDiff * rpmUpperDiff;
-    sbyte2 torqueFloorCeiling = vFloorRCeiling * voltageUpperDiff * rpmLowerDiff;
-    sbyte2 torqueCeilingFloor = vCeilingRFloor * voltageLowerDiff * rpmUpperDiff;
-    sbyte2 torqueCeilingCeiling = vCeilingRCeiling * voltageLowerDiff * rpmLowerDiff;
+    sbyte2 stepDivider          = VOLTAGE_STEP      * RPM_STEP;
+    sbyte2 torqueFloorFloor     = vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
+    sbyte2 torqueFloorCeiling   = vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
+    sbyte2 torqueCeilingFloor   = vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
+    sbyte2 torqueCeilingCeiling = vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
 
     // Final TQ from LUT
     sbyte2 TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
@@ -262,3 +290,4 @@ sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     return me->lutTorque;  // Adjust gain if necessary
 }
 
+#endif
