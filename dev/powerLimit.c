@@ -55,9 +55,7 @@ PowerLimit* PL_new(){
     return me;
 }
 
-/* tqpid + equation */
-#ifdef defined(TQPID)
-void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
+void PL_calculateTorqueCommand1(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
     
     
@@ -103,9 +101,8 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     // in mcm.c input the if statement for the tps
 }
 /* powerpid */
-#elif defined(PLPPID)
 
-void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+void PL_calculateTorqueCommand2(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     sbyte4 watts = MCM_getPower(mcm);
     if(watts > POWERLIMIT_INIT) {
         me->plState          = TRUE;
@@ -118,10 +115,8 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
-
-#elif defined(LUT)
 /** LUT METHOD */
-void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+void PL_calculateTorqueCommand3(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);
     if( MCM_getPower(mcm) > KWH_THRESHOLD ){
         // Always set the flag
@@ -266,4 +261,4 @@ sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     me->lutTorque = TQ;
     return me->lutTorque;  // Adjust gain if necessary
 }
-#endif
+
