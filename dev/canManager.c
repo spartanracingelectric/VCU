@@ -839,7 +839,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].length = byteNum;
     
 
- //511: MCM Values For Power Limit
+ //511:Debugging Values For Power Limit
    canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
@@ -847,10 +847,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (pl->plState);
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->rpm);
     canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->rpm))>>8;      
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl-> power);
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(-> power);
     canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl-> power))>> 8;  
     canMessages[canMessageCount - 1].data[byteNum++] =  ((ubyte2)(pl->lutTorque)); 
-    canMessages[canMessageCount - 1].data[byteNum++] =  ((ubyte2)(pl->lutTorque)) >>8;  
+    canMessages[canMessageCount - 1].data[byteNum++] =  ((ubyte2)(pl->lutTorplque)) >>8;  
     canMessages[canMessageCount - 1].data[byteNum++] = 0;     
     canMessages[canMessageCount - 1].length = byteNum;
 
@@ -865,18 +865,16 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->pidActual))>> 8;        //table input
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pl->pidSetpoint);
     canMessages[canMessageCount - 1].data[byteNum++] =((ubyte2)(pl->pidSetpoint))>> 8;
-
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->plTorqueCommand)); 
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pl->plTorqueCommand))>> 8;     //table output
     canMessages[canMessageCount - 1].length = byteNum;
 
- //513: Power Limit PID
+ //513: PowerLimit PID
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id =  canMessageID + canMessageCount - 1;;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pid->Kp);
-    //table input
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pid->Kp)) >>8;
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(pid->Ki); 
     canMessages[canMessageCount - 1].data[byteNum++] = ((ubyte2)(pid->Ki)) >>8; 
