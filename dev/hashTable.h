@@ -17,7 +17,7 @@
 typedef struct _HashEntry {
     ubyte2 key1;
     ubyte2 key2;
-    float4 value;
+    ubyte1 value;
     struct _HashEntry* next; // For chaining in case of collisions
 } HashEntry;
 

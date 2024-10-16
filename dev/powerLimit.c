@@ -155,7 +155,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
         sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
         // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
-        sbyte4 noLoadVoltage = (mcmCurrent * 0.027) + mcmVoltage;
+        sbyte4 noLoadVoltage = (sbyte4)((float4)mcmCurrent * 0.027) + mcmVoltage;
         sbyte2 pidSetpoint = PL_getTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
         sbyte2 pidActual = MCM_getCommandedTorque(mcm);
 
@@ -194,38 +194,39 @@ void PL_populateHashTable(HashTable* table)
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------    
-    const ubyte1 lookupTable[25][25] = {
-        {231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {221, 229, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {204, 214, 221, 228, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {186, 194, 204, 213, 221, 227, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {170, 179, 186, 197, 204, 213, 218, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {153, 164, 172, 179, 187, 197, 204, 213, 218, 224, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {139, 148, 157, 165, 174, 181, 189, 197, 204, 213, 222, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {127, 135, 144, 152, 158, 168, 175, 182, 189, 198, 208, 224, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {114, 122, 132, 138, 147, 155, 161, 170, 176, 184, 197, 213, 221, 223, 224, 223, 224, 224, 223, 224, 224, 224, 224, 224, 224},
-        {102, 111, 119, 127, 135, 142, 150, 157, 164, 171, 183, 200, 209, 213, 213, 213, 213, 214, 213, 214, 214, 214, 214, 214, 214},
-        {90, 99, 108, 115, 123, 132, 138, 146, 153, 159, 171, 186, 199, 203, 203, 204, 204, 204, 204, 204, 204, 204, 204, 204, 204},
-        {79, 88, 97, 104, 113, 120, 127, 135, 141, 148, 161, 176, 189, 194, 195, 195, 195, 195, 195, 196, 196, 196, 196, 196, 196},
-        {67, 77, 86, 94, 102, 110, 117, 124, 132, 138, 150, 164, 177, 184, 187, 187, 187, 187, 188, 188, 188, 188, 188, 188, 188},
-        {54, 65, 75, 83, 91, 99, 107, 114, 120, 128, 140, 154, 167, 177, 179, 180, 180, 180, 180, 180, 180, 180, 180, 181, 181},
-        {40, 53, 63, 73, 81, 89, 97, 104, 111, 118, 130, 144, 157, 166, 172, 173, 173, 173, 173, 173, 174, 174, 174, 174, 174},
-        {22, 39, 51, 62, 71, 80, 87, 95, 102, 109, 120, 135, 147, 157, 165, 166, 167, 167, 167, 167, 167, 167, 167, 167, 167},
-        {0, 21, 38, 50, 60, 69, 78, 85, 93, 99, 112, 126, 138, 148, 157, 160, 161, 161, 161, 161, 161, 161, 161, 161, 162},
-        {0, 0, 19, 36, 49, 59, 68, 76, 83, 91, 103, 117, 129, 140, 150, 155, 155, 155, 155, 156, 156, 156, 156, 156, 156},
-        {0, 0, 0, 18, 35, 47, 57, 66, 74, 81, 94, 109, 120, 132, 140, 148, 150, 150, 150, 151, 151, 151, 151, 151, 151},
-        {0, 0, 0, 0, 17, 34, 46, 56, 64, 73, 86, 100, 113, 123, 133, 142, 145, 146, 146, 146, 146, 146, 146, 146, 146},
-        {0, 0, 0, 0, 0, 15, 33, 45, 55, 63, 77, 92, 104, 116, 125, 134, 140, 141, 141, 141, 141, 141, 141, 142, 142},
-        {0, 0, 0, 0, 0, 0, 14, 32, 44, 53, 68, 84, 97, 108, 117, 126, 134, 136, 137, 137, 137, 137, 137, 137, 137},
-        {0, 0, 0, 0, 0, 0, 0, 12, 31, 43, 59, 76, 89, 100, 110, 119, 126, 131, 133, 133, 133, 133, 133, 133, 133},
-        {0, 0, 0, 0, 0, 0, 0, 0, 11, 30, 49, 68, 81, 93, 103, 112, 120, 127, 129, 129, 129, 129, 129, 129, 129},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 39, 59, 74, 86, 96, 104, 113, 120, 125, 126, 126, 126, 126, 126, 126}};
+    const ubyte1 POWER_LIM_LUT[26][26] = {
+        {231, 231, 199, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {222, 229, 180, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {205, 214, 161, 228, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {187, 198, 146, 214, 221, 227, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {172, 180, 130, 198, 205, 214, 221, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {157, 166, 117, 182, 189, 198, 205, 213, 218, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {144, 152, 103, 168, 175, 183, 190, 199, 205, 213, 218, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {131, 138, 90, 154, 161, 170, 177, 184, 193, 199, 207, 221, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {118, 126, 77, 141, 150, 157, 164, 171, 179, 185, 192, 208, 221, 226, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227},
+        {106, 114, 63, 131, 138, 145, 153, 159, 167, 173, 180, 198, 209, 216, 216, 217, 217, 217, 217, 216, 217, 217, 217, 217, 217, 217},
+        {95, 104, 48, 120, 127, 133, 140, 148, 155, 162, 169, 185, 199, 205, 207, 207, 207, 208, 208, 208, 208, 208, 208, 208, 208, 208},
+        {84, 93, 32, 109, 116, 123, 131, 137, 144, 151, 157, 174, 186, 197, 198, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199},
+        {73, 81, 0, 98, 106, 113, 121, 127, 134, 139, 147, 164, 176, 186, 190, 191, 191, 191, 191, 191, 191, 192, 191, 191, 192, 192},
+        {61, 71, 0, 88, 95, 103, 110, 117, 124, 131, 138, 153, 166, 177, 182, 183, 184, 184, 184, 184, 184, 184, 184, 184, 184, 184},
+        {48, 59, 0, 77, 86, 94, 101, 108, 115, 120, 128, 144, 157, 166, 175, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177},
+        {34, 47, 0, 67, 76, 84, 91, 99, 105, 111, 119, 135, 147, 157, 170, 170, 170, 171, 171, 171, 171, 171, 171, 171, 171, 171},
+        {12, 33, 0, 56, 66, 74, 82, 89, 96, 103, 110, 126, 138, 150, 159, 164, 164, 165, 165, 165, 165, 165, 165, 165, 165, 165},
+        {0, 10, 0, 44, 55, 64, 72, 80, 88, 94, 102, 117, 129, 139, 150, 156, 159, 159, 159, 159, 159, 160, 160, 160, 160, 160},
+        {0, 0, 0, 30, 43, 54, 63, 71, 78, 86, 93, 109, 120, 132, 141, 151, 153, 154, 154, 154, 154, 154, 154, 154, 155, 155},
+        {0, 0, 0, 6, 29, 42, 52, 61, 69, 77, 85, 101, 113, 125, 134, 142, 148, 149, 149, 150, 149, 150, 150, 150, 150, 150},
+        {0, 0, 0, 0, 4, 28, 41, 51, 60, 68, 76, 93, 105, 117, 126, 135, 142, 144, 145, 145, 145, 145, 145, 145, 145, 142},
+        {0, 0, 0, 0, 0, 0, 27, 40, 50, 59, 68, 85, 98, 109, 119, 127, 136, 139, 140, 140, 141, 141, 141, 141, 141, 141},
+        {0, 0, 0, 0, 0, 0, 0, 26, 39, 49, 59, 77, 90, 101, 111, 120, 128, 134, 136, 136, 137, 137, 137, 137, 137, 137},
+        {0, 0, 0, 0, 0, 0, 0, 0, 25, 38, 49, 68, 83, 94, 104, 113, 121, 129, 132, 132, 133, 133, 133, 133, 133, 133},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 38, 60, 75, 87, 97, 106, 115, 121, 127, 129, 129, 129, 129, 129, 129, 129},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 51, 67, 80, 90, 99, 107, 115, 122, 125, 126, 126, 126, 126, 126, 126}};
     const ubyte2 VOLTAGE_MIN = 280;
     const ubyte2 VOLTAGE_MAX = 405;
     const ubyte2 RPM_MIN = 2000;
     const ubyte2 RPM_MAX = 6000;
-    const ubyte2 NUM_V = 25;
-    const ubyte2 NUM_S = 25;
+    const ubyte2 NUM_V = 26;
+    const ubyte2 NUM_S = 26;
     for(ubyte2 row = 0; row < NUM_S; ++row) {
         for(ubyte2 column = 0; column < NUM_V; ++column) {
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
@@ -238,25 +239,30 @@ void PL_populateHashTable(HashTable* table)
 
 sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
+    //LUT Lower Bounds
+    ubyte4 VOLTAGE_MIN = 280;
+    ubyte4 RPM_MIN = 2000;
+    
     // Calculating hashtable keys
-    sbyte4 voltageFloor      = (sbyte2)ubyte4_lowerStepInterval(voltage, VOLTAGE_STEP);
-    sbyte4 voltageCeiling    = (sbyte2)ubyte4_upperStepInterval(voltage, VOLTAGE_STEP);
-    sbyte4 rpmFloor          = (sbyte2)ubyte4_lowerStepInterval(rpm, RPM_STEP);
-    sbyte4 rpmCeiling        = (sbyte2)ubyte4_upperStepInterval(rpm, RPM_STEP);
+    ubyte4 rpmInput = rpm - RPM_MIN;
+    ubyte4 voltageFloor      = ubyte4_lowerStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 voltageCeiling    = ubyte4_upperStepInterval(voltage, VOLTAGE_STEP);
+    ubyte4 rpmFloor          = ubyte4_lowerStepInterval(rpmInput, RPM_STEP);
+    ubyte4 rpmCeiling        = ubyte4_upperStepInterval(rpmInput, RPM_STEP);
     
     // Calculating these now to speed up interpolation later in method
-    ubyte4 voltageLowerDiff  = voltage - voltageFloor;
-    ubyte4 voltageUpperDiff  = voltageCeiling - voltage;
-    ubyte4 rpmLowerDiff      = rpm - rpmFloor;
-    ubyte4 rpmUpperDiff      = rpmCeiling - rpm;
+    ubyte2 voltageLowerDiff  = (ubyte2)voltage - voltageFloor;
+    ubyte2 voltageUpperDiff  = (ubyte2)voltageCeiling - voltage;
+    ubyte2 rpmLowerDiff      = (ubyte2)rpm - rpmFloor - RPM_MIN;
+    ubyte2 rpmUpperDiff      = (ubyte2)rpmCeiling - rpm + RPM_MIN;
 
     // Retrieve torque values from the hash table for the four corners
-    ubyte1 vFloorRFloor      = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
-    ubyte1 vFloorRCeiling    = HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
-    ubyte1 vCeilingRFloor    = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
-    ubyte1 vCeilingRCeiling  = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
+    sbyte2 vFloorRFloor      = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
+    sbyte2 vFloorRCeiling    = (sbyte2)HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
+    sbyte2 vCeilingRFloor    = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
+    sbyte2 vCeilingRCeiling  = (sbyte2)HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
 
-    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same.
+    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same. However, due to infrequency of hitting exactly on bounds, perhaps not efficeint, except for maybe voltage. should do the math i guess
     if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
     {
         me->lutTorque = vFloorRFloor;
