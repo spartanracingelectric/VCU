@@ -10,6 +10,7 @@
 #include "sensorCalculations.h"
 
 #include "torqueEncoder.h"
+#include "speedEncoder.h"
 #include "brakePressureSensor.h"
 #include "readyToDriveSound.h"
 #include "serial.h"
@@ -48,6 +49,7 @@ struct _MotorController
     //Positive = accel, negative = regen
     //Reverse not allowed
     ubyte2 torqueMaximumDNm; //Max torque that can be commanded in deciNewton*meters ("100" = 10.0 Nm)
+    ubyte2 speedMaximumRPM; //Max RPM that can be commanded in (UNITS??) //Cruise control variable
 
     //Regen torque calculations in whole Nm..?
     RegenMode regen_mode;                //Software reading of regen knob position.  Each mode has different regen behavior (variables below).
@@ -87,6 +89,7 @@ struct _MotorController
     sbyte4 DC_Current;
 
     sbyte2 commandedTorque;
+    sbyte2 commandedSpeed; //Cruise control variable
     ubyte4 currentPower;
 
     sbyte4 motorRPM;
@@ -101,6 +104,8 @@ struct _MotorController
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
+    sbyte2 commands_speed; //Cruise control variable
+    sbyte2 commands_speedLimit; //Cruise control variable
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
