@@ -159,8 +159,8 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
         // Setting member values for CAN message debugging. Will change to an if / define to easily toggle in the future.
         me->pidOffset = offset;
         me->plTorqueCommand = torqueRequest;
-        me->pidSetpoint = pidSetpoint;
-        me->pidActual = pidActual;
+        me->pidSetpoint = (float4)pidSetpoint;
+        me->pidActual = (float4)pidActual;
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
 
     }
