@@ -138,7 +138,7 @@ void main(void)
         ret3 = IO_DO_Set ( IO_DO_03
                          , FALSE );
 
-        ret4 = IO_DO_Set ( IO_DO_04
+        ret4 = IO_DO_Set ( IO_DO_00
                          , (bool) (val) );
 
         ret5 = IO_DO_Set ( IO_DO_05
