@@ -223,7 +223,6 @@ sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     return me->lutTorque;  // Adjust gain if necessary
 }
 
-#endif
 
 void PL_populateHashTable(HashTable* table)
 {
@@ -281,3 +280,4 @@ void PL_populateHashTable(HashTable* table)
         }
     }
 }
+#endif
