@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Same Formatting as torqueEncoder.c file
+ ******************************************************************************/
 #include <stdlib.h>  //Needed for malloc
 #include <math.h>
 #include "IO_RTC.h"
