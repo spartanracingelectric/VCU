@@ -29,21 +29,12 @@ PID* PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint) {
     pid->totalError    = 0.0;
     pid->dt            = 0.01;
     return pid;
-
 }
 void PID_setTotalError(PID* pid, float4 error){
     pid->totalError = error;
 }
 void PID_updateSetpoint(PID *pid, float4 setpoint) {
     pid->setpoint = setpoint; 
-}
-void PID_updateInterval(PID *pid, float4 dt) {
-    pid->dt  = dt;
-}
-void PID_setGain(PID *pid, float4 Kp, float4 Ki, float4 Kd){
-    pid-> Kp = Kp;
-    pid-> Ki = Ki;
-    pid-> Kd = Kd;
 }
 sbyte2 PID_computeOffset(PID *pid, float4 sensorValue) {
     float4 currentError =  pid->setpoint - sensorValue;
