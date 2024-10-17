@@ -33,14 +33,6 @@
 
 PowerLimit* PL_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-<<<<<<< HEAD
-    if(POWERLIMIT_METHOD == 3)
-    {
-        me->hashtable = HashTable_new();
-        PowerLimit_populateHashTable(me->hashtable); 
-    }
-=======
->>>>>>> 3198690 (Finally a working ifdef solution. Also, changed some things in Power PID to be casted as float4 since the integer math would just produce 0, instead of the intended values.)
 
     me->hashtable = HashTable_new();
     PL_populateHashTable(me->hashtable); 
@@ -50,19 +42,11 @@ PowerLimit* PL_new(){
     me->power = 0.0; 
     me->rpm = 0.0; 
 
-<<<<<<< HEAD
-    me->pidOffset = 0.0; 
-    me->plfinaltq = 0.0; 
-    me->pidsetpoint = 0.0; 
-    me->pidactual = 0.0; 
-    me->LUTtq = 0.0;
-=======
     me->pidOffset = 0; 
     me->plTorqueCommand = 0; 
     me->pidSetpoint = 0.0; 
     me->pidActual = 0.0;
     me->lutTorque = 0;
->>>>>>> 3198690 (Finally a working ifdef solution. Also, changed some things in Power PID to be casted as float4 since the integer math would just produce 0, instead of the intended values.)
      
     return me;
 }
@@ -114,6 +98,10 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     // in mcm.c input the if statement for the tps
 }
 
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
+}
 #endif
 
 #ifdef NOTDEFINED
@@ -131,6 +119,10 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
+}
 #endif
 
 #ifdef NOTDEFINED
