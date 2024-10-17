@@ -25,8 +25,6 @@ typedef struct _PowerLimit {
 //-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
 
    // float mcm_current; 
-    float4 power;
-    float4 rpm;
     sbyte2 lutTorque;
 
 //-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
