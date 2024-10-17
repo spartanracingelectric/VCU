@@ -98,6 +98,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     // in mcm.c input the if statement for the tps
 }
 
+void PL_populateHashTable(HashTable* table){}
 #endif
 
 #ifdef NOTDEFINED
@@ -115,6 +116,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
     MCM_set_PL_updateState(mcm, me->plState);
 }
 
+void PL_populateHashTable(HashTable* table){}
 #endif
 
 #ifdef NOTDEFINED
@@ -215,7 +217,7 @@ sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 vo
     return me->lutTorque;  // Adjust gain if necessary
 }
 
-#endif
+
 
 void PL_populateHashTable(HashTable* table)
 {
@@ -274,3 +276,4 @@ void PL_populateHashTable(HashTable* table)
     }
 }
 
+#endif
