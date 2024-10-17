@@ -66,13 +66,13 @@ Kp will give you the difference between 0.1 current vs 0.2 target -> if you want
 LaunchControl *LaunchControl_new(){// this goes outside the while loop
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->slipRatio = 0;
-    me->lcTorque = -1;
+    me->lcTorqueCommand = -1;
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
     return me;
 }
-void LaunchControl_slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
+void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     float4 unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
     float4 filt_speed = unfilt_speed;
     if (unfilt_speed > 1.0) {
@@ -131,7 +131,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->lcActive == TRUE) || (bps->percent > 0.05 && me->lcActive == TRUE)){
         me->lcActive = FALSE;
         me->lcReady = FALSE;
-        me->lcTorque = -1;
+        me->lcTorqueCommand = -1;
     }
     // Update launch control state and torque limit
     MCM_update_LC_state(mcm, me->lcActive);
@@ -140,11 +140,9 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
 bool LaunchControl_getStatus(LaunchControl *me){
     return me->lcActive;
 }
-sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *me){
-    return me->lcTorque;
+sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){
+    return me->lcTorqueCommand;
 }
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
     return me->buttonDebug;
 }
-
-

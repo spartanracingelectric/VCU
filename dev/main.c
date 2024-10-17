@@ -48,9 +48,10 @@
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "drs.h"
 #include "powerLimit.h"
+#include "PID.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -226,7 +227,6 @@ void main(void)
     PowerLimit *pl = PL_new(); 
     PID *plPID = PID_new(1.0,0.0,0.0,80000.0);
     PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
-    PID_resetpidOffset(lcPID, 170.0);
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -426,12 +426,11 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        LaunchControl_slipRatioCalculation(wss, lc);
-        LaunchControl_torqueCalculation(lc, tps, bps, mcm0,lcPID);
+        LaunchControl_calculateSlipRatio(lc, wss);
+        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        PID_setGain(plPID, 1.0, 0.0, 0.0);
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
