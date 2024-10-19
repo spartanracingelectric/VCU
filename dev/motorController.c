@@ -296,9 +296,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
+    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
   /* TESTING PURPOSEs ONLY FOR HARDCODING
   float4 motorRPM = (float4)MCM_getMotorRPM(me);
  float4 kilowatts =  (float4)((float4)MCM_getPower(me)/1000); // divide by 1000 to get watts --> kilowatts
@@ -374,7 +375,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_04, FALSE); //Need MCM relay object
+                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
                 me->relayState = FALSE;
             }
             else
@@ -403,7 +404,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_04, TRUE);
+        IO_DO_Set(IO_DO_00, TRUE);
         me->relayState = TRUE;
     }
 }

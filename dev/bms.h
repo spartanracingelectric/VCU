@@ -89,7 +89,6 @@ ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me); //Millivolts
 ubyte1 BMS_getCCL(BatteryManagementSystem* me);
 ubyte1 BMS_getDCL(BatteryManagementSystem* me);
 
-ubyte4 BMS_getPackCurrent(BatteryManagementSystem *me);
 typedef enum
 {
     relayFault = 0x08,

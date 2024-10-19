@@ -384,8 +384,6 @@ void CanManager_read(CanManager* me, CanChannel channel, MotorController* mcm, I
         case 0x612:
         case 0x613:
         case 0x620:
-            BMS_parseCanMessage(bms, &canMessages[currMessage]);
-            break;
         case 0x621:
         case 0x622: //Cell Voltage Summary
             BMS_parseCanMessage(bms, &canMessages[currMessage]);
@@ -790,9 +788,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getRelayState(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = BMS_getHighestCellTemp_d_degC(bms);
     canMessages[canMessageCount - 1].data[byteNum++] = (BMS_getHighestCellTemp_d_degC(bms) >> 8);
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2) BMS_getPower_W(bms)/1000; // actual power in kw (truncated) POWER LIMIT STUFF
-    canMessages[canMessageCount - 1].data[byteNum++] =  (sbyte2) BMS_getPower_W(bms)/1000 >>8;//POWER LIMIT STUFF
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)BMS_getPackCurrent(bms)/1000;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
     //50F: MCM Power Debug
@@ -810,19 +808,6 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 24);
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //511: SoftBSPD
-    // ubyte1 flags = sc->softBSPD_bpsHigh;
-    // flags |= sc->softBSPD_kwHigh << 1;
-    // canMessageCount++;
-    // byteNum = 0;
-    // canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    // canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    // canMessages[canMessageCount - 1].data[byteNum++] = sc->softBSPD_fault;
-    // canMessages[canMessageCount - 1].data[byteNum++] = flags;
-    // canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)mcm->kwRequestEstimate;
-    // canMessages[canMessageCount - 1].data[byteNum++] = mcm->kwRequestEstimate >> 8;
-    // canMessages[canMessageCount - 1].length = byteNum;
-
     //510: Motor controller command message
     canMessageCount++;
     byteNum = 0;
@@ -832,7 +817,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] =  MCM_commands_PL_getTorque(mcm) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Speed (RPM?) - not needed - mcu should be in torque mode
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)(1);// direction 1 is forward
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;

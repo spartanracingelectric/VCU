@@ -42,7 +42,7 @@ sbyte2 MCM_commands_PL_getTorque(MotorController* me); //Will be divided by 10 e
 Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);
-sbyte2 MCM_commands_getTorqueLimit(MotorController* me); 
+sbyte2 Limit(MotorController* me); 
 
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);

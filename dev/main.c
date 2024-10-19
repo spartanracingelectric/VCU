@@ -214,7 +214,7 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2000, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -235,10 +235,10 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
     ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?

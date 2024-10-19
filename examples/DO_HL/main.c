@@ -61,7 +61,7 @@ void main(void)
     IO_DO_Init ( IO_DO_01 );
     IO_DO_Init ( IO_DO_02 );
     IO_DO_Init ( IO_DO_03 );
-    IO_DO_Init ( IO_DO_04 );
+    IO_DO_Init ( IO_DO_00 );
     IO_DO_Init ( IO_DO_05 );
     IO_DO_Init ( IO_DO_06 );
     IO_DO_Init ( IO_DO_07 );
@@ -82,7 +82,7 @@ void main(void)
     IO_DO_DeInit ( IO_DO_01 );
     IO_DO_DeInit ( IO_DO_02 );
     IO_DO_DeInit ( IO_DO_03 );
-    IO_DO_DeInit ( IO_DO_04 );
+    IO_DO_DeInit ( IO_DO_00 );
     IO_DO_DeInit ( IO_DO_05 );
     IO_DO_DeInit ( IO_DO_06 );
     IO_DO_DeInit ( IO_DO_07 );
@@ -103,7 +103,7 @@ void main(void)
     IO_DO_Init ( IO_DO_01 );
     IO_DO_Init ( IO_DO_02 );
     IO_DO_Init ( IO_DO_03 );
-    IO_DO_Init ( IO_DO_04 );
+    IO_DO_Init ( IO_DO_00 );
     IO_DO_Init ( IO_DO_05 );
     IO_DO_Init ( IO_DO_06 );
     IO_DO_Init ( IO_DO_07 );
@@ -138,7 +138,7 @@ void main(void)
         ret3 = IO_DO_Set ( IO_DO_03
                          , FALSE );
 
-        ret4 = IO_DO_Set ( IO_DO_04
+        ret4 = IO_DO_Set ( IO_DO_00
                          , (bool) (val) );
 
         ret5 = IO_DO_Set ( IO_DO_05
