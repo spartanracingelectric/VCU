@@ -22,8 +22,8 @@
 #define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1); 
 
 #define PI               (float4) 3.14159
-#define KWH_LIMIT        (float4) 80000.0  // watts
-#define POWERLIMIT_INIT  (sbyte4) 55000  // 5kwh buffer to init PL before PL limit is hit
+#define KWH_LIMIT        (float4) 50000.0  // watts
+#define POWERLIMIT_INIT  (sbyte4) 35000  // 5kwh buffer to init PL before PL limit is hit
 #define UNIT_CONVERSTION (float4) 95.49    // 9.549 *10.0 to convert to deci-newtonmeters
 
 #endif
@@ -47,14 +47,15 @@ PowerLimit* PL_new(){
     return me;
 }
 // set to NOTDEFINED to invalidate code, to use change to POWERLIMIT_METHOD
-#ifdef UNDEFINED
+#ifdef POWERLIMIT_METHOD
 /** TQ CALCULATIONS **/ 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
     
     
     // Getting APPS OUTPUT
-    ubyte2 torqueMax = MCM_getTorqueMax(mcm);
+    ubyte2 torqueMax = 231;
+    // MCM_getTorqueMax(mcm);
     float4 appsPercent;
     TorqueEncoder_getOutputPercent(tps, &appsPercent);
     float4 appsTorque = appsPercent * torqueMax;
@@ -121,7 +122,7 @@ void PL_populateHashTable(HashTable* table)
 }
 #endif
 
-#ifdef POWERLIMIT_METHOD
+#ifdef NOTDEFINED
 /** LUT **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);

@@ -12,10 +12,6 @@
 #include "torqueEncoder.h"
 #include "math.h"
 
-#define KWH_LIMIT (float4) 50000.0 // watts
-#define KWH_THRESHOLD (float4) 50000.0 // watts
-
-
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
     PID *pid; 
