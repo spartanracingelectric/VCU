@@ -1105,7 +1105,7 @@ typedef ubyte2  IO_ErrorType;
 #define IO_DO_01                IO_PIN_132      /**< alternate function: \ref dev_adc_in "ADC input" */
 #define IO_DO_02                IO_PIN_143      /**< alternate function: \ref dev_adc_in "ADC input" */
 #define IO_DO_03                IO_PIN_131      /**< alternate function: \ref dev_adc_in "ADC input" */
-#define IO_DO_00                IO_PIN_142      /**< alternate function: \ref dev_adc_in "ADC input" */
+#define IO_DO_04                IO_PIN_142      /**< alternate function: \ref dev_adc_in "ADC input" */
 #define IO_DO_05                IO_PIN_130      /**< alternate function: \ref dev_adc_in "ADC input" */
 #define IO_DO_06                IO_PIN_141      /**< alternate function: \ref dev_adc_in "ADC input" */
 #define IO_DO_07                IO_PIN_129      /**< alternate function: \ref dev_adc_in "ADC input" */
