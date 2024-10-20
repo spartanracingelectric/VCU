@@ -25,6 +25,7 @@
 #define KWH_LIMIT        (float4) 30000.0  // watts
 #define POWERLIMIT_INIT  (sbyte4) 25000  // 5kwh buffer to init PL before PL limit is hit
 #define UNIT_CONVERSTION (float4) 95.49    // 9.549 *10.0 to convert to deci-newtonmeters
+#define ABSOLUTE_MAX_TORQUE (sbyte2) 2400 //in DNm 
 
 #endif
 
@@ -275,5 +276,44 @@ void PL_populateHashTable(HashTable* table)
             HashTable_insertPair(table, voltage, rpm, value);
         }
     }
+}
+#endif
+
+#ifdef POWERLIMIT_METHOD
+void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
+    sbyte2 maxTorque;
+    float4 tpsPercent;
+    sbyte4 watts = MCM_getPower(mcm);
+    sbyte2 commandTorque;
+    sbyte4 rpm = MCM_getMotorRPM(mcm);
+
+    // sbyte2 plTorqueCommand = me->plTorqueCommand;
+    TorqueEncoder_getOutputPercent(tps, &tpsPercent);
+    float4 requestedTorque = tpsPercent * maxTorque;
+    if(watts < POWERLIMIT_INIT){
+        // MCM_update_PL_setTorqueCommand(mcm, requestedTorque);
+    }
+    else{
+        maxTorque = PL_getMaxTorque(rpm);
+        MCM_setMaxTorqueDNm(mcm, maxTorque);
+    }
+    // PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+
+
+}
+
+sbyte2 PL_getMaxTorque(sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+    sbyte2 torque = (((KWH_LIMIT / rpm) * 2 * PI )/ 60);
+    if(torque > (sbyte2)2400){
+        return (sbyte2)2400;
+    }
+    else{
+        return torque;
+    }
+}
+
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
 }
 #endif
