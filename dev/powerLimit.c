@@ -123,7 +123,7 @@ void PL_populateHashTable(HashTable* table)
 }
 #endif
 
-#ifdef POWERLIMIT_METHOD
+#ifdef NOTDEFINED
 /** LUT **/
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     // sbyte4 watts = MCM_getPower(mcm);
@@ -281,31 +281,30 @@ void PL_populateHashTable(HashTable* table)
 
 #ifdef POWERLIMIT_METHOD
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
-    sbyte2 maxTorque;
+    ubyte2 maxTorque;
     float4 tpsPercent;
     sbyte4 watts = MCM_getPower(mcm);
     sbyte2 commandTorque;
-    sbyte4 rpm = MCM_getMotorRPM(mcm);
+    ubyte2 rpm = MCM_getMotorRPM(mcm);
 
     // sbyte2 plTorqueCommand = me->plTorqueCommand;
     TorqueEncoder_getOutputPercent(tps, &tpsPercent);
     float4 requestedTorque = tpsPercent * maxTorque;
     if(watts < POWERLIMIT_INIT){
-        // MCM_update_PL_setTorqueCommand(mcm, requestedTorque);
+        MCM_update_PL_setTorqueCommand(mcm, requestedTorque);
     }
     else{
-        maxTorque = PL_getMaxTorque(rpm);
+        maxTorque = (ubyte2) PL_getMaxTorque(rpm);
         MCM_setMaxTorqueDNm(mcm, maxTorque);
+        MCM_update_PL_setTorqueCommand(mcm, maxTorque);
     }
-    // PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-
 
 }
 
-sbyte2 PL_getMaxTorque(sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-    sbyte2 torque = (((KWH_LIMIT / rpm) * 2 * PI )/ 60);
-    if(torque > (sbyte2)2400){
-        return (sbyte2)2400;
+sbyte2 PL_getMaxTorque(ubyte2 rpm){    // Find the floor and ceiling values for voltage and rpm
+    ubyte2 torque = (ubyte2) (((KWH_LIMIT / rpm) * 2 * PI )/ 60);
+    if((torque > (ubyte2)2400) && (rpm > (sbyte4)0)){
+        return (ubyte2)2400;
     }
     else{
         return torque;
