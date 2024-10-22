@@ -87,7 +87,7 @@ void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLi
 
 }
 
-sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
     //LUT Lower Bounds
     ubyte4 VOLTAGE_MIN      = 280;
@@ -186,7 +186,7 @@ void PL_populateHashTable(HashTable* table)
         for(ubyte2 column = 0; column < NUM_V; ++column) {
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
-            ubyte1 value = lookupTable[(int)row][(int)column];
+            ubyte1 value = POWER_LIM_LUT[(int)row][(int)column];
             HashTable_insertPair(table, voltage, rpm, value);
         }
     }
