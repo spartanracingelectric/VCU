@@ -48,7 +48,7 @@ PowerLimit* PL_new(){
     return me;
 }
 // set to NOTDEFINED to invalidate code, to use change to POWERLIMIT_METHOD
-#ifdef NOTDEFINED
+#ifdef POWERLIMIT_METHOD
 /** TQ CALCULATIONS **/ 
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid)
 {
@@ -279,7 +279,7 @@ void PL_populateHashTable(HashTable* table)
 }
 #endif
 
-#ifdef POWERLIMIT_METHOD
+#ifdef NOTDEFINED
 void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid){
     ubyte2 maxTorque;
     float4 tpsPercent;
