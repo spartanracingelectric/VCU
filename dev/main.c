@@ -209,10 +209,10 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    // 231 Nm
+    // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, REVERSE, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, REVERSE, 2000, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -232,7 +232,7 @@ void main(void)
     ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
     ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 5000; //me->tp`s1->sensorValue;
+    ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
@@ -251,7 +251,7 @@ void main(void)
         //----------------------------------------------------------------------------
         // Task management stuff (start)
         //----------------------------------------------------------------------------
-        //Get a timestamp of when this task started from the Real Time Clock
+        //Get a timestamp of when this task started from the Real Time C-
         IO_RTC_StartTime(&timestamp_mainLoopStart);
         //Mark the beginning of a task - what does this actually do?
         IO_Driver_TaskBegin();
@@ -451,6 +451,7 @@ void main(void)
 
         //Send debug data
         canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
+        canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
 
