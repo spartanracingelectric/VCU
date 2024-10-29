@@ -213,9 +213,7 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    // 231 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    //To change direction, also edit line 276 in motorcontroller.c
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -225,9 +223,10 @@ void main(void)
     LaunchControl *lc = LaunchControl_new();
 
     DRS *drs = DRS_new();
-    PowerLimit *pl = PL_new(); 
-    PID *plPID = PID_new(1.0,0.0,0.0,50000.0);
-    PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
+    PowerLimit *pl = POWERLIMIT_new();
+    PID *lcPID = PID_new(200,0,0,0);
+    PID *plPID = PID_new(200,0,0,0);
+
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -236,10 +235,10 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
+    ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
+    ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
@@ -376,7 +375,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        LaunchControl_calculateSlipRatio(wss, lc);
+        LaunchControl_calculateSlipRatio(lc, wss);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -427,8 +426,7 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        LaunchControl_slipRatioCalculation(wss, lc);
-        LaunchControl_torqueCalculation(lc, tps, bps, mcm0,lcPID);
+        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
@@ -436,7 +434,8 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        PL_calculateTorqueCommand(tps,mcm0, pl,bms,wss, plPID);
+        PID_updateGainValues(plPID,12,0,0);
+        POWERLIMIT_calculateTorqueCommand(mcm0, pl, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
@@ -466,7 +465,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs, plPID);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs);
         canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);

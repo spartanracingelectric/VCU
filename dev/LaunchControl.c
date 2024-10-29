@@ -105,21 +105,21 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         me->lcActive = TRUE;
         me->lcReady = FALSE;
-        PID_setTotalError(lcPID, 170.0); // Error should be set here, so for every launch we reset our error to this value
+        PID_setTotalError(lcPID, 170); // Error should be set here, so for every launch we reset our error to this value
     }
 
     if(me->lcActive == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
         // me->lcTorqueCommand = lcPID->totalError; // Set to the initial torque /** What is this even for? This is like not even the right thing to do **/
         if(speedKph < 3)
         {
-            me->lcTorqueCommand = -1;
+            me->lcTorqueCommand = 20;
             
           
         }
         else
         {
-            PID_updateSetpoint(lcPID, 0.2); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
-            sbyte2 torquePID = PID_computeOffset(lcPID,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+            PID_updateSetpoint(lcPID, 2); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
+            sbyte2 torquePID = PID_computeOutput(lcPID,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
             float4 appsTqPercent;
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
