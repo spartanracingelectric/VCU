@@ -675,7 +675,7 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
     {
         multiplier = 1;
     }
-    MCM_commands_setTorqueDNm(mcm, MCM_commands_PL_getTorque(mcm) * multiplier);
+    MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
 }
 
 //-------------------------------------------------------------------

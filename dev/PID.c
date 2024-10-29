@@ -18,30 +18,67 @@
 #include <stdlib.h>
 #include "PID.h"
 
-PID* PID_new(float4 Kp, float4 Ki, float4 Kd, float4 setpoint) {
+PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
+    // Kp Ki & Kd are in deci units, aka a Kp of 12 is actually 1.2.
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
     pid->setpoint      = setpoint; 
-    pid->previousError = 0.0;
-    pid->totalError    = 0.0;
-    pid->dt            = 0.01;
+    pid->previousError = 0;
+    pid->totalError    = 0;
+    pid->dH            = 100; // 100 Hz aka 10 ms cycle time
+    pid->output        = 0;
     return pid;
 }
-void PID_setTotalError(PID* pid, float4 error){
+void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd){
+    pid->Kp = Kp;
+    pid->Ki = Ki;
+    pid->Kd = Kd;
+}
+
+void PID_setTotalError(PID* pid, sbyte4 error){
     pid->totalError = error;
 }
-void PID_updateSetpoint(PID *pid, float4 setpoint) {
+
+void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
     pid->setpoint = setpoint; 
 }
-sbyte2 PID_computeOffset(PID *pid, float4 sensorValue) {
-    float4 currentError =  pid->setpoint - sensorValue;
-    float4 proportional =  pid->Kp * currentError; //proportional
-    float4 integral     =  pid->Ki * (pid->totalError + currentError) * pid->dt; //integral
-    float4 derivative   =  pid->Kd * (currentError - pid->previousError) / pid->dt; //derivative
+
+sbyte2 PID_computeOutput(PID *pid, ubyte2 sensorValue) {
+    sbyte4 currentError =  (sbyte4)pid->setpoint - (sbyte4)sensorValue;
+    sbyte4 proportional =  (pid->Kp * currentError); //proportional
+    sbyte4 integral     =  (pid->Ki * (pid->totalError + currentError) / pid->dH); //integral
+    sbyte4 derivative   =  (pid->Kd * (currentError - pid->previousError) * pid->dH); //derivative
     pid->previousError  = currentError;
     pid->totalError    += currentError;
-    return (sbyte2)(proportional + integral + derivative);
+    pid->output = (sbyte2)((proportional + integral + derivative) / 10); //divide by 10 because Kp & Ki & Kd are in deci- units to preserve complete accuracy for the tenth's place
+    return pid->output;
+}
+
+/** GETTER FUNCTIONS **/
+
+sbyte1 PID_getKp(PID *pid){
+    return pid->Kp;
+}
+
+sbyte1 PID_getKi(PID *pid){
+    return pid->Ki;
+}
+
+sbyte1 PID_getKd(PID *pid){
+    return pid->Kd;
+}
+
+sbyte2 PID_getSetpoint(PID *pid){
+    return pid->setpoint;
+}
+
+sbyte4 PID_getTotalError(PID* pid){
+    return pid->totalError;
+}
+
+sbyte2 PID_getOutput(PID* pid){
+    return pid->output;
 }

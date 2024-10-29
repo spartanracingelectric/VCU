@@ -31,7 +31,7 @@ ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2) {
 
 
 // Insert a key-value pair into the hash table
-void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 value) {
+void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte2 value) {
     // Getting hash key
     ubyte1 index = HashTable_getHashIndex(key1, key2);
     
@@ -56,7 +56,7 @@ void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 val
 
 
 // Retrieve a value from the hash table
-ubyte1 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
+ubyte2 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
     ubyte1 index = HashTable_getHashIndex(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {

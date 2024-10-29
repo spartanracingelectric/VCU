@@ -1,0 +1,3 @@
+[submodule "DAQ"]
+	path = DAQ
+	url = https://github.com/spartanracingelectric/DAQ.git

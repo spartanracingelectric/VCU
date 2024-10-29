@@ -6,35 +6,57 @@
 #include "motorController.h"
 #include "PID.h"
 #include "hashTable.h"
-#include "powerLimit.h"
-#include "bms.h"
-#include "wheelSpeeds.h"
-#include "torqueEncoder.h"
 #include "math.h"
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    PID *pid; 
+    PID *pid;
     HashTable* hashtable;
-    bool plState;
 
-//-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
+//-------------CAN IN ORDER: 511: Power Limit Overview-----------------------------------------------------
 
-   // float mcm_current; 
-    sbyte2 lutTorque;
+    bool plStatus;
+    sbyte2 pidOutput;
+    sbyte2 plTorqueCommand;
+    ubyte1 plInitializationThreshold;
+    ubyte1 plTargetPower;
+    // me->pid->Kd; ubyte1
 
-//-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
-// we need up update can.c/  dbc for all these 
-    sbyte2 pidOffset;
-    sbyte2 plTorqueCommand; 
-    float4 pidSetpoint; // in dNm
-    float4 pidActual;// in dNm
+//-------------CAN IN ORDER: 512: Power Limit LUT Parameters-----------------------------------------------------
+
+    ubyte2 vFloorRFloor;
+    ubyte2 vFloorRCeiling;
+    ubyte2 vCeilingRFloor;
+    ubyte2 vCeilingRCeiling;
+
+
+//-------------CAN IN ORDER: 513: Power Limit PID Outputs-----------------------------------------------------
+
+    // me->pid->setpoint; sbyte2
+    // me->pid->totalError; sbyte4
+    // me->pid->Kp; ubyte1
+    // me->pid->Ki; ubyte1
+
+    /* WANT TO ADD */
+    // me->pid->proportional;
+    // me->pid->integral;
+    // me->pid->derivative;
 
 } PowerLimit;
 
-void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, BatteryManagementSystem *bms, WheelSpeeds* ws, PID* pid);
-void PL_populateHashTable(HashTable* table);
-sbyte2 PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
-PowerLimit* PL_new(); 
+void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me);
+void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
+ubyte4 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
+PowerLimit* POWERLIMIT_new(); 
 
-#endif //_PID_H
+/** GETTER FUNCTIONS **/
+
+bool POWERLIMIT_getStatus(PowerLimit* me);
+sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me);
+ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me);
+ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me);
+//Returns 0xFF if an invalid corner is given
+ubyte2 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
+sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me);
+
+#endif //_POWERLIMIT_H

@@ -224,9 +224,8 @@ void main(void)
     LaunchControl *lc = LaunchControl_new();
 
     DRS *drs = DRS_new();
-    PowerLimit *pl = PL_new(); 
-    PID *plPID = PID_new(1.0,0.0,0.0,50000.0);
-    PID *lcPID = PID_new(20.0,0.0,0.0,0.0);
+    PowerLimit *pl = POWERLIMIT_new(); 
+    PID *lcPID = PID_new(200,0,0,0);
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -235,10 +234,10 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 200;  //me->tps0->sensorValue;
-    ubyte2 tps0_calibMax = 1900; //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
     ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
-    ubyte2 tps1_calibMax = 4800; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
     //TODO: Power-on error checking?
@@ -434,7 +433,8 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        PL_calculateTorqueCommand(tps,mcm0, pl,bms,wss, plPID);
+        PID_updateGainValues(pl->pid, 12,0,0);
+        POWERLIMIT_calculateTorqueCommand(mcm0, pl);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
@@ -464,7 +464,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs, plPID);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs);
         canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
