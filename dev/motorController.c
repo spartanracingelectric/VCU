@@ -320,15 +320,10 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     } 
     if(me->plActive == TRUE)
     {
-    me->launchControlState == FALSE;
-    sbyte2 torquetemp = me->plTorqueCommand; 
-        if(torquetemp < appsTorque)
-        {
-        torqueOutput = torquetemp + bpsTorque;
-        }
-        else{
-        torqueOutput = appsTorque + bpsTorque;
-        }
+        me->launchControlState == FALSE;
+        sbyte2 tempTorque = me->plTorqueCommand;
+        if(tempTorque < appsTorque)
+            torqueOutput = tempTorque + bpsTorque;
     }
     else {
         torqueOutput = appsTorque + bpsTorque;
@@ -336,12 +331,11 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = appsTorque + bpsTorque;
         // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    //Safety Check. torqueOutput Should never rise above 240. Leaving a +25% buffer in case of rounding errors or comical math
-    if(torqueOutput > 300)
+    //Safety Check. torqueOutput Should never rise above 231
+    if(torqueOutput > 231)
     {
         torqueOutput = 0;
     }
-    torqueOutput = torqueOutput * 10;
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -699,7 +693,7 @@ void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
     me->updateCount += (me->commands_torqueLimit == newTorqueLimit) ? 0 : 1;
     me->commands_torqueLimit = newTorqueLimit;
 }
-sbyte2 MCM_commands_PL_getTorque(MotorController *me)
+sbyte2 MCM_commands_getTorque(MotorController *me)
 {
     return me->commands_torque;
 }
@@ -750,7 +744,7 @@ sbyte2 MCM_get_PL_torqueCommand(MotorController *me)
     return me->plTorqueCommand;
 }
 
-void MCM_update_PL_state(MotorController *me, bool newState)
+void MCM_set_PL_updateStatus(MotorController *me, bool newState)
 {
     me->plActive = newState;
 }

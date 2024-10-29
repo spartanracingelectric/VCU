@@ -38,11 +38,11 @@ void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
 
-sbyte2 MCM_commands_PL_getTorque(MotorController* me); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+sbyte2 MCM_commands_getTorque(MotorController* me); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
 Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);
-sbyte2 Limit(MotorController* me); 
+sbyte2 MCM_commands_getTorqueLimit(MotorController* me);
 
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);
@@ -82,7 +82,7 @@ void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
 void MCM_update_LC_state(MotorController *me, bool newState);
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
-void MCM_set_PL_updateState(MotorController *me, bool newState);
+void MCM_set_PL_updateStatus(MotorController *me, bool newState);
 
 sbyte2 MCM_get_PL_torqueCommand(MotorController *me);
 sbyte4 MCM_getMotorRPM(MotorController *me);

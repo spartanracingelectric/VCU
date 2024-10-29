@@ -12,7 +12,7 @@
 
 #include "IO_Driver.h"
 
-#define TABLE_SIZE 100
+#define TABLE_SIZE 676 //26x26
 
 // Define a structure for the hash table entry
 typedef struct _HashEntry {
