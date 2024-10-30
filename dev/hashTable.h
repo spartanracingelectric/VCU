@@ -11,7 +11,7 @@
 
 #include "IO_Driver.h"
 
-#define TABLE_SIZE 100
+#define TABLE_SIZE 700
 
 // Define a structure for the hash table entry
 typedef struct _HashEntry {
