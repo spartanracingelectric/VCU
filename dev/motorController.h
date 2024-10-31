@@ -82,7 +82,7 @@ void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
 void MCM_update_LC_state(MotorController *me, bool newState);
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
-void MCM_set_PL_updateState(MotorController *me, bool newState);
+void MCM_set_PL_updateStatus(MotorController *me, bool newState);
 
 sbyte2 MCM_get_PL_torqueCommand(MotorController *me);
 sbyte4 MCM_getMotorRPM(MotorController *me);

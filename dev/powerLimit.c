@@ -70,7 +70,8 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
         if(pidSetpoint == -1 | pidSetpoint > 240){
             pidSetpoint = (me->plTargetPower *  9549 / MCM_getMotorRPM(mcm)) / 100; 
         }
-        ubyte2 commandedTorque = MCM_getCommandedTorque(mcm);
+
+        ubyte2 commandedTorque = MCM_getCommandedTorque(mcm) * 10; //LUT outputs and PID inputs/output are in dNm
 
         PID_updateSetpoint(me->pid, pidSetpoint);
         sbyte2 pidOutput =  PID_computeOutput(me->pid, commandedTorque);
@@ -79,12 +80,12 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
         me->pidOutput = pidOutput;
         me->plTorqueCommand = torqueRequest;
         MCM_update_PL_setTorqueCommand(mcm, POWERLIMIT_getTorqueCommand(me));
-        MCM_set_PL_updateState(mcm, POWERLIMIT_getStatus(me));
+        MCM_set_PL_updateStatus(mcm, POWERLIMIT_getStatus(me));
     }
     else {
         me->plStatus = FALSE;
         MCM_update_PL_setTorqueCommand(mcm, 0);
-        MCM_set_PL_updateState(mcm, POWERLIMIT_getStatus(me));
+        MCM_set_PL_updateStatus(mcm, POWERLIMIT_getStatus(me));
     }
 }
 

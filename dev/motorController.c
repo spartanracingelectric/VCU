@@ -747,7 +747,7 @@ sbyte2 MCM_get_PL_torqueCommand(MotorController *me)
     return me->plTorqueCommand;
 }
 
-void MCM_set_PL_updateState(MotorController *me, bool newState)
+void MCM_set_PL_updateStatus(MotorController *me, bool newState)
 {
     me->plActive = newState;
 }
