@@ -1,4 +1,9 @@
-
+/*****************************************************************************
+ * powerLimit.h - Power Limiting using a PID controller & LUT to simplify calculations
+ * Initial Author(s): Shaun Gilmore / Harleen Sandhu
+ ******************************************************************************
+ * Power Limiting code with a flexible Power Target & Initialization Limit
+ ****************************************************************************/
 #ifndef _POWERLIMIT_H
 #define _POWERLIMIT_H
 
@@ -20,6 +25,8 @@ typedef struct _PowerLimit {
     sbyte2 plTorqueCommand;
     ubyte1 plInitializationThreshold;
     ubyte1 plTargetPower;
+    ubyte1 plMode;
+    
     // me->pid->Kd; ubyte1
 
 //-------------CAN IN ORDER: 512: Power Limit LUT Parameters-----------------------------------------------------
@@ -52,6 +59,7 @@ PowerLimit* POWERLIMIT_new();
 /** GETTER FUNCTIONS **/
 
 bool POWERLIMIT_getStatus(PowerLimit* me);
+ubyte1 POWERLIMIT_getMode(PowerLimit* me);
 sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me);
 ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me);
 ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me);

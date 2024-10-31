@@ -1,4 +1,12 @@
-
+/*****************************************************************************
+ * powerLimit.c - Power Limiting using a PID controller & LUT to simplify calculations
+ * Initial Author(s): Shaun Gilmore / Harleen Sandhu
+ ******************************************************************************
+ * Power Limiting code with a flexible Power Target & Initialization Limit
+ * 
+ * DESCRIPTION COMING SOON
+ * 
+ ****************************************************************************/
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 #include "motorController.h"
 #include "PID.h"
@@ -8,14 +16,7 @@
 
 #ifndef POWERLIMITCONSTANTS
 #define POWERLIMITCONSTANTS
-/* 
-#define VOLTAGE_MIN      (ubyte2) 280
-#define VOLTAGE_MAX      (ubyte2) 405
-#define RPM_MIN          (ubyte2) 2000 // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
-#define RPM_MAX          (ubyte2) 6000
-#define NUM_V            (ubyte1) 26
-#define NUM_S            (ubyte1) 26
-*/
+
 #define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
 #define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
 #define KWH_LIMIT        (ubyte1) 30  // kilowatts
@@ -29,8 +30,8 @@ PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
     me->pid = PID_new(20, 0, 0, 0);
 
+    me->plMode = 0;
     me->hashtable[5];
-    
     for(ubyte1 mode = 0; mode < 5; ++mode)
     {
         me->hashtable[mode] = *HashTable_new();
@@ -51,9 +52,9 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
         me->plStatus = TRUE;
 
         /* Determine Power Limiting Power Target */
-        ubyte1 mode = 9 - (me->plTargetPower / 10); // 9 - 80/10 = 9 - 8 = 1; 9 - 70/10 = 9 - 7 = 2; etc...
+        me->plMode = 9 - (me->plTargetPower / 10); // 9 - 80/10 = 9 - 8 = 1; 9 - 70/10 = 9 - 7 = 2; etc...
         if(me->plTargetPower == 20)
-            mode = 5; 
+            me->plMode = 5; 
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
@@ -62,6 +63,10 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
         // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
         sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
         sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[mode], noLoadVoltage, motorRPM);
+        if(pidSetpoint == -1)
+        {
+            //Torque Equation override
+        }
         ubyte2 commandedTorque = MCM_getCommandedTorque(mcm);
 
         PID_updateSetpoint(me->pid, pidSetpoint);
@@ -327,6 +332,11 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
 
 bool POWERLIMIT_getStatus(PowerLimit* me){
     return me->plStatus;
+}
+
+
+ubyte1 POWERLIMIT_getMode(PowerLimit* me){
+    return me->plMode;
 }
 
 sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me){
