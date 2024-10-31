@@ -53,9 +53,12 @@ void POWERLIMIT_setModeParameters(PowerLimit* me){
 
     /* The below code will be the proper way of interacting with the rotary dial once the button is made. For now, it remains commented out */
     /*
+    get the button position and transcribe it to a mode setting
+
     me->plTargetPower = (9 - me->plMode) * 10;
-    if(me->plMode == 5)
-        me->plTargetPower = 20;
+    me->plInitializationThreshold = me->plTargetPower - 15;
+    POWERLIMIT_setLimpModeOverride(PowerLimit* me);
+
     */
 
     /* Determine Power Limiting Power Target */
@@ -66,12 +69,22 @@ void POWERLIMIT_setModeParameters(PowerLimit* me){
     me->plInitializationThreshold = me->plTargetPower - 15;
 }
 
+void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
+    /*
+    if(button press)
+        me->plMode = 5;
+        me->plTargetPower = 20;
+            me->plInitializationThreshold = 0;
+
+    */
+}
+
 void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
     
     //if(rotary_button_input != plMode)
     POWERLIMIT_setModeParameters(me);
 
-    if( MCM_getPower(mcm) > me->plInitializationThreshold ){
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
         /* Sensor inputs */
