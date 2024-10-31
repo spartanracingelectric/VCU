@@ -1,139 +1,15 @@
-/*****************************************************************************
- * powerLimit.c - Power Limiting using a PID controller & LUT to simplify calculations
- * Initial Author(s): Shaun Gilmore / Harleen Sandhu
- ******************************************************************************
- * Power Limiting code with a flexible Power Target & Initialization Limit
- * 
- * DESCRIPTION COMING SOON
- * 
- ****************************************************************************/
-#ifndef POWERLIMIT_METHOD
-#define POWERLIMIT_METHOD
+#include <stdlib.h>
 
-#include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
-#include "motorController.h"
-#include "PID.h"
-#include "hashTable.h"
-#include "powerLimit.h"
-#include "mathFunctions.h"
+int main(){
 
-#ifndef POWERLIMITCONSTANTS
-#define POWERLIMITCONSTANTS
-
-#define VOLTAGE_STEP     (ubyte2) 5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
-#define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
-#define KWH_LIMIT        (ubyte1) 30  // kilowatts
-#define POWERLIMIT_INIT  (sbyte4) 25000  // 5kwh buffer to init PL before PL limit is hit
-
-#endif
-
-
-PowerLimit* POWERLIMIT_new(){
-    PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(20, 0, 0, 0);
-
-    me->plMode = 0;
-    me->hashtable[5];
-    for(ubyte1 mode = 0; mode < 5; ++mode)
-    {
-        me->hashtable[mode] = *HashTable_new();
-        POWERLIMIT_populateHashTable(me->hashtable, mode); 
-    }
-    me->plStatus = FALSE;
-    me->pidOutput = 0; 
-    me->plTorqueCommand = 0; 
-    me->plTargetPower = 80;
-    me->plInitializationThreshold = me->plTargetPower - 15;
-    return me;
-}
-
-/** LUT **/
-void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
-    // sbyte4 watts = MCM_getPower(mcm);
-    if( MCM_getPower(mcm) > me->plInitializationThreshold ){
-        me->plStatus = TRUE;
-
-        /* Determine Power Limiting Power Target */
-        me->plMode = 9 - (me->plTargetPower / 10); // 9 - 80/10 = 9 - 8 = 1; 9 - 70/10 = 9 - 7 = 2; etc...
-        if(me->plTargetPower == 20)
-            me->plMode = 5; 
-        /* Sensor inputs */
-        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
-        sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
-        sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
-
-        // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
-        sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
-        sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
-        
-        // If the LUT gives a bad value this is our catch all
-        if(pidSetpoint == -1 | pidSetpoint > 240){
-            pidSetpoint = (me->plTargetPower *  9549 / MCM_getMotorRPM(mcm)) / 100; 
-        }
-        ubyte2 commandedTorque = MCM_getCommandedTorque(mcm);
-
-        PID_updateSetpoint(me->pid, pidSetpoint);
-        sbyte2 pidOutput =  PID_computeOutput(me->pid, commandedTorque);
-        sbyte2 torqueRequest = (sbyte2)commandedTorque + pidOutput;
-
-        me->pidOutput = pidOutput;
-        me->plTorqueCommand = torqueRequest;
-        MCM_update_PL_setTorqueCommand(mcm, POWERLIMIT_getTorqueCommand(me));
-        MCM_set_PL_updateState(mcm, POWERLIMIT_getStatus(me));
-    }
-    else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, 0);
-        MCM_set_PL_updateState(mcm, POWERLIMIT_getStatus(me));
-    }
-}
-
-ubyte4 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-    
-    // LUT Lower Bounds
-    ubyte4 VOLTAGE_MIN      = 280;
-    ubyte4 RPM_MIN          = 2000;
-
-    // Calculating hashtable keys
-    ubyte4 rpmInput         = rpm - RPM_MIN;
-    ubyte4 voltageInput     = voltage - VOLTAGE_MIN;
-    ubyte4 voltageFloor     = ubyte4_lowerStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
-    ubyte4 voltageCeiling   = ubyte4_upperStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
-    ubyte4 rpmFloor         = ubyte4_lowerStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
-    ubyte4 rpmCeiling       = ubyte4_upperStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
-    
-    // Calculating these now to speed up interpolation later in method
-    ubyte4 voltageLowerDiff = voltage - voltageFloor;
-    ubyte4 voltageUpperDiff = voltageCeiling - voltage;
-    ubyte4 rpmLowerDiff     = rpm - rpmFloor;
-    ubyte4 rpmUpperDiff     = rpmCeiling - rpm;
-
-    // Retrieve torque values from the hash table for the four corners
-    me->vFloorRFloor     = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
-    me->vFloorRCeiling   = HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
-    me->vCeilingRFloor   = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
-    me->vCeilingRCeiling = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
-
-    // Calculate interpolation values
-    ubyte2 stepDivider          = VOLTAGE_STEP      * RPM_STEP;
-    ubyte4 torqueFloorFloor     = me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
-    ubyte4 torqueFloorCeiling   = me->vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
-    ubyte4 torqueCeilingFloor   = me->vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
-    ubyte4 torqueCeilingCeiling = me->vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
-
-    // Final TQ from LUT
-    return (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider;
-}
-
-void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
-{
-    ubyte2 VOLTAGE_MIN = 280;
-    ubyte2 VOLTAGE_MAX = 405;
-    ubyte2 RPM_MIN = 2000; // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
-    ubyte2 RPM_MAX = 6000;
-    const ubyte1 NUM_V = 26;
-    const ubyte1 NUM_S = 26;
-    ubyte2 (*pointer)[NUM_V];
+    int VOLTAGE_MIN = 280;
+    int VOLTAGE_MAX = 405;
+    int RPM_MIN = 2000; // Data analysis says 2340 rpm min @ 70kW, on oct7-8 launch for sr-14
+    int RPM_MAX = 6000;
+    const int NUM_V = 26;
+    const int NUM_S = 26;
+    int (*pointer)[NUM_V];
+    int target = 2;
     // cases:
     // 1 - 80 kW
     // 2 - 70 kW
@@ -146,7 +22,7 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
             VOLTAGE_MAX = 405;
             RPM_MIN = 2000;
             RPM_MAX = 6000;
-            const ubyte2 POWER_LIM_LUT_80[26][26] = {
+            int POWER_LIM_LUT_80[26][26] = {
                 {2357, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
                 {2265, 2299, 2343, 2385, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
                 {2039, 2147, 2218, 2288, 2332, 2372, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
@@ -181,7 +57,7 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
             VOLTAGE_MAX = 405;
             RPM_MIN = 2000;
             RPM_MAX = 6000;
-            const ubyte2 POWER_LIM_LUT_70[26][26] = {
+            int POWER_LIM_LUT_70[26][26] = {
                 {2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
                 {2216, 2294, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
                 {2053, 2141, 2215, 2280, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
@@ -216,7 +92,7 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
             VOLTAGE_MAX = 405;
             RPM_MIN = 2000;
             RPM_MAX = 6000;
-            const ubyte2 POWER_LIM_LUT_60[26][26] = {
+            const int POWER_LIM_LUT_60[26][26] = {
                 {2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
                 {2257, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
                 {2084, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
@@ -251,7 +127,7 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
             VOLTAGE_MAX = 405;
             RPM_MIN = 2000;
             RPM_MAX = 6000;
-            const ubyte2 POWER_LIM_LUT_50[26][26] = {
+            const int POWER_LIM_LUT_50[26][26] = {
                 {2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293, 2293},
                 {2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134, 2134},
                 {1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996},
@@ -287,7 +163,7 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
             VOLTAGE_MAX = 405;
             RPM_MIN = 2000;
             RPM_MAX = 6000;
-            const ubyte2 POWER_LIM_LUT_20[26][26] = {
+            const int POWER_LIM_LUT_20[26][26] = {
                 {940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940, 940},
                 {872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872, 872},
                 {813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813, 813},
@@ -321,64 +197,10 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
         break;
     }
 
-    for(ubyte1 row = 0; row < NUM_S; ++row) {
-        for(ubyte1 column = 0; column < NUM_V; ++column) {
-            ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
-            ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
-            ubyte2 value = *(*(pointer + row) + column);
-            HashTable_insertPair(table, voltage, rpm, value);
+    for(int row = 0; row < NUM_S; ++row) {
+        for(int column = 0; column < NUM_V; ++column) {
+            int value = *(*(pointer + row) + column);
+            printf("\nValue:\t%d",value);
         }
     }
 }
-
-/** GETTER FUNCTIONS **/
-
-bool POWERLIMIT_getStatus(PowerLimit* me){
-    return me->plStatus;
-}
-
-ubyte1 POWERLIMIT_getMode(PowerLimit* me){
-    return me->plMode;
-}
-
-sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me){
-    return me->plTorqueCommand;
-}
-
-ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me){
-    return me->plTargetPower;
-}
-
-ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me){
-    return me->plInitializationThreshold;
-}
-
-ubyte2 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
-    // corner cases:
-    // 1 - lowerX lowerY
-    // 2 - lowerX lowerY
-    // 3 - higherX lowerY
-    // 4 - higherX higherY
-    switch(corner){
-        case 1:
-        return me->vFloorRFloor;
-
-        case 2:
-        return me->vFloorRCeiling;
-        
-        case 3:
-        return me->vCeilingRFloor;
-        
-        case 4:
-        return me->vCeilingRCeiling;
-        
-        default:
-        return 0xFF;
-    }
-}
-
-sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me){
-    return me->pidOutput;
-}
-
-#endif
