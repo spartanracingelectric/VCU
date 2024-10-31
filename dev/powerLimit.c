@@ -32,7 +32,7 @@ PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
     me->pid = PID_new(20, 0, 0, 0);
 
-    me->plMode = 0;
+    me->plMode = 1;
     me->hashtable[5];
     for(ubyte1 mode = 0; mode < 5; ++mode)
     {
@@ -47,16 +47,33 @@ PowerLimit* POWERLIMIT_new(){
     return me;
 }
 
-/** LUT **/
+void POWERLIMIT_setModeParameters(PowerLimit* me){
+
+    /* SPACE FOR DASH ROTARY & BUTTON INTERACTIONS */
+
+    /* The below code will be the proper way of interacting with the rotary dial once the button is made. For now, it remains commented out */
+    /*
+    me->plTargetPower = (9 - me->plMode) * 10;
+    if(me->plMode == 5)
+        me->plTargetPower = 20;
+    */
+
+    /* Determine Power Limiting Power Target */
+    me->plMode = 9 - (me->plTargetPower / 10); // 9 - 80/10 = 9 - 8 = 1; 9 - 70/10 = 9 - 7 = 2; etc...
+    if(me->plTargetPower == 20)
+        me->plMode = 5;
+
+    me->plInitializationThreshold = me->plTargetPower - 15;
+}
+
 void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
-    // sbyte4 watts = MCM_getPower(mcm);
+    
+    //if(rotary_button_input != plMode)
+    POWERLIMIT_setModeParameters(me);
+
     if( MCM_getPower(mcm) > me->plInitializationThreshold ){
         me->plStatus = TRUE;
 
-        /* Determine Power Limiting Power Target */
-        me->plMode = 9 - (me->plTargetPower / 10); // 9 - 80/10 = 9 - 8 = 1; 9 - 70/10 = 9 - 7 = 2; etc...
-        if(me->plTargetPower == 20)
-            me->plMode = 5; 
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
