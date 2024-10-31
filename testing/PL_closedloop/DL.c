@@ -20,32 +20,32 @@ void PL_populateHashTable(HashTable* table)
     // 80 KWH LIMIT <------------------------------------------------------------
     // 80 KWH LIMIT <------------------------------------------------------------    
     const int lookupTable[26][26] = {
-        {231, 231, 199, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {222, 229, 180, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {205, 214, 161, 228, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {187, 198, 146, 214, 221, 227, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {172, 180, 130, 198, 205, 214, 221, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {157, 166, 117, 182, 189, 198, 205, 213, 218, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {144, 152, 103, 168, 175, 183, 190, 199, 205, 213, 218, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {131, 138, 90, 154, 161, 170, 177, 184, 193, 199, 207, 221, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
-        {118, 126, 77, 141, 150, 157, 164, 171, 179, 185, 192, 208, 221, 226, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227},
-        {106, 114, 63, 131, 138, 145, 153, 159, 167, 173, 180, 198, 209, 216, 216, 217, 217, 217, 217, 216, 217, 217, 217, 217, 217, 217},
-        {95, 104, 48, 120, 127, 133, 140, 148, 155, 162, 169, 185, 199, 205, 207, 207, 207, 208, 208, 208, 208, 208, 208, 208, 208, 208},
-        {84, 93, 32, 109, 116, 123, 131, 137, 144, 151, 157, 174, 186, 197, 198, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199},
-        {73, 81, 0, 98, 106, 113, 121, 127, 134, 139, 147, 164, 176, 186, 190, 191, 191, 191, 191, 191, 191, 192, 191, 191, 192, 192},
-        {61, 71, 0, 88, 95, 103, 110, 117, 124, 131, 138, 153, 166, 177, 182, 183, 184, 184, 184, 184, 184, 184, 184, 184, 184, 184},
-        {48, 59, 0, 77, 86, 94, 101, 108, 115, 120, 128, 144, 157, 166, 175, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177},
-        {34, 47, 0, 67, 76, 84, 91, 99, 105, 111, 119, 135, 147, 157, 170, 170, 170, 171, 171, 171, 171, 171, 171, 171, 171, 171},
-        {12, 33, 0, 56, 66, 74, 82, 89, 96, 103, 110, 126, 138, 150, 159, 164, 164, 165, 165, 165, 165, 165, 165, 165, 165, 165},
-        {0, 10, 0, 44, 55, 64, 72, 80, 88, 94, 102, 117, 129, 139, 150, 156, 159, 159, 159, 159, 159, 160, 160, 160, 160, 160},
-        {0, 0, 0, 30, 43, 54, 63, 71, 78, 86, 93, 109, 120, 132, 141, 151, 153, 154, 154, 154, 154, 154, 154, 154, 155, 155},
-        {0, 0, 0, 6, 29, 42, 52, 61, 69, 77, 85, 101, 113, 125, 134, 142, 148, 149, 149, 150, 149, 150, 150, 150, 150, 150},
-        {0, 0, 0, 0, 4, 28, 41, 51, 60, 68, 76, 93, 105, 117, 126, 135, 142, 144, 145, 145, 145, 145, 145, 145, 145, 142},
-        {0, 0, 0, 0, 0, 0, 27, 40, 50, 59, 68, 85, 98, 109, 119, 127, 136, 139, 140, 140, 141, 141, 141, 141, 141, 141},
-        {0, 0, 0, 0, 0, 0, 0, 26, 39, 49, 59, 77, 90, 101, 111, 120, 128, 134, 136, 136, 137, 137, 137, 137, 137, 137},
-        {0, 0, 0, 0, 0, 0, 0, 0, 25, 38, 49, 68, 83, 94, 104, 113, 121, 129, 132, 132, 133, 133, 133, 133, 133, 133},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 38, 60, 75, 87, 97, 106, 115, 121, 127, 129, 129, 129, 129, 129, 129, 129},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 51, 67, 80, 90, 99, 107, 115, 122, 125, 126, 126, 126, 126, 126, 126}};
+            {2309, 2309, 1988, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {2216, 2294, 1805, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {2053, 2141, 1613, 2280, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1870, 1977, 1463, 2140, 2214, 2270, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1723, 1804, 1303, 1982, 2052, 2140, 2213, 2257, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1573, 1658, 1165, 1821, 1892, 1984, 2052, 2127, 2184, 2256, 2308, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1437, 1521, 1031, 1683, 1753, 1826, 1896, 1992, 2052, 2127, 2184, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1308, 1377, 898, 1536, 1611, 1699, 1772, 1843, 1928, 1994, 2065, 2215, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309, 2309},
+            {1183, 1259, 765, 1415, 1500, 1573, 1642, 1715, 1786, 1855, 1921, 2084, 2215, 2264, 2265, 2268, 2269, 2271, 2269, 2272, 2271, 2273, 2273, 2273, 2273, 2273},
+            {1064, 1140, 630, 1308, 1383, 1454, 1531, 1594, 1667, 1730, 1805, 1977, 2087, 2159, 2163, 2166, 2168, 2169, 2168, 2165, 2171, 2172, 2172, 2172, 2172, 2172},
+            {946, 1036, 484, 1195, 1273, 1331, 1403, 1476, 1553, 1621, 1689, 1846, 1993, 2053, 2069, 2069, 2074, 2076, 2077, 2078, 2077, 2079, 2081, 2081, 2077, 2077},
+            {839, 927, 316, 1087, 1164, 1229, 1308, 1375, 1440, 1509, 1574, 1738, 1857, 1965, 1981, 1986, 1988, 1989, 1990, 1992, 1994, 1994, 1994, 1995, 1994, 1993},
+            {727, 813, 1, 976, 1057, 1132, 1205, 1274, 1342, 1395, 1467, 1637, 1762, 1857, 1904, 1907, 1909, 1910, 1912, 1913, 1914, 1915, 1915, 1915, 1916, 1916},
+            {610, 707, 1, 880, 953, 1032, 1103, 1172, 1244, 1308, 1378, 1534, 1660, 1772, 1818, 1833, 1835, 1837, 1840, 1839, 1840, 1842, 1841, 1842, 1842, 1843},
+            {484, 594, 1, 773, 858, 936, 1007, 1077, 1147, 1203, 1277, 1438, 1566, 1659, 1745, 1766, 1767, 1768, 1770, 1771, 1774, 1773, 1774, 1775, 1775, 1774},
+            {339, 472, 1, 673, 757, 837, 911, 987, 1049, 1115, 1194, 1347, 1475, 1574, 1697, 1700, 1705, 1706, 1707, 1707, 1709, 1709, 1711, 1711, 1711, 1711},
+            {119, 326, 1, 564, 657, 742, 816, 893, 962, 1031, 1102, 1257, 1384, 1497, 1586, 1635, 1644, 1646, 1647, 1648, 1650, 1650, 1651, 1652, 1653, 1652},
+            {1, 102, 1, 445, 550, 641, 724, 801, 876, 942, 1019, 1168, 1294, 1395, 1501, 1565, 1586, 1591, 1592, 1595, 1594, 1595, 1596, 1597, 1597, 1598},
+            {1, 1, 1, 302, 432, 537, 628, 708, 783, 856, 931, 1091, 1205, 1321, 1407, 1509, 1531, 1539, 1541, 1542, 1543, 1544, 1544, 1545, 1546, 1546},
+            {1, 1, 1, 61, 290, 420, 524, 614, 693, 767, 847, 1007, 1133, 1245, 1340, 1418, 1477, 1491, 1492, 1495, 1494, 1495, 1496, 1496, 1497, 1498},
+            {1, 1, 1, 1, 36, 279, 409, 511, 599, 679, 762, 928, 1054, 1165, 1263, 1348, 1422, 1439, 1446, 1448, 1448, 1449, 1450, 1451, 1452, 1416},
+            {1, 1, 1, 1, 1, 1, 270, 397, 500, 588, 675, 847, 979, 1091, 1187, 1267, 1361, 1392, 1403, 1403, 1405, 1406, 1407, 1408, 1408, 1411},
+            {1, 1, 1, 1, 1, 1, 1, 258, 386, 489, 587, 767, 902, 1009, 1113, 1201, 1277, 1344, 1359, 1364, 1365, 1366, 1367, 1368, 1368, 1368},
+            {1, 1, 1, 1, 1, 1, 1, 1, 248, 378, 492, 683, 825, 942, 1039, 1131, 1213, 1291, 1317, 1324, 1327, 1328, 1329, 1329, 1329, 1330},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 238, 384, 602, 752, 870, 968, 1058, 1145, 1212, 1273, 1288, 1290, 1292, 1291, 1292, 1293, 1293},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 249, 513, 673, 797, 901, 993, 1074, 1151, 1217, 1247, 1256, 1257, 1258, 1259, 1258, 1259}};
     const int VOLTAGE_MIN = 280;
     const int VOLTAGE_MAX = 405;
     const int RPM_MIN = 2000;
@@ -62,10 +62,10 @@ void PL_populateHashTable(HashTable* table)
     }
 }
 int PL_getTorqueFromLUT(HashTable* torqueHashTable, int voltage, int rpm){
-    int voltageFloor      = floorToNearest5(voltage);
-    int voltageCeiling    = ceilToNearest5(voltage);
-    int rpmFloor          = floorToNearest160(rpm);
-    int rpmCeiling        = ceilToNearest160(rpm);
+    int voltageFloor      = int_lowerStepInterval(voltage,5);
+    int voltageCeiling    = int_upperStepInterval(voltage,5);
+    int rpmFloor          = int_lowerStepInterval(rpm,160);
+    int rpmCeiling        = int_upperStepInterval(rpm,160);
     
     // Calculating these now to speed up interpolation later in method
 
@@ -100,57 +100,45 @@ int PL_getTorqueFromLUT(HashTable* torqueHashTable, int voltage, int rpm){
     float4 gainValueVertical   = (float4)fmod(rpm, RPM_STEP);
 
     // Combine interpolated values
-    me->lutTorque = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
+    intlutTorque = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
     */
     return TQ;  // Adjust gain if necessary
 
 }  // Find the floor and ceiling values for voltage and rpm)
 
-int PL_getTorqueFromLUT2(HashTable* torqueHashTable, int voltage, int rpm){
-    int voltageFloor      = int_lowerStepInterval(voltage, VOLTAGE_STEP);
-    int voltageCeiling    = (int)int_upperStepInterval(voltage, VOLTAGE_STEP);
-    int rpmFloor          = (int)int_lowerStepInterval(rpm, RPM_STEP);
-    int rpmCeiling        = (int)int_upperStepInterval(rpm, RPM_STEP);
+int PL_getTorqueFromLUT2(HashTable* torqueHashTable, int voltage, int rpm){    // Find the floor and ceiling values for voltage and rpm
+    
+    // LUT Lower Bounds
+    int VOLTAGE_MIN      = 280;
+    int RPM_MIN          = 2000;
+
+    // Calculating hashtable keys
+    int rpmInput         = rpm - RPM_MIN;
+    int voltageInput     = voltage - VOLTAGE_MIN;
+    int voltageFloor     = int_lowerStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
+    int voltageCeiling   = int_upperStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
+    int rpmFloor         = int_lowerStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
+    int rpmCeiling       = int_upperStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
     
     // Calculating these now to speed up interpolation later in method
-    int voltageLowerDiff  = voltage - voltageFloor;
-    int voltageUpperDiff  = voltageCeiling - voltage;
-    int rpmLowerDiff      = rpm - rpmFloor;
-    int rpmUpperDiff      = rpmCeiling - rpm;
+    int voltageLowerDiff = voltage - voltageFloor;
+    int voltageUpperDiff = voltageCeiling - voltage;
+    int rpmLowerDiff     = rpm - rpmFloor;
+    int rpmUpperDiff     = rpmCeiling - rpm;
 
     // Retrieve torque values from the hash table for the four corners
-    int vFloorRFloor      = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
-    int vFloorRCeiling    = HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
-    int vCeilingRFloor    = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
-    int vCeilingRCeiling  = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
-
-    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same.
-    if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
-    {
-        return vFloorRFloor;
-    }
+    int vFloorRFloor     = HashTable_getValue(torqueHashTable, voltageFloor, rpmFloor);
+    int vFloorRCeiling   = HashTable_getValue(torqueHashTable, voltageFloor, rpmCeiling);
+    int vCeilingRFloor   = HashTable_getValue(torqueHashTable, voltageCeiling, rpmFloor);
+    int vCeilingRCeiling = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
 
     // Calculate interpolation values
     int stepDivider          = VOLTAGE_STEP      * RPM_STEP;
-    int torqueFloorFloor     = vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
-    int torqueFloorCeiling   = vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
-    int torqueCeilingFloor   = vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
-    int torqueCeilingCeiling = vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
+    long torqueFloorFloor     = vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
+    long torqueFloorCeiling   = vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
+    long torqueCeilingFloor   = vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
+    long torqueCeilingCeiling = vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
 
     // Final TQ from LUT
-    int TQ = (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider; 
-    
-    /*
-    float4 horizontalInterpolation = (((vCeilingRFloor - vFloorRFloor) / VOLTAGE_STEP) + ((vCeilingRCeiling - vFloorRCeiling) / VOLTAGE_STEP)) / 2.0;
-    float4 verticalInterpolation   = (((vFloorRCeiling - vFloorRFloor) / RPM_STEP) + ((vCeilingRCeiling - vCeilingRFloor) / RPM_STEP)) / 2.0;
-
-    // Calculate gains
-    float4 gainValueHorizontal = (float4)fmod(voltage, VOLTAGE_STEP);
-    float4 gainValueVertical   = (float4)fmod(rpm, RPM_STEP);
-
-    // Combine interpolated values
-    me->lutTorque = (gainValueHorizontal * horizontalInterpolation) + (gainValueVertical * verticalInterpolation) + vFloorRFloor;
-    */
-
-    return TQ; 
+    return (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider;
 }

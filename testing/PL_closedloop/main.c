@@ -14,8 +14,8 @@ int main() {
 
     // Populate the hash table
     PL_populateHashTable(hash);
-    int d = floorToNearest5(287);
-     int e = floorToNearest160(2086);
+    int d = int_lowerStepInterval(287,5);
+    int e = int_lowerStepInterval(2086,160);
     // Retrieve value from the hash table
     int a = HashTable_getValue(hash, 290, 2320);
     int b = PL_getTorqueFromLUT(hash, 371, 2600);//my method

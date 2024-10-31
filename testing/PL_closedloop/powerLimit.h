@@ -1,39 +1,56 @@
-
+/*****************************************************************************
+ * powerLimit.h - Power Limiting using a PID controller & LUT to simplify calculations
+ * Initial Author(s): Shaun Gilmore / Harleen Sandhu
+ ******************************************************************************
+ * Power Limiting code with a flexible Power Target & Initialization Limit
+ ****************************************************************************/
 #ifndef _POWERLIMIT_H
 #define _POWERLIMIT_H
 
-#include "PID.h"
-#include "hashTable.h"
-#include "mathFunctions.h"
 #include <stdlib.h>
 #include "stdbool.h"
-
-#define KWH_LIMIT 20
+#include "PID.h"
+#include "hashTable.h"
+#include "math.h"
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    PID *pid; 
+    PID *pid;
     HashTable* hashtable;
-    bool PLstatus;
 
-//-------------CAN IN ORDER: 511: MCM Values For Power Limit-----------------------------------------------------
+//-------------CAN IN ORDER: 511: Power Limit Overview-----------------------------------------------------
 
-      float mcm_voltage; 
-    float mcm_current; 
-   float power;
-   float wheelspeed;
+    bool plStatus;
+    int pidOutput;
+    int plTorqueCommand;
+    int plInitializationThreshold;
+    int plTargetPower;
+    int plMode;
+    
+    // me->pid->Kd; int
+
+//-------------CAN IN ORDER: 512: Power Limit LUT Parameters-----------------------------------------------------
+
+    int vFloorRFloor;
+    int vFloorRCeiling;
+    int vCeilingRFloor;
+    int vCeilingRCeiling;
 
 
-//-------------CAN IN ORDER: 512: Power Limit-----------------------------------------------------
+//-------------CAN IN ORDER: 513: Power Limit PID Outputs-----------------------------------------------------
 
-    float LUT_val;
-    float error; 
-    float estimatedtq; // in dNm
-    float setpointtq;// in dNm
+    // me->pid->setpoint; int
+    // me->pid->totalError; sbyte4
+    // me->pid->Kp; int
+    // me->pid->Ki; int
+
+    /* WANT TO ADD */
+    // me->pid->proportional;
+    // me->pid->integral;
+    // me->pid->derivative;
 
 } PowerLimit;
 
-
 PowerLimit* PL_new(); 
 
-#endif //_PID_H
+#endif //_POWERLIMIT_H
