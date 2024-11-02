@@ -16,7 +16,7 @@ typedef enum { ENABLED, DISABLED, UNKNOWN } Status;
 //Rotation direction as viewed from shaft end of motor
 //0 = CW = REVERSE (for our car)
 //1 = CCW = FORWARD (for our car)
-typedef enum { CLOCKWISE, COUNTERCLOCKWISE, FORWARD, REVERSE, _0, _1 } Direction;
+typedef enum { CLOCKWISE, COUNTERCLOCKWISE, REVERSE, FORWARD, _0, _1 } Direction;
 
 // Regen mode
 typedef enum { REGENMODE_OFF = 0, REGENMODE_FORMULAE, REGENMODE_HYBRID, REGENMODE_TESLA, REGENMODE_FIXED } RegenMode;
