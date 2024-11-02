@@ -98,8 +98,9 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
 
         // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
         sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
-        sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
-        
+        //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
+        sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
+
         // If the LUT gives a bad value this is our catch all
         if(pidSetpoint == -1 | pidSetpoint > 240){
             pidSetpoint = (me->plTargetPower *  9549 / MCM_getMotorRPM(mcm)) / 100; 
