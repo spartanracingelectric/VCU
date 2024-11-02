@@ -24,8 +24,10 @@
 #define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
 #define KWH_LIMIT        (ubyte1) 30  // kilowatts
 #define POWERLIMIT_INIT  (sbyte4) 25000  // 5kwh buffer to init PL before PL limit is hit
+#define PI               (ubyte2) 
 
 #endif
+#ifdef NOTDEFINED
 
 
 PowerLimit* POWERLIMIT_new(){
@@ -412,4 +414,55 @@ sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me){
     return me->pidOutput;
 }
 
+#endif
+
+#ifdef POWERLIMIT_METHOD
+// void PL_calculateTorqueCommand(TorqueEncoder* tps, MotorController* mcm, PowerLimit* me, PID* pid){
+//     sbyte2 maxTorque;
+//     float4 tpsPercent;
+//     sbyte4 watts = MCM_getPower(mcm);
+//     sbyte2 commandTorque;
+//     sbyte4 rpm = MCM_getMotorRPM(mcm);
+
+//     // sbyte2 plTorqueCommand = me->plTorqueCommand;
+//     TorqueEncoder_getOutputPercent(tps, &tpsPercent);
+//     float4 requestedTorque = tpsPercent * maxTorque;
+//     if(watts < POWERLIMIT_INIT){
+//         // MCM_update_PL_setTorqueCommand(mcm, requestedTorque);
+//     }
+//     else{
+//         maxTorque = PL_getMaxTorque(rpm);
+//         MCM_setMaxTorqueDNm(mcm, maxTorque);
+//     }
+    // PL_getTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, ubyte4 voltage, ubyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+
+
+//}
+
+sbyte2 PL_getMaxTorque(sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+    sbyte2 torque = (((KWH_LIMIT / rpm) * 2 * PI )/ 60);
+    if(torque > (sbyte2)2400){
+        return (sbyte2)2400;
+    }
+    else{
+        return torque;
+    }
+}
+
+// Carlie + Ross LUT
+/*
+DC volts * AC amps
+power = commanded torque * rpm
+*/
+void PL_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
+    if((MCM_getCommandedTorque(me) > 800)){
+        MCM_commands_setTorqueDNm(me, 750);
+    }
+}
+
+
+void PL_populateHashTable(HashTable* table)
+{
+    ubyte1 i = 0;
+}
 #endif
