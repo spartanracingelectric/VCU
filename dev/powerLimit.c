@@ -24,7 +24,7 @@
 #define RPM_STEP         (ubyte2) 160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
 #define KWH_LIMIT        (ubyte1) 30  // kilowatts
 #define POWERLIMIT_INIT  (sbyte4) 25000  // 5kwh buffer to init PL before PL limit is hit
-#define PI               (ubyte2) 
+#define PI               (float4) 3.14
 
 #endif
 #ifdef NOTDEFINED
@@ -439,18 +439,35 @@ sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me){
 
 //}
 
-sbyte2 PL_getMaxTorque(sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-    sbyte2 torque = (((KWH_LIMIT / rpm) * 2 * PI )/ 60);
-    if(torque > (sbyte2)2400){
-        return (sbyte2)2400;
+sbyte2 PL_getMaxTorque(MotorController* mcm, PowerLimit* me, sbyte4 rpm_current){    // Find the floor and ceiling values for voltage and rpm
+    ubyte2 Tq_lim = MCM_getMaxTorqueDNm(me);
+    sbyte2 RPM_DERATE = (KWH_LIMIT/Tq_lim)/0.10472;
+    sbyte2 torque = ((KWH_LIMIT / rpm_current)/ 0.10472);
+    if(rpm_current <= RPM_DERATE){
+        if(torque > (sbyte2)2400){
+            return (sbyte2)2400;
+        }
+        else{
+            return torque;
+        }
     }
     else{
-        return torque;
+        return RPM_DERATE;
     }
 }
 
 // Carlie + Ross LUT
 /*
+Pwr_lim=25000 (W)
+Tq_lim=240(Nm)
+RPM_derate= Pwr_lim/Tq_lim/0.10472 (point at which Tq_lim and Pwr_lim cross) *does using 0.10472 use less compute than having to use pi in an equation?
+If: RPM_current <= RPM_derate
+Throttle_max = Tq_lim
+Else:
+Throttle_max = Pwr_lim/RPM_current/0.10472
+
+Note, this assumes that rpm’s are not negative (motor spinning “backwards”) (edited) 
+
 DC volts * AC amps
 power = commanded torque * rpm
 */
