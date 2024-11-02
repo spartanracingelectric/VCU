@@ -11,8 +11,6 @@
 #include "motorController.h"
 #include "PID.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
-#include "PID.h"
-#include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 
 /*
 typedef struct _PIDController {
