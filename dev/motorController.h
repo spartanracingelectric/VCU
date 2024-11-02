@@ -42,7 +42,7 @@ sbyte2 MCM_commands_getTorque(MotorController* me); //Will be divided by 10 e.g.
 Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);
-sbyte2 MCM_commands_getTorqueLimit(MotorController* me); 
+sbyte2 Limit(MotorController* me); 
 
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);
@@ -54,16 +54,16 @@ ubyte4 MCM_commands_getTimeSinceLastCommandSent(MotorController* me);
 //Allow other object access to the private struct
 //Note: only added as needed, not necessarily comprehensive
 void MCM_setMaxTorqueDNm(MotorController* mcm, ubyte2 torque);
-void MCM_setRegen_TorqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
-void MCM_setRegen_TorqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
-void MCM_setRegen_PercentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
-void MCM_setRegen_PercentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
+void MCM_setRegen_torqueLimitDNm(MotorController* mcm, ubyte2 torqueLimit);
+void MCM_setRegen_torqueAtZeroPedalDNm(MotorController* mcm, ubyte2 torqueZero);
+void MCM_setRegen_percentBPSForMaxRegen(MotorController* mcm, float4 percentBPS);
+void MCM_set_Regen_percentAPPSForCoasting(MotorController* mcm, float4 percentAPPS);
 
 ubyte2 MCM_getMaxTorqueDNm(MotorController* mcm);
-ubyte2 MCM_getRegen_TorqueLimitDNm(MotorController* mcm);
-ubyte2 MCM_getRegen_TorqueAtZeroPedalDNm(MotorController* mcm);
-float4 MCM_getRegen_PercentBPSForMaxRegen(MotorController* mcm);
-float4 MCM_getRegen_PercentAPPSForCoasting(MotorController* mcm);
+ubyte2 MCM_get_Regen_torqueLimitDNm(MotorController* mcm);
+ubyte2 MCM_get_Regen_torqueAtZeroPedalDNm(MotorController* mcm);
+float4 MCM_get_Regen_percentBPSForMaxRegen(MotorController* mcm);
+float4 MCM_get_Regen_percentAPPSForCoasting(MotorController* mcm);
 
 //----------------------------------------------------------------------------
 // Update Functions (CAN Inputs)
@@ -78,8 +78,14 @@ void MCM_updateInverterStatus(MotorController* me, Status newState);
 Status MCM_getLockoutStatus(MotorController* me);
 Status MCM_getInverterStatus(MotorController* me);
 
-void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
-void MCM_update_LaunchControl_State(MotorController *me, bool newLCState);
+void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit);
+void MCM_update_LC_state(MotorController *me, bool newState);
+
+void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
+void MCM_set_PL_updateStatus(MotorController *me, bool newState);
+
+sbyte2 MCM_get_PL_torqueCommand(MotorController *me);
+sbyte4 MCM_getMotorRPM(MotorController *me);
 
 sbyte4 MCM_getPower(MotorController* me);
 ubyte2 MCM_getCommandedTorque(MotorController* me);
@@ -122,5 +128,8 @@ void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage)
 
 ubyte1 MCM_getStartupStage(MotorController* me);
 void MCM_setStartupStage(MotorController* me, ubyte1 stage);
+
+sbyte4 MCM_getDCVoltage (MotorController *me);
+sbyte4 MCM_getDCCurrent(MotorController *me);
 
 #endif // _MOTORCONTROLLER_H

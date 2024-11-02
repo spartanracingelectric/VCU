@@ -450,7 +450,6 @@ ubyte4 BMS_getPackVoltage(BatteryManagementSystem *me)
 {
     return (me->packVoltage); 
 }
-
 //Split into
 sbyte2 BMS_getHighestCellTemp_d_degC(BatteryManagementSystem *me)
 {

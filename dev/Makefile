@@ -78,7 +78,7 @@ LSL_FILE=application.lsl
 
 #
 # rules for building
-
+.PHONY: all clean build/%.obj
 all : build/main.elf postbuild
 
 # call linker

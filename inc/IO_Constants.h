@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright (c) 2010 TTTControl. All rights reserved. Confidential proprietory
- * Schönbrunnerstraße 7, A-1040 Wien, Austria. office@ttcontrol.com
+ * Schï¿½nbrunnerstraï¿½e 7, A-1040 Wien, Austria. office@ttcontrol.com
  **************************************************************************/
 /**********************************************************************//**
  * \file IO_Constants.h
@@ -70,7 +70,7 @@
  *   with analog feedback                    #IO_DO_01\n      #IO_PIN_132\n      IO_DO_Set                                   (cannot be distinguished)
  * +                                         #IO_DO_02\n      #IO_PIN_143\n                                              ------------------------------------------------------------------------------------ -------------- -----------------------------------------
  *                                           #IO_DO_03\n      #IO_PIN_131\n                                                  short circuit to GND detection \n                                                 non-safety      #IO_E_DO_SHORT_CIRCUIT
- * +                                         #IO_DO_04\n      #IO_PIN_142\n                                              ------------------------------------------------------------------------------------ -------------- -----------------------------------------
+ * +                                         #IO_DO_00\n      #IO_PIN_142\n                                              ------------------------------------------------------------------------------------ -------------- -----------------------------------------
  *                                           #IO_DO_05\n      #IO_PIN_130\n                                                  diagnosis not finished \n (output value changed too frequently)\n                 non-safety      #IO_E_DO_DIAG_NOT_FINISHED
  * +                                         #IO_DO_06\n      #IO_PIN_141\n   ------------------------------------------ ------------------------------------------------------------------------------------ -------------- -----------------------------------------
  *                                           #IO_DO_07\n      #IO_PIN_129\n      \ref IO_ADC.h "Analog Input 5V" \n\n        no built-in diagnostic functions                                                  non-safety

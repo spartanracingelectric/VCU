@@ -24,11 +24,11 @@ float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
     {
         if (retVal < 0)
         {
-            retVal = 0;
+            return 0.0;
         }
         if (retVal > 1)
         {
-            retVal = 1;
+            return 1.0;
         }
     }
 
@@ -113,4 +113,19 @@ sbyte4 swap_int32(sbyte4 val)
 {
     val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
     return (val << 16) | ((val >> 16) & 0xFFFF);
+}
+
+ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment) {
+    return value - (value % increment);
+}
+ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
+    ubyte4 temp = ubyte4_lowerStepInterval(value, increment);
+    return (temp == value?temp:temp + increment);
+}
+float4 float4_lowerStepInterval(float4 value, float4 increment) {
+    return value - (float4)fmod(value,increment);
+}
+float4 float4_upperStepInterval(float4 value, float4 increment) {
+    float4 temp = float4_lowerStepInterval(value, increment);
+    return (temp == value?temp:temp + increment);
 }
