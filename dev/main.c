@@ -374,7 +374,6 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        LaunchControl_calculateSlipRatio(wss, lc);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
