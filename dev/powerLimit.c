@@ -29,7 +29,7 @@ void testing(PowerLimit *me){
     me->value = 1000;
 }
 
-void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID* plPID){
+void POWERLIMIT_calculateTorqueCommand(PowerLimit* me, MotorController* mcm, PID* plPID){
     
     if(MCM_getPower(mcm) > 55000){
         me->PLStatus = TRUE;
@@ -97,7 +97,7 @@ ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTa
     return (ubyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
 
-void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
+void POWERLIMIT_populateHashTable(HashTable* table)
 {
     ubyte2 VOLTAGE_MIN = 280;
     ubyte2 VOLTAGE_MAX = 405;

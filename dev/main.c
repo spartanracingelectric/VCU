@@ -426,7 +426,7 @@ void main(void)
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
         PID_setGain(pid,3,0,0);
-        powerLimitTorqueCalculation_1(pl,mcm0,pid);
+        POWERLIMIT_calculateTorqueCommand(pl,mcm0,pid);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

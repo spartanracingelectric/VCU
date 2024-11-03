@@ -27,6 +27,7 @@ typedef struct _PowerLimit {
 PowerLimit* PL_new();
 void testing(PowerLimit *me);
 void POWERLIMIT_calculateTorqueCommand(PowerLimit *me,  MotorController* mcm, PID* plPID);
+ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, sbyte4 voltage, sbyte4 rpm);
 void POWERLIMIT_populateHashTable(HashTable* table);
 
 #endif
