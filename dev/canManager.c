@@ -17,6 +17,7 @@
 #include "sensorCalculations.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "powerLimit.h"
 
 
 struct _CanManager {
@@ -484,7 +485,7 @@ void canOutput_sendSensorMessages(CanManager* me)
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs)
+void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressureSensor* bps, MotorController* mcm, InstrumentCluster* ic, BatteryManagementSystem* bms, WheelSpeeds* wss, SafetyChecker* sc, LaunchControl* lc, DRS *drs, PowerLimit *pl)
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
@@ -729,7 +730,22 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 16;
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_getPower(mcm) >> 24;
     canMessages[canMessageCount - 1].length = byteNum;
-
+    
+    //50B: power limiting --> in place of lc just to see 
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->PLStatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)pl->value;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)pl->value >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
+    /*
     //50B: Launch Control
     canMessageCount++;
     byteNum = 0;
@@ -744,7 +760,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)lc->lcTorque;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
-
+*/
     //50C: SAS (Steering Angle Sensor) and DRS
     canMessageCount++;
     byteNum = 0;
@@ -806,6 +822,20 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (SafetyChecker_getWarnings(sc) >> 24);
     canMessages[canMessageCount - 1].length = byteNum;
 
+// 511:plagain
+  canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->PLStatus;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)pl->value;
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)pl->value >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
     //511: SoftBSPD
     // ubyte1 flags = sc->softBSPD_bpsHigh;
     // flags |= sc->softBSPD_kwHigh << 1;

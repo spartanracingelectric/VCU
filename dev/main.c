@@ -50,6 +50,7 @@
 #include "bms.h"
 #include "LaunchControl.h"
 #include "drs.h"
+#include "powerLimit.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -221,6 +222,7 @@ void main(void)
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
+    PowerLimit *pl = PL_new();
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -370,9 +372,10 @@ void main(void)
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
         slipRatioCalculation(wss, lc);
-
+        
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
+        testing(pl);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
@@ -450,7 +453,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs,pl);
         canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);

@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "derating.h": "c"
+        "derating.h": "c",
+        "mathfunctions.h": "c"
     }
 }
