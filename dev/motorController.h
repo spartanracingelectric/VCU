@@ -127,4 +127,8 @@ void MCM_parseCanMessage(MotorController* mcm, IO_CAN_DATA_FRAME* mcmCanMessage)
 ubyte1 MCM_getStartupStage(MotorController* me);
 void MCM_setStartupStage(MotorController* me, ubyte1 stage);
 
+
+
+sbyte4 MCM_getDCCurrent(MotorController *me);
+sbyte4 MCM_getDCVoltage(MotorController *me);
 #endif // _MOTORCONTROLLER_H

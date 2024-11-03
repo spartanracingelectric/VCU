@@ -799,6 +799,13 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
 sbyte4 MCM_getMotorRPM(MotorController *me){
     return me->motorRPM;
 }
+
+sbyte4 MCM_getDCCurrent(MotorController *me){
+    return me->DC_Current;
+}
+sbyte4 MCM_getDCVoltage(MotorController *me){
+    return me->DC_Voltage;
+}
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
 {   
     sbyte4 FD_Ratio = 3.55; //divide # of rear teeth by number of front teeth
