@@ -27,5 +27,6 @@ ubyte2 swap_uint16(ubyte2 val);
 sbyte2 swap_int16(sbyte2 val);
 ubyte4 swap_uint32(ubyte4 val);
 sbyte4 swap_int32(sbyte4 val);
-
+ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment);
+ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment);
 #endif //  _MATHFUNCTIONS_H
