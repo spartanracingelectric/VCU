@@ -31,10 +31,10 @@ typedef struct _PowerLimit {
 
 //-------------CAN IN ORDER: 512: Power Limit LUT Parameters-----------------------------------------------------
 
-    ubyte2 vFloorRFloor;
-    ubyte2 vFloorRCeiling;
-    ubyte2 vCeilingRFloor;
-    ubyte2 vCeilingRCeiling;
+    ubyte1 vFloorRFloor;
+    ubyte1 vFloorRCeiling;
+    ubyte1 vCeilingRFloor;
+    ubyte1 vCeilingRCeiling;
 
 
 //-------------CAN IN ORDER: 513: Power Limit PID Outputs-----------------------------------------------------
@@ -55,7 +55,7 @@ void POWERLIMIT_setModeParameters(PowerLimit* me);
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID* plPID);
 void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
-ubyte4 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
+ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 PowerLimit* POWERLIMIT_new(); 
 
 /** GETTER FUNCTIONS **/
@@ -66,7 +66,7 @@ sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me);
 ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me);
 ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me);
 //Returns 0xFF if an invalid corner is given
-ubyte2 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
+ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
 sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me);
 
 #endif //_POWERLIMIT_H

@@ -101,43 +101,44 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
         sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
         //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
-        sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
+        sbyte2 pidSetpoint = (sbyte2)POWERLIMIT_calculateTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
 
         // If the LUT gives a bad value this is our catch all
         if(pidSetpoint == -1){
             pidSetpoint = (me->plTargetPower *  9549 / MCM_getMotorRPM(mcm)) / 100; 
         }
-        if(pidSetpoint > 2310)
+        if(pidSetpoint > 231)
         {
-            pidSetpoint = 2310;
+            pidSetpoint = 231;
         }
-        ubyte2 commandedTorque = MCM_getCommandedTorque(mcm) * 10; //LUT outputs and PID inputs/output are in dNm
+        ubyte2 commandedTorque = MCM_getCommandedTorque(mcm);
 
         PID_updateSetpoint(plPID, pidSetpoint);
         sbyte2 pidOutput =  PID_computeOutput(plPID, commandedTorque);
-        sbyte2 torqueRequest = (sbyte2)commandedTorque + pidOutput;
-
+        sbyte2 torqueRequest = ((sbyte2)commandedTorque) + pidOutput;
+        torqueRequest = torqueRequest *10;
         me->pidOutput = pidOutput;
         me->plTorqueCommand = torqueRequest;
-        MCM_update_PL_setTorqueCommand(mcm, POWERLIMIT_getTorqueCommand(me));
-        MCM_set_PL_updateStatus(mcm, POWERLIMIT_getStatus(me));
+        MCM_update_PL_setTorqueCommand(mcm, torqueRequest);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
     else {
         me->plStatus = FALSE;
         MCM_update_PL_setTorqueCommand(mcm, 0);
-        MCM_set_PL_updateStatus(mcm, POWERLIMIT_getStatus(me));
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
 }
 
-ubyte4 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTable, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
     // LUT Lower Bounds
     ubyte4 VOLTAGE_MIN      = 280;
     ubyte4 RPM_MIN          = 2000;
 
+    
     // Calculating hashtable keys
-    ubyte4 rpmInput         = rpm - RPM_MIN;
-    ubyte4 voltageInput     = voltage - VOLTAGE_MIN;
+    ubyte4 rpmInput         = (ubyte4)rpm - RPM_MIN;
+    ubyte4 voltageInput     = (ubyte4)voltage - VOLTAGE_MIN;
     ubyte4 voltageFloor     = ubyte4_lowerStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
     ubyte4 voltageCeiling   = ubyte4_upperStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
     ubyte4 rpmFloor         = ubyte4_lowerStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
@@ -156,14 +157,14 @@ ubyte4 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashTa
     me->vCeilingRCeiling = HashTable_getValue(torqueHashTable, voltageCeiling, rpmCeiling);
 
     // Calculate interpolation values
-    ubyte2 stepDivider          = VOLTAGE_STEP          * RPM_STEP;
-    ubyte4 torqueFloorFloor     = me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
-    ubyte4 torqueFloorCeiling   = me->vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
-    ubyte4 torqueCeilingFloor   = me->vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
-    ubyte4 torqueCeilingCeiling = me->vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
+    ubyte4 stepDivider          = (ubyte4)VOLTAGE_STEP          * RPM_STEP;
+    ubyte4 torqueFloorFloor     = (ubyte4)me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
+    ubyte4 torqueFloorCeiling   = (ubyte4)me->vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
+    ubyte4 torqueCeilingFloor   = (ubyte4)me->vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
+    ubyte4 torqueCeilingCeiling = (ubyte4)me->vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
 
     // Final TQ from LUT
-    return (torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider;
+    return (ubyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
 
 void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
@@ -370,39 +371,39 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
     const ubyte1 NUM_V = 26;
     const ubyte1 NUM_S = 26;
 
-                const ubyte2 POWER_LIM_LUT_80[26][26] = {
-                {2357, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {2265, 2299, 2343, 2385, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {2039, 2147, 2218, 2288, 2332, 2372, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {1880, 1964, 2055, 2146, 2224, 2270, 2321, 2360, 2395, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {1722, 1804, 1855, 1966, 2039, 2132, 2223, 2269, 2312, 2348, 2388, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {1560, 1642, 1731, 1819, 1896, 1968, 2038, 2131, 2209, 2268, 2310, 2392, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {1426, 1509, 1589, 1669, 1754, 1832, 1908, 1970, 2038, 2129, 2209, 2318, 2386, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399, 2399},
-                {1308, 1379, 1466, 1553, 1609, 1701, 1777, 1851, 1915, 2001, 2073, 2224, 2317, 2373, 2377, 2380, 2381, 2382, 2383, 2385, 2384, 2384, 2384, 2384, 2384, 2384},
-                {1177, 1261, 1343, 1425, 1495, 1577, 1644, 1716, 1789, 1855, 1927, 2106, 2211, 2265, 2265, 2268, 2270, 2271, 2272, 2272, 2273, 2273, 2273, 2273, 2273, 2273},
-                {1065, 1149, 1229, 1308, 1370, 1445, 1530, 1595, 1669, 1720, 1805, 1964, 2107, 2160, 2163, 2166, 2167, 2169, 2170, 2171, 2171, 2172, 2172, 2172, 2172, 2172},
-                {951, 1036, 1117, 1197, 1263, 1341, 1413, 1472, 1554, 1621, 1699, 1854, 1971, 2058, 2070, 2072, 2075, 2076, 2077, 2078, 2079, 2079, 2080, 2078, 2078, 2078},
-                {839, 926, 1008, 1090, 1167, 1238, 1308, 1377, 1431, 1508, 1589, 1747, 1861, 1954, 1984, 1986, 1988, 1990, 1991, 1992, 1993, 1993, 1994, 1994, 1994, 1994},
-                {726, 818, 898, 977, 1058, 1133, 1193, 1265, 1340, 1398, 1469, 1633, 1764, 1858, 1904, 1907, 1908, 1911, 1912, 1913, 1914, 1915, 1914, 1915, 1915, 1916},
-                {611, 708, 794, 880, 959, 1035, 1103, 1174, 1232, 1308, 1382, 1539, 1661, 1777, 1823, 1833, 1864, 1837, 1839, 1839, 1840, 1841, 1843, 1842, 1842, 1842},
-                {481, 595, 687, 778, 857, 934, 1007, 1077, 1144, 1209, 1276, 1427, 1565, 1675, 1746, 1765, 1767, 1770, 1770, 1770, 1772, 1773, 1774, 1774, 1774, 1775},
-                {337, 472, 572, 672, 760, 838, 913, 987, 1056, 1118, 1192, 1343, 1459, 1588, 1667, 1697, 1703, 1705, 1706, 1708, 1707, 1710, 1710, 1711, 1711, 1712},
-                {119, 325, 446, 566, 657, 739, 819, 893, 963, 1024, 1103, 1248, 1384, 1492, 1592, 1631, 1644, 1647, 1648, 1649, 1650, 1650, 1651, 1652, 1652, 1653},
-                {1, 102, 314, 445, 550, 641, 725, 803, 873, 939, 1011, 1173, 1294, 1399, 1502, 1577, 1590, 1591, 1593, 1593, 1594, 1596, 1596, 1596, 1598, 1598},
-                {1, 1,  82, 303, 432, 537, 626, 706, 783, 853, 932, 1085, 1210, 1315, 1419, 1508, 1531, 1539, 1540, 1541, 1543, 1544, 1545, 1545, 1546, 1546},
-                {1, 1, 1, 61, 290, 421, 524, 614, 693, 769, 849, 1006, 1134, 1234, 1340, 1428, 1477, 1490, 1493, 1493, 1495, 1496, 1497, 1493, 1497, 1498},
-                {1, 1, 1, 1, 35, 279, 410, 511, 600, 679, 763, 926, 1057, 1168, 1264, 1351, 1431, 1442, 1447, 1448, 1449, 1450, 1450, 1463, 1451, 1452},
-                {1, 1, 1, 1, 1, 1, 270, 397, 500, 586, 675, 849, 980, 1085, 1189, 1266, 1358, 1393, 1403, 1404, 1405, 1406, 1407, 1408, 1408, 1409},
-                {1, 1, 1, 1, 1, 1, 1, 258, 388, 489, 588, 769, 899, 1015, 1113, 1202, 1276, 1346, 1361, 1364, 1365, 1365, 1367, 1367, 1368, 1369},
-                {1, 1, 1, 1, 1, 1, 1, 1, 247, 378, 491, 687, 826, 939, 1039, 1132, 1210, 1291, 1317, 1335, 1327, 1327, 1328, 1328, 1330, 1330},
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 238, 383, 603, 751, 869, 971, 1059, 1142, 1217, 1280, 1292, 1290, 1291, 1292, 1293, 1292, 1294},
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 249, 514, 676, 796, 901, 993, 1074, 1152, 1221, 1246, 1256, 1258, 1257, 1258, 1259, 1259}};
+    const ubyte1 POWER_LIM_LUT_80[26][26] = {
+        {231, 231, 199, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {222, 229, 180, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {205, 214, 161, 228, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {187, 198, 146, 214, 221, 227, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {172, 180, 130, 198, 205, 214, 221, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {157, 166, 117, 182, 189, 198, 205, 213, 218, 226, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {144, 152, 103, 168, 175, 183, 190, 199, 205, 213, 218, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {131, 138, 90, 154, 161, 170, 177, 184, 193, 199, 207, 221, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231, 231},
+        {118, 126, 77, 141, 150, 157, 164, 171, 179, 185, 192, 208, 221, 226, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227},
+        {106, 114, 63, 131, 138, 145, 153, 159, 167, 173, 180, 198, 209, 216, 216, 217, 217, 217, 217, 216, 217, 217, 217, 217, 217, 217},
+        {95, 104, 48, 120, 127, 133, 140, 148, 155, 162, 169, 185, 199, 205, 207, 207, 207, 208, 208, 208, 208, 208, 208, 208, 208, 208},
+        {84, 93, 32, 109, 116, 123, 131, 137, 144, 151, 157, 174, 186, 197, 198, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199},
+        {73, 81, 0, 98, 106, 113, 121, 127, 134, 139, 147, 164, 176, 186, 190, 191, 191, 191, 191, 191, 191, 192, 191, 191, 192, 192},
+        {61, 71, 0, 88, 95, 103, 110, 117, 124, 131, 138, 153, 166, 177, 182, 183, 184, 184, 184, 184, 184, 184, 184, 184, 184, 184},
+        {48, 59, 0, 77, 86, 94, 101, 108, 115, 120, 128, 144, 157, 166, 175, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177},
+        {34, 47, 0, 67, 76, 84, 91, 99, 105, 111, 119, 135, 147, 157, 170, 170, 170, 171, 171, 171, 171, 171, 171, 171, 171, 171},
+        {12, 33, 0, 56, 66, 74, 82, 89, 96, 103, 110, 126, 138, 150, 159, 164, 164, 165, 165, 165, 165, 165, 165, 165, 165, 165},
+        {0, 10, 0, 44, 55, 64, 72, 80, 88, 94, 102, 117, 129, 139, 150, 156, 159, 159, 159, 159, 159, 160, 160, 160, 160, 160},
+        {0, 0, 0, 30, 43, 54, 63, 71, 78, 86, 93, 109, 120, 132, 141, 151, 153, 154, 154, 154, 154, 154, 154, 154, 155, 155},
+        {0, 0, 0, 6, 29, 42, 52, 61, 69, 77, 85, 101, 113, 125, 134, 142, 148, 149, 149, 150, 149, 150, 150, 150, 150, 150},
+        {0, 0, 0, 0, 4, 28, 41, 51, 60, 68, 76, 93, 105, 117, 126, 135, 142, 144, 145, 145, 145, 145, 145, 145, 145, 142},
+        {0, 0, 0, 0, 0, 0, 27, 40, 50, 59, 68, 85, 98, 109, 119, 127, 136, 139, 140, 140, 141, 141, 141, 141, 141, 141},
+        {0, 0, 0, 0, 0, 0, 0, 26, 39, 49, 59, 77, 90, 101, 111, 120, 128, 134, 136, 136, 137, 137, 137, 137, 137, 137},
+        {0, 0, 0, 0, 0, 0, 0, 0, 25, 38, 49, 68, 83, 94, 104, 113, 121, 129, 132, 132, 133, 133, 133, 133, 133, 133},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 38, 60, 75, 87, 97, 106, 115, 121, 127, 129, 129, 129, 129, 129, 129, 129},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 51, 67, 80, 90, 99, 107, 115, 122, 125, 126, 126, 126, 126, 126, 126}};
 
     for(ubyte1 row = 0; row < NUM_S; ++row) {
         for(ubyte1 column = 0; column < NUM_V; ++column) {
             ubyte2 voltage = VOLTAGE_MIN + column * VOLTAGE_STEP;
             ubyte2 rpm   = RPM_MIN + row * RPM_STEP;
-            ubyte2 value = POWER_LIM_LUT_80[row][column];
+            ubyte1 value = POWER_LIM_LUT_80[row][column];
             HashTable_insertPair(table, voltage, rpm, value);
         }
     }
@@ -440,7 +441,7 @@ ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me){
     return me->plInitializationThreshold;
 }
 
-ubyte2 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
+ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
     // corner cases:
     // 1 - lowerX lowerY
     // 2 - lowerX lowerY

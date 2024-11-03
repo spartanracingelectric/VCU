@@ -19,7 +19,7 @@ typedef struct _PID {
     sbyte2 setpoint;         // Target       value
     sbyte2 previousError;
     sbyte2 totalError;
-    sbyte1 dH;               // Time interval between PID updates in seconds (VCU tick speed)
+    sbyte2 dH;               // Time interval between PID updates in seconds (VCU tick speed)
     sbyte2 output;
 }PID;
 
@@ -36,7 +36,7 @@ sbyte1 PID_getKp(PID *pid);
 sbyte1 PID_getKi(PID *pid);
 sbyte1 PID_getKd(PID *pid);
 sbyte2 PID_getSetpoint(PID *pid);
-sbyte4 PID_getTotalError(PID* pid);
+sbyte2 PID_getTotalError(PID* pid);
 sbyte2 PID_getOutput(PID* pid);
 
 #endif //_PID_H

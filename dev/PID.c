@@ -48,12 +48,12 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 sbyte2 PID_computeOutput(PID *pid, ubyte2 sensorValue) {
     sbyte2 currentError =  (sbyte2)(pid->setpoint - sensorValue);
-    sbyte4 proportional =  (pid->Kp * currentError) / 10; //proportional
-    sbyte4 integral     =  (pid->Ki * (pid->totalError + currentError) / (sbyte4)pid->dH) / 10; //integral
-    sbyte4 derivative   =  (pid->Kd * (currentError - pid->previousError) * pid->dH) / 10; //derivative
+    sbyte2 proportional =  (pid->Kp * currentError) / 10; //proportional
+    sbyte2 integral     =  (pid->Ki * (pid->totalError + currentError) / pid->dH) / 10; //integral
+    sbyte2 derivative   =  (pid->Kd * (currentError - pid->previousError) * pid->dH) / 10; //derivative
     pid->previousError  = currentError;
     pid->totalError    += currentError;
-    pid->output = (sbyte2)(proportional + integral + derivative); //divide by 10 because Kp & Ki & Kd are in deci- units to preserve complete accuracy for the tenth's place
+    pid->output = (proportional + integral + derivative); //divide by 10 because Kp & Ki & Kd are in deci- units to preserve complete accuracy for the tenth's place
     return pid->output;
 }
 
