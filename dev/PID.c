@@ -47,9 +47,9 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 }
 
 sbyte2 PID_computeOutput(PID *pid, ubyte2 sensorValue) {
-    sbyte4 currentError =  (sbyte4)pid->setpoint - (sbyte4)sensorValue;
+    sbyte4 currentError =  (sbyte4)(pid->setpoint - sensorValue);
     sbyte4 proportional =  (pid->Kp * currentError) / 10; //proportional
-    sbyte4 integral     =  (pid->Ki * (pid->totalError + currentError) / pid->dH) / 10; //integral
+    sbyte4 integral     =  (pid->Ki * (pid->totalError + currentError) / (sbyte4)pid->dH) / 10; //integral
     sbyte4 derivative   =  (pid->Kd * (currentError - pid->previousError) * pid->dH) / 10; //derivative
     pid->previousError  = currentError;
     pid->totalError    += currentError;

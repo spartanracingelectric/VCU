@@ -214,7 +214,7 @@ void main(void)
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -224,7 +224,7 @@ void main(void)
     LaunchControl *lc = LaunchControl_new();
 
     DRS *drs = DRS_new();
-    PowerLimit *pl = POWERLIMIT_new(); 
+    PowerLimit *pl = POWERLIMIT_new();
     PID *lcPID = PID_new(200,0,0,0);
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------

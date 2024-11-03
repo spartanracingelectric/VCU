@@ -822,8 +822,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
-    
 
+// #define ELIMINATE_CAN_MESSAGES
+#ifdef ELIMINATE_CAN_MESSAGES
  //511: Power Limit Overview
    canMessageCount++;
     byteNum = 0;
@@ -868,7 +869,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getKp(pl->pid);
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getKi(pl->pid);
     canMessages[canMessageCount - 1].length = byteNum;
-
+#endif
 
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
 

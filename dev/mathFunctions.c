@@ -122,10 +122,3 @@ ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
     ubyte4 temp = ubyte4_lowerStepInterval(value, increment);
     return (temp == value?temp:temp + increment);
 }
-float4 float4_lowerStepInterval(float4 value, float4 increment) {
-    return value - (float4)fmod(value,increment);
-}
-float4 float4_upperStepInterval(float4 value, float4 increment) {
-    float4 temp = float4_lowerStepInterval(value, increment);
-    return (temp == value?temp:temp + increment);
-}
