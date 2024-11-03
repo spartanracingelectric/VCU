@@ -223,7 +223,7 @@ void main(void)
     LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new();
-    PID *pid = PID_new(1,0,0,0);
+    PID *pid = PID_new(3,0,0,0);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
