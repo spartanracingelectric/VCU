@@ -25,7 +25,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(20, 0, 0, 0);
+    // me->pid = PID_new(20, 0, 0, 0);
 
     me->plMode = 1;
     me->hashtable = HashTable_new();
@@ -85,7 +85,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
     */
 }
 
-void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
+void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID* plPID){
     
     //if(rotary_button_input != plMode)
     POWERLIMIT_setModeParameters(me);
@@ -113,8 +113,8 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me){
         }
         ubyte2 commandedTorque = MCM_getCommandedTorque(mcm) * 10; //LUT outputs and PID inputs/output are in dNm
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
-        sbyte2 pidOutput =  PID_computeOutput(me->pid, commandedTorque);
+        PID_updateSetpoint(plPID, pidSetpoint);
+        sbyte2 pidOutput =  PID_computeOutput(plPID, commandedTorque);
         sbyte2 torqueRequest = (sbyte2)commandedTorque + pidOutput;
 
         me->pidOutput = pidOutput;

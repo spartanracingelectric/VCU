@@ -226,6 +226,8 @@ void main(void)
     DRS *drs = DRS_new();
     PowerLimit *pl = POWERLIMIT_new();
     PID *lcPID = PID_new(200,0,0,0);
+    PID *plPID = PID_new(200,0,0,0);
+
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -432,8 +434,8 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        PID_updateGainValues(pl->pid,12,0,0);
-        POWERLIMIT_calculateTorqueCommand(mcm0, pl);
+        PID_updateGainValues(plPID,12,0,0);
+        POWERLIMIT_calculateTorqueCommand(mcm0, pl, plPID);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
