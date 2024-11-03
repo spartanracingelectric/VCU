@@ -1,0 +1,1147 @@
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/serial.c:29:64: warning: passing 'const ubyte1 *' (aka 'const unsigned char *') to parameter of type 'const char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, data, strlen(data), &me->size);
+                                                               ^~~~
+/usr/include/string.h:407:35: note: passing argument to parameter '__s' here
+extern size_t strlen (const char *__s)
+                                  ^
+/home/runner/work/VCU/VCU/dev/serial.c:36:5: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+    sprintf(&temp, message, dataValue);
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.c:36:5: note: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11
+    sprintf(&temp, message, dataValue);
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.c:36:13: warning: incompatible pointer types passing 'ubyte1 *(*)[64]' (aka 'unsigned char *(*)[64]') to parameter of type 'char *' [clang-diagnostic-incompatible-pointer-types]
+    sprintf(&temp, message, dataValue);
+            ^~~~~
+/usr/include/stdio.h:358:38: note: passing argument to parameter '__s' here
+extern int sprintf (char *__restrict __s,
+                                     ^
+/home/runner/work/VCU/VCU/dev/serial.c:36:20: warning: passing 'const ubyte1 *' (aka 'const unsigned char *') to parameter of type 'const char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+    sprintf(&temp, message, dataValue);
+                   ^~~~~~~
+/usr/include/stdio.h:359:30: note: passing argument to parameter '__format' here
+                    const char *__restrict __format, ...) __THROWNL;
+                                           ^
+/home/runner/work/VCU/VCU/dev/serial.c:37:51: warning: incompatible pointer types passing 'ubyte1 *[64]' (aka 'unsigned char *[64]') to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, temp, strlen(temp), &me->size);
+                                                  ^~~~
+inc/IO_UART.h:310:51: note: passing argument to parameter 'data' here
+                           , const ubyte1 * const data
+                                                  ^
+/home/runner/work/VCU/VCU/dev/serial.c:37:64: warning: incompatible pointer types passing 'ubyte1 *[64]' (aka 'unsigned char *[64]') to parameter of type 'const char *' [clang-diagnostic-incompatible-pointer-types]
+    IO_ErrorType err = IO_UART_Write(IO_UART_CH0, temp, strlen(temp), &me->size);
+                                                               ^~~~
+/usr/include/string.h:407:35: note: passing argument to parameter '__s' here
+extern size_t strlen (const char *__s)
+                                  ^
+Error processing dev/serial.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:35:31: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    me->outputCurveExponent = 1.0;
+                              ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:100:43: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
+                                          ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:100:59: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
+                                                          ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:100:78: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
+                                                                             ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:101:43: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+                                          ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:101:59: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+                                                          ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:101:78: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+                                                                             ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:177:30: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            float4 shrink0 = (me->tps0_calibMax - me->tps0_calibMin) * .05;
+                             ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:177:30: warning: narrowing conversion from 'unsigned long' to 'double' [bugprone-narrowing-conversions]
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:178:30: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            float4 shrink1 = (me->tps1_calibMax - me->tps1_calibMin) * .05;
+                             ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:178:30: warning: narrowing conversion from 'unsigned long' to 'double' [bugprone-narrowing-conversions]
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:179:34: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+            me->tps0_calibMin += shrink0;
+                                 ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:180:34: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+            me->tps0_calibMax -= shrink0;
+                                 ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:181:34: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+            me->tps1_calibMin += shrink1;
+                                 ^
+/home/runner/work/VCU/VCU/dev/torqueEncoder.c:182:34: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+            me->tps1_calibMax -= shrink1;
+                                 ^
+Error processing dev/torqueEncoder.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/mathFunctions.c:91:12: warning: narrowing conversion from 'int' to signed type 'sbyte1' (aka 'signed char') is implementation-defined [bugprone-narrowing-conversions]
+    return (val << 4) | (val >> 4);
+           ^
+Error processing dev/mathFunctions.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/drs.h:5:10: error: 'WheelSpeeds.h' file not found [clang-diagnostic-error]
+#include "WheelSpeeds.h"
+         ^~~~~~~~~~~~~~~
+Error processing dev/instrumentCluster.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+Error processing dev/speedEncoder.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/initializations.c:64:31: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+    IO_PWM_SetDuty(IO_PWM_02, .90 * 0xFFFF, NULL); //Pin, 0 - 65535, Feedback Measurement
+                              ^
+/home/runner/work/VCU/VCU/dev/initializations.c:68:31: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+    IO_PWM_SetDuty(IO_PWM_04, 1.00 * 0xFFFF, NULL);    //Default 100%, build up momentum in fans or whatever? Lol
+                              ^
+/home/runner/work/VCU/VCU/dev/initializations.c:176:29: warning: incompatible pointer types passing 'ubyte2 *' (aka 'unsigned int *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+        IO_DI_Get(IO_DI_04, &tempData);
+                            ^~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/initializations.c:177:29: warning: incompatible pointer types passing 'ubyte2 *' (aka 'unsigned int *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+        IO_DI_Get(IO_DI_05, &tempData);
+                            ^~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+Error processing dev/initializations.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/drs.h:5:10: error: 'WheelSpeeds.h' file not found [clang-diagnostic-error]
+#include "WheelSpeeds.h"
+         ^~~~~~~~~~~~~~~
+Error processing dev/main.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+Error processing dev/derating.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/safety.c:119:53: warning: 2 adjacent parameters of 'SafetyChecker_new' of similar type ('ubyte2') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:119:60: note: the first parameter in the range is 'maxChargeAmps'
+SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+                                                           ^~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:119:82: note: the last parameter in the range is 'maxDischargeAmps'
+SafetyChecker *SafetyChecker_new(SerialManager *sm, ubyte2 maxChargeAmps, ubyte2 maxDischargeAmps)
+                                                                                 ^~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:203:43: warning: passing 'char[18]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "TPS signal error\n");
+                                          ^~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:334:43: warning: passing 'char[34]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS over voltage fault detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:345:43: warning: passing 'char[35]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS under voltage fault detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:356:43: warning: passing 'char[38]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS over temperature fault detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:365:10: warning: narrowing conversion from 'unsigned long' to 'float' [bugprone-narrowing-conversions]
+    if ( (BMS_getHighestCellVoltage_mV(bms)-BMS_getLowestCellVoltage_mV(bms)) > (BMS_MAX_CELL_MISMATCH_V*1000) )
+         ^
+/home/runner/work/VCU/VCU/dev/safety.c:368:43: warning: passing 'char[35]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS cell mismatch fault detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:389:39: warning: passing 'char[2]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+    SerialManager_send(me->serialMan, "\n");
+                                      ^~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:403:9: warning: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
+        ^~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:403:9: note: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11
+        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
+        ^~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:403:17: warning: incompatible pointer types passing 'ubyte1 *[50]' (aka 'unsigned char *[50]') to parameter of type 'char *' [clang-diagnostic-incompatible-pointer-types]
+        sprintf(message, "LVS battery %.03fV EXTREMELY LOW!\n", (float4)LVBattery->sensorValue / 1000);
+                ^~~~~~~
+/usr/include/stdio.h:358:38: note: passing argument to parameter '__s' here
+extern int sprintf (char *__restrict __s,
+                                     ^
+/home/runner/work/VCU/VCU/dev/safety.c:404:43: warning: incompatible pointer types passing 'ubyte1 *[50]' (aka 'unsigned char *[50]') to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+        SerialManager_send(me->serialMan, message);
+                                          ^~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:410:9: warning: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
+        ^~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:410:9: note: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11
+        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
+        ^~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:410:17: warning: incompatible pointer types passing 'ubyte1 *[50]' (aka 'unsigned char *[50]') to parameter of type 'char *' [clang-diagnostic-incompatible-pointer-types]
+        sprintf(message, "LVS battery %.03fV LOW.\n", (float4)LVBattery->sensorValue / 1000);
+                ^~~~~~~
+/usr/include/stdio.h:358:38: note: passing argument to parameter '__s' here
+extern int sprintf (char *__restrict __s,
+                                     ^
+/home/runner/work/VCU/VCU/dev/safety.c:411:43: warning: incompatible pointer types passing 'ubyte1 *[50]' (aka 'unsigned char *[50]') to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+        SerialManager_send(me->serialMan, message);
+                                          ^~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:493:9: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float' [bugprone-narrowing-conversions]
+    if (BMS_getLowestCellVoltage_mV(bms) < (BMS_MIN_CELL_VOLTAGE_WARNING*BMS_VOLTAGE_SCALE))
+        ^
+/home/runner/work/VCU/VCU/dev/safety.c:496:43: warning: passing 'char[37]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS under voltage warning detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:504:9: warning: narrowing conversion from 'sbyte2' (aka 'int') to 'float' [bugprone-narrowing-conversions]
+    if (BMS_getHighestCellTemp_d_degC(bms) > (BMS_MAX_CELL_TEMPERATURE_WARNING*BMS_TEMPERATURE_SCALE))
+        ^
+/home/runner/work/VCU/VCU/dev/safety.c:507:43: warning: passing 'char[40]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+        SerialManager_send(me->serialMan, "BMS over temperature warning detected.\n");
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:582:12: warning: Value stored to 'groundSpeedKPH' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
+    sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+           ^~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:582:12: note: Value stored to 'groundSpeedKPH' during its initialization is never read
+    sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+           ^~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/safety.c:582:29: warning: narrowing conversion from 'sbyte4' (aka 'long') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    sbyte2 groundSpeedKPH = MCM_getGroundSpeedKPH(mcm);
+                            ^
+/home/runner/work/VCU/VCU/dev/safety.c:608:42: warning: passing 'char[21]' to parameter of type 'const ubyte1 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [clang-diagnostic-pointer-sign]
+       SerialManager_send(me->serialMan, "HVIL term sense low\n");
+                                         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/serial.h:18:66: note: passing argument to parameter 'data' here
+IO_ErrorType SerialManager_send(SerialManager* me, const ubyte1* data);
+                                                                 ^
+/home/runner/work/VCU/VCU/dev/safety.c:678:36: warning: narrowing conversion from 'float' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+                                   ^
+/home/runner/work/VCU/VCU/dev/safety.c:678:36: warning: narrowing conversion from 'sbyte2' (aka 'int') to 'float' [bugprone-narrowing-conversions]
+Error processing dev/safety.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+Error processing dev/watchdog.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/cooling.c:27:31: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    me->waterPumpMinPercent = 0.2;
+                              ^
+/home/runner/work/VCU/VCU/dev/cooling.c:30:28: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    me->waterPumpPercent = 0.2;
+                           ^
+/home/runner/work/VCU/VCU/dev/cooling.c:55:84: warning: 2 adjacent parameters of 'CoolingSystem_calculationsPump' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:55:91: note: the first parameter in the range is 'motorTemp'
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                          ^~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:55:109: note: the last parameter in the range is 'batteryTemp'
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                                            ^~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:55:84: note: 
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                   ^
+/home/runner/work/VCU/VCU/dev/cooling.c:55:102: note: 'sbyte2' and 'sbyte1' may be implicitly converted: 'sbyte2' (as 'int') -> 'sbyte1' (as 'signed char'), 'sbyte1' (as 'signed char') -> 'sbyte2' (as 'int')
+void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                                     ^
+/home/runner/work/VCU/VCU/dev/cooling.c:58:43: warning: repeated branch in conditional chain [bugprone-branch-clone]
+    if(HVILTermSense->sensorValue == TRUE){
+                                          ^
+/home/runner/work/VCU/VCU/dev/cooling.c:60:6: note: end of the original
+    } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){
+     ^
+/home/runner/work/VCU/VCU/dev/cooling.c:60:106: note: clone 1 starts here
+    } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){
+                                                                                                         ^
+/home/runner/work/VCU/VCU/dev/cooling.c:62:12: note: clone 2 starts here
+    } else {
+           ^
+/home/runner/work/VCU/VCU/dev/cooling.c:67:84: warning: 2 adjacent parameters of 'CoolingSystem_calculationsFans' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:67:91: note: the first parameter in the range is 'motorTemp'
+void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                          ^~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:67:109: note: the last parameter in the range is 'batteryTemp'
+void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                                            ^~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/cooling.c:67:84: note: 
+void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                   ^
+/home/runner/work/VCU/VCU/dev/cooling.c:67:102: note: 'sbyte2' and 'sbyte1' may be implicitly converted: 'sbyte2' (as 'int') -> 'sbyte1' (as 'signed char'), 'sbyte1' (as 'signed char') -> 'sbyte2' (as 'int')
+void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
+                                                                                                     ^
+/home/runner/work/VCU/VCU/dev/cooling.c:70:5: warning: repeated branch in conditional chain [bugprone-branch-clone]
+    {
+    ^
+/home/runner/work/VCU/VCU/dev/cooling.c:72:6: note: end of the original
+    }
+     ^
+/home/runner/work/VCU/VCU/dev/cooling.c:74:5: note: clone 1 starts here
+    {
+    ^
+/home/runner/work/VCU/VCU/dev/cooling.c:78:5: note: clone 2 starts here
+    {
+    ^
+/home/runner/work/VCU/VCU/dev/cooling.c:71:29: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->radFanPercent = 1.0;  //0.9
+                            ^
+/home/runner/work/VCU/VCU/dev/cooling.c:75:29: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->radFanPercent = 1.0; //0.2
+                            ^
+/home/runner/work/VCU/VCU/dev/cooling.c:80:29: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->radFanPercent = 1.0;
+                            ^
+Error processing dev/cooling.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:30:46: warning: 2 adjacent parameters of 'RTDS_setVolume' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
+                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:30:53: note: the first parameter in the range is 'volumePercent'
+void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
+                                                    ^~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:30:75: note: the last parameter in the range is 'timeToPlay'
+void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
+                                                                          ^~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:30:46: note: 
+void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
+                                             ^
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:30:68: note: 'float4' and 'ubyte4' may be implicitly converted: 'float4' (as 'float') -> 'ubyte4' (as 'unsigned long'), 'ubyte4' (as 'unsigned long') -> 'float4' (as 'float')
+void RTDS_setVolume(ReadyToDriveSound *rtds, float4 volumePercent, ubyte4 timeToPlay)
+                                                                   ^
+/home/runner/work/VCU/VCU/dev/readyToDriveSound.c:32:31: warning: narrowing conversion from 'float' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+    IO_PWM_SetDuty(IO_PWM_01, 65535 * volumePercent, NULL);
+                              ^
+Error processing dev/readyToDriveSound.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/canManager.c:83:28: warning: 2 adjacent parameters of 'CanManager_new' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:83:35: note: the first parameter in the range is 'can0_busSpeed'
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                  ^~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:83:57: note: the last parameter in the range is 'can0_read_messageLimit'
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                                        ^~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:83:28: note: 
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                           ^
+/home/runner/work/VCU/VCU/dev/canManager.c:83:50: note: 'ubyte2' and 'ubyte1' may be implicitly converted: 'ubyte2' (as 'unsigned int') -> 'ubyte1' (as 'unsigned char'), 'ubyte1' (as 'unsigned char') -> 'ubyte2' (as 'unsigned int')
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                                 ^
+/home/runner/work/VCU/VCU/dev/canManager.c:83:81: warning: 2 adjacent parameters of 'CanManager_new' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:83:88: note: the first parameter in the range is 'can0_write_messageLimit'
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                                                                       ^~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:84:35: note: the last parameter in the range is 'can1_busSpeed'
+                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
+                                  ^~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:83:81: note: 
+CanManager* CanManager_new(ubyte2 can0_busSpeed, ubyte1 can0_read_messageLimit, ubyte1 can0_write_messageLimit
+                                                                                ^
+/home/runner/work/VCU/VCU/dev/canManager.c:84:28: note: 'ubyte1' and 'ubyte2' may be implicitly converted: 'ubyte1' (as 'unsigned char') -> 'ubyte2' (as 'unsigned int'), 'ubyte2' (as 'unsigned int') -> 'ubyte1' (as 'unsigned char')
+                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
+                           ^
+/home/runner/work/VCU/VCU/dev/canManager.c:84:81: warning: 2 adjacent parameters of 'CanManager_new' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
+                                                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:84:88: note: the first parameter in the range is 'can1_write_messageLimit'
+                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
+                                                                                       ^~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:85:35: note: the last parameter in the range is 'defaultSendDelayus'
+                         , ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
+                                  ^~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/canManager.c:84:81: note: 
+                         , ubyte2 can1_busSpeed, ubyte1 can1_read_messageLimit, ubyte1 can1_write_messageLimit
+                                                                                ^
+/home/runner/work/VCU/VCU/dev/canManager.c:85:28: note: 'ubyte1' and 'ubyte4' may be implicitly converted: 'ubyte1' (as 'unsigned char') -> 'ubyte4' (as 'unsigned long'), 'ubyte4' (as 'unsigned long') -> 'ubyte1' (as 'unsigned char')
+                         , ubyte4 defaultSendDelayus, SerialManager* serialMan) //ubyte4 defaultMinSendDelay, ubyte4 defaultMaxSendDelay)
+                           ^
+/home/runner/work/VCU/VCU/dev/canManager.c:349:9: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
+        case 0xA0:
+        ^
+/home/runner/work/VCU/VCU/dev/canManager.c:359:64: note: last of these clones ends here
+            MCM_parseCanMessage(mcm, &canMessages[currMessage]);
+                                                               ^
+/home/runner/work/VCU/VCU/dev/canManager.c:374:9: warning: switch has 4 consecutive identical branches [bugprone-branch-clone]
+        case 0x600:
+        ^
+/home/runner/work/VCU/VCU/dev/canManager.c:428:18: note: last of these clones ends here
+            break;
+                 ^
+/home/runner/work/VCU/VCU/dev/canManager.c:430:9: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
+        case 0x702:
+        ^
+/home/runner/work/VCU/VCU/dev/canManager.c:438:18: note: last of these clones ends here
+            break;
+                 ^
+/home/runner/work/VCU/VCU/dev/canManager.c:501:19: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    tps0Percent = 0xFF * tempPedalPercent;
+                  ^
+/home/runner/work/VCU/VCU/dev/canManager.c:503:19: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    tps1Percent = 0xFF * (tempPedalPercent);
+                  ^
+/home/runner/work/VCU/VCU/dev/canManager.c:507:30: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    ubyte1 throttlePercent = 0xFF * tempPedalPercent;
+                             ^
+/home/runner/work/VCU/VCU/dev/canManager.c:510:27: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    ubyte1 brakePercent = 0xFF * tempPedalPercent;
+                          ^
+/home/runner/work/VCU/VCU/dev/canManager.c:562:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeed(wss, FL) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:564:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeed(wss, FR) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:566:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeed(wss, RL) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:568:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeed(wss, RR) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:577:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, FALSE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:579:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, FALSE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:581:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, FALSE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:583:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, FALSE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:625:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:627:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FR, TRUE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:629:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RL, TRUE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:631:56: warning: casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead [bugprone-incorrect-roundings]
+    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
+                                                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:653:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .0 + .1 * getPercent(Sensor_LVBattery.sensorValue, 9200, 12730, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:653:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .0 + .1 * getPercent(Sensor_LVBattery.sensorValue, 9200, 12730, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:655:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .1 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12730, 12866, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:655:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .1 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12730, 12866, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:657:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .2 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12866, 12996, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:657:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .2 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12866, 12996, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:659:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .3 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12996, 13104, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:659:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .3 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12996, 13104, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:661:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .4 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13104, 13116, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:661:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .4 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13104, 13116, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:663:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .5 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13116, 13130, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:663:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .5 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13116, 13130, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:665:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .6 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13130, 13160, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:665:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .6 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13130, 13160, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:667:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .7 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13160, 13270, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:667:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .7 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13160, 13270, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:669:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .8 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:669:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .8 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:671:24: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .9 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE);
+                       ^
+/home/runner/work/VCU/VCU/dev/canManager.c:671:45: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        LVBatterySOC = .9 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE);
+                                            ^
+/home/runner/work/VCU/VCU/dev/canManager.c:672:36: warning: narrowing conversion from 'double' to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+    Sensor_LVBattery.sensorValue = Sensor_LVBattery.sensorValue + 0.46;
+                                   ^
+/home/runner/work/VCU/VCU/dev/canManager.c:672:36: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'double' [bugprone-narrowing-conversions]
+/home/runner/work/VCU/VCU/dev/canManager.c:867:19: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    tps0Percent = 0xFF * tempPedalPercent;
+                  ^
+/home/runner/work/VCU/VCU/dev/canManager.c:869:19: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    tps1Percent = 0xFF * (tempPedalPercent);
+                  ^
+/home/runner/work/VCU/VCU/dev/canManager.c:873:30: warning: narrowing conversion from 'float' to 'ubyte1' (aka 'unsigned char') [bugprone-narrowing-conversions]
+    ubyte1 throttlePercent = 0xFF * tempPedalPercent;
+                             ^
+/home/runner/work/VCU/VCU/dev/drs.h:5:10: error: 'WheelSpeeds.h' file not found [clang-diagnostic-error]
+#include "WheelSpeeds.h"
+         ^~~~~~~~~~~~~~~
+Error processing dev/canManager.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/sensorCalculations.c:336:22: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to signed type 'sbyte4' (aka 'long') is implementation-defined [bugprone-narrowing-conversions]
+    sbyte4 voltage = Sensor_SAS.sensorValue;
+                     ^
+Error processing dev/sensorCalculations.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:33:27: warning: narrowing conversion from 'double' to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+    Sensor_BPS0.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+                          ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:34:27: warning: narrowing conversion from 'double' to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+    Sensor_BPS1.specMin = 450 - (4000 * .005); // 450 - (4000 * .005);
+                          ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:37:27: warning: narrowing conversion from 'double' to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+    Sensor_BPS0.specMax = 4500 + (4000 * .0025);
+                          ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:38:27: warning: narrowing conversion from 'double' to 'ubyte4' (aka 'unsigned long') [bugprone-narrowing-conversions]
+    Sensor_BPS1.specMax = 4500 + (4000 * .0025);
+                          ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:76:39: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
+                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:76:55: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
+                                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:76:74: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
+                                                                         ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:77:39: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
+                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:77:55: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
+                                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:77:74: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
+                                                                         ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:96:36: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            Light_set(Light_brake, .20);
+                                   ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:100:36: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            Light_set(Light_brake, .30);
+                                   ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:182:35: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            float4 pedalTopPlay = 1.05;
+                                  ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:183:38: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+            float4 pedalBottomPlay = .95;
+                                     ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:185:53: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps0_calibMin *= me->bps0_reverse ? pedalBottomPlay : pedalTopPlay;
+                                                    ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:185:71: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps0_calibMin *= me->bps0_reverse ? pedalBottomPlay : pedalTopPlay;
+                                                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:186:53: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps0_calibMax *= me->bps0_reverse ? pedalTopPlay : pedalBottomPlay;
+                                                    ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:186:68: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps0_calibMax *= me->bps0_reverse ? pedalTopPlay : pedalBottomPlay;
+                                                                   ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:187:53: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps1_calibMin *= me->bps1_reverse ? pedalBottomPlay : pedalTopPlay;
+                                                    ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:187:71: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps1_calibMin *= me->bps1_reverse ? pedalBottomPlay : pedalTopPlay;
+                                                                      ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:188:53: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps1_calibMax *= me->bps1_reverse ? pedalTopPlay : pedalBottomPlay;
+                                                    ^
+/home/runner/work/VCU/VCU/dev/brakePressureSensor.c:188:68: warning: narrowing conversion from 'float4' (aka 'float') to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->bps1_calibMax *= me->bps1_reverse ? pedalTopPlay : pedalBottomPlay;
+                                                                   ^
+Error processing dev/brakePressureSensor.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:38:59: warning: 2 adjacent parameters of 'WheelSpeeds_new' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:38:66: note: the first parameter in the range is 'tireDiameterInches_R'
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+                                                                 ^~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:38:95: note: the last parameter in the range is 'pulsesPerRotation_F'
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+                                                                                              ^~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:38:59: note: 
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+                                                          ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:38:88: note: 'float4' and 'ubyte1' may be implicitly converted: 'float4' (as 'float') -> 'ubyte1' (as 'unsigned char'), 'ubyte1' (as 'unsigned char') -> 'float4' (as 'float')
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+                                                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:43:37: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    me->tireCircumferenceMeters_F = 3.14159 * (.0254 * tireDiameterInches_F);
+                                    ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:44:37: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    me->tireCircumferenceMeters_R = 3.14159 * (.0254 * tireDiameterInches_R);
+                                    ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:63:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue / me->pulsesPerRotation_F;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:64:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue / me->pulsesPerRotation_F;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:65:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue / me->pulsesPerRotation_R;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:66:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue / me->pulsesPerRotation_R;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:70:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.sensorValue / me->pulsesPerRotation_F;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:71:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.sensorValue / me->pulsesPerRotation_F;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:72:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.sensorValue / me->pulsesPerRotation_R;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:73:56: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue / me->pulsesPerRotation_R;
+                                                       ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:155:12: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'float' [bugprone-narrowing-conversions]
+    return speed*60.0f/NUM_BUMPS;
+           ^
+/home/runner/work/VCU/VCU/dev/wheelSpeeds.c:194:12: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    return (WheelSpeeds_getGroundSpeed(me, tire_config) * 3.6); //m/s to kph
+           ^
+Error processing dev/wheelSpeeds.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/sensors.c:68:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_TPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_00, &Sensor_TPS0.sensorValue, &Sensor_TPS0.fresh);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:69:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_TPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_01, &Sensor_TPS1.sensorValue, &Sensor_TPS1.fresh);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:74:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_BPS0.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_02, &Sensor_BPS0.sensorValue, &Sensor_BPS0.fresh);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:75:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_BPS1.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_03, &Sensor_BPS1.sensorValue, &Sensor_BPS1.fresh);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:132:66: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_WSS_FL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_10, &Sensor_WSS_FL.sensorValue, &pulseTrash, NULL);
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_PWD.h:535:48: note: passing argument to parameter 'frequency' here
+                              , ubyte2 * const frequency
+                                               ^
+/home/runner/work/VCU/VCU/dev/sensors.c:133:66: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_WSS_FR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_08, &Sensor_WSS_FR.sensorValue, &pulseTrash, NULL);
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_PWD.h:535:48: note: passing argument to parameter 'frequency' here
+                              , ubyte2 * const frequency
+                                               ^
+/home/runner/work/VCU/VCU/dev/sensors.c:134:66: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_WSS_RL.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_09, &Sensor_WSS_RL.sensorValue, &pulseTrash, NULL);
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_PWD.h:535:48: note: passing argument to parameter 'frequency' here
+                              , ubyte2 * const frequency
+                                               ^
+/home/runner/work/VCU/VCU/dev/sensors.c:135:66: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_WSS_RR.ioErr_signalGet = IO_PWD_ComplexGet(IO_PWD_11, &Sensor_WSS_RR.sensorValue, &pulseTrash, NULL);
+                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_PWD.h:535:48: note: passing argument to parameter 'frequency' here
+                              , ubyte2 * const frequency
+                                               ^
+/home/runner/work/VCU/VCU/dev/sensors.c:138:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_RTDButton.ioErr_signalGet = IO_DI_Get(IO_DI_00, &Sensor_RTDButton.sensorValue);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:139:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_EcoButton.ioErr_signalGet = IO_DI_Get(IO_DI_01, &Sensor_EcoButton.sensorValue);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:141:59: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_LCButton.ioErr_signalGet = IO_DI_Get(IO_DI_03, &Sensor_LCButton.sensorValue);
+                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:142:71: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_HVILTerminationSense.ioErr_signalGet = IO_DI_Get(IO_DI_07, &Sensor_HVILTerminationSense.sensorValue);
+                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:143:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_DRSButton.ioErr_signalGet = IO_DI_Get(IO_DI_04, &Sensor_DRSButton.sensorValue);
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:144:60: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'bool *' (aka 'unsigned char *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_TestButton.ioErr_signalGet= IO_DI_Get(IO_DI_02, &Sensor_TestButton.sensorValue); // ! unoccupied
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_DIO.h:221:38: note: passing argument to parameter 'di_value' here
+                      , bool * const di_value );
+                                     ^
+/home/runner/work/VCU/VCU/dev/sensors.c:148:64: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_LVBattery.ioErr_signalGet = IO_ADC_Get(IO_ADC_UBAT, &Sensor_LVBattery.sensorValue, &Sensor_LVBattery.fresh);
+                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:150:59: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_SAS.ioErr_signalGet = IO_ADC_Get(IO_ADC_5V_04, &Sensor_SAS.sensorValue, &Sensor_SAS.fresh);
+                                                          ^~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:153:64: warning: incompatible pointer types passing 'ubyte4 *' (aka 'unsigned long *') to parameter of type 'ubyte2 *' (aka 'unsigned int *') [clang-diagnostic-incompatible-pointer-types]
+    Sensor_DRSKnob.ioErr_signalGet = IO_ADC_Get(IO_ADC_VAR_00, &Sensor_DRSKnob.sensorValue, &Sensor_DRSKnob.fresh);
+                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+inc/IO_ADC.h:388:41: note: passing argument to parameter 'adc_value' here
+                       , ubyte2 * const adc_value
+                                        ^
+/home/runner/work/VCU/VCU/dev/sensors.c:156:16: warning: 2 adjacent parameters of 'Light_set' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+void Light_set(Light light, float4 percent)
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/sensors.c:156:22: note: the first parameter in the range is 'light'
+void Light_set(Light light, float4 percent)
+                     ^~~~~
+/home/runner/work/VCU/VCU/dev/sensors.c:156:36: note: the last parameter in the range is 'percent'
+void Light_set(Light light, float4 percent)
+                                   ^~~~~~~
+/home/runner/work/VCU/VCU/dev/sensors.c:156:16: note: 
+void Light_set(Light light, float4 percent)
+               ^
+/home/runner/work/VCU/VCU/dev/sensors.c:156:29: note: 'Light' and 'float4' may be implicitly converted: 'Light' -> 'float4' (as 'float'), 'float4' (as 'float') -> 'Light'
+void Light_set(Light light, float4 percent)
+                            ^
+/home/runner/work/VCU/VCU/dev/sensors.c:158:19: warning: narrowing conversion from 'float' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+    ubyte2 duty = 65535 * percent; //For Cooling_RadFans
+                  ^
+/home/runner/work/VCU/VCU/dev/sensors.c:178:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+    case Cooling_batteryFans:
+    ^
+/home/runner/work/VCU/VCU/dev/sensors.c:186:14: note: last of these clones ends here
+        break;
+             ^
+Error processing dev/sensors.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/drs.h:5:10: error: 'WheelSpeeds.h' file not found [clang-diagnostic-error]
+#include "WheelSpeeds.h"
+         ^~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/motorController.c:138:57: warning: 5 adjacent parameters of 'MotorController_new' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/motorController.c:138:64: note: the first parameter in the range is 'canMessageBaseID'
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                               ^~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/motorController.c:138:165: note: the last parameter in the range is 'regenRampdownStartSpeed'
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                                                                                    ^~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/motorController.c:138:57: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                        ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:82: note: 'ubyte2' and 'Direction' may be implicitly converted: 'ubyte2' (as 'unsigned int') -> 'Direction', 'Direction' -> 'ubyte2' (as 'unsigned int')
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                 ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:57: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                        ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:110: note: 'ubyte2' and 'sbyte2' may be implicitly converted: 'ubyte2' (as 'unsigned int') -> 'sbyte2' (as 'int'), 'sbyte2' (as 'int') -> 'ubyte2' (as 'unsigned int')
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:82: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                 ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:110: note: 'Direction' and 'sbyte2' may be implicitly converted: 'Direction' -> 'sbyte2' (as 'int'), 'sbyte2' (as 'int') -> 'Direction'
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:57: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                        ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:133: note: 'ubyte2' and 'sbyte1' may be implicitly converted: 'ubyte2' (as 'unsigned int') -> 'sbyte1' (as 'signed char'), 'sbyte1' (as 'signed char') -> 'ubyte2' (as 'unsigned int')
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                                                    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:82: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                 ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:133: note: 'Direction' and 'sbyte1' may be implicitly converted: 'Direction' -> 'sbyte1' (as 'signed char'), 'sbyte1' (as 'signed char') -> 'Direction'
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                                                    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:110: note: 
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:138:133: note: 'sbyte2' and 'sbyte1' may be implicitly converted: 'sbyte2' (as 'int') -> 'sbyte1' (as 'signed char'), 'sbyte1' (as 'signed char') -> 'sbyte2' (as 'int')
+MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
+                                                                                                                                    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:156:32: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    me->commands_torqueLimit = me->torqueMaximumDNm = torqueMaxInDNm;
+                               ^
+/home/runner/work/VCU/VCU/dev/motorController.c:196:36: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+                                   ^
+/home/runner/work/VCU/VCU/dev/motorController.c:199:43: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+                                          ^
+/home/runner/work/VCU/VCU/dev/motorController.c:204:36: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * 0.5;
+                                   ^
+/home/runner/work/VCU/VCU/dev/motorController.c:205:42: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+        me->regen_torqueAtZeroPedalDNm = me->regen_torqueLimitDNm * 0.3;
+                                         ^
+/home/runner/work/VCU/VCU/dev/motorController.c:206:44: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->regen_percentAPPSForCoasting = .2;
+                                           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:207:43: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->regen_percentBPSForMaxRegen = .3; //zero to one.. 1 = 100%
+                                          ^
+/home/runner/work/VCU/VCU/dev/motorController.c:212:36: warning: narrowing conversion from 'double' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+        me->regen_torqueLimitDNm = me->torqueMaximumDNm * .5;
+                                   ^
+/home/runner/work/VCU/VCU/dev/motorController.c:214:44: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->regen_percentAPPSForCoasting = .1;
+                                           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:222:44: warning: narrowing conversion from 'double' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+        me->regen_percentAPPSForCoasting = .05;
+                                           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:290:28: warning: repeated branch in conditional chain [bugprone-branch-clone]
+    if(me->LCState == TRUE){
+                           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:292:6: note: end of the original
+    } else if (me->LaunchControl_TorqueLimit == 0){
+     ^
+/home/runner/work/VCU/VCU/dev/motorController.c:292:51: note: clone 1 starts here
+    } else if (me->LaunchControl_TorqueLimit == 0){
+                                                  ^
+/home/runner/work/VCU/VCU/dev/motorController.c:296:24: warning: narrowing conversion from 'float' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+                       ^
+/home/runner/work/VCU/VCU/dev/motorController.c:296:24: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to 'float' [bugprone-narrowing-conversions]
+/home/runner/work/VCU/VCU/dev/motorController.c:373:18: warning: narrowing conversion from 'int' to 'float4' (aka 'float') [bugprone-narrowing-conversions]
+    RTDPercent = (Sensor_RTDButton.sensorValue == FALSE ? 1 : 0);
+                 ^
+/home/runner/work/VCU/VCU/dev/motorController.c:456:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+    case DISABLED:
+    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:461:14: note: last of these clones ends here
+        break;
+             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:478:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+    case 0x0A0:
+    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:490:14: note: last of these clones ends here
+        break;
+             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:496:26: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+        me->motor_temp = ((ubyte2)mcmCanMessage->data[5] << 8 | mcmCanMessage->data[4]) / 10;
+                         ^
+/home/runner/work/VCU/VCU/dev/motorController.c:500:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+    case 0x0A3:
+    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:516:14: note: last of these clones ends here
+        break;
+             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:546:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+    case 0x0A8:
+    ^
+/home/runner/work/VCU/VCU/dev/motorController.c:558:14: note: last of these clones ends here
+        break;
+             ^
+/home/runner/work/VCU/VCU/dev/motorController.c:585:31: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+        me->commandedTorque = ((ubyte2)mcmCanMessage->data[1] << 8 | mcmCanMessage->data[0]) / 10;
+                              ^
+/home/runner/work/VCU/VCU/dev/motorController.c:771:23: warning: narrowing conversion from 'double' to 'sbyte4' (aka 'long') [bugprone-narrowing-conversions]
+    sbyte4 FD_Ratio = 3.55; //divide # of rear teeth by number of front teeth
+                      ^
+/home/runner/work/VCU/VCU/dev/motorController.c:777:23: warning: narrowing conversion from 'double' to 'sbyte4' (aka 'long') [bugprone-narrowing-conversions]
+    sbyte4 tireCirc = 1.395; //the actual average tire circumference in meters
+                      ^
+/home/runner/work/VCU/VCU/dev/motorController.c:778:34: warning: narrowing conversion from 'double' to 'sbyte4' (aka 'long') [bugprone-narrowing-conversions]
+    sbyte4 KPH_Unit_Conversion = 1000.0;
+                                 ^
+/home/runner/work/VCU/VCU/dev/motorController.c:791:12: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    return me->regen_torqueLimitDNm;
+           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:795:12: warning: narrowing conversion from 'ubyte2' (aka 'unsigned int') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    return me->regen_torqueAtZeroPedalDNm;
+           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:799:12: warning: narrowing conversion from 'float' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    return 0xFF * me->regen_percentBPSForMaxRegen;
+           ^
+/home/runner/work/VCU/VCU/dev/motorController.c:803:12: warning: narrowing conversion from 'float' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    return 0xFF * me->regen_percentAPPSForCoasting;
+           ^
+Error processing dev/motorController.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:19:51: warning: 4 adjacent parameters of 'initPIDController' of similar type ('float') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+void initPIDController(PIDController* controller, float p, float i, float d, float initialTorque) {
+                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:19:57: note: the first parameter in the range is 'p'
+void initPIDController(PIDController* controller, float p, float i, float d, float initialTorque) {
+                                                        ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:19:84: note: the last parameter in the range is 'initialTorque'
+void initPIDController(PIDController* controller, float p, float i, float d, float initialTorque) {
+                                                                                   ^~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:26:71: warning: 3 adjacent parameters of 'calculatePIDController' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:26:77: note: the first parameter in the range is 'current'
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+                                                                            ^~~~~~~
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:26:103: note: the last parameter in the range is 'maxTorque'
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+                                                                                                      ^~~~~~~~~
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:26:71: note: 
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+                                                                      ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:26:96: note: 'float' and 'sbyte2' may be implicitly converted: 'float' -> 'sbyte2' (as 'int'), 'sbyte2' (as 'int') -> 'float'
+float calculatePIDController(PIDController* controller, float target, float current, float dt, sbyte2 maxTorque) {
+                                                                                               ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:76:22: warning: narrowing conversion from 'double' to 'float' [bugprone-narrowing-conversions]
+        filt_speed = 1.0;
+                     ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:79:22: warning: narrowing conversion from 'double' to 'float' [bugprone-narrowing-conversions]
+        filt_speed = -1.0;
+                     ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:85:23: warning: narrowing conversion from 'sbyte4' (aka 'long') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
+                      ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:86:28: warning: narrowing conversion from 'sbyte4' (aka 'long') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    sbyte2 steeringAngle = steering_degrees();
+                           ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:87:29: warning: narrowing conversion from 'double' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    sbyte2 mcm_Torque_max = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Do we need to divide by 10? Or does that automatically happen elsewhere?
+                            ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:100:24: warning: narrowing conversion from 'float' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+        me->lcTorque = me->pidController->errorSum; // Set to the initial torque
+                       ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:102:68: warning: narrowing conversion from 'double' to 'float' [bugprone-narrowing-conversions]
+            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+                                                                   ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:102:88: warning: narrowing conversion from 'double' to 'float' [bugprone-narrowing-conversions]
+            Calctorque = calculatePIDController(me->pidController, 0.2, me->slipRatio, 0.01, mcm_Torque_max); // Set your target, current, dt
+                                                                                       ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:103:28: warning: narrowing conversion from 'float' to 'ubyte2' (aka 'unsigned int') [bugprone-narrowing-conversions]
+            me->lcTorque = Calctorque; // Test PID Controller before uncommenting
+                           ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:113:47: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    MCM_update_LaunchControl_TorqueLimit(mcm, me->lcTorque * 10);
+                                              ^
+/home/runner/work/VCU/VCU/dev/LaunchControl.c:119:12: warning: narrowing conversion from 'float' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    return Calctorque;
+           ^
+Error processing dev/LaunchControl.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/drs.c:87:32: warning: narrowing conversion from 'double' to 'sbyte2' (aka 'int') [bugprone-narrowing-conversions]
+    sbyte2 vehicle_speed_mph = 0.62 * MCM_getGroundSpeedKPH(mcm); // >30mph
+                               ^
+/home/runner/work/VCU/VCU/dev/drs.c:87:39: warning: narrowing conversion from 'sbyte4' (aka 'long') to 'double' [bugprone-narrowing-conversions]
+    sbyte2 vehicle_speed_mph = 0.62 * MCM_getGroundSpeedKPH(mcm); // >30mph
+                                      ^
+/home/runner/work/VCU/VCU/dev/drs.c:88:31: warning: narrowing conversion from 'sbyte4' (aka 'long') to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+    sbyte2 curr_steer_angle = steering_degrees(); // < +-15 deg
+                              ^
+/home/runner/work/VCU/VCU/dev/drs.c:114:9: warning: repeated branch in conditional chain [bugprone-branch-clone]
+        {    me->currentDRSMode = STAY_CLOSED;}
+        ^
+/home/runner/work/VCU/VCU/dev/drs.c:114:48: note: end of the original
+        {    me->currentDRSMode = STAY_CLOSED;}
+                                               ^
+/home/runner/work/VCU/VCU/dev/drs.c:122:9: note: clone 1 starts here
+        {    me->currentDRSMode = STAY_CLOSED;}
+        ^
+/home/runner/work/VCU/VCU/dev/drs.c:115:18: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'double' [bugprone-narrowing-conversions]
+        else if (Sensor_DRSKnob.sensorValue <= 1.1)
+                 ^
+/home/runner/work/VCU/VCU/dev/drs.c:117:18: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'double' [bugprone-narrowing-conversions]
+        else if (Sensor_DRSKnob.sensorValue <= 2.2)
+                 ^
+/home/runner/work/VCU/VCU/dev/drs.c:119:18: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'double' [bugprone-narrowing-conversions]
+        else if (Sensor_DRSKnob.sensorValue <= 3.3)
+                 ^
+/home/runner/work/VCU/VCU/dev/drs.c:121:18: warning: narrowing conversion from 'ubyte4' (aka 'unsigned long') to 'double' [bugprone-narrowing-conversions]
+        else if (Sensor_DRSKnob.sensorValue > 3.3)
+                 ^
+/home/runner/work/VCU/VCU/dev/drs.h:5:10: error: 'WheelSpeeds.h' file not found [clang-diagnostic-error]
+#include "WheelSpeeds.h"
+         ^~~~~~~~~~~~~~~
+Error processing dev/drs.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/avlTree.c:253:93: warning: 2 adjacent parameters of 'AVL_insert' of similar type ('ubyte4') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+                                                                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:253:100: note: the first parameter in the range is 'minTime'
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+                                                                                                   ^~~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:253:116: note: the last parameter in the range is 'maxTime'
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+                                                                                                                   ^~~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:271:9: warning: Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memcpy_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+        memcpy(messageData, message->data, sizeof(messageData));
+        ^~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:271:9: note: Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memcpy_s' in case of C11
+        memcpy(messageData, message->data, sizeof(messageData));
+        ^~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:271:50: warning: sizeof on array function parameter will return size of 'ubyte1 *' (aka 'unsigned char *') instead of 'ubyte1[8]' (aka 'unsigned char[8]') [clang-diagnostic-sizeof-array-argument]
+        memcpy(messageData, message->data, sizeof(messageData));
+                                                 ^
+/home/runner/work/VCU/VCU/dev/avlTree.c:253:77: note: declared here
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+                                                                            ^
+/home/runner/work/VCU/VCU/dev/avlTree.c:271:51: warning: 'memcpy' call operates on objects of type 'ubyte1' (aka 'unsigned char') while the size is based on a different type 'ubyte1 *' (aka 'unsigned char *') [clang-diagnostic-sizeof-pointer-memaccess]
+        memcpy(messageData, message->data, sizeof(messageData));
+               ~~~~~~~~~~~                        ^~~~~~~~~~~
+/home/runner/work/VCU/VCU/dev/avlTree.c:271:51: note: did you mean to provide an explicit length?
+        memcpy(messageData, message->data, sizeof(messageData));
+                                                  ^~~~~~~~~~~
+Error processing dev/avlTree.c
+error: no input files [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/performance-*' [clang-diagnostic-error]
+error: no such file or directory: '/home/runner/work/VCU/VCU/readability-*,' [clang-diagnostic-error]
+error: unable to handle compilation, expected exactly one compiler job in '' [clang-diagnostic-error]
+/home/runner/work/VCU/VCU/dev/bms.c:212:49: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+            bms->boardTemperature             = ( ((ubyte2)bmsCanMessage->data[7] << 8)
+                                                ^
+/home/runner/work/VCU/VCU/dev/bms.c:237:49: warning: narrowing conversion from 'unsigned long' to signed type 'sbyte4' (aka 'long') is implementation-defined [bugprone-narrowing-conversions]
+            bms->packCurrent                  = ( ((ubyte4)bmsCanMessage->data[3] << 24)
+                                                ^
+/home/runner/work/VCU/VCU/dev/bms.c:275:49: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+            bms->highestCellTemperature       = ( ((ubyte2)bmsCanMessage->data[7] << 8)
+                                                ^
+/home/runner/work/VCU/VCU/dev/bms.c:278:49: warning: narrowing conversion from 'unsigned int' to signed type 'sbyte2' (aka 'int') is implementation-defined [bugprone-narrowing-conversions]
+            bms->lowestCellTemperature        = ( ((ubyte2)bmsCanMessage->data[5] << 8)
+                                                ^
+/home/runner/work/VCU/VCU/dev/bms.c:458:5: warning: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+    sprintf(buffer, "highestCellTemp (degC*10): %i\n", (me->highestCellTemperature));
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/bms.c:458:5: note: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11
+    sprintf(buffer, "highestCellTemp (degC*10): %i\n", (me->highestCellTemperature));
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/bms.c:467:5: warning: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
+    sprintf(buffer, "highestCellTemp (degC): %i\n", (me->highestCellTemperature/BMS_TEMPERATURE_SCALE));
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/bms.c:467:5: note: Call to function 'sprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11
+    sprintf(buffer, "highestCellTemp (degC): %i\n", (me->highestCellTemperature/BMS_TEMPERATURE_SCALE));
+    ^~~~~~~
+/home/runner/work/VCU/VCU/dev/bms.c:480:12: warning: narrowing conversion from 'unsigned long' to signed type 'sbyte4' (aka 'long') is implementation-defined [bugprone-narrowing-conversions]
+    return (me->packCurrent * me->packVoltage);
+           ^
+/home/runner/work/VCU/VCU/dev/bms.c:490:12: warning: narrowing conversion from 'unsigned long' to signed type 'sbyte4' (aka 'long') is implementation-defined [bugprone-narrowing-conversions]
+    return ((me->packCurrent * me->packVoltage)/BMS_POWER_SCALE);
+           ^
+Error processing dev/bms.c

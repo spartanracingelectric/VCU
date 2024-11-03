@@ -1,24 +1,24 @@
-#include <stdlib.h> //Needed for malloc
-#include <stdio.h>  //sprintf
-#include <string.h>
+#include "serial.h"
 #include "IO_Driver.h"
 #include "IO_UART.h"
-#include "serial.h"
+#include <stdio.h>  //sprintf
+#include <stdlib.h> //Needed for malloc
+#include <string.h>
 
 struct _SerialManager
 {
-    //Init stuff
-    //speed
-    //packet size
+    // Init stuff
+    // speed
+    // packet size
     //???
 
-    //More stuff
-    ubyte1 size; //This value is thrown away
+    // More stuff
+    ubyte1 size; // This value is thrown away
 };
 
 SerialManager *SerialManager_new(void)
 {
-    SerialManager *me = (SerialManager *)malloc(sizeof(struct _SerialManager));
+    SerialManager *me = (SerialManager *) malloc(sizeof(struct _SerialManager));
     IO_UART_Init(IO_UART_RS232, 115200, 8, IO_UART_PARITY_NONE, 1);
 
     return me;
@@ -38,7 +38,7 @@ IO_ErrorType SerialManager_sprintf(SerialManager *me, const ubyte1 *message, voi
     return err;
 }
 
-//IO_ErrorType SerialManager_sendLen(SerialManager* me, const ubyte1* data, ubyte1* dataLength)
+// IO_ErrorType SerialManager_sendLen(SerialManager* me, const ubyte1* data, ubyte1* dataLength)
 //{
-//    return IO_UART_Write(IO_UART_CH0, data, dataLength, &dataLength);
-//}
+//     return IO_UART_Write(IO_UART_CH0, data, dataLength, &dataLength);
+// }

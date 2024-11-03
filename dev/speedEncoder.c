@@ -15,14 +15,16 @@
 // /*****************************************************************************
 // * Speed Encoder (TPS) functions
 // * RULE EV2.3.5:
-// * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
-// * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
+// * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately
+// shut down completely.
+// * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power
+// to the motor(s) is sufficient.
 // ****************************************************************************/
 // SpeedEncoder* SpeedEncoder_new(bool benchMode)
 // {
 //     SpeedEncoder* me = (SpeedEncoder*)malloc(sizeof(struct _SpeedEncoder));
 //     //me->bench = benchMode;
-    
+
 //     //TODO: Make sure the main loop is running before doing this
 //     //me->tps0 = (benchMode == TRUE) ? &Sensor_BenchTPS0 : &Sensor_TPS0;
 //     //me->tps1 = (benchMode == TRUE) ? &Sensor_BenchTPS1 : &Sensor_TPS1;
@@ -34,8 +36,8 @@
 //     me->tps1_reverse = TRUE;
 
 //     // TODO: Fetch from / store in EEPROM
-//     // exponent applied to pedal curve.  1 = linear, < 1 means more speed is given early on, > 1 means speed ramps up more slowly
-//     me->outputCurveExponent = 1.0;
+//     // exponent applied to pedal curve.  1 = linear, < 1 means more speed is given early on, > 1 means speed ramps up
+//     more slowly me->outputCurveExponent = 1.0;
 
 //     me->travelPercent = 0;
 //     me->runCalibration = FALSE;  //Do not run the calibration at the next main loop cycle
@@ -75,7 +77,7 @@
 
 //     me->travelPercent = 0;
 //     ubyte2 errorCount = 0;
-    
+
 //     //This function runs before the calibration cycle function.  If calibration is currently
 //     //running, then set the percentage to zero for safety purposes.
 //     if (me->runCalibration == TRUE)
@@ -111,7 +113,7 @@
 // void SpeedEncoder_resetCalibration(SpeedEncoder* me)
 // {
 //     me->calibrated = FALSE;
-    
+
 //     me->tps0_calibMin = me->tps0->sensorValue;
 //     me->tps0_calibMax = me->tps0->sensorValue;
 //     me->tps1_calibMin = me->tps1->sensorValue;
@@ -146,7 +148,8 @@
 
 // /*-------------------------------------------------------------------
 // * CalibrateTPS
-// * Description: Records TPS minimum/maximum voltages (when?) and stores them (where?), or flags that calibration is complete
+// * Description: Records TPS minimum/maximum voltages (when?) and stores them (where?), or flags that calibration is
+// complete
 // * Parameters:
 // * Inputs:
 // * Returns:
@@ -154,8 +157,9 @@
 // * Throws:
 // -------------------------------------------------------------------*/
 // // Physical pedal travel will only occur across the center (about 1/2) of the actual sensor's range of travel
-// // The rules (especially EV2.3.6) are written about % of PEDAL travel, not percent of sensor range, so we must calculate pedal travel by recording the min/max voltages at min/max throttle positions
-// void SpeedEncoder_calibrationCycle(SpeedEncoder* me, ubyte1* errorCount)
+// // The rules (especially EV2.3.6) are written about % of PEDAL travel, not percent of sensor range, so we must
+// calculate pedal travel by recording the min/max voltages at min/max throttle positions void
+// SpeedEncoder_calibrationCycle(SpeedEncoder* me, ubyte1* errorCount)
 // //THIS FUNCTION SHOULD NOT BE CALLED FROM MAIN
 // {
 //     if (me->runCalibration == TRUE)
@@ -207,7 +211,6 @@
 
 // }
 
-
 // void SpeedEncoder_getIndividualSensorPercent(SpeedEncoder* me, ubyte1 sensorNumber, float4* percent)
 // {
 //     switch (sensorNumber)
@@ -220,7 +223,6 @@
 //         break;
 //     }
 // }
-
 
 // /*-------------------------------------------------------------------
 // * GetThrottlePosition
