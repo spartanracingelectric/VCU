@@ -1,15 +1,15 @@
-//http://www.zentut.com/c-tutorial/c-avl-tree/
+// http://www.zentut.com/c-tutorial/c-avl-tree/
 
-#include <string.h> //memcpy
 #include <stdlib.h> //malloc
+#include <string.h> //memcpy
 
-#include "IO_RTC.h"
-#include "IO_Driver.h"
-#include "mathFunctions.h"
 #include "avlTree.h"
+#include "IO_Driver.h"
+#include "IO_RTC.h"
+#include "mathFunctions.h"
 
 //-------------------------------------------------------------------
-//Private functions
+// Private functions
 //-------------------------------------------------------------------
 
 ///////////////////////*
@@ -243,31 +243,32 @@ return root;
 */
 
 //-------------------------------------------------------------------
-//Public functions
+// Public functions
 //-------------------------------------------------------------------
 
 /*
 insert a new node into the tree
 */
-//AVLNode* AVL_insert(AVLNode* t, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
-AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+// AVLNode* AVL_insert(AVLNode* t, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime, ubyte4 maxTime, bool req)
+AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 messageData[8], ubyte4 minTime,
+                    ubyte4 maxTime, bool req)
 {
-    //This function has been hijacked for an emergency quick fix
+    // This function has been hijacked for an emergency quick fix
 
-    AVLNode *message = (AVLNode *)malloc(sizeof(AVLNode));
-    if (message == NULL) //malloc failed
+    AVLNode *message = (AVLNode *) malloc(sizeof(AVLNode));
+    if (message == NULL) // malloc failed
     {
-        //fprintf(stderr, "Out of memory!!! (insert)\n");
-        //exit(1);
+        // fprintf(stderr, "Out of memory!!! (insert)\n");
+        // exit(1);
     }
     else
     {
-        //message->id = messageID;
+        // message->id = messageID;
         message->timeBetweenMessages_Min = minTime;
         message->timeBetweenMessages_Max = maxTime;
         IO_RTC_StartTime(&message->lastMessage_timeStamp);
 
-        //To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
+        // To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
         memcpy(messageData, message->data, sizeof(messageData));
 
         message->required = req;
@@ -277,29 +278,29 @@ AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 mess
     return message;
 
     ////ACTUAL AVL INSERT CODE BELOW
-    //if (t == NULL) //If the tree is empty
+    // if (t == NULL) //If the tree is empty
     //{
-    //    /* Create and return a one-node tree */
-    //    t = (AVLNode*)malloc(sizeof(AVLNode));
-    //    if (t == NULL)
-    //    {
-    //        //fprintf(stderr, "Out of memory!!! (insert)\n");
-    //        //exit(1);
-    //    }
-    //    else
-    //    {
-    //        t->id = messageID;
-    //        t->timeBetweenMessages_Min = minTime;
-    //        t->timeBetweenMessages_Max = maxTime;
-    //        //To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
-    //        memcpy(messageData, t->data, sizeof(messageData));
-    //        IO_RTC_StartTime(&t->lastMessage_timeStamp);
+    //     /* Create and return a one-node tree */
+    //     t = (AVLNode*)malloc(sizeof(AVLNode));
+    //     if (t == NULL)
+    //     {
+    //         //fprintf(stderr, "Out of memory!!! (insert)\n");
+    //         //exit(1);
+    //     }
+    //     else
+    //     {
+    //         t->id = messageID;
+    //         t->timeBetweenMessages_Min = minTime;
+    //         t->timeBetweenMessages_Max = maxTime;
+    //         //To copy an entire array, http://stackoverflow.com/questions/9262784/array-equal-another-array
+    //         memcpy(messageData, t->data, sizeof(messageData));
+    //         IO_RTC_StartTime(&t->lastMessage_timeStamp);
 
     //        t->height = 0;
     //        t->left = t->right = NULL;
     //    }
     //}
-    //else if (messageID < t->id)
+    // else if (messageID < t->id)
     //{
     //    t->left = AVL_insert(t->left, messageID, messageData, minTime, maxTime, req);
     //    if (AVL_getHeight(t->left) - AVL_getHeight(t->right) == 2)
@@ -314,7 +315,7 @@ AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 mess
     //        }
     //    }
     //}
-    //else if (messageID > t->id)
+    // else if (messageID > t->id)
     //{
     //    t->right = AVL_insert(t->right, messageID, messageData, minTime, maxTime, req);
     //    if (AVL_getHeight(t->right) - AVL_getHeight(t->left) == 2)
@@ -331,9 +332,9 @@ AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 mess
     //}
     ///* Else X is in the tree already; we'll do nothing */
 
-    //t->height = max(AVL_getHeight(t->left), AVL_getHeight(t->right)) + 1;
-    //return t;
-    //return message;
+    // t->height = max(AVL_getHeight(t->left), AVL_getHeight(t->right)) + 1;
+    // return t;
+    // return message;
 }
 
 ///////////////////////////*
@@ -360,34 +361,34 @@ AVLNode *AVL_insert(AVLNode **messageHistoryArray, ubyte4 messageID, ubyte1 mess
 //////////////////////////}
 
 ///*
-//data data of a node
+// data data of a node
 //*/
-//int AVL_getData(AVLNode* n)
+// int AVL_getData(AVLNode* n)
 //{
 //	return n->id;
-//}
+// }
 //
 ///*
-//find minimum node's key
+// find minimum node's key
 //*/
-//AVLNode* AVL_findMin(AVLNode* t)
+// AVLNode* AVL_findMin(AVLNode* t)
 //{
-//    if (t == NULL)
-//        return NULL;
-//    else if (t->left == NULL)
-//        return t;
-//    else
-//        return AVL_findMin(t->left);
-//}
+//     if (t == NULL)
+//         return NULL;
+//     else if (t->left == NULL)
+//         return t;
+//     else
+//         return AVL_findMin(t->left);
+// }
 //
 ///*
-//find maximum node's key
+// find maximum node's key
 //*/
-//AVLNode* AVL_findMax(AVLNode* t)
+// AVLNode* AVL_findMax(AVLNode* t)
 //{
-//    if (t != NULL)
-//        while (t->right != NULL)
-//            t = t->right;
+//     if (t != NULL)
+//         while (t->right != NULL)
+//             t = t->right;
 //
-//    return t;
-//}
+//     return t;
+// }
