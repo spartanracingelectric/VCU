@@ -1,0 +1,63 @@
+name: Static Analysis and Formatting
+
+on:
+  pull_request:
+    branches:
+      - main  # Only triggers for PRs targeting the main branch
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Clang-Tidy and Clang-Format
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy clang-format
+
+      - name: Showcase Clang-Tidy Analysis
+        run: echo "Preparing to run Clang-Tidy analysis on C files..."
+
+      - name: List C Files
+        run: |
+          echo "Listing C files in dev directory"
+          find dev/ -name '*.c'
+
+      - name: Run Clang-Tidy and Save Output
+        run: |
+          echo "Running Clang-Tidy on C files with inc directory as reference"
+          for file in $(find dev/ -name '*.c'); do
+            clang-tidy "$file" -checks='bugprone-*', 'readability-*', 'performance-*' -- -std=c11 -I inc/ >> clang-tidy-output.txt || echo "Error processing $file" >> clang-tidy-output.txt
+          done
+
+      - name: Format Code with Clang-Format
+        run: |
+          echo "Formatting C files with Clang-Format"
+          for file in $(find dev/ -name '*.c'); do
+            clang-format -i "$file"
+          done
+
+      - name: Commit Changes to a New Branch
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+          git add .
+          git commit -m "Apply Clang-Format to code" || echo "No changes to commit"
+          git push origin HEAD:refs/heads/clang-format-updates/${{ github.event.pull_request.number }}
+
+      - name: Create Pull Request for Formatting Changes
+        if: success() && steps.commit-changes.outcome == 'success'
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Apply Clang-Format and Clang-Tidy output"
+          body: "This pull request includes formatted code using Clang-Format and Clang-Tidy analysis output."
+          base: ${{ github.base_ref }}  # Targets the base branch of the original PR
+          branch: clang-format-updates/${{ github.event.pull_request.number }}
+          labels: automated
+
+      - name: Upload Clang-Tidy Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: clang-tidy-output
+          path: clang-tidy-output.txt
