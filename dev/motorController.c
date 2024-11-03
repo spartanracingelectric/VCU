@@ -291,12 +291,23 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-
+     sbyte2 drt = me->torqueMaximumDNm * appsOutputPercent;
     if(me->LCState == TRUE){
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else if (me->LaunchControl_TorqueLimit == 0){
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else {
+    } else if(me->PLState==TRUE) {
+        if(me->PL_TorqueLimit>me->torqueMaximumDNm){
+            me->PL_TorqueLimit = me->torqueMaximumDNm;
+        }
+        if(me->PL_TorqueLimit < drt){
+            torqueOutput= me->PL_TorqueLimit;
+        }
+        else{
+            torqueOutput = me->torqueMaximumDNm * appsOutputPercent;
+        }
+    }
+    else{
         // torqueOutput = appsTorque + bpsTorque;
         torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
@@ -701,7 +712,7 @@ void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
 
 }
 
-void MCM_update_PL_TorqueLimit(MotorController *me, sbyte2 PLTorqueLimit){
+void MCM_update_PL_TorqueLimit(MotorController *me, ubyte2 PLTorqueLimit){
 
      me->PL_TorqueLimit = PLTorqueLimit;
 
@@ -785,6 +796,9 @@ sbyte2 MCM_getMotorTemp(MotorController *me)
     return me->motor_temp;
 }
 
+sbyte4 MCM_getMotorRPM(MotorController *me){
+    return me->motorRPM;
+}
 sbyte4 MCM_getGroundSpeedKPH(MotorController *me)
 {   
     sbyte4 FD_Ratio = 3.55; //divide # of rear teeth by number of front teeth

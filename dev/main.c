@@ -51,7 +51,7 @@
 #include "LaunchControl.h"
 #include "drs.h"
 #include "powerLimit.h"
-
+#include "PID.h"
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
     {
@@ -223,6 +223,7 @@ void main(void)
     LaunchControl *lc = LaunchControl_new();
     DRS *drs = DRS_new();
     PowerLimit *pl = PL_new();
+    PID *pid = PID_new(1,0,0,0);
 
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -424,6 +425,8 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        PID_setGain(pid,1,0,0);
+        powerLimitTorqueCalculation_1(pl,mcm0,pid);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

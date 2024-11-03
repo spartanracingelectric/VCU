@@ -6,11 +6,19 @@
 #include "torqueEncoder.h"
 #include "mathFunctions.h"
 #include "initializations.h"
+#include "PID.h"
 
 PowerLimit* PL_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
+     me->value=0;
+
     me->PLStatus = FALSE;
-    me->value=0;
+    me->LUTval=0;
+    me->setpoint=0;
+    me->actual= 0;
+    me->pltorque= 0;
+    me->piderror= 0;
+   
     return me;
     }
 
@@ -19,6 +27,29 @@ void testing(PowerLimit *me){
     me->value = 1000;
 }
 
-void powerLimitTorqueCalculation(PowerLimit *me,  MotorController* mcm){
-   
+void powerLimitTorqueCalculation_1(PowerLimit *me,  MotorController* mcm, PID* pid){
+   float gain = 95.49; //for decinm
+  sbyte4 watts = MCM_getPower(mcm);
+  int wheelspeed = MCM_getMotorRPM(mcm);
+  if(watts > 55000-10){
+    me-> PLStatus = TRUE;
+    ubyte2 pidsetpoint = (ubyte2)((55000*gain/wheelspeed));
+    me->setpoint =pidsetpoint;
+    ubyte2 pidactual = (ubyte2)((55000*gain/wheelspeed));
+    me->actual= pidactual;
+    PID_setpointUpdate(pid,pidsetpoint);
+    sbyte2 PIDerror = PID_compute(pid, pidactual);
+    me->piderror = PIDerror;
+    ubyte2 PLfinaltq = (ubyte2)(pidactual+ PIDerror);
+    me->pltorque= PLfinaltq;
+  }
+  else{
+    me->PLStatus= FALSE;
+  }
+  MCM_update_PL_TorqueLimit(mcm,  me->pltorque); // we need to change this on mcm.c / pl.c/.h 
+  MCM_update_PL_State(mcm, me->PLStatus);
+}
+
+void powerLimitTorqueCalculation_2(PowerLimit *me,  MotorController* mcm){
+
 }
