@@ -234,9 +234,9 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
     ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
@@ -374,6 +374,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
+        LaunchControl_calculateSlipRatio(lc, wss);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -424,7 +425,6 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        LaunchControl_calculateSlipRatio(lc, wss);
         LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
@@ -432,7 +432,7 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        PID_updateGainValues(pl->pid, 12,0,0);
+        PID_updateGainValues(pl->pid,12,0,0);
         POWERLIMIT_calculateTorqueCommand(mcm0, pl);
         MCM_calculateCommands(mcm0, tps, bps);
 
