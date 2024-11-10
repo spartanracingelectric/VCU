@@ -31,9 +31,9 @@ void powerLimitTorqueCalculation_1(PowerLimit *me,  MotorController* mcm, PID* p
    float gain = 95.49; //for decinm
   sbyte4 watts = MCM_getPower(mcm);
   int wheelspeed = MCM_getMotorRPM(mcm);
-  if(watts > 45000){
+  if(watts > 0){
     me-> PLStatus = TRUE;
-    ubyte2 pidsetpoint = (ubyte2)((53000*gain/wheelspeed));
+    ubyte2 pidsetpoint = (ubyte2)((58000*gain/wheelspeed));
     me->setpoint =pidsetpoint;
     ubyte2 pidactual = (ubyte2)((watts*gain/wheelspeed));
     me->actual= pidactual;
