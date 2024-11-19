@@ -321,21 +321,16 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     if(me->plActive == TRUE)
     {
         me->launchControlState == FALSE;
-        sbyte2 torquetemp = me->plTorqueCommand; 
-        if(torquetemp < appsTorque)
-        {
-            torqueOutput = torquetemp + bpsTorque;
-        }
-        else{
-            torqueOutput = appsTorque + bpsTorque;
-        }
+        sbyte2 tempTorque = me->plTorqueCommand;
+        if(tempTorque < appsTorque)
+            torqueOutput = tempTorque + bpsTorque;
     }
     else {
         torqueOutput = appsTorque + bpsTorque;
         // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    //Safety Check. torqueOutput Should never rise above 240. Leaving a +25% buffer in case of rounding errors or comical math
-    if(torqueOutput > 300)
+    //Safety Check. torqueOutput Should never rise above 231
+    if(torqueOutput > 231)
     {
         torqueOutput = 0;
     }
