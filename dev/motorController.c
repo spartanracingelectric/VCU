@@ -291,29 +291,28 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     // appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     // bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-     sbyte2 drt = me->torqueMaximumDNm * appsOutputPercent;
+    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent;
     if(me->LCState == TRUE){
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else if (me->LaunchControl_TorqueLimit == 0){
         torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if(me->PLState==TRUE) {
-        if(me->PL_TorqueLimit>me->torqueMaximumDNm){
-            me->PL_TorqueLimit = me->torqueMaximumDNm;
-        }
-        if(me->PL_TorqueLimit < drt){
+    }
+    if(me->PLState==TRUE) {
+        if(me->PL_TorqueLimit < appsTorque)
             torqueOutput= me->PL_TorqueLimit;
-        }
-        else{
-            torqueOutput = me->torqueMaximumDNm * appsOutputPercent;
-        }
+        else
+            torqueOutput = appsTorque;
     }
     else{
         // torqueOutput = appsTorque + bpsTorque;
-        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+        torqueOutput = appsTorque;  //REMOVE THIS LINE TO ENABLE REGEN
     }
-    
+    //Safety Check. torqueOutput Should never rise above 231
+    if(torqueOutput > 231)
+    {
+        torqueOutput = 0;
+    }
     MCM_commands_setTorqueDNm(me, torqueOutput);
-
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
 
