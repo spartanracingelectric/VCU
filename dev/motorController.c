@@ -320,10 +320,14 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     } 
     if(me->plActive == TRUE)
     {
+        //reset torque command. should have a better way of implementation and some absraction too, but for another time
+        torqueOutput = 0;
         me->launchControlState == FALSE;
         sbyte2 tempTorque = me->plTorqueCommand;
         if(tempTorque < appsTorque)
             torqueOutput = tempTorque + bpsTorque;
+        else
+            torqueOutput = appsTorque + bpsTorque;
     }
     else {
         torqueOutput = appsTorque + bpsTorque;
