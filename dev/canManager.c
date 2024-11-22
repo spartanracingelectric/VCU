@@ -851,7 +851,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getDerivative(pl->pid);
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getDerivative(pl->pid) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getAntiWindupFlag(pl->pid);
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getStatusCodeBlock(pl);
     canMessages[canMessageCount - 1].length = byteNum;
 
  //513: Power Limit LUT Parameters

@@ -34,6 +34,9 @@ typedef struct _PowerLimit {
     // me->pid->derivative;     sbyte2
     // me->pid->antiWindupFlag; bool
 
+    // For Testing Purposes
+    // POWERLIMIT_getStatusCodeBlock(pl);
+
 
 //-------------CAN IN ORDER: 513: Power Limit LUT Parameters-----------------------------------------------------
 
@@ -48,6 +51,8 @@ typedef struct _PowerLimit {
     // me->pid->totalError; sbyte4
     // me->pid->Kp;         ubyte1
     // me->pid->Ki;         ubyte1
+
+    //Odd Man Out
     // me->pid->Kd;         ubyte1
 
 } PowerLimit;
