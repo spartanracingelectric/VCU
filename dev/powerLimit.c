@@ -109,6 +109,8 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
         //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
         //sbyte2 pidSetpoint = (sbyte2)POWERLIMIT_calculateTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
+        
+        //issue here
         sbyte2 pidSetpoint = POWERLIMIT_calculateTorqueFromLUT(me, noLoadVoltage, motorRPM);
         // If the LUT gives a bad value this is our catch all
         if(pidSetpoint == -1){
