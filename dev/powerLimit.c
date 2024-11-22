@@ -41,16 +41,15 @@ PowerLimit* POWERLIMIT_new(){
     }
     */
     me->plStatus = FALSE;
-    me->pidOutput = 0; 
     me->plTorqueCommand = 0; 
     me->plTargetPower = 80;
     me->plInitializationThreshold = me->plTargetPower - 15;
 
+    //LUT Corners
     me->vFloorRFloor = 0;
     me->vFloorRCeiling = 0;
     me->vCeilingRFloor = 0;
     me->vCeilingRCeiling = 0;
-
 
     return me;
 }
@@ -106,27 +105,39 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
 
         // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
         sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
-        //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_calculateTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
-        //sbyte2 pidSetpoint = (sbyte2)POWERLIMIT_calculateTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
+        //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_retrieveTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
+        //sbyte2 pidSetpoint = (sbyte2)POWERLIMIT_retrieveTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
         
         //issue here
-        sbyte2 pidSetpoint = POWERLIMIT_calculateTorqueFromLUT(me, noLoadVoltage, motorRPM);
+        sbyte2 pidSetpoint = POWERLIMIT_retrieveTorqueFromLUT(me, noLoadVoltage, motorRPM);
+
+        //TQ equation. uncomment to run this instead
+
+        //pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm));
+
         // If the LUT gives a bad value this is our catch all
-        if(pidSetpoint == -1){
+        if(pidSetpoint < 0 | pidSetpoint > 231){
             pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm)); 
         }
+        
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
+        //TQ equation
+
+        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 9549 / MCM_getMotorRPM(mcm) / 100);
+
+        //Torque feedback. build later
+
+        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 9549 / MCM_getMotorRPM(mcm) / 100)'
+
         //PID in deciNewton Meters
         commandedTorque = commandedTorque * 10;
         pidSetpoint = pidSetpoint * 10;
 
         PID_updateSetpoint(me->pid, pidSetpoint);
-        sbyte2 pidOutput =  PID_computeOutput(me->pid, commandedTorque);
-        sbyte2 torqueRequest = commandedTorque + pidOutput;
-        me->pidOutput = pidOutput;
-        me->plTorqueCommand = torqueRequest;
-        MCM_update_PL_setTorqueCommand(mcm, torqueRequest);
+        PID_computeOutput(me->pid, commandedTorque);
+        me->plTorqueCommand = commandedTorque + PID_getOutput(me->pid);
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
     else {
@@ -136,7 +147,7 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
     }
 }
 
-ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
     // LUT Lower Bounds
     ubyte4 VOLTAGE_MIN      = 280;
@@ -170,7 +181,7 @@ ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, sbyte4 voltage, sbyte4 
     ubyte4 torqueCeilingCeiling = (ubyte4)me->vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
 
     // Final TQ from LUT
-    return (ubyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
+    return (sbyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
 
 /*
@@ -429,6 +440,20 @@ void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
 
 /** GETTER FUNCTIONS **/
 
+ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me){
+    ubyte1 eightBits = 0x00;
+    //First Bit
+    if(me->plStatus)
+        eightBits | (1 << 7);
+    // 2nd through 4th bit
+    eightBits | (me->plMode << 4);
+    // 5th bit
+    eightBits | (PID_getAntiWindupFlag(me->pid) << 3);
+    // 6th bit and beyond
+    
+    return eightBits;
+}
+
 bool POWERLIMIT_getStatus(PowerLimit* me){
     return me->plStatus;
 }
@@ -457,24 +482,20 @@ ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
     // 4 - higherX higherY
     switch(corner){
         case 1:
-        return me->vFloorRFloor;
+            return me->vFloorRFloor;
 
         case 2:
-        return me->vFloorRCeiling;
+            return me->vFloorRCeiling;
         
         case 3:
-        return me->vCeilingRFloor;
+            return me->vCeilingRFloor;
         
         case 4:
-        return me->vCeilingRCeiling;
+            return me->vCeilingRCeiling;
         
         default:
-        return 0xFF;
+            return 0xFF;
     }
-}
-
-sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me){
-    return me->pidOutput;
 }
 
 ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm)
