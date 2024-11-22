@@ -38,6 +38,9 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
     pid->antiWindupFlag = FALSE;
     return pid;
 }
+
+/** SETTER FUNCTIONS  **/
+
 void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd){
     pid->Kp = Kp;
     pid->Ki = Ki;
@@ -59,9 +62,11 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
         else
             pid->setpoint = pid->saturationValue;
     }
-    else
+    else //this else statement exists for any uncapped pid that has no saturation point.
         pid->setpoint = setpoint;
 }
+
+/** COMPUTATIONS **/
 
 sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->currentError = pid->setpoint - sensorValue;
