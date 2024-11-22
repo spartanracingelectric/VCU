@@ -25,15 +25,17 @@ typedef struct _PID {
     sbyte2 proportional;
     sbyte2 integral;
     sbyte2 derivative;
+    sbyte2 saturationValue;
     bool antiWindupFlag;
 }PID;
 
 /* Kp, Ki, & Kd are in deci- units, meaning PID_new(10,0,0,500) gives a Kp of 1.0 and a setpoint of 500 */
 PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint);
 void PID_setTotalError(PID* pid, sbyte2 totalError);
+void PID_setSaturationValue(PID *pid, sbyte2 saturationValue);
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint);
 void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd);
-sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 clampValue);
+sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue);
 
 /** GETTER FUNCTIONS **/
 
@@ -41,7 +43,8 @@ sbyte1 PID_getKp(PID *pid);
 sbyte1 PID_getKi(PID *pid);
 sbyte1 PID_getKd(PID *pid);
 sbyte2 PID_getSetpoint(PID *pid);
-sbyte2 PID_getTotalError(PID* pid);
-sbyte2 PID_getOutput(PID* pid);
-
+sbyte2 PID_getTotalError(PID *pid);
+sbyte2 PID_getOutput(PID *pid);
+sbyte2 PID_getSaturationValue(PID *pid);
+bool PID_getAntiWindupFlag(PID *pid);
 #endif //_PID_H
