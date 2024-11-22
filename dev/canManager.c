@@ -824,8 +824,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
-// #define ELIMINATE_CAN_MESSAGES
-#ifdef ELIMINATE_CAN_MESSAGES
+#ifndef ELIMINATE_PL_CAN_MESSAGES
  //511: Power Limit Overview
    canMessageCount++;
 /**
@@ -833,9 +832,9 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getStatus(pl);
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)POWERLIMIT_getPIDOutput(pl);
-    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getPIDOutput(pl) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)POWERLIMIT_getTorqueCommand(pl);
+    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getPIDOutput(pl);
+    canMessages[canMessageCount - 1].data[byteNum++] = (POWERLIMIT_getPIDOutput(pl) >> 8);
+    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTorqueCommand(pl);
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTorqueCommand(pl) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getInitialisationThreshold(pl);
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTargetPower(pl);
