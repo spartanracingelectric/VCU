@@ -54,16 +54,21 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 clampValue) {
     pid->currentError = pid->setpoint - sensorValue;
     pid->proportional = (pid->Kp * pid->currentError) / 10; //proportional
-    sbyte2 currentIntegral   = (pid->Ki * (pid->totalError + pid->currentError) / pid->dH) / 10; //integral
-    sbyte2 currentDerivative = (pid->Kd * (pid->currentError - pid->previousError) * pid->dH) / 10; //derivative
+    pid->integral   = (pid->Ki * (pid->totalError + pid->currentError) / pid->dH) / 10; //integral
+    pid->derivative = (pid->Kd * (pid->currentError - pid->previousError) * pid->dH) / 10; //derivative
     pid->previousError = pid->currentError;
     pid->totalError   += pid->currentError;
+
     pid->output = pid->proportional;
-    if(clampValue != sensorValue)
+    //Check to see if motor is saturated at max torque request already
+    if(clampValue <= sensorValue)
     {
+        pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;
-        pid->output += pid->integral;
+        pid->output += pid->derivative;
     }
+    else
+        pid->antiWindupFlag = TRUE;
 
     return pid->output;
 }
