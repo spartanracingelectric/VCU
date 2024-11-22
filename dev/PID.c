@@ -34,6 +34,7 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
     pid->proportional = 0;
     pid->integral     = 0;
     pid->derivative   = 0;
+    pid->saturationValue = 0;
     pid->antiWindupFlag = FALSE;
     return pid;
 }
@@ -52,7 +53,14 @@ void PID_setSaturationValue(PID *pid, sbyte2 saturationValue){
 }
 
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
-    pid->setpoint = setpoint; 
+    if(pid->saturationValue > 0){
+        if(pid->saturationValue > setpoint)
+            pid->setpoint = setpoint;
+        else
+            pid->setpoint = pid->saturationValue;
+    }
+    else
+        pid->setpoint = setpoint;
 }
 
 sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue) {

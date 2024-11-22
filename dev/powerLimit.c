@@ -117,7 +117,7 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         PID_updateSetpoint(plPID, pidSetpoint);
         sbyte2 pidOutput =  PID_computeOutput(plPID, commandedTorque);
         sbyte2 torqueRequest = ((sbyte2)commandedTorque) + pidOutput;
-        torqueRequest = torqueRequest *10;
+        torqueRequest = torqueRequest * 10;
         me->pidOutput = pidOutput;
         me->plTorqueCommand = torqueRequest;
         MCM_update_PL_setTorqueCommand(mcm, torqueRequest);
