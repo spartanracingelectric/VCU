@@ -22,10 +22,13 @@
 
 #endif
 
+// #define ELIMINATE_CAN_MESSAGES
+
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    // me->pid = PID_new(20, 0, 0, 0);
-
+    me->pid = PID_new(20, 0, 0, 2400);
+    PID_setSaturationValue(me->pid, 2310);
+    PID_updateSetpoint(me->pid, 2400);
     me->plMode = 1;
     /*
     me->hashtable = HashTable_new();
@@ -109,14 +112,17 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         sbyte2 pidSetpoint = POWERLIMIT_calculateTorqueFromLUT(me, noLoadVoltage, motorRPM);
         // If the LUT gives a bad value this is our catch all
         if(pidSetpoint == -1){
-            pidSetpoint = (me->plTargetPower *  9549 / MCM_getMotorRPM(mcm)) / 100; 
+            pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm)); 
         }
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+        
+        //PID in deciNewton Meters
+        commandedTorque = commandedTorque * 10;
+        pidSetpoint = pidSetpoint * 10;
 
-        PID_updateSetpoint(plPID, pidSetpoint);
-        sbyte2 pidOutput =  PID_computeOutput(plPID, commandedTorque);
-        sbyte2 torqueRequest = ((sbyte2)commandedTorque) + pidOutput;
-        torqueRequest = torqueRequest * 10;
+        PID_updateSetpoint(me->pid, pidSetpoint);
+        sbyte2 pidOutput =  PID_computeOutput(me->pid, commandedTorque);
+        sbyte2 torqueRequest = commandedTorque + pidOutput;
         me->pidOutput = pidOutput;
         me->plTorqueCommand = torqueRequest;
         MCM_update_PL_setTorqueCommand(mcm, torqueRequest);

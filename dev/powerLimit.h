@@ -15,7 +15,7 @@
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
-    // PID *pid;
+    PID *pid;
     // HashTable* hashtable;
 
 //-------------CAN IN ORDER: 511: Power Limit Overview-----------------------------------------------------
