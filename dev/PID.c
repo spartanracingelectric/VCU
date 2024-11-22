@@ -30,10 +30,9 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
     pid->totalError    = 0;
     pid->dH            = 100; // 100 Hz aka 10 ms cycle time
     pid->output        = 0;
-    pid->currentError = 0;
-    pid->proportional = 0;
-    pid->integral     = 0;
-    pid->derivative   = 0;
+    pid->proportional  = 0;
+    pid->integral      = 0;
+    pid->derivative    = 0;
     pid->saturationValue = 0;
     pid->antiWindupFlag = FALSE;
     return pid;
@@ -68,15 +67,17 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 /** COMPUTATIONS **/
 
-sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue) {
-    pid->currentError = pid->setpoint - sensorValue;
-    pid->proportional = (pid->Kp * pid->currentError) / 10; //proportional
-    pid->integral   = (pid->Ki * (pid->totalError + pid->currentError) / pid->dH) / 10; //integral
-    pid->derivative = (pid->Kd * (pid->currentError - pid->previousError) * pid->dH) / 10; //derivative
-    pid->previousError = pid->currentError;
-    pid->totalError   += pid->currentError;
+void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
+    sbyte2 currentError = pid->setpoint - sensorValue;
+    pid->proportional   = pid->Kp * currentError / 10;
+    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH / 10;
+    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH / 10;
+    pid->previousError  = currentError;
+    pid->totalError    += currentError;
 
+    // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional;
+
     //Check to see if motor is saturated at max torque request already
     if(pid->saturationValue <= sensorValue)
     {
@@ -87,7 +88,7 @@ sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     else
         pid->antiWindupFlag = TRUE;
 
-    return pid->output;
+    //return pid->output;
 }
 
 /** GETTER FUNCTIONS **/
@@ -108,12 +109,28 @@ sbyte2 PID_getSetpoint(PID *pid){
     return pid->setpoint;
 }
 
+sbyte2 PID_getPreviousError(PID *pid){
+    return pid->previousError;
+}
+
 sbyte2 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 
 sbyte2 PID_getOutput(PID *pid){
     return pid->output;
+}
+
+sbyte2 PID_getProportional(PID *pid){
+    return pid->proportional;
+}
+
+sbyte2 PID_getIntegral(PID *pid){
+    return pid->integral;
+}
+
+sbyte2 PID_getDerivative(PID *pid){
+    return pid->derivative;
 }
 
 sbyte2 PID_getSaturationValue(PID *pid){

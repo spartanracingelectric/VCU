@@ -119,11 +119,11 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         else
         {
             PID_updateSetpoint(lcPID, 2); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
-            sbyte2 torquePID = PID_computeOutput(lcPID,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+            PID_computeOutput(lcPID,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
             float4 appsTqPercent;
             TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
             float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
-            me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + torquePID; // adds the ajusted value from the pid to the torqueval}
+            me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + PID_getOutput(lcPID); // adds the ajusted value from the pid to the torqueval}
             me->potLC= lcPID->totalError;
         }
     }

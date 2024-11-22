@@ -21,7 +21,6 @@ typedef struct _PID {
     sbyte2 totalError;
     sbyte2 dH;               // Time interval between PID updates in seconds (VCU tick speed)
     sbyte2 output;
-    sbyte2 currentError;
     sbyte2 proportional;
     sbyte2 integral;
     sbyte2 derivative;
@@ -41,7 +40,7 @@ void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd);
 
 /** COMPUTATIONS **/
 
-sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue);
+void PID_computeOutput(PID *pid, sbyte2 sensorValue);
 
 /** GETTER FUNCTIONS **/
 
@@ -49,8 +48,12 @@ sbyte1 PID_getKp(PID *pid);
 sbyte1 PID_getKi(PID *pid);
 sbyte1 PID_getKd(PID *pid);
 sbyte2 PID_getSetpoint(PID *pid);
-sbyte2 PID_getTotalError(PID *pid);
+sbyte2 PID_getPreviousError(PID *pid);
+sbyte2 PID_getTotalError(PID* pid);
 sbyte2 PID_getOutput(PID *pid);
+sbyte2 PID_getProportional(PID *pid);
+sbyte2 PID_getIntegral(PID *pid);
+sbyte2 PID_getDerivative(PID *pid);
 sbyte2 PID_getSaturationValue(PID *pid);
-bool PID_getAntiWindupFlag(PID *pid);
+bool   PID_getAntiWindupFlag(PID *pid);
 #endif //_PID_H

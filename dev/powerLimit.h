@@ -20,34 +20,40 @@ typedef struct _PowerLimit {
 
 //-------------CAN IN ORDER: 511: Power Limit Overview-----------------------------------------------------
 
-    bool plStatus;
-    sbyte2 pidOutput;
-    sbyte2 plTorqueCommand;
-    ubyte1 plInitializationThreshold;
-    ubyte1 plTargetPower;
+    bool   plStatus;
     ubyte1 plMode;
-    
-    // me->pid->Kd; ubyte1
+    ubyte1 plTargetPower;
+    ubyte1 plInitializationThreshold;
+    sbyte2 plTorqueCommand;
+    //me->pid->pidOutput;   sbyte2
 
-//-------------CAN IN ORDER: 512: Power Limit LUT Parameters-----------------------------------------------------
+//-------------CAN IN ORDER: 512: Power Limit PID Output Details-----------------------------------------------------
+
+    // me->pid->proportional;   sbyte2
+    // me->pid->integral;       sbyte2
+    // me->pid->derivative;     sbyte2
+    // me->pid->antiWindupFlag; bool
+
+    // For Testing Purposes
+    // POWERLIMIT_getStatusCodeBlock(pl);
+
+
+//-------------CAN IN ORDER: 513: Power Limit LUT Parameters-----------------------------------------------------
 
     ubyte1 vFloorRFloor;
     ubyte1 vFloorRCeiling;
     ubyte1 vCeilingRFloor;
     ubyte1 vCeilingRCeiling;
 
+//-------------CAN IN ORDER: 514: Power Limit PID Information-----------------------------------------------------
 
-//-------------CAN IN ORDER: 513: Power Limit PID Outputs-----------------------------------------------------
-
-    // me->pid->setpoint; sbyte2
+    // me->pid->setpoint;   sbyte2
     // me->pid->totalError; sbyte4
-    // me->pid->Kp; ubyte1
-    // me->pid->Ki; ubyte1
+    // me->pid->Kp;         ubyte1
+    // me->pid->Ki;         ubyte1
 
-    /* WANT TO ADD */
-    // me->pid->proportional;
-    // me->pid->integral;
-    // me->pid->derivative;
+    //Odd Man Out
+    // me->pid->Kd;         ubyte1
 
 } PowerLimit;
 
@@ -61,12 +67,13 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 /** COMPUTATIONS **/
 
 void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID* plPID);
+sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
 //void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
-//ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
-ubyte2 POWERLIMIT_calculateTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
+//ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 
 /** GETTER FUNCTIONS **/
 
+ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);
 bool   POWERLIMIT_getStatus(PowerLimit* me);
 ubyte1 POWERLIMIT_getMode(PowerLimit* me);
 sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me);
@@ -74,7 +81,6 @@ ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me);
 ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me);
 //Returns 0xFF if an invalid corner is given
 ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
-sbyte2 POWERLIMIT_getPIDOutput(PowerLimit* me);
 ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm);
 
 #endif //_POWERLIMIT_H
