@@ -47,11 +47,15 @@ void PID_setTotalError(PID* pid, sbyte2 error){
     pid->totalError = error;
 }
 
+void PID_setSaturationValue(PID *pid, sbyte2 saturationValue){
+    pid->saturationValue = saturationValue;
+}
+
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
     pid->setpoint = setpoint; 
 }
 
-sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 clampValue) {
+sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->currentError = pid->setpoint - sensorValue;
     pid->proportional = (pid->Kp * pid->currentError) / 10; //proportional
     pid->integral   = (pid->Ki * (pid->totalError + pid->currentError) / pid->dH) / 10; //integral
@@ -61,7 +65,7 @@ sbyte2 PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 clampValue) {
 
     pid->output = pid->proportional;
     //Check to see if motor is saturated at max torque request already
-    if(clampValue <= sensorValue)
+    if(pid->saturationValue <= sensorValue)
     {
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;
@@ -95,6 +99,14 @@ sbyte2 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 
-sbyte2 PID_getOutput(PID* pid){
+sbyte2 PID_getOutput(PID *pid){
     return pid->output;
+}
+
+sbyte2 PID_getSaturationValue(PID *pid){
+    return pid->saturationValue;
+}
+
+bool PID_getAntiWindupFlag(PID *pid){
+    return pid->antiWindupFlag;
 }
