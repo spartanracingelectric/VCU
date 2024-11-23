@@ -300,40 +300,19 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-  /* TESTING PURPOSEs ONLY FOR HARDCODING
-  float4 motorRPM = (float4)MCM_getMotorRPM(me);
- float4 kilowatts =  (float4)((float4)MCM_getPower(me)/1000); // divide by 1000 to get watts --> kilowatts
-  if(kilowatts > KWH_LIMIT) {
-      
-        float4 predictedtq = (float4)(kilowatts*9549.0/motorRPM)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
-        float4 test =(float4)(KWH_LIMIT*9549.0*10.0);
-        float4 tqsetpoint = (float4)(test/motorRPM); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+    /** MOTOR TORQUE COMMAND LOGIC **/
+    // abstraction might be warranted for the below logic
 
-        sbyte2 error = (sbyte2)((sbyte2)predictedtq - (sbyte2)tqsetpoint);
-       appsTorque =  appsTorque - error;
-  }
-  */ 
-    
-    if(me->launchControlState == TRUE)
+    torqueOutput = appsTorque + bpsTorque;
+
+    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
     {
         torqueOutput = me->lcTorqueCommand;
     } 
-    if(me->plActive == TRUE)
+    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
     {
-        //reset torque command. should have a better way of implementation and some absraction too, but for another time
-        torqueOutput = 0;
         me->launchControlState == FALSE;
-        sbyte2 tempTorque = me->plTorqueCommand;
-        if(tempTorque < appsTorque)
-            torqueOutput = tempTorque + bpsTorque;
-        else
-            torqueOutput = appsTorque + bpsTorque;
-    }
-    else {
-        torqueOutput = appsTorque + bpsTorque;
-        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
-        torqueOutput = appsTorque + bpsTorque;
-        // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+        torqueOutput = me->plTorqueCommand + bpsTorque;
     }
     //Safety Check. torqueOutput Should never rise above 231
     if(torqueOutput > 231)
