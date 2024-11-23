@@ -124,15 +124,14 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         
         //TQ equation
 
-        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 9549 / MCM_getMotorRPM(mcm) / 100);
+        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 95490 / MCM_getMotorRPM(mcm) / 100);
 
         //Torque feedback. build later
 
-        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 9549 / MCM_getMotorRPM(mcm) / 100)'
+        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 95490 / MCM_getMotorRPM(mcm) / 100)'
 
         //PID in deciNewton Meters
         commandedTorque = commandedTorque * 10;
-        pidSetpoint = pidSetpoint * 10;
 
         PID_updateSetpoint(me->pid, pidSetpoint);
         PID_computeOutput(me->pid, commandedTorque);
@@ -142,7 +141,7 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
     }
     else {
         me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, 0);
+        MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
 }
