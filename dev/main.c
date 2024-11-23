@@ -376,7 +376,7 @@ void main(void)
         
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
-        testing(pl);
+       // testing(pl);
 
         //DataAquisition_update(); //includes accelerometer
         //TireModel_update()
