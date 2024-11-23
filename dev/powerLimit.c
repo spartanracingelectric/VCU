@@ -110,12 +110,26 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
         
         //issue here
         sbyte2 pidSetpoint = POWERLIMIT_retrieveTorqueFromLUT(me, noLoadVoltage, motorRPM);
+
+        //TQ equation. uncomment to run this instead
+
+        //pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm));
+
         // If the LUT gives a bad value this is our catch all
-        if(pidSetpoint == -1){
+        if(pidSetpoint < 0 | pidSetpoint > 231){
             pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm)); 
         }
+        
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
+        //TQ equation
+
+        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 9549 / MCM_getMotorRPM(mcm) / 100);
+
+        //Torque feedback. build later
+
+        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 9549 / MCM_getMotorRPM(mcm) / 100)'
+
         //PID in deciNewton Meters
         commandedTorque = commandedTorque * 10;
         pidSetpoint = pidSetpoint * 10;
