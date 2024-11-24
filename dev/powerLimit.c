@@ -141,7 +141,7 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
     }
     else {
         me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, 0);
+        MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
 }
