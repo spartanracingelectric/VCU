@@ -225,9 +225,7 @@ void main(void)
     DRS *drs = DRS_new();
     PowerLimit *pl = POWERLIMIT_new();
     PID *lcPID = PID_new(200,0,0,0);
-    PID *plPID = PID_new(200,0,0,0);
     PID_setSaturationValue(lcPID, 231);
-    PID_setSaturationValue(plPID, 231);
 //---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
@@ -428,7 +426,6 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
         PID_setSaturationValue(lcPID, 231);
-        PID_setSaturationValue(plPID, 231);
         LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
@@ -437,8 +434,7 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        PID_updateGainValues(plPID,12,0,0);
-        POWERLIMIT_calculateTorqueCommand(mcm0, pl, plPID);
+        POWERLIMIT_calculateTorqueCommand(pl, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
