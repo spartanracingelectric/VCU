@@ -20,7 +20,6 @@
 
 PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
     // for some reason the kp ki kd values are not updated correctly so we reinit them 
-    // Kp Ki & Kd are in deci units, aka a Kp of 12 is actually 1.2.
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
@@ -69,9 +68,9 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = pid->Kp * currentError / 10;
-    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH / 10;
-    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH / 10;
+    pid->proportional   = pid->Kp * currentError;
+    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH;
+    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH;
     pid->previousError  = currentError;
     pid->totalError    += currentError;
 
