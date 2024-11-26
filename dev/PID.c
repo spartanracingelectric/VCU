@@ -68,10 +68,10 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
     pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
-    pid->integral       = (sbyte2) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10;
+    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
     pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
     pid->previousError  = currentError;
-    pid->totalError    += currentError;
+    pid->totalError    += (sbyte4)currentError;
 
     // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional;
@@ -111,7 +111,7 @@ sbyte2 PID_getPreviousError(PID *pid){
     return pid->previousError;
 }
 
-sbyte2 PID_getTotalError(PID* pid){
+sbyte4 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 

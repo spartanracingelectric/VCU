@@ -18,7 +18,7 @@ typedef struct _PID {
     sbyte1 Kd;               // Derivative   gain
     sbyte2 setpoint;         // Target       value
     sbyte2 previousError;
-    sbyte2 totalError;
+    sbyte4 totalError;
     sbyte2 dH;               // Time interval between PID updates in seconds (VCU tick speed)
     sbyte2 output;
     sbyte2 proportional;
@@ -54,7 +54,7 @@ sbyte1 PID_getKi(PID *pid);
 sbyte1 PID_getKd(PID *pid);
 sbyte2 PID_getSetpoint(PID *pid);
 sbyte2 PID_getPreviousError(PID *pid);
-sbyte2 PID_getTotalError(PID* pid);
+sbyte4 PID_getTotalError(PID* pid);
 sbyte2 PID_getOutput(PID *pid);
 sbyte2 PID_getProportional(PID *pid);
 sbyte2 PID_getIntegral(PID *pid);
