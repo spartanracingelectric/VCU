@@ -1,10 +1,13 @@
 /*****************************************************************************
  * powerLimit.c - Power Limiting using a PID controller & LUT to simplify calculations
- * Initial Author(s): Shaun Gilmore / Harleen Sandhu
+ * Initial Author(s): Harleen Sandhu/Shaun Gilmore 
  ******************************************************************************
  * Power Limiting code with a flexible Power Target & Initialization Limit
- * 
- * DESCRIPTION COMING SOON
+ * Goal: Find a way to limit power under a certain KWH limit (80kwh) while maximizing torque
+ * Methods: Currently we are using three methods that are highlighted here:
+ *  POWERLIMIT_calculateTorqueCommand: Algorithm is based on using a combination of LUT and the torque equation method
+ *  POWERLIMIT_calculateTorqueCommandTorqueEquation: Algorithm is based on a mechanical conversion of power to torque
+ *  POWERLIMIT_calculateTorqueCommandPowerPID: Algorithm uses power as a parameter inside the PID the percentage difference of the power is then used to offset torque.  
  * 
  ****************************************************************************/
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
@@ -118,7 +121,8 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         if(pidSetpoint < 0 | pidSetpoint > 231){
             pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
         }
-        
+        pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
         //TQ equation
@@ -139,6 +143,14 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         me->plStatus = FALSE;
         MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
+    
+    if(POWERLIMIT_getMode(me) >= 20 && POWERLIMIT_getMode(me) < 30){
+        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
+    }
+
+    if(POWERLIMIT_getMode(me) >= 30 && POWERLIMIT_getMode(me) < 40){
+        POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
     }
 }
 
@@ -168,6 +180,17 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
     me->vCeilingRFloor   = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmFloor);
     me->vCeilingRCeiling = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
 
+    // If voltageFloor == voltageCeiling then voltageLowerDiff == voltageUpperDiff == 0, which means we get a multiply by 0 error.
+    // We want a single interpolation bypass for any of these scenarios
+
+    if(voltageLowerDiff == 0){
+        return (sbyte2) ((ubyte4) me->vFloorRFloor + (rpmLowerDiff) * (me->vFloorRCeiling - me->vFloorRFloor) / RPM_STEP);
+    }
+
+    if(rpmLowerDiff == 0){
+        return (sbyte2) ((ubyte4) me->vFloorRFloor + (voltageLowerDiff) * (me->vCeilingRFloor - me->vFloorRFloor) / VOLTAGE_STEP);
+    }
+
     // Calculate interpolation values
     ubyte4 stepDivider          = (ubyte4)VOLTAGE_STEP          * RPM_STEP;
     ubyte4 torqueFloorFloor     = (ubyte4)me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
@@ -179,12 +202,64 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
     return (sbyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
 
-sbyte2 POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm, PID *plPID){
+void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
+    //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
+    me->plMode = 21;
+    PID_setSaturationPoint(me->pid, 8000);
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        me->plStatus = TRUE;
 
+        /* Sensor inputs */
+        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+
+        sbyte2 pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+
+        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+
+        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_computeOutput(me->pid, commandedTorque);
+        me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
+    else {
+        me->plStatus = FALSE;
+        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
 }
 
-sbyte2 POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm, PID *plPID){
+void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
+        //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 3 for third pl method, 1 representing the pwoer target
+    PID_setSaturationPoint(me->pid, 8000);
+    me->plMode = 31;
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        me->plStatus = TRUE;
 
+        /* Sensor inputs */
+        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+        sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
+        sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
+
+        sbyte2 pidTargetValue = me->plTargetPower * 100;
+        sbyte2 pidCurrentValue = (sbyte2) MCM_getPower(mcm) / 10;
+
+        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+
+        PID_updateSetpoint(me->pid, pidTargetValue);
+        PID_computeOutput(me->pid, pidCurrentValue);
+        me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
+        if(me->plTorqueCommand > 2310)
+            me->plTorqueCommand = 2310;
+            
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
+    else {
+        me->plStatus = FALSE;
+        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
 }
 
 

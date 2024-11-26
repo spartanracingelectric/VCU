@@ -15,7 +15,6 @@
  * Proportional test first with other output 0, get midway with target and then tune other items. There are many factors of noise.
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
-#include <stdlib.h>
 #include "PID.h"
 
 PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
@@ -48,18 +47,18 @@ void PID_setTotalError(PID* pid, sbyte2 error){
     pid->totalError = error;
 }
 
-void PID_setSaturationValue(PID *pid, sbyte2 saturationValue){
+void PID_setSaturationPoint(PID *pid, sbyte2 saturationValue){
     pid->saturationValue = saturationValue;
 }
 
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
-    if(pid->saturationValue > 0){
-        if(pid->saturationValue > setpoint)
-            pid->setpoint = setpoint;
-        else
-            pid->setpoint = pid->saturationValue;
-    }
-    else //this else statement exists for any uncapped pid that has no saturation point.
+    if(pid->saturationValue > setpoint)
+        pid->setpoint = setpoint;
+    else
+        pid->setpoint = pid->saturationValue;
+        
+    //this if statement exists for any uncapped pid that has no saturation point.
+    if(pid->saturationValue == 0)
         pid->setpoint = setpoint;
 }
 
@@ -67,17 +66,17 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = pid->Kp * currentError / 10;
-    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH  / 10;
-    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
+    pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
+    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
+    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
     pid->previousError  = currentError;
-    pid->totalError    += currentError;
+    pid->totalError    += (sbyte4)currentError;
 
     // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional;
 
     //Check to see if motor is saturated at max torque request already
-    if(pid->saturationValue <= sensorValue)
+    if(pid->saturationValue >= sensorValue)
     {
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;
@@ -111,7 +110,7 @@ sbyte2 PID_getPreviousError(PID *pid){
     return pid->previousError;
 }
 
-sbyte2 PID_getTotalError(PID* pid){
+sbyte4 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 

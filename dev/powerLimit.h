@@ -70,7 +70,8 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
 //void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
 //ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
-
+void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
 /** GETTER FUNCTIONS **/
 
 ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);

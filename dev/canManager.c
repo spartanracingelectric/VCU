@@ -882,7 +882,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid);
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 16;
-    canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 32;
+    canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 24;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getKp(pl->pid);
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getKi(pl->pid);
     canMessages[canMessageCount - 1].length = byteNum;
