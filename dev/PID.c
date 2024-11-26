@@ -18,21 +18,20 @@
 #include <stdlib.h>
 #include "PID.h"
 
-PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 setpoint) {
-    // for some reason the kp ki kd values are not updated correctly so we reinit them 
+PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-    pid->setpoint      = setpoint; 
+    pid->setpoint      = 0; 
     pid->previousError = 0;
     pid->totalError    = 0;
-    pid->dH            = 100; // 100 Hz aka 10 ms cycle time
+    pid->dH            = 100; // 100 Hz aka 10 ms cycle time. view as inverese of 0.01 seconds, being done to avoid fpu usage
     pid->output        = 0;
     pid->proportional  = 0;
     pid->integral      = 0;
     pid->derivative    = 0;
-    pid->saturationValue = 0;
+    pid->saturationValue = saturationValue;
     pid->antiWindupFlag = FALSE;
     return pid;
 }
@@ -68,9 +67,9 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = pid->Kp * currentError;
-    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH;
-    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH;
+    pid->proportional   = pid->Kp * currentError / 10;
+    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH  / 10;
+    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
     pid->previousError  = currentError;
     pid->totalError    += currentError;
 

@@ -26,8 +26,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(20, 0, 0, 0);
-    PID_setSaturationValue(me->pid, 2310);
+    me->pid = PID_new(40, 20, 0, 231);
     me->plMode = 1;
     /*
     me->hashtable = HashTable_new();
@@ -90,7 +89,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 /** COMPUTATIONS **/
 
-void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID* plPID){
+void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     
     //if(rotary_button_input != plMode)
     POWERLIMIT_setModeParameters(me);
@@ -113,26 +112,26 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
 
         //TQ equation. uncomment to run this instead
 
-        //pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm));
+        //pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
 
         // If the LUT gives a bad value this is our catch all
         if(pidSetpoint < 0 | pidSetpoint > 231){
-            pidSetpoint = (sbyte2)(me->plTargetPower * 95490 / MCM_getMotorRPM(mcm)); 
+            pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
         }
         
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
         //TQ equation
 
-        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 95490 / MCM_getMotorRPM(mcm) / 100);
+        //commandedTorque = (sbyte2)(MCM_getPower(mcm) * 9549 / MCM_getMotorRPM(mcm) / 100);
 
         //Torque feedback. build later
 
-        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 95490 / MCM_getMotorRPM(mcm) / 100)'
+        //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 9549 / MCM_getMotorRPM(mcm) / 100);
 
         PID_updateSetpoint(me->pid, pidSetpoint);
         PID_computeOutput(me->pid, commandedTorque);
-        me->plTorqueCommand = commandedTorque + PID_getOutput(me->pid)*10;
+        me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
@@ -143,7 +142,7 @@ void POWERLIMIT_calculateTorqueCommand(MotorController* mcm, PowerLimit* me, PID
     }
 }
 
-sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
+sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
     
     // LUT Lower Bounds
     ubyte4 VOLTAGE_MIN      = 280;
@@ -179,6 +178,15 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 voltage, sbyte4 r
     // Final TQ from LUT
     return (sbyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
+
+sbyte2 POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm, PID *plPID){
+
+}
+
+sbyte2 POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm, PID *plPID){
+
+}
+
 
 /*
 void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 target)
