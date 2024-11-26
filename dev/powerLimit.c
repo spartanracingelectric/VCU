@@ -141,6 +141,14 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
+    
+    if(POWERLIMIT_getMode(me) >= 20){
+        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
+    }
+
+    if(POWERLIMIT_getMode(me) >= 30){
+        POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
+    }
 }
 
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
@@ -180,12 +188,43 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
     return (sbyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
 }
 
-sbyte2 POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm, PID *plPID){
+void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
+    //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
+    me->plMode = 21;
 
 }
 
-sbyte2 POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm, PID *plPID){
+void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
+        //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 3 for third pl method, 1 representing the pwoer target
+    PID_setSaturationPoint(me->pid, 8000);
+    me->plMode = 31;
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        me->plStatus = TRUE;
 
+        /* Sensor inputs */
+        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+        sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
+        sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
+
+        sbyte2 pidTargetValue = me->plTargetPower * 100;
+        sbyte2 pidCurrentValue = (sbyte2) MCM_getPower(mcm) / 10;
+
+        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+
+        PID_updateSetpoint(me->pid, pidTargetValue);
+        PID_computeOutput(me->pid, pidCurrentValue);
+        me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
+        if(me->plTorqueCommand > 2310)
+            me->plTorqueCommand = 2310;
+            
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
+    else {
+        me->plStatus = FALSE;
+        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
 }
 
 

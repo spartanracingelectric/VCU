@@ -39,7 +39,7 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue);
 /** SETTER FUNCTIONS  **/
 
 void PID_setTotalError(PID* pid, sbyte2 totalError);
-void PID_setSaturationValue(PID *pid, sbyte2 saturationValue);
+void PID_setSaturationPoint(PID *pid, sbyte2 saturationValue);
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint);
 void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd);
 

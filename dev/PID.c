@@ -48,7 +48,7 @@ void PID_setTotalError(PID* pid, sbyte2 error){
     pid->totalError = error;
 }
 
-void PID_setSaturationValue(PID *pid, sbyte2 saturationValue){
+void PID_setSaturationPoint(PID *pid, sbyte2 saturationValue){
     pid->saturationValue = saturationValue;
 }
 
