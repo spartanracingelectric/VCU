@@ -53,13 +53,13 @@ void PID_setSaturationValue(PID *pid, sbyte2 saturationValue){
 }
 
 void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
-    if(pid->saturationValue > 0){
-        if(pid->saturationValue > setpoint)
-            pid->setpoint = setpoint;
-        else
-            pid->setpoint = pid->saturationValue;
-    }
-    else //this else statement exists for any uncapped pid that has no saturation point.
+    if(pid->saturationValue > setpoint)
+        pid->setpoint = setpoint;
+    else
+        pid->setpoint = pid->saturationValue;
+        
+    //this if statement exists for any uncapped pid that has no saturation point.
+    if(pid->saturationValue == 0)
         pid->setpoint = setpoint;
 }
 
@@ -67,9 +67,9 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = pid->Kp * currentError / 10;
-    pid->integral       = pid->Ki * (pid->totalError + currentError) / pid->dH  / 10;
-    pid->derivative     = pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
+    pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
+    pid->integral       = (sbyte2) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10;
+    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
     pid->previousError  = currentError;
     pid->totalError    += currentError;
 
@@ -77,7 +77,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->output = pid->proportional;
 
     //Check to see if motor is saturated at max torque request already
-    if(pid->saturationValue <= sensorValue)
+    if(pid->saturationValue >= sensorValue)
     {
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;

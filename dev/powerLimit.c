@@ -26,7 +26,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(40, 20, 0, 231);
+    me->pid = PID_new(40, 0, 0, 231);
     me->plMode = 1;
     /*
     me->hashtable = HashTable_new();
@@ -118,7 +118,8 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         if(pidSetpoint < 0 | pidSetpoint > 231){
             pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
         }
-        
+        pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+        //pidSetpoint = 203;
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
         //TQ equation
