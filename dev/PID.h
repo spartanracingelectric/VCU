@@ -29,7 +29,8 @@ typedef struct _PID {
 }PID;
 
 /**
- * Kp, Ki, & Kd are in deci- units, meaning PID_new(10,0,0,500) gives a Kp of 1.0 and a setpoint of 500.
+ * Kp, Ki, & Kd are in deci- units, meaning PID_new(10,0,0,231) gives a Kp of 1.0 and a saturation value of 231. 
+ * Setting the saturation value to 0 uncaps the PID, and it will never exhibit clamping behavior.
  * If using the PID with deci-newton meters, the maximum safe Kp value is 141 aka 14.1, in the event of a 
  * maximized currenterror (pid->setpoint - sensorValue = 2310)
  * */
