@@ -26,7 +26,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(40, 0, 0, 231);
+    me->pid = PID_new(40, 20, 0, 231);
     me->plMode = 1;
     /*
     me->hashtable = HashTable_new();
