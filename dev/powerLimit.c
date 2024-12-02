@@ -152,18 +152,18 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
 }
 
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-     int voltageFloor      = int_lowerStepInterval(voltage,5);
-    int voltageCeiling    = int_upperStepInterval(voltage,5);
-    int rpmFloor          = int_lowerStepInterval(rpm,160);
-    int rpmCeiling        = int_upperStepInterval(rpm,160);
+     int voltageFloor      = (int)ubyte4_lowerStepInterval(voltage,5);
+    int voltageCeiling    = (int)ubyte4_upperStepInterval(voltage,5);
+    int rpmFloor          = (int)ubyte4_lowerStepInterval(rpm,160);
+    int rpmCeiling        = (int)ubyte4_upperStepInterval(rpm,160);
     
     // Calculating these now to speed up interpolation later in method
 
     // Retrieve torque values from the hash table for the four corners
-    int vFloorRFloor      = POWERLIMIT_getTorqueFromArray(voltageFloor, rpmFloor);
-    int vFloorRCeiling    = POWERLIMIT_getTorqueFromArray( voltageFloor, rpmCeiling);
-    int vCeilingRFloor    = POWERLIMIT_getTorqueFromArray( voltageCeiling, rpmFloor);
-    int vCeilingRCeiling  = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
+    int vFloorRFloor      = (int)POWERLIMIT_getTorqueFromArray(voltageFloor, rpmFloor);
+    int vFloorRCeiling    = (int)POWERLIMIT_getTorqueFromArray( voltageFloor, rpmCeiling);
+    int vCeilingRFloor    = (int)POWERLIMIT_getTorqueFromArray( voltageCeiling, rpmFloor);
+    int vCeilingRCeiling  = (int)POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
 
     // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same.
     if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
@@ -180,7 +180,7 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
 
     // Final TQ from LUT
     int TQ =  (gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + vFloorRFloor;
-    ubyte2 interptq = (ubyte2)(TQ);
+    sbyte2 interptq = (sbyte2)(TQ);
    return interptq;
 }
 
