@@ -152,40 +152,36 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
 }
 
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
-    
-    // LUT Lower Bounds
-    ubyte4 VOLTAGE_MIN      = 280;
-    ubyte4 RPM_MIN          = 2000;
-    
-    // Calculating hashtable keys
-    ubyte4 rpmInput         = (ubyte4)rpm - RPM_MIN;
-    ubyte4 voltageInput     = (ubyte4)voltage - VOLTAGE_MIN;
-    ubyte4 voltageFloor     = ubyte4_lowerStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
-    ubyte4 voltageCeiling   = ubyte4_upperStepInterval(voltageInput, VOLTAGE_STEP) + VOLTAGE_MIN;
-    ubyte4 rpmFloor         = ubyte4_lowerStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
-    ubyte4 rpmCeiling       = ubyte4_upperStepInterval(rpmInput, RPM_STEP) + RPM_MIN;
+     int voltageFloor      = int_lowerStepInterval(voltage,5);
+    int voltageCeiling    = int_upperStepInterval(voltage,5);
+    int rpmFloor          = int_lowerStepInterval(rpm,160);
+    int rpmCeiling        = int_upperStepInterval(rpm,160);
     
     // Calculating these now to speed up interpolation later in method
-    ubyte4 voltageLowerDiff = voltage - voltageFloor;
-    ubyte4 voltageUpperDiff = voltageCeiling - voltage;
-    ubyte4 rpmLowerDiff     = rpm - rpmFloor;
-    ubyte4 rpmUpperDiff     = rpmCeiling - rpm;
 
     // Retrieve torque values from the hash table for the four corners
-    me->vFloorRFloor     = POWERLIMIT_getTorqueFromArray(voltageFloor, rpmFloor);
-    me->vFloorRCeiling   = POWERLIMIT_getTorqueFromArray(voltageFloor, rpmCeiling);
-    me->vCeilingRFloor   = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmFloor);
-    me->vCeilingRCeiling = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
+    int vFloorRFloor      = POWERLIMIT_getTorqueFromArray(voltageFloor, rpmFloor);
+    int vFloorRCeiling    = POWERLIMIT_getTorqueFromArray( voltageFloor, rpmCeiling);
+    int vCeilingRFloor    = POWERLIMIT_getTorqueFromArray( voltageCeiling, rpmFloor);
+    int vCeilingRCeiling  = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
 
+    // Early escape in case values are the same. May want to make more complex for scenarios such as 2 of the values are the same.
+    if(vFloorRFloor == vFloorRCeiling && vCeilingRFloor == vCeilingRCeiling)
+    {
+        return vFloorRFloor;
+    }
+
+    
+    int horizontal_Interp = (((vCeilingRFloor - vFloorRFloor) / 5) + ((vCeilingRCeiling - vFloorRCeiling) / 5)) / 2;
+    int vertical_Interp = (((vFloorRCeiling - vFloorRFloor) / 160) + ((vCeilingRCeiling - vCeilingRFloor) / 160)) / 2;
     // Calculate interpolation values
-    ubyte4 stepDivider          = (ubyte4)VOLTAGE_STEP          * RPM_STEP;
-    ubyte4 torqueFloorFloor     = (ubyte4)me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
-    ubyte4 torqueFloorCeiling   = (ubyte4)me->vFloorRCeiling    * voltageUpperDiff * rpmLowerDiff;
-    ubyte4 torqueCeilingFloor   = (ubyte4)me->vCeilingRFloor    * voltageLowerDiff * rpmUpperDiff;
-    ubyte4 torqueCeilingCeiling = (ubyte4)me->vCeilingRCeiling  * voltageLowerDiff * rpmLowerDiff;
+   int gainValueHoriz = voltage % 5;
+   int gainValueVertical = rpm % 160;
 
     // Final TQ from LUT
-    return (sbyte2)((torqueFloorFloor + torqueFloorCeiling + torqueCeilingFloor + torqueCeilingCeiling) / stepDivider);
+    int TQ =  (gainValueHoriz * horizontal_Interp) + (gainValueVertical * vertical_Interp) + vFloorRFloor;
+    ubyte2 interptq = (ubyte2)(TQ);
+   return interptq;
 }
 
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
