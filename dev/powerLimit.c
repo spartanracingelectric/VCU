@@ -177,6 +177,17 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
     me->vCeilingRFloor   = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmFloor);
     me->vCeilingRCeiling = POWERLIMIT_getTorqueFromArray(voltageCeiling, rpmCeiling);
 
+    // If voltageFloor == voltageCeiling then voltageLowerDiff == voltageUpperDiff == 0, which means we get a multiply by 0 error.
+    // We want a single interpolation bypass for any of these scenarios
+
+    if(voltageLowerDiff == 0){
+        return (sbyte2) ((ubyte4) me->vFloorRFloor + (rpmLowerDiff) * (me->vFloorRCeiling - me->vFloorRFloor) / RPM_STEP);
+    }
+
+    if(rpmLowerDiff == 0){
+        return (sbyte2) ((ubyte4) me->vFloorRFloor + (voltageLowerDiff) * (me->vCeilingRFloor - me->vFloorRFloor) / VOLTAGE_STEP);
+    }
+
     // Calculate interpolation values
     ubyte4 stepDivider          = (ubyte4)VOLTAGE_STEP          * RPM_STEP;
     ubyte4 torqueFloorFloor     = (ubyte4)me->vFloorRFloor      * voltageUpperDiff * rpmUpperDiff;
