@@ -575,8 +575,8 @@ ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm)
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 38, 60, 75, 87, 97, 106, 115, 121, 127, 129, 129, 129, 129, 129, 129, 129},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 51, 67, 80, 90, 99, 107, 115, 122, 125, 126, 126, 126, 126, 126, 126}};
 
-    ubyte2 column = (ubyte2) (noLoadVoltage - VOLTAGE_MIN) / VOLTAGE_STEP;
-    ubyte2 row    = (ubyte2) (rpm - RPM_MIN) / RPM_STEP;
+    ubyte1 column = (ubyte1) ((noLoadVoltage - VOLTAGE_MIN) / VOLTAGE_STEP);
+    ubyte1 row    = (ubyte1) ((rpm - RPM_MIN) / RPM_STEP);
     ubyte1 value = POWER_LIM_LUT_80[row][column];
     return value;
 }
