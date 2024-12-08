@@ -21,4 +21,9 @@ Endurance Limit: 170Nm
         - Use pre-made functions from other files (BMS & MCM)
         - Refer to bms.c and motorController.c for get_functions
 2. Sofrware integration
+
+
+Step 1. Reading Data
+Step 2. Logic stuff to alter "max" torque 
+
 */
