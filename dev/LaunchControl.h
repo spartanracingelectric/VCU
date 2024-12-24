@@ -22,18 +22,21 @@ typedef struct _PIDController {
 } PIDController;
 */
 typedef struct _LaunchControl {
+    PID *pid;
+
+
+
     float4 slipRatio;
-    sbyte2 lcTorque;
     bool lcReady;
     bool lcActive; // Just for CAN to showcase when enabled
-    ubyte1 potLC;
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss);
-void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcPID);
+void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
+void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
 bool LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *lc);
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *lc);
