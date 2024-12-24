@@ -66,6 +66,7 @@ Kp will give you the difference between 0.1 current vs 0.2 target -> if you want
 
 LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
+    me->pid = PID_new(40, 20, 0, 231);
     // malloc returns NULL if it fails to allocate memory
     if (me == NULL)
         return NULL;
