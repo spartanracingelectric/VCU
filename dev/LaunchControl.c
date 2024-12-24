@@ -63,19 +63,24 @@ Proportional test first with other output 0, get midway with target and then tun
 Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for kp to get target
 */
 /* Start of Launch Control */
-LaunchControl *LaunchControl_new(){// this goes outside the while loop
+
+LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
+    me->pid = PID_new(40, 20, 0, 231);
     // malloc returns NULL if it fails to allocate memory
     if (me == NULL)
         return NULL;
     
+    me->pid = PID_new(40, 20, 0, 231);
     me->slipRatio = 0;
-    me->lcTorqueCommand = -1;
+    me->lcTorqueCommand = NULL;
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
+    PID_updateSetpoint(me->pid, 2); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     return me;
 }
+
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     float4 unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
     float4 filt_speed = unfilt_speed;
@@ -88,8 +93,25 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     me->slipRatio = filt_speed;
     //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
-void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, PID *lcPID)
-{
+
+void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
+    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
+    PID_computeOutput(me->pid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
+    float4 appsTqPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
+    float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
+    me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + PID_getOutput(me->pid); // adds the ajusted value from the pid to the torqueval}
+
+    if(speedKph < 3){
+        me->lcTorqueCommand = 20;
+    }
+
+    // Update launch control state and torque limit
+    MCM_update_LC_state(mcm, me->lcActive);
+    MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10);
+}
+
+void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
     sbyte2 speedKph         = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle    = steering_degrees();
     /* LC STATUS CONDITIONS */
@@ -109,44 +131,27 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         me->lcActive = TRUE;
         me->lcReady = FALSE;
-        PID_setTotalError(lcPID, 170); // Error should be set here, so for every launch we reset our error to this value
+        PID_setTotalError(me->pid, 170); // Error should be set here, so for every launch we reset our error to this value
     }
 
-    if(me->lcActive == TRUE && Sensor_LCButton.sensorValue == FALSE && tps->travelPercent > .90){
-        // me->lcTorqueCommand = lcPID->totalError; // Set to the initial torque /** What is this even for? This is like not even the right thing to do **/
-        if(speedKph < 3)
-        {
-            me->lcTorqueCommand = 20;
-            
-          
-        }
-        else
-        {
-            PID_updateSetpoint(lcPID, 2); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
-            PID_computeOutput(lcPID,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
-            float4 appsTqPercent;
-            TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-            float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
-            me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + PID_getOutput(lcPID); // adds the ajusted value from the pid to the torqueval}
-            me->potLC= lcPID->totalError;
-        }
-    }
-
-    if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35 || (tps->travelPercent < 0.90 && me->lcActive == TRUE) || (bps->percent > 0.05 && me->lcActive == TRUE)){
-        me->lcActive = FALSE;
+    if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35){
         me->lcReady = FALSE;
-        me->lcTorqueCommand = -1;
     }
-    // Update launch control state and torque limit
-    MCM_update_LC_state(mcm, me->lcActive);
-    MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10);
+
+    if(tps->travelPercent < 0.90 || bps->percent > 0.05){
+        me->lcActive = FALSE;
+        me->lcTorqueCommand = NULL;
+    }
 }
+
 bool LaunchControl_getStatus(LaunchControl *me){
     return me->lcActive;
 }
+
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){
     return me->lcTorqueCommand;
 }
+
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
     return me->buttonDebug;
 }
