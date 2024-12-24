@@ -131,16 +131,14 @@ struct _MotorController
     //};
 
     sbyte2 lcTorqueCommand;
-    bool launchControlState;
+    bool launchControlReadyStatus;
+    bool launchControlActiveStatus;
 
     sbyte2 plTorqueCommand;
     bool plActive;
 
-
-    //---------------------------------------------------------------------------------------------------
-    // copy lc variable for power limit; 
-    //---------------------------------------------------------------------------------------------------
-
+    bool speedControl;
+    sbyte2 launchControlSpeedCommand;
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -180,7 +178,9 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->motor_temp = 99;
 
     me->lcTorqueCommand = 0;
-    me->launchControlState = FALSE;
+    me->launchControlSpeedCommand = 0;
+    me->launchControlReadyStatus = FALSE;
+    me->launchControlActiveStatus = FALSE;
 
     me-> plTorqueCommand = 0;
     me-> plActive = FALSE;
@@ -305,13 +305,13 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     torqueOutput = appsTorque + bpsTorque;
 
-    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
+    if(me->launchControlActiveStatus == TRUE && me->lcTorqueCommand < appsTorque)
     {
         torqueOutput = me->lcTorqueCommand;
     } 
     if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
     {
-        me->launchControlState = FALSE;
+        me->launchControlActiveStatus = FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
@@ -329,6 +329,40 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->InverterOverride = ENABLED;
     else
         me->InverterOverride = UNKNOWN;
+}
+
+void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps){
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    
+    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    sbyte2 bpsTorque = 0;
+
+    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+    sbyte2 torqueOutput = appsTorque + bpsTorque;
+
+    if(me->launchControlActiveStatus && me->lcTorqueCommand < appsTorque && me->lcTorqueCommand != 0){
+        torqueOutput = me->lcTorqueCommand;
+    }
+
+    if(me->plActive && me->plTorqueCommand < appsTorque){
+        me->launchControlActiveStatus = FALSE;
+        torqueOutput = me->plTorqueCommand + bpsTorque;
+    }
+    
+    // Ready Status Overrides all other TPS / Torque Requests to allow driver to put throttle at 100% TPS without moving the car
+    if(me->launchControlReadyStatus){
+        torqueOutput = 0;
+    }
+    
+    MCM_commands_setTorqueDNm(me, torqueOutput);
+}
+
+void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
+    //No apps pedal inputs taken to drive car in speed mode, just check to ensure driver is at 100% request to confirm rules compliance regarding torque requests
+    // IF - Check is done outside of this function, and is not duplicated here
+    MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand);
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
@@ -696,7 +730,12 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
-
+ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController *me){
+    ubyte1 byte = 0x00;
+    byte = (MCM_commands_getInverter(me) == ENABLED) ? 1 : 0;
+    byte = byte | ( MCM_get_speedControlValidity(me) << 2 ); // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
+    return byte;
+}
 
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
 {
@@ -706,15 +745,64 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
+//------------------------------Speed Control--------------------------------
+bool MCM_get_speedControlValidity(MotorController *me)
+{
+    return me->speedControl;
+}
+
+void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps)
+{
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    sbyte2 appsPercent = appsOutputPercent * 100; // ("100" = 100%) Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
+
+    if (appsPercent >= 98) { // Because TPS outputs on CAN at 99.8 when at 100% quite often, we will drag down our check in consideration for this
+        me->speedControl = TRUE;
+    }
+    else {
+        me->speedControl = FALSE; 
+    }
+}
+//------------------------------Launch Control--------------------------------
+
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
     me->lcTorqueCommand = lcTorqueCommand;
 }
 
-void MCM_update_LC_state(MotorController *me, bool newState)
+sbyte2 MCM_get_LC_torqueCommand(MotorController *me)
 {
-    me->launchControlState = newState;
+    return me->lcTorqueCommand;
 }
+
+void MCM_update_LC_speedCommand(MotorController *me, sbyte2 lcSpeedCommand)
+{
+    me->launchControlSpeedCommand = lcSpeedCommand;
+}
+
+sbyte2 MCM_get_LC_speedCommand(MotorController *me)
+{
+    return me->launchControlSpeedCommand;
+}
+
+void MCM_update_LC_readyStatus(MotorController *me, bool newState)
+{
+    me->launchControlReadyStatus = newState;
+}
+bool MCM_get_LC_readyStatus(MotorController *me)
+{
+    return me->launchControlReadyStatus;
+}
+void MCM_update_LC_activeStatus(MotorController *me, bool newState)
+{
+    me->launchControlActiveStatus = newState;
+}
+bool MCM_get_LC_activeStatus(MotorController *me)
+{
+    return me->launchControlActiveStatus;
+}
+
 //----------------------------------------------------PL-------------------------------
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)
 {
