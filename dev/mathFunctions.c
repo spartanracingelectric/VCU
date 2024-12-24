@@ -4,12 +4,6 @@
 #include "IO_Driver.h"
 #include "IO_RTC.h"
 
-#ifndef MATHVARIABLES
-#define MATHVARIABLES
-#define PI_FLOAT 3.14159
-#define PI_SIX_DIGITS_UBYTE 314159
-#endif
-
 /*****************************************************************************
 * Helper functions
 ****************************************************************************/
