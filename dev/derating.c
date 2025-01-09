@@ -33,12 +33,18 @@ Derating *Derating_new(){
     Derating* me = (Derating*)malloc(sizeof(Derating));
 
     me->Derating_status = FALSE;
-    me->Derating_cellTempLim = 0;
-    me->Derating_socLim = 0;
-    me->Derating_torqueLim = 0;
-    me->Derating_powerLim = 0;
+    me->Derating_cellTempLim = 55; //Degree C, Highest cell temp before limp mode is activated 
+    me->Derating_socLim = 0; //%, Lowest SOC before limp mode is acctivated 
+    me->Derating_torqueLim = 125; //Nm, The new max torque for limp mode
+    me->Derating_powerLim = 0; //kW, The new power limit for limp mode
 
     return me;
+}
+
+void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
+    sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
+    // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
+    
 }
 
 bool getDeratingStatus(Derating* me){
