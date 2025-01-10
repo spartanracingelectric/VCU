@@ -1,10 +1,13 @@
 /*****************************************************************************
  * powerLimit.c - Power Limiting using a PID controller & LUT to simplify calculations
- * Initial Author(s): Shaun Gilmore / Harleen Sandhu
+ * Initial Author(s): Harleen Sandhu/Shaun Gilmore 
  ******************************************************************************
  * Power Limiting code with a flexible Power Target & Initialization Limit
- * 
- * DESCRIPTION COMING SOON
+ * Goal: Find a way to limit power under a certain KWH limit (80kwh) while maximizing torque
+ * Methods: Currently we are using three methods that are highlighted here:
+ *  POWERLIMIT_calculateTorqueCommand: Algorithm is based on using a combination of LUT and the torque equation method
+ *  POWERLIMIT_calculateTorqueCommandTorqueEquation: Algorithm is based on a mechanical conversion of power to torque
+ *  POWERLIMIT_calculateTorqueCommandPowerPID: Algorithm uses power as a parameter inside the PID the percentage difference of the power is then used to offset torque.  
  * 
  ****************************************************************************/
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
