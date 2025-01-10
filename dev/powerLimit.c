@@ -145,11 +145,11 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
     
-    if(POWERLIMIT_getMode(me) >= 20){
+    if(POWERLIMIT_getMode(me) >= 20 && POWERLIMIT_getMode(me) < 30){
         POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
     }
 
-    if(POWERLIMIT_getMode(me) >= 30){
+    if(POWERLIMIT_getMode(me) >= 30 && POWERLIMIT_getMode(me) < 40){
         POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
     }
 }
