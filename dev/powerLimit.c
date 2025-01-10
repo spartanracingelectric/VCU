@@ -121,7 +121,6 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         if(pidSetpoint < 0 | pidSetpoint > 231){
             pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
         }
-        pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
