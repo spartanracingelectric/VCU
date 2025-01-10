@@ -15,7 +15,6 @@
  * Proportional test first with other output 0, get midway with target and then tune other items. There are many factors of noise.
  * Kp will give you the difference between 0.1 current vs 0.2 target -> if you want to apply 50nm if your error is 0.1 then you need 500 for Kp to get target
  ****************************************************************************/
-#include <stdlib.h>
 #include "PID.h"
 
 PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
