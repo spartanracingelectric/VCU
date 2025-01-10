@@ -18,6 +18,8 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
 {
+    //if(end == start)
+        // we need some milk (div by 0 error)
     float4 retVal = (value - start) / (end - start);
 
     if (zeroToOneOnly == TRUE)
