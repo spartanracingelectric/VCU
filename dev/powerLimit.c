@@ -119,7 +119,7 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
             pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
         }
         pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
-        //pidSetpoint = 203;
+
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
         
         //TQ equation
@@ -202,7 +202,28 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 21;
+    PID_setSaturationPoint(me->pid, 8000);
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        me->plStatus = TRUE;
 
+        /* Sensor inputs */
+        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+
+        sbyte2 pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+
+        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+
+        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_computeOutput(me->pid, commandedTorque);
+        me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
+    else {
+        me->plStatus = FALSE;
+        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_set_PL_updateStatus(mcm, me->plStatus);
+    }
 }
 
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
