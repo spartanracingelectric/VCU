@@ -51,6 +51,8 @@
 #include "LaunchControl.h"
 #include "drs.h"
 
+#define VCU_CYCLETIME 10000 //10000 ns = 10 ms
+
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
     {
@@ -383,7 +385,7 @@ void main(void)
             StateObserver //choose driver command or ctrl law
         */
 
-        // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
+        // CoolingSystem_calculationsFans(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
 
         //New Code: Pump, ALWAYS ON
@@ -463,7 +465,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < VCU_CYCLETIME) 
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
