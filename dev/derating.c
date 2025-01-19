@@ -43,8 +43,15 @@ Derating *Derating_new(){
 
 void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
     sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
+
+    if (me->Derating_torqueLim != mcm_torqueMax && me->Derating_status == TRUE){
+        MCM_commands_setTorqueLimit(mcm, me->Derating_torqueLim);
+    }
     // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
-    
+    if(BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim){
+        me->Derating_status = TRUE;
+    }
+
 }
 
 bool getDeratingStatus(Derating* me){
