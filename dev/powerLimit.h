@@ -60,8 +60,6 @@ typedef struct _PowerLimit {
 PowerLimit* POWERLIMIT_new(); 
 
 /** SETTER FUNCTIONS  **/
-
-void POWERLIMIT_setModeParameters(PowerLimit* me);
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 
 /** COMPUTATIONS **/
