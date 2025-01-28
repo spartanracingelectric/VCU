@@ -90,7 +90,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
-    sbyte2 speedKph         = MCM_getGroundSpeedKPH(mcm);
+    sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
     PID_computeOutput(me->pid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
     float4 appsTqPercent;
     TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
