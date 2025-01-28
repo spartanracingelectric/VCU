@@ -314,11 +314,6 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->launchControlState == FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
-    //Safety Check. torqueOutput Should never rise above 231
-    if(torqueOutput > 231)
-    {
-        torqueOutput = 0;
-    }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -636,6 +631,11 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
+    
+    //Safety Check. torqueOutput Should never rise above 231
+    if(me->commands_torque > 231){
+       me->commands_torque = 0;
+    }
 }
 
 void MCM_commands_setDirection(MotorController *me, Direction newDirection)

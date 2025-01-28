@@ -17,18 +17,12 @@
 #include "powerLimit.h"
 #include "mathFunctions.h"
 
-#ifndef POWERLIMITCONSTANTS
-#define POWERLIMITCONSTANTS
-
-#define VOLTAGE_STEP     5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
-#define RPM_STEP         160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
-
-#endif
-
-// #define ELIMINATE_CAN_MESSAGES
-
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
+    // malloc returns NULL if it fails to allocate memory
+    if (me == NULL)
+        return NULL;
+        
     me->pid = PID_new(40, 20, 0, 231);
     me->plMode = 1;
     /*
