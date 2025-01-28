@@ -477,7 +477,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < VCU_CYCLE_TIME_MICROSECONDS) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }

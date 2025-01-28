@@ -19,13 +19,17 @@
 
 PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
     PID* pid = (PID*)malloc(sizeof(PID));
+    // malloc returns NULL if it fails to allocate memory
+    if (pid == NULL)
+        return NULL;
+        
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
     pid->setpoint      = 0; 
     pid->previousError = 0;
     pid->totalError    = 0;
-    pid->dH            = 100; // 100 Hz aka 10 ms cycle time. view as inverese of 0.01 seconds, being done to avoid fpu usage
+    pid->dH            = VCU_CYCLE_TIME_HZ; // 100 Hz aka 10 ms cycle time. view as inverese of 0.01 seconds, being done to avoid fpu usage
     pid->output        = 0;
     pid->proportional  = 0;
     pid->integral      = 0;
@@ -66,8 +70,11 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
+    // Divide by 10 is used to convert the error from deci-units to normal units
     pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
+    // Divide by 10 is used to convert the error from deci-units to normal units
     pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
+    // Divide by 10 is used to convert the error from deci-units to normal units
     pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
     pid->previousError  = currentError;
     pid->totalError    += (sbyte4)currentError;
@@ -75,7 +82,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional;
 
-    //Check to see if motor is saturated at max torque request already
+    //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
     if(pid->saturationValue >= sensorValue)
     {
         pid->antiWindupFlag = FALSE;

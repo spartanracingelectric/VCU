@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright (c) 2010 TTTControl. All rights reserved. Confidential proprietory
- * Sch�nbrunnerstra�e 7, A-1040 Wien, Austria. office@ttcontrol.com
+ * Schönbrunnerstraße 7, A-1040 Wien, Austria. office@ttcontrol.com
  **************************************************************************/
 /**********************************************************************//**
  * \file IO_Driver.h
@@ -461,5 +461,30 @@ extern bool io_driver_use_safety;
  *
  **************************************************************************/
  IO_ErrorType IO_Driver_TaskEnd(void);
+
+
+#ifndef VCU_CYCLE_TIME_HZ
+#define VCU_CYCLE_TIME_HZ 100
+#endif
+
+#ifndef VCU_CYCLE_TIME_SECONDS
+#define VCU_CYCLE_TIME_SECONDS (float) 0.01f //10 ms
+#endif
+
+#ifndef VCU_CYCLE_TIME_MICROSECONDS
+#define VCU_CYCLE_TIME_MICROSECONDS 10000 //1000 μs = 1 ms
+#endif
+
+#ifndef MCM_MAX_TORQUE
+#define MCM_MAX_TORQUE 2310
+#endif
+
+#ifndef KW_LIMIT
+#define KW_LIMIT 80
+#endif
+
+#ifndef WATT_LIMIT
+#define WATT_LIMIT 80000
+#endif
 
 #endif /* _IO_DRIVER_H */
