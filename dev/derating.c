@@ -12,6 +12,7 @@
 #include "motorController.h" //torque info, feedback 
 #include "sensorCalculations.h"
 //extern Sensor Sensor_PushToPass //Overriding Derating
+#define VCU_MCM_MAXTORQUE 2310
 
 /* Torque Limit
 Endurance Limit: 170Nm
@@ -32,26 +33,28 @@ Step 2. Logic stuff to alter "max" torque
 Derating *Derating_new(){
     Derating* me = (Derating*)malloc(sizeof(Derating));
 
-    me->Derating_status = FALSE;
+    me->Derating_status = OFF;
     me->Derating_cellTempLim = 55; //Degree C, Highest cell temp before limp mode is activated 
-    me->Derating_socLim = 0; //%, Lowest SOC before limp mode is acctivated 
-    me->Derating_torqueLim = 125; //Nm, The new max torque for limp mode
+    me->Derating_socLim = 0.15; //%, Lowest SOC before limp mode is acctivated 
+    me->Derating_torqueLim = 1250; //Nm, The new max torque for limp mode
     me->Derating_powerLim = 0; //kW, The new power limit for limp mode
 
     return me;
 }
 
 void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
-    sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
-
-    if (me->Derating_torqueLim != mcm_torqueMax && me->Derating_status == TRUE){
+    // sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
+    // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
+    if(BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim || me->Derating_status == OFF){
+        me->Derating_status = READYTODERATE;
+        //Send messages over CAN
         MCM_commands_setTorqueLimit(mcm, me->Derating_torqueLim);
     }
-    // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
-    if(BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim){
-        me->Derating_status = TRUE;
-    }
+    //Testing use LED to see derating status
 
+    //If Push to pass sensor is TRUE (pressed)
+    //Set Status PUSHTOPASS
+    //Set torque limit back to the original
 }
 
 bool getDeratingStatus(Derating* me){
