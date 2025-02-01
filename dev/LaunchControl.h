@@ -26,11 +26,13 @@ typedef struct _LaunchControl {
 
 
 
-    float4 slipRatio;
+    sbyte2 slipRatioThreeDecimals;
     bool lcReady;
     bool lcActive; // Just for CAN to showcase when enabled
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
+    sbyte2 lcCommandedTorque;
+
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();

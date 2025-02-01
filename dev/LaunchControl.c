@@ -67,8 +67,9 @@ Kp will give you the difference between 0.1 current vs 0.2 target -> if you want
 LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     me->pid = PID_new(40, 20, 0, 231);
-    me->slipRatio = 0;
+    me->slipRatioThreeDecimals = 0;
     me->lcTorqueCommand = NULL;
+    me->lcCommandedTorque = NULL;
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
@@ -77,25 +78,19 @@ LaunchControl *LaunchControl_new(){
 }
 
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
-    float4 unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
-    float4 filt_speed = unfilt_speed;
-    if (unfilt_speed > 1.0) {
-        filt_speed = 1.0;
+    me->slipRatioThreeDecimals = (sbyte2) (WheelSpeeds_getSlowestFront(wss) *1000 / (WheelSpeeds_getFastestRear(wss))) - 1000;
+    if (me->slipRatioThreeDecimals > 1000){
+        me->slipRatioThreeDecimals = 1000;
     }
-    if (unfilt_speed < -1.0) {
-        filt_speed = -1.0;
+    if (me->slipRatioThreeDecimals < -1000){
+        me->slipRatioThreeDecimals = -1000;
     }
-    me->slipRatio = filt_speed;
-    //me->slipRatio = (WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) / WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE)) - 1; //Delete if doesn't work
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
     sbyte2 speedKph = MCM_getGroundSpeedKPH(mcm);
-    PID_computeOutput(me->pid,me->slipRatio);// we erased the saturation checks for now we just want the basic calculation
-    float4 appsTqPercent;
-    TorqueEncoder_getOutputPercent(tps, &appsTqPercent);
-    float4 torqueMax = (float4)MCM_getMaxTorqueDNm(mcm)/10;
-    me->lcTorqueCommand =(sbyte2)(torqueMax * appsTqPercent) + PID_getOutput(me->pid); // adds the ajusted value from the pid to the torqueval}
+    PID_computeOutput(me->pid,me->slipRatioThreeDecimals);// we erased the saturation checks for now we just want the basic calculation
+    me->lcTorqueCommand = me->lcCommandedTorque + PID_getOutput(me->pid); // adds the ajusted value from the pid to the torqueval}
 
     if(speedKph < 3){
         me->lcTorqueCommand = 20;
