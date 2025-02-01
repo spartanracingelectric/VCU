@@ -15,7 +15,7 @@
 #include "wheelSpeeds.h"
 #include "serial.h"
 #include "sensorCalculations.h"
-#include "launchControl.h"
+#include "LaunchControl.h"
 #include "powerLimit.h"
 #include "drs.h"
 #include "PID.h"
@@ -652,25 +652,25 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     //12v battery
     float4 LVBatterySOC = 0;
     if (Sensor_LVBattery.sensorValue < 12730)
-        LVBatterySOC = .0 + .1 * getPercent(Sensor_LVBattery.sensorValue, 9200, 12730, FALSE);
+        LVBatterySOC = .0 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 9200, 12730, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 12866)
-        LVBatterySOC = .1 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12730, 12866, FALSE);
+        LVBatterySOC = .1 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 12730, 12866, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 12996)
-        LVBatterySOC = .2 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12866, 12996, FALSE);
+        LVBatterySOC = .2 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 12866, 12996, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13104)
-        LVBatterySOC = .3 + .1 * getPercent(Sensor_LVBattery.sensorValue, 12996, 13104, FALSE);
+        LVBatterySOC = .3 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 12996, 13104, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13116)
-        LVBatterySOC = .4 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13104, 13116, FALSE);
+        LVBatterySOC = .4 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13104, 13116, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13130)
-        LVBatterySOC = .5 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13116, 13130, FALSE);
+        LVBatterySOC = .5 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13116, 13130, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13160)
-        LVBatterySOC = .6 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13130, 13160, FALSE);
+        LVBatterySOC = .6 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13130, 13160, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13270)
-        LVBatterySOC = .7 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13160, 13270, FALSE);
+        LVBatterySOC = .7 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13160, 13270, FALSE) / 10000);
     else if (Sensor_LVBattery.sensorValue < 13300)
-        LVBatterySOC = .8 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE);
+        LVBatterySOC = .8 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13270, 13300, FALSE) / 10000);
     else //if (Sensor_LVBattery.sensorValue < 14340)
-        LVBatterySOC = .9 + .1 * getPercent(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE);
+        LVBatterySOC = .9 + .1 * (getPercentFourDecimals(Sensor_LVBattery.sensorValue, 13300, 14340, FALSE) / 10000);
     Sensor_LVBattery.sensorValue = Sensor_LVBattery.sensorValue + 0.46;
     //Offset needed
     canMessageCount++;

@@ -48,8 +48,8 @@ extern Sensor Sensor_LCButton;
 extern Sensor Sensor_HVILTerminationSense;
 
 /*-------------------------------------------------------------------
-* getPercent
-* Returns the % (position) of value, between min and max
+* getPercentFourDecimals
+* Returns the ubyte4 % (position) of value with four decimal points, between min and max
 * If zeroToOneOnly is true, then % will be capped at 0%-100% (no negative % or > 100%)
 -------------------------------------------------------------------*/
 //----------------------------------------------------------------------------

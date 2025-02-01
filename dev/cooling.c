@@ -76,6 +76,7 @@ void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTem
     }
     else
     {
+        // WARN: float4 getPercent() is now ubyte4 getPercentFourDecimals()
         //me->radFanPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->radFanLow, me->radFanHigh, TRUE);
         me->radFanPercent = 1.0;
     }

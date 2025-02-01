@@ -297,6 +297,8 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
     appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+
+    // WARN: float4 getPercent is now ubyte4 getPercentFourDecimals
     //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 

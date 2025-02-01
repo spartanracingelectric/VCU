@@ -13,11 +13,11 @@
 * Helper functions
 ****************************************************************************/
 /*-------------------------------------------------------------------
-* getPercent
-* Returns the % (position) of value, between min and max
+* getPercentFourDecimals
+* Returns the % (position) of value with four decimal points, between min and max
 * If zeroToOneOnly is true, then % will be capped at 0%-100% (no negative % or > 100%)
 -------------------------------------------------------------------*/
-float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly);
+ubyte4 getPercentFourDecimals(float4 value, float4 start, float4 end, bool zeroToOneOnly);
 
 // A utility function to get maximum of two integers
 ubyte2 max(ubyte2 a, ubyte2 b);

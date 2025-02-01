@@ -97,8 +97,8 @@ void TorqueEncoder_update(TorqueEncoder* me)
         {
             //Calculate individual throttle percentages
             //Percent = (Voltage - CalibMin) / (CalibMax - CalibMin)
-            me->tps0_percent = getPercent(me->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE);
-            me->tps1_percent = getPercent(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE);
+            me->tps0_percent = (float4) getPercentFourDecimals(he->tps0_value, me->tps0_calibMin, me->tps0_calibMax, TRUE) / 10000;
+            me->tps1_percent = (float4) getPercentFourDecimals(me->tps1_value, me->tps1_calibMin, me->tps1_calibMax, TRUE) / 10000;
 
             me->travelPercent = (me->tps0_percent + me->tps1_percent) / 2;
         }

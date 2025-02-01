@@ -66,17 +66,17 @@ BrakePressureSensor *BrakePressureSensor_new(void)
     //running, then set the percentage to zero for safety purposes.
     if (me->runCalibration == TRUE || me->calibrated == FALSE)
     {
-        me->bps0_percent = 0;
+        me->bps0_percentFourDecimals = 0;
         //me->bps1_percent = 0;
         me->percent = 0;
         me->brakesAreOn = FALSE;  // Blocks Ready To Drive
     }
     else
     {
-        me->bps0_percent = getPercent(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
+        me->bps0_percentFourDecimals = getPercentFourDecimals(me->bps0_value, me->bps0_calibMin, me->bps0_calibMax, TRUE);
         //me->bps1_percent = getPercent(me->bps1_value, me->bps1_calibMin, me->bps1_calibMax, TRUE);
         //BPS0 only
-        me->percent = me->bps0_percent;  // Note: If we had redundant sensors we would average them here
+        me->percent = (float4) me->bps0_percentFourDecimals / 10000;  // Note: If we had redundant sensors we would average them here
         me->brakesAreOn = me->percent > BRAKES_ON_PERCENT;
     }
 
@@ -216,7 +216,7 @@ void BrakePressureSensor_getIndividualSensorPercent(BrakePressureSensor *me, uby
     switch (sensorNumber)
     {
     case 0:
-        *percent = me->bps0_percent;
+        *percent = (float4) me->bps0_percentFourDecimals / 10000;
         //bps = me->bps0;
         //calMin = me->bps0_calibMin;
         //calMax = me->bps0_calibMax;

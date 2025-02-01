@@ -607,6 +607,8 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
        multiplier = 0;
        SerialManager_send(me->serialMan, "HVIL term sense low\n");
     }    
+    
+    // WARN: float4 getPercent() is now ubyte4 getPercentFourDecimals()
 
     //-------------------------------------------------------------------
     // Other limits (% reduction) - set torque to the lowest of all these
