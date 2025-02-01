@@ -13,6 +13,15 @@
 //#include "hashTable.h"
 #include "math.h"
 
+#ifndef POWERLIMITCONSTANTS
+#define POWERLIMITCONSTANTS
+
+#define VOLTAGE_STEP     5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
+#define RPM_STEP         160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
+//#define CAN_MESSAGES_VERBOSE  // Original Idea Implementation was to have extra CAN messages for debugging purposes. now defunct for time being
+#endif
+
+
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
     PID *pid;

@@ -65,6 +65,10 @@ Kp will give you the difference between 0.1 current vs 0.2 target -> if you want
 /* Start of Launch Control */
 LaunchControl *LaunchControl_new(){// this goes outside the while loop
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
+    // malloc returns NULL if it fails to allocate memory
+    if (me == NULL)
+        return NULL;
+    
     me->slipRatio = 0;
     me->lcTorqueCommand = -1;
     me->lcReady = FALSE;

@@ -4,12 +4,6 @@
 #include "IO_Driver.h"
 #include "IO_RTC.h"
 
-#ifndef MATHVARIABLES
-#define MATHVARIABLES
-#define PI_FLOAT 3.14159
-#define PI_SIX_DIGITS_UBYTE 314159
-#endif
-
 /*****************************************************************************
 * Helper functions
 ****************************************************************************/
@@ -24,8 +18,9 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
 {
-    //if(end == start)
-        // we need some milk (div by 0 error)
+    // Assumed if end = start, then the value is meant to be 0%
+    if(end == start)
+        return 0;
     float4 retVal = (value - start) / (end - start);
 
     if (zeroToOneOnly == TRUE)
@@ -128,5 +123,6 @@ ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment) {
 }
 ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
     ubyte4 temp = ubyte4_lowerStepInterval(value, increment);
+    //if temp is equal to value, then we are already at the upper bound. Otherwise, add the increment to the lower bound
     return (temp == value?temp:temp + increment);
 }

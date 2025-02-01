@@ -17,6 +17,10 @@ static const HashTable STATIC_HASH_TABLE = {{NULL}}; // Initialized with all poi
 // Create a new hash table
 HashTable* HashTable_new() {
     HashTable* me = (HashTable*)malloc(sizeof(HashTable));
+    // malloc returns NULL if it fails to allocate memory
+    if (me == NULL)
+        return NULL;
+        
     for (ubyte2 i = 0; i < TABLE_SIZE; i++) {
         me->entries[i] = NULL;
     }
