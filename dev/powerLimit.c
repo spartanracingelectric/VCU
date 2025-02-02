@@ -42,8 +42,8 @@ PowerLimit* POWERLIMIT_new() {
     me->plTorqueCommand = 0;
     me->plTargetPower = 80;  // kW
     me->plInitializationThreshold = me->plTargetPower - 15;
-    me->plExit = TRUE;  // VALUE TO BE SET
-    me->plOn = FALSE;   // only helper variable for use of plExit
+    me->plExit = TRUE;  
+    me->plOn = FALSE;   // helper variable for use of plExit
 
     // LUT corners
     me->vFloorRFloor = 0;
@@ -82,6 +82,7 @@ void PowerLimit_calculateCommand(PowerLimit* me, MotorController* mcm,
             POWERLIMIT_calculateTorqueCommand(me, mcm);
             break;
         case TQ_LUT_MODE:
+            // if there is no field weakening, use TQ equation; if there is field weakening, use LUT
             if (fieldWeakening)
                 POWERLIMIT_calculateTorqueCommand(me, mcm);
             else
@@ -97,8 +98,9 @@ void PowerLimit_calculateCommand(PowerLimit* me, MotorController* mcm,
  *  - once power >= threshold, we do a LUT-based torque limit w/ simple PID
  ****************************************************************************/
 void POWERLIMIT_calculateTorqueCommand(PowerLimit* me, MotorController* mcm) {
-    if (((!me->plExit && me->plOn) || MCM_getPower(mcm) / 1000) >
-        me->plInitializationThreshold) {
+    // if PL does not end on exit condition and PL is currently on OR PL entry condition is met
+    if ((!me->plExit && me->plOn) || (MCM_getPower(mcm) / 1000) >= 
+          me->plInitializationThreshold) {
         if (!me->plExit && !me->plStatus) {
             me->plOn = TRUE;
         }
@@ -235,7 +237,12 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit* me,
                                                      MotorController* mcm) {
     PID_setSaturationPoint(me->pid, 8000);  // example bigger clamp
 
-    if ((MCM_getPower(mcm) / 1000) >= me->plInitializationThreshold) {
+    // if PL does not end on exit condition and PL is currently on OR PL entry condition is met
+    if ((!me->plExit && me->plOn) || (MCM_getPower(mcm) / 1000) >= 
+          me->plInitializationThreshold) {
+        if (!me->plExit && !me->plStatus) {
+            me->plOn = TRUE;
+        }
         me->plStatus = TRUE;
 
         sbyte4 motorRPM = MCM_getMotorRPM(mcm);
@@ -255,9 +262,11 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit* me,
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     } else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, -1);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
+        if (me->plExit) {
+            me->plStatus = FALSE;
+            MCM_update_PL_setTorqueCommand(mcm, -1);
+            MCM_set_PL_updateStatus(mcm, me->plStatus);
+        }
     }
 }
 
@@ -269,7 +278,12 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit* me,
     PID_setSaturationPoint(me->pid, 80000);
     me->plMode = PID_ONLY_MODE;  // not strictly needed, but clarifies
 
-    if ((MCM_getPower(mcm) / 1000) >= me->plInitializationThreshold) {
+    // if PL does not end on exit condition and PL is currently on OR PL entry condition is met
+    if ((!me->plExit && me->plOn) || (MCM_getPower(mcm) / 1000) >= 
+          me->plInitializationThreshold) {
+        if (!me->plExit && !me->plStatus) {
+            me->plOn = TRUE;
+        }
         me->plStatus = TRUE;
 
         // Suppose MCM_getPower(mcm) is in W => convert to “PID scale”
@@ -297,9 +311,11 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit* me,
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     } else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, -1);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
+        if (me->plExit) {
+            me->plStatus = FALSE;
+            MCM_update_PL_setTorqueCommand(mcm, -1);
+            MCM_set_PL_updateStatus(mcm, me->plStatus);
+        }
     }
 }
 
