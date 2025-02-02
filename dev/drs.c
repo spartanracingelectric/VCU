@@ -104,7 +104,8 @@ void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSen
     float4 brake_travel = bps->percent; // > 50%
     float4 throttle_travel = tps->travelPercent; // > 90%
 
-    if (vehicle_speed_mph > 5 && throttle_travel > .75 && curr_steer_angle > -15 && curr_steer_angle < 15 && brake_travel < .10) {
+    if (vehicle_speed_mph > 5 && throttle_travel > .75 && curr_steer_angle > -15 
+        && curr_steer_angle < 15 && brake_travel < .10) {
         DRS_open(me);
     } else {
         DRS_close(me);
@@ -143,18 +144,17 @@ void DRS_Assistive(DRS *me){
             //if drsSafety == 1 & 5 cycles has passed from log time
            //set drsSafety == 0
 
-            if(Sensor_DRSButton.sensorValue == true &&  me->drsFlap == 0){ //check if button is pressed && drs is inactive && if drsSafety == 0
+            if(Sensor_DRSButton.sensorValue == TRUE &&  me->drsFlap == 0){ //check if button is pressed && drs is inactive && if drsSafety == 0
                 DRS_open(me); //open drs
                 //log time, set boolean value drsSafety to 1       
             }
 
-            if(Sensor_DRSButton.sensorValue == true && me->drsFlap == 1){ //check if button is pressed %% drs is active && if drsSafety == 0
+            if(Sensor_DRSButton.sensorValue == TRUE && me->drsFlap == 1){ //check if button is pressed %% drs is active && if drsSafety == 0
                 DRS_close(me); ///close drs
                 //log time, set boolean value drsSafety to 1
             }
-
-
-            if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open 
+ 
+            if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open
                 drs_close(me);
             } 
 =======
