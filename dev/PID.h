@@ -8,7 +8,7 @@
 
 #ifndef _PID_H
 #define _PID_H
-
+#include "globalConstants.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 
 // Define a structure for the PID controller
