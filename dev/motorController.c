@@ -311,7 +311,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     } 
     if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
     {
-        me->launchControlState == FALSE;
+        me->launchControlState = FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);

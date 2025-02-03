@@ -92,6 +92,10 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     POWERLIMIT_setModeParameters(me);
 
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        // Back calculating the hypothetical amount of error that may not belong based on kicking in and out of PL (if not in pl, but has a stored previous error value, does it belong?)
+        if(me->plStatus == FALSE){
+            PID_setTotalError(me->pid, PID_getTotalError(me->pid)-PID_getPreviousError(me->pid));
+        }
         me->plStatus = TRUE;
 
         /* Sensor inputs */
@@ -242,8 +246,8 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
         PID_updateSetpoint(me->pid, pidTargetValue);
         PID_computeOutput(me->pid, pidCurrentValue);
         me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
-        if(me->plTorqueCommand > 2310)
-            me->plTorqueCommand = 2310;
+        if(me->plTorqueCommand > MCM_MAX_TORQUE)
+            me->plTorqueCommand = MCM_MAX_TORQUE;
             
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
