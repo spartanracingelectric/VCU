@@ -63,7 +63,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me) {
     // }
 }
 
-void PowerLimit_calculateCommand(PowerLimit* me, MotorController* mcm,
+void PowerLimit_calculateCommands(PowerLimit* me, MotorController* mcm,
                                  bool fieldWeakening) {
     // ensure no negative threshold
     me->plInitializationThreshold =
@@ -97,7 +97,7 @@ void PowerLimit_calculateCommand(PowerLimit* me, MotorController* mcm,
  *  LUT-based approach:
  *  - once power >= threshold, we do a LUT-based torque limit w/ simple PID
  ****************************************************************************/
-void POWERLIMIT_calculateTorqueCommand(PowerLimit* me, MotorController* mcm) {
+void POWERLIMIT_calculateTorqueCommandLUT(PowerLimit* me, MotorController* mcm) {
     // if PL does not end on exit condition and PL is currently on OR PL entry condition is met
     if ((!me->plExit && me->plOn) || (MCM_getPower(mcm) / 1000) >= 
           me->plInitializationThreshold) {

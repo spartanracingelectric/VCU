@@ -56,13 +56,13 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
  * @brief High-level entry point that decides which method to call 
  *        based on plMode (1: Tq eqn, 2: Power PID, 3: LUT, 4: combination).
  */
-void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, 
+void PowerLimit_calculateCommands(PowerLimit *me, MotorController *mcm, 
                                  bool fieldWeakening);
 
 /**
  * @brief LUT-based method
  */
-void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateTorqueCommandLUT(PowerLimit *me, MotorController *mcm);
 
 /**
  * @brief Tq = kW -> mechanical eqn method
