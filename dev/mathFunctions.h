@@ -1,12 +1,6 @@
 #ifndef _MATHFUNCTIONS_H
 #define _MATHFUNCTIONS_H
 
-#ifndef MATHVARIABLES
-#define MATHVARIABLES
-#define PI_FLOAT 3.14159
-#define PI_SIX_DIGITS_UBYTE 314159
-#endif
-
 #include "IO_Driver.h"  //Includes datatypes, constants, etc - should be included in every c file
 
 /*****************************************************************************

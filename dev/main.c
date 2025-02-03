@@ -32,6 +32,7 @@
 #include "IO_UART.h"
 //#include "IO_CAN.h"
 //#include "IO_PWM.h"
+#include "globalConstants.h"
 
 //Our code
 #include "initializations.h"
