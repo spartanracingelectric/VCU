@@ -280,61 +280,90 @@ void MCM_setRegenMode(MotorController *me, RegenMode regenMode)
 void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps)
 {
     //----------------------------------------------------------------------------
-    // Control commands
-    //Note: Safety checks (torque command limiting) are done EXTERNALLY.  This is a preliminary calculation
-    //which should return the intended torque based on pedals
-    //Note: All stored torque values should be positive / unsigned
+    // Determine Control Mode (Speed or Torque)
+    //----------------------------------------------------------------------------
+    sbyte4 currentPower = POWERLIMIT_getInitialisationThreshold(me);  // Gets if powerlimiting is active i believe
+
+    
+    bool usingTorqueControl = (currentPower > 80000);  // 80k is just arbitrary for now
+
+    //----------------------------------------------------------------------------
+    // General Commands
     //----------------------------------------------------------------------------
     MCM_commands_setDischarge(me, DISABLED);
-    MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
-
-    sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
-    sbyte2 bpsTorque = 0;
+    MCM_commands_setDirection(me, FORWARD);
 
     float4 appsOutputPercent;
-
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    
-    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
-    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-    /** MOTOR TORQUE COMMAND LOGIC **/
-    // abstraction might be warranted for the below logic
+    sbyte4 currentRPM = MCM_getMotorRPM(me); // Gets current motor RPM
 
-    torqueOutput = appsTorque + bpsTorque;
-
-    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
+    //----------------------------------------------------------------------------
+    // Speed Control Mode (Power < 80kW)
+    //----------------------------------------------------------------------------
+    if (!usingTorqueControl)  
     {
-        torqueOutput = me->lcTorqueCommand;
-    } 
-    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
-    {
-        me->launchControlState == FALSE;
-        torqueOutput = me->plTorqueCommand + bpsTorque;
+        sbyte4 maxRPM = MCM_getMaxRPM(me);  // Dynamically get max RPM
+        sbyte4 speedTarget = appsOutputPercent * maxRPM;  // Convert pedal input to speed request
+
+        // Apply Launch Control & Power Limiting
+        if (me->launchControlState && me->lcTorqueCommand < speedTarget) {
+            speedTarget = me->lcTorqueCommand;
+        } 
+        else if (me->plActive && me->plTorqueCommand < speedTarget) {
+            me->launchControlState = FALSE;
+            speedTarget = me->plTorqueCommand;
+        }
+
+        // Use PID to generate a torque command from speed request
+        sbyte2 pidTorqueCommand = PID_computeOutput(me->pid, speedTarget, currentRPM);
+        // Apply torque command
+        MCM_commands_setTorqueDNm(me, pidTorqueCommand);
     }
-    //Safety Check. torqueOutput Should never rise above 231
-    if(torqueOutput > 231)
+
+    //----------------------------------------------------------------------------
+    // Torque Control Mode (Power > 80kW)
+    //----------------------------------------------------------------------------
+    else  
     {
-        torqueOutput = 0;
+        sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+        sbyte2 torqueOutput = appsTorque;
+        sbyte2 bpsTorque = 0;
+
+        // Apply Launch Control & Power Limiting
+        if (me->launchControlState && me->lcTorqueCommand < torqueOutput) {
+            torqueOutput = me->lcTorqueCommand;
+        } 
+        else if (me->plActive && me->plTorqueCommand < torqueOutput) {
+            me->launchControlState = FALSE;
+            torqueOutput = me->plTorqueCommand + bpsTorque;
+        }
+
+        // Ensure torque does not exceed limits
+        const sbyte2 MAX_TORQUE_LIMIT = 231;
+        if (torqueOutput > MAX_TORQUE_LIMIT) {
+            torqueOutput = 0;
+        }
+
+        // Apply torque command
+        MCM_commands_setTorqueDNm(me, torqueOutput);
     }
-    MCM_commands_setTorqueDNm(me, torqueOutput);
 
-    //Causes MCM relay to be driven after 30 seconds with TTC60?
-    // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
+    //----------------------------------------------------------------------------
+    // Inverter Override Handling
+    //----------------------------------------------------------------------------
+    ubyte4 timeSinceDisable = IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived);
+    ubyte4 timeSinceEnable = IO_RTC_GetTimeUS(me->timeStamp_InverterEnableOverrideCommandReceived);
 
-    //Temporarily disable MCM relay control via HVILOverride
-    //me->HVILOverride = FALSE;
-
-    // Inverter override
-    if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
+    if (timeSinceDisable < 1000000) {
         me->InverterOverride = DISABLED;
-    else if (IO_RTC_GetTimeUS(me->timeStamp_InverterDisableOverrideCommandReceived) < 1000000)
+    } else if (timeSinceEnable < 1000000) {
         me->InverterOverride = ENABLED;
-    else
+    } else {
         me->InverterOverride = UNKNOWN;
+    }
 }
+
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
 {
