@@ -81,6 +81,7 @@ LaunchControl *LaunchControl_new(){
     return me;
 }
 
+
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     me->slipRatio = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
     if (me->slipRatio > 1.0) {
