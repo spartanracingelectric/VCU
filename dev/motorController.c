@@ -130,11 +130,11 @@ struct _MotorController
     //_commands commands;
     //};
 
-    sbyte2 LaunchControl_TorqueLimit;
-    bool LCState;
+    sbyte2 lcTorqueCommand;
+    bool launchControlState;
 
-    float PowerLimit_TorqueLimit;
-    bool PLState;
+    sbyte2 plTorqueCommand;
+    bool plActive;
 
 
     //---------------------------------------------------------------------------------------------------
@@ -179,11 +179,11 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->motor_temp = 99;
 
-    me->LaunchControl_TorqueLimit = 0;
-    me->LCState = FALSE;
+    me->lcTorqueCommand = 0;
+    me->launchControlState = FALSE;
 
-    me-> PowerLimit_TorqueLimit =0.0;
-    me-> PLState =FALSE;
+    me-> plTorqueCommand = 0;
+    me-> plActive = FALSE;
 
     me->HVILOverride = FALSE;
  
@@ -296,46 +296,23 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
+    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
-     appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-     bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-  /* TESTING PURPOSEs ONLY FOR HARDCODING
-  float4 wheelspeed = (float4)MCM_getMotorRPM(me);
- float4 kilowatts =  (float4)((float4)MCM_getPower(me)/1000); // divide by 1000 to get watts --> kilowatts
-  if(kilowatts > KWH_LIMIT) {
-      
-        float4 predictedtq = (float4)(kilowatts*9549.0/wheelspeed)*10.0;// (+ val: should be in thousands---> read in tens on CAN 
-        float4 test =(float4)(KWH_LIMIT*9549.0*10.0);
-        float4 tqsetpoint = (float4)(test/wheelspeed); // (+ val:)  should be in thousands/high hundreds---> read in tens on CAN 
+    /** MOTOR TORQUE COMMAND LOGIC **/
+    // abstraction might be warranted for the below logic
 
-        sbyte2 error = (sbyte2)((sbyte2)predictedtq - (sbyte2)tqsetpoint);
-       appsTorque =  appsTorque - error;
-  }
-  */ 
-    if(me->LCState == TRUE)
+    torqueOutput = appsTorque + bpsTorque;
+
+    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
     {
-        torqueOutput = me->LaunchControl_TorqueLimit;
-    } else if (me->LaunchControl_TorqueLimit == 0)
-    {
-        torqueOutput = me->LaunchControl_TorqueLimit;
+        torqueOutput = me->lcTorqueCommand;
     } 
-    else if(me->PLState == TRUE){
-     float torquetemp = me->PowerLimit_TorqueLimit; 
-     if(torquetemp < (appsTorque+bpsTorque))
-     {
-        torqueOutput = (sbyte2)(int)torquetemp;
-     }
-     else{
-        torqueOutput = appsTorque + bpsTorque;
-     }
-    }
-    else if(torqueOutput > 2000.0)
-    { // saftey checks 
-        torqueOutput = 0.0;
-    }
-    else {
-      torqueOutput = appsTorque + bpsTorque;
-       // torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
+    {
+        me->launchControlState = FALSE;
+        torqueOutput = me->plTorqueCommand + bpsTorque;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
@@ -373,7 +350,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
             //TODO: SIMILAR CODE SHOULD BE EMPLOYED AT HVIL SHUTDOWN CONTROL PIN
             if (me->commandedTorque == 0 || IO_RTC_GetTimeUS(me->timeStamp_HVILLost) > 2000000)
             {
-                IO_DO_Set(IO_DO_04, FALSE); //Need MCM relay object
+                IO_DO_Set(IO_DO_00, FALSE); //Need MCM relay object
                 me->relayState = FALSE;
             }
             else
@@ -402,7 +379,7 @@ void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
         me->previousHVILState = TRUE;
 
         //Turn on the MCM relay
-        IO_DO_Set(IO_DO_04, TRUE);
+        IO_DO_Set(IO_DO_00, TRUE);
         me->relayState = TRUE;
     }
 }
@@ -587,8 +564,8 @@ void MCM_parseCanMessage(MotorController *me, IO_CAN_DATA_FRAME *mcmCanMessage)
     case 0x0A8:
         //0,1 Flux Command
         //2,3 flux feedback
-        //4,5 id feedback
-        //6,7 iq feedback
+        //me->ID = ((ubyte2)mcmCanMessage->data[5] << 8 | mcmCanMessage->data[4]) / 10;//4,5 id feedback
+        //me->IQ = ((ubyte2)mcmCanMessage->data[7] << 8 | mcmCanMessage->data[6]) / 10;//6,7 iq feedback
         break;
 
     case 0x0A9:
@@ -654,6 +631,11 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 {
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
+    
+    //Safety Check. torqueOutput Should never rise above 231
+    if(me->commands_torque > 231){
+       me->commands_torque = 0;
+    }
 }
 
 void MCM_commands_setDirection(MotorController *me, Direction newDirection)
@@ -725,29 +707,34 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
     me->inverterStatus = newState;
 }
 
-void MCM_update_LaunchControl_TorqueLimit(MotorController *me, sbyte2 lcTorqueLimit){
-
-     me->LaunchControl_TorqueLimit = lcTorqueLimit;
-
+void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit)
+{
+    me->lcTorqueCommand = lcTorqueLimit;
 }
 
-void MCM_update_LaunchControl_State(MotorController *me, bool newLCState){
-
-    me->LCState = newLCState;
-
+void MCM_update_LC_state(MotorController *me, bool newState)
+{
+    me->launchControlState = newState;
 }
 //----------------------------------------------------PL-------------------------------
-void MCM_update_PowerLimit_TorqueLimit(MotorController *me, float PLTorqueoffset){
-     me->PowerLimit_TorqueLimit = PLTorqueoffset;
-
+void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)
+{
+    me->plTorqueCommand = torqueCommand;
 }
 
-void MCM_update_PowerLimit_State(MotorController *me, bool newPLState){
-
-    me->PLState = newPLState;
-
+sbyte2 MCM_get_PL_torqueCommand(MotorController *me)
+{
+    return me->plTorqueCommand;
 }
 
+void MCM_set_PL_updateStatus(MotorController *me, bool newState)
+{
+    me->plActive = newState;
+}
+bool MCM_get_PL_state(MotorController *me)
+{
+    return me->plActive;
+}
 
 //----------------------------------------------------PL-------------------------------
 

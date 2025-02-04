@@ -1,6 +1,7 @@
 /*****************************************************************************
  * hashTable.c - Hash Table implementation
  * Initial Author: Harleen Sandhu / Mehul Williams
+ * Additional Author: Shaun Gilmore
  ******************************************************************************
  * General purpose hash table implementation, initially designed for yaw values in Torque Vectoring.
  ****************************************************************************/
@@ -16,23 +17,27 @@ static const HashTable STATIC_HASH_TABLE = {{NULL}}; // Initialized with all poi
 // Create a new hash table
 HashTable* HashTable_new() {
     HashTable* me = (HashTable*)malloc(sizeof(HashTable));
-    for (ubyte1 i = 0; i < TABLE_SIZE; i++) {
+    // malloc returns NULL if it fails to allocate memory
+    if (me == NULL)
+        return NULL;
+        
+    for (ubyte2 i = 0; i < TABLE_SIZE; i++) {
         me->entries[i] = NULL;
     }
     return me;
 }
 
-
 // Hash function 
-ubyte1 hash(ubyte2 key1, ubyte2 key2) {
+ubyte1 HashTable_getHashIndex(ubyte2 key1, ubyte2 key2) {
     // A simple hash function combining key1 and key2
     return (key1 + key2) % TABLE_SIZE;
 }
 
 
 // Insert a key-value pair into the hash table
-void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
-    ubyte1 index = hash(key1, key2);
+void HashTable_insertPair(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte1 value) {
+    // Getting hash key
+    ubyte1 index = HashTable_getHashIndex(key1, key2);
     
     // Create a new entry
     HashEntry* entry = (HashEntry*)malloc(sizeof(HashEntry));
@@ -55,8 +60,8 @@ void insert(HashTable* table, ubyte2 key1, ubyte2 key2, ubyte4 value) {
 
 
 // Retrieve a value from the hash table
-ubyte4 get(HashTable* table, ubyte2 key1, ubyte2 key2) {
-    ubyte1 index = hash(key1, key2);
+ubyte1 HashTable_getValue(HashTable* table, ubyte2 key1, ubyte2 key2) {
+    ubyte1 index = HashTable_getHashIndex(key1, key2);
     HashEntry* entry = table->entries[index];
     while (entry != NULL) {
         if (entry->key1 == key1 && entry->key2 == key2) {
@@ -64,7 +69,7 @@ ubyte4 get(HashTable* table, ubyte2 key1, ubyte2 key2) {
         }
         entry = entry->next;
     }
-    return -1; // Key not found
+    return ((ubyte1)255); // Key not found
 }
 
 

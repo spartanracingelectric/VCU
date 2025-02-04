@@ -18,17 +18,20 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
 {
+    // Assumed if end = start, then the value is meant to be 0%
+    if(end == start)
+        return 0;
     float4 retVal = (value - start) / (end - start);
 
     if (zeroToOneOnly == TRUE)
     {
         if (retVal < 0)
         {
-            return retVal = 0;
+            return 0.0;
         }
         if (retVal > 1)
         {
-            return retVal = 1;
+            return 1.0;
         }
     }
 
@@ -115,9 +118,11 @@ sbyte4 swap_int32(sbyte4 val)
     return (val << 16) | ((val >> 16) & 0xFFFF);
 }
 
-ubyte2 floorToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return (value / increment) * increment; // value & 0xFFF8
+ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment) {
+    return value - (value % increment);
 }
-ubyte2 ceilToNearestIncrement(ubyte2 value, ubyte2 increment) {
-    return ((value + increment - 1) / increment) * increment; // floorval & 0xFFFD
+ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
+    ubyte4 temp = ubyte4_lowerStepInterval(value, increment);
+    //if temp is equal to value, then we are already at the upper bound. Otherwise, add the increment to the lower bound
+    return (temp == value?temp:temp + increment);
 }

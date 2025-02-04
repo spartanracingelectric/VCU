@@ -1,6 +1,9 @@
 {
-    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "torqueencoder.h": "c"
+        "mathfunctions.h": "c",
+        "math.h": "c",
+        "corecrt_math.h": "c",
+        "sensorcalculations.h": "c",
+        "io_driver.h": "c"
     }
 }
