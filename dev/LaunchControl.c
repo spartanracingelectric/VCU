@@ -98,7 +98,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     
     me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pid); // adds the ajusted value from the pid to the torqueval}
 
-    if(speedKph < 3){
+    if(MCM_getGroundSpeedKPH(mcm) < 3){
         me->lcTorqueCommand = 20;
     }
 
