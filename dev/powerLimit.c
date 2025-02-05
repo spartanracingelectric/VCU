@@ -282,10 +282,10 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit* me,
         me->plStatus = TRUE;
 
         // Suppose MCM_getPower(mcm) is in W => convert to “PID scale”
-        sbyte4 pidTargetValue = (sbyte4)(me->plTargetPower * 1000);
-        sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10);
+        sbyte4 pidTargetValue = (sbyte4)(POWERLIMIT_getTargetPower(me) * 1000); // W
+        sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10); // W
 
-        sbyte4 commandedTorque = MCM_getCommandedTorque(mcm);
+        sbyte4 commandedTorque = MCM_getCommandedTorque(mcm); // Nm
 
         PID_updateSetpoint(me->pid, pidTargetValue);
         PID_computeOutput(me->pid, pidCurrentValue);
@@ -295,9 +295,10 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit* me,
         // to avoid divide-by-zero if pidCurrentValue=0
         if (pidCurrentValue == 0) pidCurrentValue = 1;
 
-        sbyte4 newTorque = (sbyte4)(commandedTorque +
-                                    (commandedTorque * PID_getOutput(me->pid) /
-                                     pidCurrentValue));
+        // t = (60 * P) / (2 * PI * RPM)
+        sbyte4 newTorque = (sbyte4)
+            (60 * (pidCurrentValue + PID_getOutput(me->pid)))
+            / (2 * 3.1415926 * MCM_getMotorRPM(mcm));
 
         // saturate
         if (newTorque > 231) newTorque = 231;
