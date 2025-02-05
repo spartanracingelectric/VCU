@@ -63,8 +63,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me) {
     // }
 }
 
-void PowerLimit_calculateCommands(PowerLimit* me, MotorController* mcm,
-                                 bool fieldWeakening) {
+void PowerLimit_calculateCommands(PowerLimit* me, MotorController* mcm) {
     // ensure no negative threshold
     me->plInitializationThreshold =
         (me->plTargetPower > 15) ? (me->plTargetPower - 15) : 0;
@@ -79,14 +78,10 @@ void PowerLimit_calculateCommands(PowerLimit* me, MotorController* mcm,
         case LUT_ONLY_MODE:
             // write the saftey checks for these make sure that if the
             // lut is out of range it uses tq equation
-            POWERLIMIT_calculateTorqueCommand(me, mcm);
+            POWERLIMIT_calculateTorqueCommandLUT(me, mcm);
             break;
         case TQ_LUT_MODE:
-            // if there is no field weakening, use TQ equation; if there is field weakening, use LUT
-            if (fieldWeakening)
-                POWERLIMIT_calculateTorqueCommand(me, mcm);
-            else
-                POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
+            POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm); // fieldWeaking value still needs to be set
             break;
         default:
             me->plStatus = FALSE;
@@ -317,6 +312,18 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit* me,
             MCM_set_PL_updateStatus(mcm, me->plStatus);
         }
     }
+}
+
+/*****************************************************************************
+ * TQ - LUT approach
+ * if no field weakening, use TQ equation; if there is field weakening, use LUT
+ ****************************************************************************/
+void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit* me,
+                                               MotorController* mcm) {
+    if (fieldWeakening)
+        POWERLIMIT_calculateTorqueCommandLUT(me, mcm);
+    else
+        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
 }
 
 /*****************************************************************************
