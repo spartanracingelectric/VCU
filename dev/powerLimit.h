@@ -4,7 +4,7 @@
 #ifndef _POWERLIMIT_H
 #define _POWERLIMIT_H
 
-#include "pid.h"
+#include "PID.h"
 
 /**
  * Forward-declare the MotorController type so that we do not need
@@ -56,8 +56,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
  * @brief High-level entry point that decides which method to call 
  *        based on plMode (1: Tq eqn, 2: Power PID, 3: LUT, 4: combination).
  */
-void PowerLimit_calculateCommands(PowerLimit *me, MotorController *mcm, 
-                                 bool fieldWeakening);
+void PowerLimit_calculateCommands(PowerLimit *me, MotorController *mcm);
 
 /**
  * @brief LUT-based method
