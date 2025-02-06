@@ -23,6 +23,7 @@ typedef struct _PowerLimit {
     bool   plStatus;
     ubyte1 plMode;
     ubyte1 plTargetPower;
+    ubyte1 plKwLimit;
     ubyte1 plInitializationThreshold;
     sbyte2 plTorqueCommand;
     //me->pid->pidOutput;   sbyte2
