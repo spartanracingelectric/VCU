@@ -116,10 +116,9 @@ void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm){
         }
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
-        
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
-        PID_computeOutput(me->pid, commandedTorque);
+        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque);
+
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
@@ -202,8 +201,8 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
-        PID_computeOutput(me->pid, commandedTorque);
+        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque);
+
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
@@ -227,14 +226,18 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
         sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
-        sbyte2 pidTargetValue = me->plTargetPower * 100;
-        sbyte2 pidCurrentValue = (sbyte2) MCM_getPower(mcm) / 10;
+        sbyte4 pidTargetValue = (sbyte4)(POWERLIMIT_getTargetPower(me) * 1000); // W
+        sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10); // W
 
-        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm); // Nm
 
-        PID_updateSetpoint(me->pid, pidTargetValue);
-        PID_computeOutput(me->pid, pidCurrentValue);
-        me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
+        POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue);
+
+        // t = (60 * P) / (2 * PI * RPM)
+        sbyte4 newTorque = (sbyte4)
+            (60 * (pidCurrentValue + PID_getOutput(me->pid)))
+            / (2 * 3.1415926 * MCM_getMotorRPM(mcm));
+
         if(me->plTorqueCommand > 2310)
             me->plTorqueCommand = 2310;
             
@@ -246,6 +249,27 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
         MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
+}
+
+void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue) {
+
+        sbyte2 currentError = PID_getSetpoint(me->pid) - sensorValue;
+//        if (currentError > 0) {
+//            PID_setSaturationPoint(me->pid, 231); 
+//        }
+//        if (currentError > 0) {
+//            PID_setSaturationPoint(me->pid, commandedTorque); 
+//        }
+//        if (currentError > 0) {
+//            pidSetpoint -= PID_getPreviousError(me->pid); 
+//        }
+//        if (currentError > 0) {
+//            currentError = 0; 
+//        }
+        
+
+        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_computeOutput(me->pid, sensorValue);
 }
 
 
