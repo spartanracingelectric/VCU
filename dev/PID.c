@@ -83,7 +83,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->output = pid->proportional;
 
     //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
-    if(pid->saturationValue >= sensorValue)
+    if(pid->saturationValue > sensorValue)
     {
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;

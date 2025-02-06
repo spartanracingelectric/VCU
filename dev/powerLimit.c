@@ -92,6 +92,10 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     POWERLIMIT_setModeParameters(me);
 
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        // Back calculating the hypothetical amount of error that may not belong based on kicking in and out of PL (if not in pl, but has a stored previous error value, does it belong?)
+        if(me->plStatus == FALSE){
+            PID_setTotalError(me->pid, PID_getTotalError(me->pid)-PID_getPreviousError(me->pid));
+        }
         me->plStatus = TRUE;
 
         /* Sensor inputs */
