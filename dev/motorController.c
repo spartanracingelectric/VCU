@@ -761,7 +761,7 @@ Status MCM_getInverterOverrideStatus(MotorController *me)
 bool MCM_getFieldWeakening(MotorController *me)
 {
     sbyte4 MotorRPM = MCM_getMotorRPM(me);
-    bool fieldWeakening = (MotorRPM > 3000);
+    bool fieldWeakening = (MotorRPM > 3600);
     return fieldWeakening;
 
 }
