@@ -64,7 +64,8 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 
 /** COMPUTATIONS **/
 
-void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit *me, MotorController *mcm, bool fieldWeakening);
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
 //void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
 //ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);

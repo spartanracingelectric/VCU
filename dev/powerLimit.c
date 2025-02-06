@@ -65,26 +65,29 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
   me->plInitializationThreshold = me->plTargetPower - 15;
+
+  bool fieldWeakening = MCM_getFieldWeakening(mcm);
+  
 //1.TQ equation only
 //2.PowerPID only 
 //3.LUT only 
 //4. Both TQ equation and LUT together-(Final Algorithm)
 
-  if(me->plMode==1){//
-    POWERLIMIT_calculateTorqueCommandTorqueEquation;
+  if(me->plMode==1){
+    POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
   }
   else if (me->plMode==2){
-    void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
+    POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
   }
    else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
-    void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
+    POWERLIMIT_calculateLUTCommand(me, mcm);
   }
    else if (me->plMode==4){
-    // this needs to be written 
+    POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
   }
 }
 
-void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
+void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm){
     
     //if(rotary_button_input != plMode)
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
@@ -293,6 +296,15 @@ ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
             return 0xFF;
     }
 }
+
+void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit *me, MotorController *mcm, bool fieldWeakening){
+
+    if (fieldWeakening)
+        POWERLIMIT_calculateLUTCommand(me, mcm);
+    else
+        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
+}
+
 
 ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm)
 {

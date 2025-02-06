@@ -758,6 +758,14 @@ Status MCM_getInverterOverrideStatus(MotorController *me)
     return me->InverterOverride;
 }
 
+bool MCM_getFieldWeakening(MotorController *me)
+{
+    sbyte4 MotorRPM = MCM_getMotorRPM(me);
+    bool fieldWeakening = (MotorRPM > 3000);
+    return fieldWeakening;
+
+}
+
 void MCM_setRTDSFlag(MotorController *me, bool enableRTDS)
 {
     me->startRTDS = enableRTDS;
