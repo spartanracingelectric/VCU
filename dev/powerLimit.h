@@ -41,8 +41,6 @@ typedef struct _PowerLimit {
 
     // Unassigned in CAN
     bool fieldWeakening; 
-    bool plExit; // True = PL exits on exit conditions; False = PL stays on once PL turned on;
-    bool plOn; 
 } PowerLimit;
 
 /** Constructor **/
