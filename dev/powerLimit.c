@@ -40,6 +40,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plTargetPower = 75;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 80;
     me->plInitializationThreshold = me->plTargetPower - 15;
+    me->clampingMethod = 1;
 
     //LUT Corners
     me->vFloorRFloor = 0;
@@ -118,7 +119,7 @@ void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm){
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque);
+        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
 
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -202,7 +203,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque);
+        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
 
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -232,7 +233,7 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm); // Nm
 
-        POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue);
+        POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue, me->clampingMethod);
 
 
         sbyte4 pidOutput = PID_getOutput(me->pid);
@@ -256,19 +257,20 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
     }
 }
 
-void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue) {
+void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue, ubyte1 clampingMethod) {
 
         sbyte2 currentError = PID_getSetpoint(me->pid) - sensorValue;
-//        if (currentError > 0) {
+
+//        if (currentError > 0 && clampingMethod == 1) {
 //            PID_setSaturationPoint(me->pid, 231); 
 //        }
-//        if (currentError > 0) {
+//        if (currentError > 0 && clampingMethod == 2) {
 //            PID_setSaturationPoint(me->pid, sensorValue); 
 //        }
-//        if (currentError > 0) {
+//        if (currentError > 0 && clampingMethod == 3) {
 //            me->pid->totalError -= PID_getPreviousError(me->pid); 
 //        }
-//        if (currentError > 0) {
+//        if (currentError > 0 && clampingMethod == 1=4) {
 //            pidSetpoint = sensorValue; 
 //        }
         

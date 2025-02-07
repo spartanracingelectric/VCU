@@ -26,6 +26,7 @@ typedef struct _PowerLimit {
     ubyte1 plKwLimit;
     ubyte1 plInitializationThreshold;
     sbyte2 plTorqueCommand;
+    ubyte1 clampingMethod;
     //me->pid->pidOutput;   sbyte2
 
 //-------------CAN IN ORDER: 512: Power Limit PID Output Details-----------------------------------------------------
@@ -72,7 +73,7 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sb
 //ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
-void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque);
+void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque, ubyte1 clampingMethod);
 /** GETTER FUNCTIONS **/
 
 ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);
