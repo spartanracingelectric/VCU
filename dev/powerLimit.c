@@ -66,7 +66,14 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 /** COMPUTATIONS **/
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
-  me->plInitializationThreshold = me->plTargetPower - 15;
+    me->plInitializationThreshold = me->plTargetPower - 15;
+
+    if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        if (!me->plStatus) {
+            me->plStatus = TRUE;
+            me->clampingMethod = 3;
+        }
+    }
 
   bool fieldWeakening = MCM_getFieldWeakening(mcm);
   
@@ -258,22 +265,25 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
 }
 
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue, ubyte1 clampingMethod) {
-
         sbyte2 currentError = PID_getSetpoint(me->pid) - sensorValue;
-
-//        if (currentError > 0 && clampingMethod == 1) {
-//            PID_setSaturationPoint(me->pid, 231); 
-//        }
-//        if (currentError > 0 && clampingMethod == 2) {
-//            PID_setSaturationPoint(me->pid, sensorValue); 
-//        }
-//        if (currentError > 0 && clampingMethod == 3) {
-//            me->pid->totalError -= PID_getPreviousError(me->pid); 
-//        }
-//        if (currentError > 0 && clampingMethod == 1=4) {
-//            pidSetpoint = sensorValue; 
-//        }
-        
+        switch (me->clampingMethod) {
+            case 1: 
+                if (currentError > 0) {
+                    PID_setSaturationPoint(me->pid, 231); 
+                }
+            case 2: 
+                if (currentError > 0) {
+                    PID_setSaturationPoint(me->pid, sensorValue); 
+                }
+            case 3: 
+                if (currentError > 0) {
+                    me->pid->totalError -= PID_getPreviousError(me->pid); 
+                }
+            case 4: 
+                if (currentError > 0) {
+                    pidSetpoint = sensorValue; 
+                }
+        } 
 
         PID_updateSetpoint(me->pid, pidSetpoint);
         PID_computeOutput(me->pid, sensorValue);
