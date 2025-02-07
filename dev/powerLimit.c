@@ -234,13 +234,17 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
 
         POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue);
 
-        // t = (60 * P) / (2 * PI * RPM)
-        sbyte4 newTorque = (sbyte4)
-            (60 * (pidCurrentValue + PID_getOutput(me->pid)))
-            / (2 * 3.1415926 * MCM_getMotorRPM(mcm));
 
-        if(me->plTorqueCommand > 2310)
+        sbyte4 pidOutput = PID_getOutput(me->pid);
+        if (motorRPM == 0){
+            motorRPM = 1; //avoid division by 0
+        }
+        sbyte4 PLTQ = (pidOutput + pidCurrentValue) / (motorRPM * 9.549);
+
+        me->plTorqueCommand = PLTQ * 10; //convert to deci-Nm
+        if (me->plTorqueCommand > 2310)
             me->plTorqueCommand = 2310;
+            
             
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
