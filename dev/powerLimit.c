@@ -269,7 +269,7 @@ void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 s
 //            pidSetpoint -= PID_getPreviousError(me->pid); 
 //        }
 //        if (currentError > 0) {
-//            currentError = 0; 
+//            pidSetpoint = sensorValue; 
 //        }
         
 
