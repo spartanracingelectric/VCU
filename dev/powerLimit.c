@@ -266,7 +266,7 @@ void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 s
 //            PID_setSaturationPoint(me->pid, commandedTorque); 
 //        }
 //        if (currentError > 0) {
-//            pidSetpoint -= PID_getPreviousError(me->pid); 
+//            me->pid->totalError -= PID_getPreviousError(me->pid); 
 //        }
 //        if (currentError > 0) {
 //            pidSetpoint = sensorValue; 
