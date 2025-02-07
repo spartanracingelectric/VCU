@@ -211,7 +211,7 @@ void main(void)
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
     
     // 231 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, REVERSE, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     //To change direction, also edit line 276 in motorcontroller.c
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
