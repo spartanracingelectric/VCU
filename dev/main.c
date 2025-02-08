@@ -348,7 +348,7 @@ void main(void)
                 SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
+            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) //Hold Calibration button for 3 seconds
             {
                 SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
