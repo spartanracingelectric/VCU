@@ -29,7 +29,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(20, 10, 0, 231);
+    me->pid = PID_new(10, 0, 0, 231);
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
@@ -40,7 +40,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plTargetPower = 55;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 80;
     me->plInitializationThreshold = me->plTargetPower - 15;
-    me->clampingMethod = 1;
+    me->clampingMethod = 2;
 
     //LUT Corners
     me->vFloorRFloor = 0;
@@ -68,8 +68,9 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
     me->plInitializationThreshold = me->plTargetPower - 15;
 
-    if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-        if (!me->plStatus) {
+    if (!me->plStatus)
+    {
+        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
             me->plStatus = TRUE;
             me->clampingMethod = 3;
         }
