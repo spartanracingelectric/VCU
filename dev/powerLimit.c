@@ -29,7 +29,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(40, 20, 0, 231);
+    me->pid = PID_new(1, 0, 0, 231);
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
@@ -37,7 +37,7 @@ PowerLimit* POWERLIMIT_new(){
     //4. Both TQ equation and LUT together-(Final Algorithm)
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
-    me->plTargetPower = 75;// HERE IS WHERE YOU CHANGE POWERLIMIT
+    me->plTargetPower = 55;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 80;
     me->plInitializationThreshold = me->plTargetPower - 15;
     me->clampingMethod = 1;
