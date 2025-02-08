@@ -212,7 +212,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
         POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
 
-        me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+        me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
