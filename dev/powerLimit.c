@@ -29,7 +29,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(1, 0, 0, 231);
+    me->pid = PID_new(10, 0, 0, 231);
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
