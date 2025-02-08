@@ -134,7 +134,7 @@ void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm){
     }
     else {
         me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
     /* FIX THIS 
@@ -218,7 +218,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     }
     else {
         me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
 }
@@ -259,7 +259,7 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
     }
     else {
         me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, -1);
+        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
 }
