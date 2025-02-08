@@ -5,5 +5,6 @@
         "corecrt_math.h": "c",
         "sensorcalculations.h": "c",
         "io_driver.h": "c"
+        "derating.h": "c"
     }
 }

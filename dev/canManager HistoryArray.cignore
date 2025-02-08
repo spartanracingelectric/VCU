@@ -461,7 +461,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
 {
     IO_CAN_DATA_FRAME canMessages[me->can0_write_messageLimit];
     ubyte1 errorCount;
-    float4 tempPedalPercent;   //Pedal percent float (a decimal between 0 and 1
+    float4 tempPedalPercent;   //Pedal percent float (a decimal between 0 and 1)
     ubyte1 tps0Percent;  //Pedal percent int   (a number from 0 to 100)
     ubyte1 tps1Percent;
     ubyte2 canMessageCount = 0;
