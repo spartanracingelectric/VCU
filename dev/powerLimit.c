@@ -66,7 +66,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 /** COMPUTATIONS **/
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
-    me->plInitializationThreshold = me->plTargetPower - 15;
+    me->plInitializationThreshold = me->plTargetPower - 5;
 
     if (!me->plStatus)
     {
