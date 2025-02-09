@@ -200,7 +200,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 1;
     PID_setSaturationPoint(me->pid, 8000);
-    if((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    if(me->plStatus == TRUE || (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
         /* Sensor inputs */
