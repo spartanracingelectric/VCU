@@ -37,10 +37,10 @@ PowerLimit* POWERLIMIT_new(){
     //4. Both TQ equation and LUT together-(Final Algorithm)
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
-    me->plTargetPower = 55;// HERE IS WHERE YOU CHANGE POWERLIMIT
+    me->plTargetPower = 80;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 80;
-    me->plInitializationThreshold = me->plTargetPower;
-    me->clampingMethod = 1;
+    me->plInitializationThreshold = me->plTargetPower-15;
+    me->clampingMethod = 3;
 
     //LUT Corners
     me->vFloorRFloor = 0;
@@ -66,7 +66,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 /** COMPUTATIONS **/
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
-    me->plInitializationThreshold = me->plTargetPower;
+    me->plInitializationThreshold = me->plTargetPower-15;
 
     if (!me->plStatus)
     {
@@ -201,7 +201,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 1;
     PID_setSaturationPoint(me->pid, 8000);
-    if((me->plStatus==TRUE)||(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    if((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
         /* Sensor inputs */
