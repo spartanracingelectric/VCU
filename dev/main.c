@@ -276,7 +276,6 @@ void main(void)
         //Pull messages from CAN FIFO and update our object representations.
         //Also echoes can0 messages to can1 for DAQ.
         CanManager_read(canMan, CAN0_HIPRI, mcm0, ic0, bms, sc);
-
         if (Sensor_TestButton.sensorValue == TRUE ) {
             // TODO rewire Sensor_TestButton 
             lc->buttonDebug |= 0x02;
