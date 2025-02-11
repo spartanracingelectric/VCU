@@ -36,7 +36,7 @@ typedef struct _LaunchControl {
 LaunchControl *LaunchControl_new();
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss);
 void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
-void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
+void LaunchControl_checkStatus(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
 bool LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *lc);
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *lc);

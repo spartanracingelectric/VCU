@@ -71,7 +71,7 @@ LaunchControl *LaunchControl_new(){
     if (me == NULL)
         return NULL;
     
-    me->pid = PID_new(40, 20, 0, 231);
+    me->pid = PID_new(40, 20, 0, 100);
     me->slipRatio = 0;
     me->lcTorqueCommand = NULL;
     me->lcReady = FALSE;
@@ -97,7 +97,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     sbyte2 slipThreeUnits = me->slipRatio * 100;
     PID_computeOutput(me->pid,slipThreeUnits);// we erased the saturation checks for now we just want the basic calculation
     
-    me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pid); // adds the ajusted value from the pid to the torqueval}
+    me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + ( PID_getOutput(me->pid) / 100 ) ; // adds the ajusted value from the pid to the torqueval}
 
     if(MCM_getGroundSpeedKPH(mcm) < 3){
         me->lcTorqueCommand = 20;
@@ -124,7 +124,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->lcReady = TRUE;
     }
     //Issue here where we go from not ready to active instantly, need to add a delay
-    if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+    if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         me->lcActive = TRUE;
         me->lcReady = FALSE;

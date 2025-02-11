@@ -706,10 +706,16 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
+//------------------------------Launch Control--------------------------------
 
-void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit)
+void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
-    me->lcTorqueCommand = lcTorqueLimit;
+    me->lcTorqueCommand = lcTorqueCommand;
+}
+
+sbyte2 MCM_get_LC_torqueCommand(MotorController *me)
+{
+    return me->lcTorqueCommand;
 }
 
 void MCM_update_LC_state(MotorController *me, bool newState)
