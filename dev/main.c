@@ -212,10 +212,17 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+<<<<<<< HEAD
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, MCM_MAX_TORQUE, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+=======
+    
+    // 231 Nm
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //To change direction, also edit line 276 in motorcontroller.c
+>>>>>>> 5238131c73b86559957a569bc853a0033751ea50
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -348,7 +355,7 @@ void main(void)
                 SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
+            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) //Hold Calibration button for 3 seconds
             {
                 SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
