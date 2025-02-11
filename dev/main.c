@@ -32,6 +32,7 @@
 #include "IO_UART.h"
 //#include "IO_CAN.h"
 //#include "IO_PWM.h"
+#include "globalConstants.h"
 
 //Our code
 #include "initializations.h"
@@ -48,8 +49,10 @@
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "drs.h"
+#include "powerLimit.h"
+#include "PID.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -209,10 +212,17 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
+<<<<<<< HEAD
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, MCM_MAX_TORQUE, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+=======
+    
+    // 231 Nm
     MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //To change direction, also edit line 276 in motorcontroller.c
+>>>>>>> 5238131c73b86559957a569bc853a0033751ea50
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -220,8 +230,12 @@ void main(void)
     SafetyChecker *sc = SafetyChecker_new(serialMan, 320, 32); //Must match amp limits
     CoolingSystem *cs = CoolingSystem_new(serialMan);
     LaunchControl *lc = LaunchControl_new();
-    DRS *drs = DRS_new();
 
+    DRS *drs = DRS_new();
+    PowerLimit *pl = POWERLIMIT_new();
+    PID *lcPID = PID_new(200,0,0,0);
+    PID_setSaturationPoint(lcPID, 231);
+//---------------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     // TODO: Additional Initial Power-up functions
     // //----------------------------------------------------------------------------
@@ -341,7 +355,7 @@ void main(void)
                 SerialManager_send(serialMan, "Eco button detected\n");
                 IO_RTC_StartTime(&timestamp_EcoButton);
             }
-            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000)
+            else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 3000000) //Hold Calibration button for 3 seconds
             {
                 SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n");
                 //calibrateTPS(TRUE, 5);
@@ -369,7 +383,7 @@ void main(void)
 
         //Update WheelSpeed and interpolate
         WheelSpeeds_update(wss, TRUE);
-        slipRatioCalculation(wss, lc);
+        LaunchControl_calculateSlipRatio(lc, wss);
 
         //Cool DRS things
         DRS_update(drs, mcm0, tps, bps);
@@ -420,7 +434,15 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-        launchControlTorqueCalculation(lc, tps, bps, mcm0);
+        PID_setSaturationPoint(lcPID, 231);
+        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0,lcPID);
+        //---------------------------------------------------------------------------------------------------------
+        // input the power limit calculation here from mcm 
+        //---------------------------------------------------------------------------------------------------------
+        // PLMETHOD 1:TQequation+TQPID
+         // PLMETHOD 2:TQequation+PWRPID
+          // PLMETHOD 3: LUT+TQPID
+        POWERLIMIT_calculateTorqueCommand(pl, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);
@@ -450,7 +472,7 @@ void main(void)
         //canOutput_sendMCUControl(mcm0, FALSE);
 
         //Send debug data
-        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, drs);
+        canOutput_sendDebugMessage(canMan, tps, bps, mcm0, ic0, bms, wss, sc, lc, pl, drs);
         canOutput_sendDebugMessage1(canMan, mcm0, tps);
         //canOutput_sendSensorMessages();
         //canOutput_sendStatusMessages(mcm0);
@@ -463,7 +485,7 @@ void main(void)
         //Task end function for IO Driver - This function needs to be called at the end of every SW cycle
         IO_Driver_TaskEnd();
         //wait until the cycle time is over
-        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < 10000) // 1000 = 1ms
+        while (IO_RTC_GetTimeUS(timestamp_mainLoopStart) < VCU_CYCLE_TIME_MICROSECONDS) // 1000 = 1ms
         {
             IO_UART_Task(); //The task function shall be called every SW cycle.
         }
