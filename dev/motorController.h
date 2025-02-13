@@ -80,7 +80,7 @@ Status MCM_getInverterStatus(MotorController* me);
 
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand);
 sbyte2 MCM_get_LC_torqueCommand(MotorController *me){};
-void MCM_update_LC_state(MotorController *me, bool newState);
+void MCM_update_LaunchControl_state(MotorController *me, bool newState);
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
 void MCM_set_PL_updateStatus(MotorController *me, bool newState);

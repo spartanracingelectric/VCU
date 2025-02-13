@@ -718,7 +718,7 @@ sbyte2 MCM_get_LC_torqueCommand(MotorController *me)
     return me->lcTorqueCommand;
 }
 
-void MCM_update_LC_state(MotorController *me, bool newState)
+void MCM_update_LaunchControl_state(MotorController *me, bool newState)
 {
     me->launchControlState = newState;
 }
