@@ -10,6 +10,7 @@
 #include "brakePressureSensor.h"
 #include "motorController.h"
 #include "PID.h"
+#include "drs.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 typedef struct _LaunchControl {
     PID *pid;
@@ -24,8 +25,8 @@ typedef struct _LaunchControl {
 
 LaunchControl *LaunchControl_new();
 void LaunchControl_calculateSlipRatio(LaunchControl *lc, WheelSpeeds *wss);
-void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
-void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm);
+void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
+void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
 bool LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *lc);
 float LaunchControl_getSlipRatio(LaunchControl *lc);
