@@ -4,6 +4,7 @@
         "math.h": "c",
         "corecrt_math.h": "c",
         "sensorcalculations.h": "c",
-        "io_driver.h": "c"
+        "io_driver.h": "c",
+        "sensors.h": "c"
     }
 }

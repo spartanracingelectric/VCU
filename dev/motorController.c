@@ -57,6 +57,7 @@ struct _MotorController
     float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
     sbyte1 regen_minimumSpeedKPH;        //Assigned by main
     sbyte1 regen_SpeedRampStart;
+    bool speedControl;
 
     bool relayState;
     bool previousHVILState;
@@ -288,33 +289,18 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDischarge(me, DISABLED);
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
-    sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
-    sbyte2 bpsTorque = 0;
-
-    float4 appsOutputPercent;
-
-    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    
-    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
-    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-
+    MCM_calculateTorqueCommand(me,tps,bps);
+    MCM_calculateSpeedCommand(me,tps,bps);
     /** MOTOR TORQUE COMMAND LOGIC **/
-    // abstraction might be warranted for the below logic
 
-    torqueOutput = appsTorque + bpsTorque;
-
-    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
-    {
-        torqueOutput = me->lcTorqueCommand;
-    } 
-    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
-    {
-        me->launchControlState = FALSE;
-        torqueOutput = me->plTorqueCommand + bpsTorque;
+    /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
+    if (!me->plActive && me->launchControlState) {
+        // **USE SPEED MODE BY DEFAULT FOR LAUNCH ONLY**
+        me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
+    } else {
+        // **POWER LIMITING ACTIVE - SWITCH TO TORQUE MODE**
+        me->speedControl = FALSE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter();
     }
-    MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
@@ -329,6 +315,50 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         me->InverterOverride = ENABLED;
     else
         me->InverterOverride = UNKNOWN;
+}
+
+void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps){
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    
+    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    sbyte2 bpsTorque = 0;
+
+    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
+    sbyte2 torqueOutput = appsTorque + bpsTorque;
+
+    if(me->launchControlState && me->lcTorqueCommand < appsTorque){
+        torqueOutput = me->lcTorqueCommand;
+    }
+
+    if(me->plActive && me->plTorqueCommand < appsTorque){
+        me->launchControlState = FALSE;
+        torqueOutput = me->plTorqueCommand + bpsTorque;
+    }
+
+    MCM_commands_setTorqueDNm(me, torqueOutput);
+}
+
+void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps){
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    sbyte2 speedCommand = 0;
+    sbyte2 appsRPM = 0;
+
+    sbyte2 speedCommandAPPS = 7000 * appsOutputPercent; //build speedEncoder.c & .h file to allow throttle to act as a variable Speed. none of this works technically
+    sbyte2 actualSpeed = MCM_getGroundSpeedKPH(me);
+    // speedEncoder should probably work as a delta RPM request (0-MAX). then do some math to turn it into an absolute rpm request (0-7000)
+    // speedMode works like cruise control, you are targeting a specific RPM. 
+    // not in here, but in the if stament directly following the function call, there is where we determine speed mode vs torque mode
+
+    sbyte2 speedCommandLaunch = MCM_get_LaunchControl_speedRequest(me);
+    
+    // comparitive apps speed request vs launch speed request
+    // if()
+
+    MCM_commands_setSpeedRPM(me, speedCommand);
+    
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
