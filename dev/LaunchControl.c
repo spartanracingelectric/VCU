@@ -11,6 +11,7 @@
 #include "brakePressureSensor.h"
 #include "motorController.h"
 #include "sensorCalculations.h"
+#include "drs.h"
 #include "PID.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 
@@ -43,7 +44,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     }
 }
 
-void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
+void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(me->lcActive){ //By doing this in combination with calling checkState after this function, we introduce a 10 ms delay. FIX logic
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pid, me->slipRatioThreeDigits);
@@ -52,13 +53,16 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         if(MCM_getGroundSpeedKPH(mcm) < 3){
             me->lcTorqueCommand = 20;
         }
-
+        // Tune
+        if(MCM_getGroundSpeedKPH(mcm) > 30){
+            DRS_open(drs);
+        }
         // Update launch control torque command in mcm struct
         MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10); // Move the mul by 10 to within MCM struct at some point
     }
 }
 
-void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm){
+void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     sbyte2 speedKph         = MCM_getGroundSpeedKPH(mcm);
     sbyte2 steeringAngle    = steering_degrees();
 
@@ -79,6 +83,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         me->lcActive = TRUE;
         me->lcReady = FALSE;
+        DRS_close(drs);
     }
 
     else if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35){

@@ -425,8 +425,8 @@ void main(void)
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
 
         LaunchControl_calculateSlipRatio(lc, wss);
-        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0);
-        LaunchControl_checkState(lc,tps,bps,mcm0); //PUT THIS AFTER LaunchControl_calculateTorqueCommand() ALWAYS
+        LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0, drs);
+        LaunchControl_checkState(lc,tps,bps,mcm0, drs); //PUT THIS AFTER LaunchControl_calculateTorqueCommand() ALWAYS
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
