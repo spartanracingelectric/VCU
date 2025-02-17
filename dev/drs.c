@@ -157,7 +157,6 @@ void DRS_Assistive(DRS *me){
         {
             SerialManager_send(serialMan, "Eco button detected\n");
             IO_RTC_StartTime(&timestamp_EcoButton);
-<<<<<<< HEAD
 
             //if drsSafety == 1 & 5 cycles has passed from log time
            //set drsSafety == 0
@@ -176,13 +175,11 @@ void DRS_Assistive(DRS *me){
             if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open 
                 drs_close(me);
             } 
-=======
         }
         else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 100000) // pressed longer than 0.1 sec
         {
             // SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n"); // i dont think we need this
             // code here
->>>>>>> parent of 307c4f1 (carlie chris code combined)
             me->drsFlap = 0; 
             timestamp_EcoButton = 0; //timer rest
         }
