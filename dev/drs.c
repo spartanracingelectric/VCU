@@ -18,7 +18,7 @@ DRS *DRS_new()
     DRS *me = (DRS *)malloc(sizeof(struct _DRS));
 
     //flags
-    me->AutoDRSActive = TRUE;
+    me->AutoDRSActive = FALSE;
     me->currentDRSMode = MANUAL; 
     me->drsFlapOpen = FALSE;
     me->drsSafteyTimer = NULL;
