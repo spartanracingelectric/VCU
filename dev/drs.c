@@ -47,18 +47,24 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps /*add watch dog parameter & steering angle
-*/) {
+void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
+    
+    // Checks for updates to Rotary Knob Position
+    // DRS_selectMode(me);
 
-    // permanantly in pot_DRS_LC == 0 (! retired functionality of pot_DRS_LC)
-    // if(pot_DRS_LC == 1) {
-    //     me->currentDRSMode = AUTO;
-    // } else {
-    //     //update_knob(me); Change to when we have a working rotary
-    //     me->currentDRSMode = MANUAL;
-    // }
-    sbyte2 curr_steer_angle = steering_degrees(); // < +-15 deg
-    float4 brake_travel = bps->percent; // > 20%
+    sbyte2 steeringAngle = steering_degrees(); // < +/- 15 deg
+    float4 bpsPercent = bps->percent; // > 20%
+    float4 appsPercent = tps->travelPercent; // > 90%
+    //For AutoDRS
+    sbyte2 groundspeedMPH = 0.62 * MCM_getGroundSpeedKPH(mcm); // >30mph
+    //button check for all later cases where it might be needed
+    if(Sensor_DRSButton.sensorValue) { 
+        me->buttonPressed = TRUE;
+    }
+    else {
+        me->buttonPressed = FALSE;
+    }
+
     me->currentDRSMode = MANUAL; 
 
     switch(me->currentDRSMode)
@@ -72,28 +78,54 @@ void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressure
                 break;
 
             case MANUAL:
-                if(Sensor_DRSButton.sensorValue == TRUE) { 
-                    me->buttonPressed = TRUE;
-                    DRS_open(me);
-                } 
+                if(me->buttonPressed) {
+                    DRS_open(me); }
                 else {
-                    me->buttonPressed = FALSE;
+                    DRS_close(me); }
+                break;
+
+            case ASSISTIVE:
+                /* 
+                1. To open, check if button is pressed & DRS flap closed (should be false) & Have waited at least 5 cycles (50ms)
+                2. Restar timer & Open DRS
+                3. To close, check if button is pressed & DRS engaged (should be TRUE) & Have waited at least 5 cycles (50ms)
+                4. Restart timer & Close DRS
+                5. EXIT CONDITONS: (Brake pressure is > 20% or steering angle is +/- 15° ) */
+
+                // conditions are listed in prioritised order, check flap state first (put ourselves in the relevant if statement), then button press, then timer
+                if(!me->drsFlapOpen && me->buttonPressed && IO_RTC_GetTimeUS(&me->drsSafteyTimer) >= 45000 ){ //check if button press && drs flap is closed && drsSafety Timer Passed > 0.05s, using 0.45s in case the vcu cycle time is somehow off by a microsecond or two (0.00001! lol)
+                    IO_RTC_StartTime(&me->drsSafteyTimer); //restart timer
+                    DRS_open(me);
+                }
+                // conditions are listed in prioritised order
+                else if(me->drsFlapOpen && me->buttonPressed && IO_RTC_GetTimeUS(&me->drsSafteyTimer) >= 10000 ){ //check if button press && drs flap is open && drsSafety Timer Passed > 0.01s, sohrter interval bc prioritising close over open
+                    IO_RTC_StartTime(&me->drsSafteyTimer); //restart timer
+                    DRS_close(me);
+                }
+
+                if(me->drsFlapOpen && (bpsPercent > .20 || steeringAngle > 15 || steeringAngle < -15)){ //check if [ bps > 20% or steering angle > +/- 15deg ] and drs is open 
+                    // IO_RTC_StartTime(&me->drsSafteyTimer); //restart timer? or allow immediate correcting in edge cases...
                     DRS_close(me);
                 }
                 break;
-            case ASSISTIVE:
-            /* 
-            1. Check if button is pressed & DRS engaged (should be false)
-            2. Open DRS & Log time the button is pressed
-            3. Wait at least 5 cycle (50ms) to check if button pressed again
 
-            4. To close check if button is pressed & DRS engaged (should be true)
-            5. Close DRS & Log time the button is pressed
-            6. Wait at least 5 cycle (50ms) to check if button pressed again
+            case AUTO:
 
-            7. ALWAYS BEING CHECKED: Exit conditions (Brake pressure is ??% or streering angle is 15% to right or left) then close DRS
-            */
-                runAuto(me, mcm, tps, bps);
+                // Unknown for now if physical components can be damaged when requesting flap open  when already opened, hence the nested if
+                if (groundspeedMPH > 5 && appsPercent > .75 && steeringAngle > -15 && steeringAngle < 15 && bpsPercent < .10) {
+                    me->AutoDRSActive = TRUE;
+                    if(!me->drsFlapOpen){ DRS_open(me); }
+                }
+                // Unknown for now if physical components can be damaged when requesting flap close  when already closed, hence the nested if
+                else {
+                    me->AutoDRSActive = FALSE;
+                    if(me->drsFlapOpen) { DRS_close(me); }
+                }
+                // Use & uncomment instead if no harm to components
+                /*
+                else {
+                    DRS_close(me);
+                } */
                 break;
             default:
                 break;
@@ -109,63 +141,7 @@ void DRS_open(DRS *me) {
 void DRS_close(DRS *me) {
     IO_DO_Set(IO_DO_06, FALSE);
     IO_DO_Set(IO_DO_07, TRUE);
-    me->drsFlap = 0;
-
-}
-
-void DRS_Assistive(DRS *me){
-    ubyte4 timestamp_startTime = 0;
-    ubyte4 timestamp_EcoButton = 0;
-
-    SerialManager *serialMan = SerialManager_new();
-    IO_RTC_StartTime(&timestamp_startTime);
-
-    // while(1) //looped?
-    // {
-    if(Sensor_DRSButton.sensorValue == TRUE)
-    {
-        if (timestamp_EcoButton == 0)
-        {
-            SerialManager_send(serialMan, "Eco button detected\n");
-            IO_RTC_StartTime(&timestamp_EcoButton);
-<<<<<<< HEAD
-
-            //if drsSafety == 1 & 5 cycles has passed from log time
-           //set drsSafety == 0
-
-            if(Sensor_DRSButton.sensorValue == true &&  me->drsFlap == 0){ //check if button is pressed && drs is inactive && if drsSafety == 0
-                DRS_open(me); //open drs
-                //log time, set boolean value drsSafety to 1       
-            }
-
-            if(Sensor_DRSButton.sensorValue == true && me->drsFlap == 1){ //check if button is pressed %% drs is active && if drsSafety == 0
-                DRS_close(me); ///close drs
-                //log time, set boolean value drsSafety to 1
-            }
-
-
-            if(brake_travel < .20 || curr_steer_angle > -15 || curr_steer_angle < 15 && me->drsFlap == 1){ //check if bps < 20% or steering angle +/- 15deg and drs is open 
-                drs_close(me);
-            } 
-=======
-        }
-        else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 100000) // pressed longer than 0.1 sec
-        {
-            // SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n"); // i dont think we need this
-            // code here
->>>>>>> parent of 307c4f1 (carlie chris code combined)
-            me->drsFlap = 0; 
-            timestamp_EcoButton = 0; //timer rest
-        }
-        else if (IO_RTC_GetTimeUS(timestamp_EcoButton) >= 500000) //  wait 0.5 sec to check again
-        {
-            // SerialManager_send(serialMan, "Eco button held 3s - starting calibrations\n"); // i dont think we need this
-            timestamp_EcoButton = 0;
-        
-
-        }
-    }
-    // }
+    me->drsFlapOpen = 0;
 }
 
 //Change to future regarding rotary voltage values

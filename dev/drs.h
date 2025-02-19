@@ -13,7 +13,7 @@
 //      Mode 1 - Always on
 //      Mode 2 - Driver controlled
 //      Mode 3 - Assistive (manual & sensor controlled)
-enum { STAY_CLOSED, STAY_OPEN, MANUAL, ASSISTIVE };
+enum { STAY_CLOSED, STAY_OPEN, MANUAL, ASSISTIVE, AUTO };
 
 //_DRS is a structure tag, used to reference the structure for future initializations 
 typedef struct _DRS
