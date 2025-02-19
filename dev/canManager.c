@@ -751,11 +751,11 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
-    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8; 
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = drs->buttonPressed;
     canMessages[canMessageCount - 1].data[byteNum++] = drs->currentDRSMode;
-    canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlap;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlapOpen;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->AutoDRSActive;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
