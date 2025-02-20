@@ -55,6 +55,11 @@ void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSyste
     //If Push to pass sensor is TRUE (pressed)
     //Set Status PUSHTOPASS
     //Set torque limit back to the original
+    if (Sensor_PushToPass.sensorValue == TRUE)
+    {
+        me->Derating_status = PUSHTOPASS;
+        MCM_commands_setTorqueLimit(mcm, VCU_MCM_MAXTORQUE);
+    }
 }
 
 bool getDeratingStatus(Derating* me){
