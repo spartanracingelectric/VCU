@@ -12,7 +12,6 @@
 #include "motorController.h" //torque info, feedback 
 #include "sensorCalculations.h"
 //extern Sensor Sensor_PushToPass //Overriding Derating
-#define VCU_MCM_MAXTORQUE 2310
 
 /* Torque Limit
 Endurance Limit: 170Nm
@@ -45,23 +44,21 @@ Derating *Derating_new(){
 void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
     // sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
     // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
-    if(BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim || me->Derating_status == OFF){
-        me->Derating_status = READYTODERATE;
-        //Send messages over CAN
+    if((BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim) && me->Derating_status == OFF){
+        me->Derating_status = ACTIVE;
+        //Set new torque limit 
         MCM_commands_setTorqueLimit(mcm, me->Derating_torqueLim);
     }
     //Testing use LED to see derating status
 
-    //If Push to pass sensor is TRUE (pressed)
-    //Set Status PUSHTOPASS
-    //Set torque limit back to the original
-    if (Sensor_PushToPass.sensorValue == TRUE)
-    {
-        me->Derating_status = PUSHTOPASS;
-        MCM_commands_setTorqueLimit(mcm, VCU_MCM_MAXTORQUE);
-    }
+    //If Push to pass sensor is TRUE -> Status = PUSHTOPASS -> car return to normal behavior
+    // if (Sensor_PushToPass.sensorValue == TRUE)
+    // {
+    //     me->Derating_status = PUSHTOPASS;
+    //     MCM_commands_setTorqueLimit(mcm, VCU_MCM_MAXTORQUE);
+    // }
 }
 
-bool getDeratingStatus(Derating* me){
+ubyte2 getDeratingStatus(Derating* me){
     return me->Derating_status;
 }
