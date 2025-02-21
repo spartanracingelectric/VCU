@@ -95,7 +95,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->lcTorqueCommand = NULL;
     }
     //MCM struct only cares about lcActive, so we inform it here
-    MCM_update_LaunchControl_state(mcm, me->lcActive);
+    MCM_update_LC_activeStatus(mcm, me->lcActive);
 }
 
 bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }

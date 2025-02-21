@@ -35,6 +35,8 @@ void MCM_commands_setDirection(MotorController* me, Direction rotation);
 void MCM_commands_setInverter(MotorController* me, Status inverterState);
 void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
 void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand);
+
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
 
@@ -78,9 +80,14 @@ void MCM_updateInverterStatus(MotorController* me, Status newState);
 Status MCM_getLockoutStatus(MotorController* me);
 Status MCM_getInverterStatus(MotorController* me);
 
+void MCM_update_speedControl(MotorController *me, bool speedControl);
+ubyte1 MCM_get_speedControl(MotorController *me);
+
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand);
-sbyte2 MCM_get_LC_torqueCommand(MotorController *me){};
-void MCM_update_LaunchControl_state(MotorController *me, bool newState);
+sbyte2 MCM_get_LC_torqueCommand(MotorController *me);
+void MCM_update_LC_speedCommand(MotorController *me, sbyte2 lcSpeedCommand);
+sbyte2 MCM_get_LC_speedCommand(MotorController *me);
+void MCM_update_LC_activeStatus(MotorController *me, bool newState);
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
 void MCM_set_PL_updateStatus(MotorController *me, bool newState);
@@ -121,6 +128,8 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
 // void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
 void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps);
 
 void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
