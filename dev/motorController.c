@@ -57,7 +57,7 @@ struct _MotorController
     float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
     sbyte1 regen_minimumSpeedKPH;        //Assigned by main
     sbyte1 regen_SpeedRampStart;
-    bool speedControl;
+
 
     bool relayState;
     bool previousHVILState;
@@ -102,6 +102,8 @@ struct _MotorController
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
+    sbyte2 commands_speed;
+    sbyte2 commands_speedLimit;
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
@@ -132,16 +134,14 @@ struct _MotorController
     //};
 
     sbyte2 lcTorqueCommand;
-    bool launchControlState;
+    bool launchControlActiveStatus;
 
     sbyte2 plTorqueCommand;
     bool plActive;
 
-
-    //---------------------------------------------------------------------------------------------------
-    // copy lc variable for power limit; 
-    //---------------------------------------------------------------------------------------------------
-
+    bool speedControl;
+    sbyte2 launchControlSpeedCommand;
+    bool constantSpeedTest;
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -181,13 +181,16 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me->motor_temp = 99;
 
     me->lcTorqueCommand = 0;
-    me->launchControlState = FALSE;
+    me->launchControlSpeedCommand = 0;
+    me->launchControlActiveStatus = FALSE;
 
     me-> plTorqueCommand = 0;
     me-> plActive = FALSE;
 
+    me->speedControl = FALSE;
+    me->constantSpeedTest = FALSE;
+
     me->HVILOverride = FALSE;
- 
     /*
 me->setTorque = &setTorque;
 me->setInverter = &setInverter;
@@ -290,16 +293,18 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     MCM_calculateTorqueCommand(me,tps,bps);
-    MCM_calculateSpeedCommand(me,tps,bps);
+    MCM_calculateSpeedCommand(me,tps);
     /** MOTOR TORQUE COMMAND LOGIC **/
 
     /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
-    if (!me->plActive && me->launchControlState) {
-        // **USE SPEED MODE BY DEFAULT FOR LAUNCH ONLY**
+    if (!me->plActive && me->launchControlActiveStatus && Sensor_LCButton.sensorValue) {
+        // **USE SPEED MODE FOR LAUNCH ONLY**
         me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
+        MCM_commands_setTorqueDNm(me, 0);
     } else {
         // **POWER LIMITING ACTIVE - SWITCH TO TORQUE MODE**
         me->speedControl = FALSE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter();
+        MCM_commands_setSpeedRPM(me, 0);
     }
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -328,37 +333,55 @@ void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePr
     //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
     sbyte2 torqueOutput = appsTorque + bpsTorque;
 
-    if(me->launchControlState && me->lcTorqueCommand < appsTorque){
+    if(me->launchControlActiveStatus && me->lcTorqueCommand < appsTorque && me->lcTorqueCommand != 0){
         torqueOutput = me->lcTorqueCommand;
     }
 
     if(me->plActive && me->plTorqueCommand < appsTorque){
-        me->launchControlState = FALSE;
+        me->launchControlActiveStatus = FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
 
     MCM_commands_setTorqueDNm(me, torqueOutput);
 }
 
-void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps){
+void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
     float4 appsOutputPercent;
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    sbyte2 speedCommand = 0;
-    sbyte2 appsRPM = 0;
+    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent; // Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
 
-    sbyte2 speedCommandAPPS = 7000 * appsOutputPercent; //build speedEncoder.c & .h file to allow throttle to act as a variable Speed. none of this works technically
-    sbyte2 actualSpeed = MCM_getGroundSpeedKPH(me);
+    //No apps pedal inputs taken to drive car in speed mode, just check to ensure driver is at 100%* request to confirm rules compliance regarding torque requests      *Should this be done properly wher the pedal actually functions, bc if so then a lot more work needs to be done + possibility for a lot of bugginess
+    sbyte2 speedCommand = 0;
+
+    //sbyte2 speedCommand = 7000 * appsOutputPercent; //build speedEncoder.c & .h file to allow throttle to act as a variable Speed. none of this works technically
+
     // speedEncoder should probably work as a delta RPM request (0-MAX). then do some math to turn it into an absolute rpm request (0-7000)
     // speedMode works like cruise control, you are targeting a specific RPM. 
     // not in here, but in the if stament directly following the function call, there is where we determine speed mode vs torque mode
 
-    sbyte2 speedCommandLaunch = MCM_get_LaunchControl_speedRequest(me);
+    //sbyte2 speedCommandLaunch = MCM_get_LaunchControl_speedRequest(me);
     
     // comparitive apps speed request vs launch speed request
     // if()
 
-    MCM_commands_setSpeedRPM(me, speedCommand);
+    MCM_update_constantSpeedTest(me, tps);
     
+    if (me->constantSpeedTest) {
+        me->speedControl = TRUE;
+        MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand);  
+        MCM_commands_setTorqueDNm(me, 0);
+        return;
+    } 
+    
+    if (appsTorque == 231 && me->launchControlActiveStatus) { 
+        MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand); 
+    }
+
+    me->speedControl = FALSE;
+    MCM_commands_setTorqueDNm(me, appsTorque);
+    MCM_commands_setSpeedRPM(me, 0);
+
+
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
@@ -662,9 +685,24 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
     
-    //Safety Check. torqueOutput Should never rise above 231
-    if(me->commands_torque > 231){
+    //Safety Check. torqueOutput Should never rise above maxTorqueDNm
+    if(me->commands_torque > me->torqueMaximumDNm){
        me->commands_torque = 0;
+    }
+}
+
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand)
+{
+    if (!me->speedControl){
+        return;
+    }
+
+    me->updateCount += (me->commands_speed == speedCommand) ? 0 : 1;
+    me->commands_speed = speedCommand;
+    
+    //Safety Check. commands_speed Should never rise above Max RPM (what is max + what are units?)
+    if(me->commands_speed > 7000){
+       me->commands_speed = 0;
     }
 }
 
@@ -710,6 +748,10 @@ sbyte2 MCM_commands_getTorque(MotorController *me)
 {
     return me->commands_torque;
 }
+sbyte2 MCM_commands_getSpeed(MotorController *me)
+{
+    return me->commands_speed;
+}
 Direction MCM_commands_getDirection(MotorController *me)
 {
     return me->commands_direction;
@@ -726,6 +768,12 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
+ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController *me){
+    ubyte1 byte = 0x00;
+    byte = (MCM_commands_getInverter(me) == ENABLED) ? 1 : 0;
+    byte = byte | MCM_get_speedControlValidity(me) << 2; // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
+    return byte;
+}
 
 
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
@@ -736,8 +784,31 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
-//------------------------------Launch Control--------------------------------
+//------------------------------Speed Control--------------------------------
+void MCM_update_speedControl(MotorController *me, bool speedControl)
+{
+    me->speedControl = speedControl;
+}
 
+bool MCM_get_speedControl(MotorController *me)
+{
+    return me->speedControl;
+}
+
+void MCM_update_constantSpeedTest(MotorController *me, TorqueEncoder *tps)
+{
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    sbyte2 appsPercent = appsOutputPercent * 10; // ("10" = 100%) Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
+
+    if (Sensor_LCButton.sensorValue && appsPercent >= 9) {
+        me->constantSpeedTest = TRUE;
+    }
+    else {
+        me->constantSpeedTest = FALSE; 
+    }
+}
+//------------------------------Launch Control--------------------------------
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
     me->lcTorqueCommand = lcTorqueCommand;
@@ -748,9 +819,19 @@ sbyte2 MCM_get_LC_torqueCommand(MotorController *me)
     return me->lcTorqueCommand;
 }
 
-void MCM_update_LaunchControl_state(MotorController *me, bool newState)
+void MCM_update_LC_speedCommand(MotorController *me, sbyte2 lcSpeedCommand)
 {
-    me->launchControlState = newState;
+    me->launchControlSpeedCommand = lcSpeedCommand;
+}
+
+sbyte2 MCM_get_LC_speedCommand(MotorController *me)
+{
+    return me->launchControlSpeedCommand;
+}
+
+void MCM_update_LC_activeStatus(MotorController *me, bool newState)
+{
+    me->launchControlActiveStatus = newState;
 }
 //----------------------------------------------------PL-------------------------------
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)

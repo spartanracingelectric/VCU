@@ -572,7 +572,7 @@ ubyte4 SafetyChecker_getNotices(SafetyChecker *me)
 {
     return (me->notices);
 }
-
+//SPEED REDUCE AND TORQUE REDUCE
 void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, BatteryManagementSystem *bms, WheelSpeeds *wss)
 {
     float4 multiplier = 1;
@@ -676,6 +676,8 @@ void SafetyChecker_reduceTorque(SafetyChecker *me, MotorController *mcm, Battery
         multiplier = 1;
     }
     MCM_commands_setTorqueDNm(mcm, MCM_commands_getTorque(mcm) * multiplier);
+    MCM_commands_setSpeedRPM(mcm, MCM_commands_getSpeed(mcm) * multiplier);
+
 }
 
 //-------------------------------------------------------------------
