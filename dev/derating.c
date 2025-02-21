@@ -12,7 +12,6 @@
 #include "motorController.h" //torque info, feedback 
 #include "sensorCalculations.h"
 //extern Sensor Sensor_PushToPass //Overriding Derating
-#define VCU_MCM_MAXTORQUE 2310
 
 /* Torque Limit
 Endurance Limit: 170Nm
@@ -63,9 +62,7 @@ void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSyste
     
     //Testing use LED to see derating status
 
-    //If Push to pass sensor is TRUE (pressed)
-    //Set Status PUSHTOPASS
-    //Set torque limit back to the original
+    //If Push to pass sensor is TRUE -> Status = PUSHTOPASS -> car return to normal behavior
     // if (Sensor_PushToPass.sensorValue == TRUE)
     // {
     //     me->Derating_status = PUSHTOPASS;
@@ -73,6 +70,6 @@ void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSyste
     // }
 }
 
-bool getDeratingStatus(Derating* me){
+ubyte2 getDeratingStatus(Derating* me){
     return me->Derating_status;
 }
