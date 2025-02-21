@@ -293,7 +293,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->LaunchControl_TorqueLimit;
     } else {
         // torqueOutput = appsTorque + bpsTorque;
-        torqueOutput = me->torqueMaximumDNm * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
+        torqueOutput = me->commands_torqueLimit * appsOutputPercent;  //REMOVE THIS LINE TO ENABLE REGEN
     }
     
     MCM_commands_setTorqueDNm(me, torqueOutput);

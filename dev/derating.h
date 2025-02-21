@@ -15,7 +15,7 @@
 #include "sensorCalculations.h"
 
 typedef struct _Derating{
-    enum {OFF, READYTODERATE, PUSHTOPASS, ON } Derating_status;
+    enum {OFF, READYTODERATE, PUSHTOPASS, ACTIVE } Derating_status;
     float Derating_cellTempLim; //Once cell temmp is reached Derating will activate
     float Derating_socLim; //Once soc is reached Derating will activate
     sbyte2 Derating_torqueLim;

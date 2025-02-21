@@ -39,27 +39,38 @@ Derating *Derating_new(){
     me->Derating_torqueLim = 1250; //Nm, The new max torque for limp mode
     me->Derating_powerLim = 0; //kW, The new power limit for limp mode
 
+    me->Derating_originalMaxTorque = 0; // Original max torque before derating is activated (updated to value in method)
+
     return me;
 }
 
 void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
     // sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
     // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
-    if(BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim || me->Derating_status == OFF){
-        me->Derating_status = READYTODERATE;
+    if((BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim) && me->Derating_status == OFF){
+        me->Derating_status = ACTIVE;
         //Send messages over CAN
-        MCM_commands_setTorqueLimit(mcm, me->Derating_torqueLim);
+        me->Derating_originalMaxTorque = MCM_getMaxTorqueDNm(mcm);
+        MCM_setMaxTorqueDNm(mcm, me->Derating_torqueLim); 
     }
+    //2310 dN should be original torqueMax
+    if ((BMS_getHighestCellTemp_degC(bms) <= me->Derating_cellTempLim && BMS_getLowestCellVoltage_mV(bms) >= me->Derating_socLim) && me->Derating_status == ACTIVE)
+    {
+        me->Derating_status = OFF;
+        MCM_setMaxTorqueDNm(mcm, me->Derating_originalMaxTorque);
+    }
+    
+    
     //Testing use LED to see derating status
 
     //If Push to pass sensor is TRUE (pressed)
     //Set Status PUSHTOPASS
     //Set torque limit back to the original
-    if (Sensor_PushToPass.sensorValue == TRUE)
-    {
-        me->Derating_status = PUSHTOPASS;
-        MCM_commands_setTorqueLimit(mcm, VCU_MCM_MAXTORQUE);
-    }
+    // if (Sensor_PushToPass.sensorValue == TRUE)
+    // {
+    //     me->Derating_status = PUSHTOPASS;
+    //     MCM_commands_setTorqueLimit(mcm, VCU_MCM_MAXTORQUE);
+    // }
 }
 
 bool getDeratingStatus(Derating* me){
