@@ -13,7 +13,9 @@
 #include "drs.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 typedef struct _LaunchControl {
-    PID *pid;
+    PID *pidTorque;
+    PID *pidSpeed;
+
 
     float4 slipRatio;
     sbyte2 slipRatioThreeDigits;
@@ -21,6 +23,8 @@ typedef struct _LaunchControl {
     bool lcActive; // Just for CAN to showcase when enabled
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
+    bool constantSpeedTest; // flag for speed mode override
+    sbyte2 speedCommand;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();

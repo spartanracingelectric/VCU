@@ -35,7 +35,7 @@ struct _WheelSpeeds
 * If an implausibility occurs between the values of these two sensors the power to the motor(s) must be immediately shut down completely.
 * It is not necessary to completely deactivate the tractive system, the motor controller(s) shutting down the power to the motor(s) is sufficient.
 ****************************************************************************/
-WheelSpeeds *WheelSpeeds_new(ubyte4 tireDiameterInches_F, ubyte4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
+WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInches_R, ubyte1 pulsesPerRotation_F, ubyte1 pulsesPerRotation_R)
 {
     WheelSpeeds *me = (WheelSpeeds *)malloc(sizeof(struct _WheelSpeeds));
 
@@ -83,9 +83,9 @@ void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
 //    me->speed_RR = me->speed_RR * 3.6;
 //}
 
-ubyte4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
+float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
 {
-    ubyte4 speed;
+    float4 speed;
     switch (corner)
     {
     case FL:
@@ -107,9 +107,9 @@ ubyte4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
     return speed;
 }
 
-ubyte4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
+float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
 {
-    ubyte4 speed;
+    float4 speed;
     if (interpolate)
     {
         switch (corner)
@@ -156,19 +156,26 @@ ubyte4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpol
 }
 
 //UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-ubyte4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
+float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
 {
     return (me->speed_FL < me->speed_FR) ? me->speed_FL : me->speed_FR;
 }
 
+float4 WheelSpeeds_getSlowestFrontRPM(WheelSpeeds *me)
+{
+    float4 sensor_FL = WheelSpeeds_getWheelSpeedRPM(me,FL,0);
+    float4 sensor_FR = WheelSpeeds_getWheelSpeedRPM(me,FR,0);
+    return (sensor_FL < sensor_FR) ? sensor_FL : sensor_FR;
+}
+
 //UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
-ubyte4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
+float4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
 {
     return (me->speed_RL > me->speed_RR) ? me->speed_RL : me->speed_RR;
 }
 
 
-ubyte4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
+float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
 {
     //Grab interpolated Wheel Speed
     switch (tire_config)
@@ -189,7 +196,7 @@ ubyte4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
     return 0;
 }
 
-ubyte4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config)
+float4 WheelSpeeds_getGroundSpeedKPH(WheelSpeeds *me, ubyte1 tire_config)
 {
     return (WheelSpeeds_getGroundSpeed(me, tire_config) * 3.6); //m/s to kph
 }
