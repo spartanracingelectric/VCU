@@ -294,12 +294,12 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     /** MOTOR TORQUE COMMAND LOGIC **/
 
     /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
-    if (me->plActive) {
+    if (!me->plActive && me->launchControlState) {
+        // **USE SPEED MODE BY DEFAULT FOR LAUNCH ONLY**
+        me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
+    } else {
         // **POWER LIMITING ACTIVE - SWITCH TO TORQUE MODE**
         me->speedControl = FALSE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter();
-    } else {
-        // **USE SPEED MODE BY DEFAULT**
-        me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
     }
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -346,14 +346,16 @@ void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps, BrakePre
     sbyte2 speedCommand = 0;
     sbyte2 appsRPM = 0;
 
-    sbyte2 commandedSpeed = me->maxSpeedKPH * appsOutputPercent;
+    sbyte2 speedCommandAPPS = 7000 * appsOutputPercent; //build speedEncoder.c & .h file to allow throttle to act as a variable Speed. none of this works technically
     sbyte2 actualSpeed = MCM_getGroundSpeedKPH(me);
-    // sbyte2 speedError = commandedSpeed - actualSpeed; //do we need speederror?
+    // speedEncoder should probably work as a delta RPM request (0-MAX). then do some math to turn it into an absolute rpm request (0-7000)
+    // speedMode works like cruise control, you are targeting a specific RPM. 
+    // not in here, but in the if stament directly following the function call, there is where we determine speed mode vs torque mode
 
-    PID_updateSetpoint(me->speedPID, commandedSpeed);
-
-    PID_computeOutput(me->speedPID, actualSpeed);
-    sbyte2 torqueOutput = PID_getOutput(me->speedPID);
+    sbyte2 speedCommandLaunch = MCM_get_LaunchControl_speedRequest(me);
+    
+    // comparitive apps speed request vs launch speed request
+    // if()
 
     MCM_commands_setSpeedRPM(me, speedCommand);
     
