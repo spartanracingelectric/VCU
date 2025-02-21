@@ -57,6 +57,7 @@ struct _MotorController
     float4 regen_percentAPPSForCoasting; //Tuneable value.  Amount of accel pedal required to exit regen.  Value between zero and one.
     sbyte1 regen_minimumSpeedKPH;        //Assigned by main
     sbyte1 regen_SpeedRampStart;
+    bool speedControl;
 
     bool relayState;
     bool previousHVILState;
@@ -291,8 +292,9 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     sbyte2 torqueOutput = 0;
     sbyte2 appsTorque = 0;
     sbyte2 bpsTorque = 0;
-
+    sbyte2 commandedSpeed = 0;
     float4 appsOutputPercent;
+    me->speedControl = TRUE;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
@@ -303,18 +305,54 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     /** MOTOR TORQUE COMMAND LOGIC **/
     // abstraction might be warranted for the below logic
 
-    torqueOutput = appsTorque + bpsTorque;
 
-    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
-    {
-        torqueOutput = me->lcTorqueCommand;
-    } 
-    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
-    {
-        me->launchControlState = FALSE;
-        torqueOutput = me->plTorqueCommand + bpsTorque;
+    /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
+    if (me->plActive == TRUE) {
+        // **POWER LIMITING ACTIVE - SWITCH TO TORQUE MODE**
+        me->speedControl = FALSE;
+    } else {
+        // **USE SPEED MODE BY DEFAULT**
+        me->speedControl = TRUE;
     }
-    MCM_commands_setTorqueDNm(me, torqueOutput);
+
+
+    if (me->speedControl == FALSE){
+        torqueOutput = appsTorque + bpsTorque;
+
+        if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
+        {
+            torqueOutput = me->lcTorqueCommand;
+        } 
+        if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
+        {
+            me->launchControlState = FALSE;
+            torqueOutput = me->plTorqueCommand + bpsTorque;
+        }
+        if (me->commands_torque > 231) {
+            me->commands_torque = 0;
+         }
+
+        MCM_commands_setTorqueDNm(me, torqueOutput);
+    }
+
+    if (me->speedControl == TRUE) {
+    
+        sbyte2 commandedSpeed = me->maxSpeedKPH * appsOutputPercent;
+        sbyte2 actualSpeed = MCM_getGroundSpeedKPH(me);
+        // sbyte2 speedError = commandedSpeed - actualSpeed; //do we need speederror?
+    
+        PID_updateSetpoint(me->speedPID, commandedSpeed);
+    
+        PID_computeOutput(me->speedPID, actualSpeed);
+        sbyte2 torqueOutput = PID_getOutput(me->speedPID);
+
+        if (torqueOutput > 231) {
+            torqueOutput = 0;
+         }
+    
+        MCM_commands_setTorqueDNm(me, torqueOutput);
+    }
+    
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
