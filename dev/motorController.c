@@ -295,7 +295,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     /** MOTOR TORQUE COMMAND LOGIC **/
 
     /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
-    if (!me->plActive && me->launchControlActiveStatus) {
+    if (!me->plActive && me->launchControlActiveStatus && button) {
         // **USE SPEED MODE FOR LAUNCH ONLY**
         me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
     } else {
