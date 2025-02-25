@@ -98,6 +98,13 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     MCM_update_LC_activeStatus(mcm, me->lcActive);
 }
 
+void Constantspedtestoverride(){
+    
+    MCM_update_LC_speedLimit(mcm, me->lcTorqueCommand * 10); // Move the mul by 10 to within MCM struct at some point
+    //stuff
+}
+
+
 bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }
 
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){ return me->lcTorqueCommand; }
