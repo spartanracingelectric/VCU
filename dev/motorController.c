@@ -102,6 +102,8 @@ struct _MotorController
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
+    sbyte2 commands_speed;
+    sbyte2 commands_speedLimit;
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
@@ -298,9 +300,11 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     if (!me->plActive && me->launchControlActiveStatus) {
         // **USE SPEED MODE FOR LAUNCH ONLY**
         me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
+        MCM_commands_setTorqueDNm(me, 0);
     } else {
         // **POWER LIMITING ACTIVE - SWITCH TO TORQUE MODE**
         me->speedControl = FALSE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter();
+        MCM_commands_setSpeedRPM(me, 0);
     }
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
@@ -344,7 +348,7 @@ void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePr
 void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
     float4 appsOutputPercent;
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    sbyte2 appsTorque = me->torqueMaximumDNm * appsOutputPercent; // Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
 
     //No apps pedal inputs taken to drive car in speed mode, just check to ensure driver is at 100%* request to confirm rules compliance regarding torque requests      *Should this be done properly wher the pedal actually functions, bc if so then a lot more work needs to be done + possibility for a lot of bugginess
     sbyte2 speedCommand = 0;
@@ -673,9 +677,20 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
     
-    //Safety Check. torqueOutput Should never rise above 231
-    if(me->commands_torque > 2310){
+    //Safety Check. torqueOutput Should never rise above maxTorqueDNm
+    if(me->commands_torque > me->torqueMaximumDNm){
        me->commands_torque = 0;
+    }
+}
+
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand)
+{
+    me->updateCount += (me->commands_speed == speedCommand) ? 0 : 1;
+    me->commands_speed = speedCommand;
+    
+    //Safety Check. commands_speed Should never rise above Max RPM (what is max + what are units?)
+    if(me->commands_speed > 7000){
+       me->commands_speed = 0;
     }
 }
 

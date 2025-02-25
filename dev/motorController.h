@@ -31,11 +31,11 @@ MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID,
 //CAN Message Parameters
 //Note: Speed Command (angular velocity) not used when in torque mode
 void MCM_commands_setTorqueDNm(MotorController* me, sbyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand);
 void MCM_commands_setDirection(MotorController* me, Direction rotation);
 void MCM_commands_setInverter(MotorController* me, Status inverterState);
 void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
 void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
-void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand);
 
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
