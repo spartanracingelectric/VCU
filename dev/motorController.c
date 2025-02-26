@@ -364,6 +364,8 @@ void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
     // comparitive apps speed request vs launch speed request
     // if()
 
+    MCM_update_constantSpeedTest(me, tps);
+    
     if (me->constantSpeedTest) {
         me->speedControl = TRUE;
         MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand);  
@@ -781,6 +783,20 @@ void MCM_update_speedControl(MotorController *me, bool speedControl)
 bool MCM_get_speedControl(MotorController *me)
 {
     return me->speedControl;
+}
+
+void MCM_update_constantSpeedTest(MotorController *me, TorqueEncoder *tps)
+{
+    float4 appsOutputPercent;
+    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
+    sbyte2 appsPercent = appsOutputPercent * 10; // ("10" = 100%) Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
+
+    if (Sensor_LCButton.sensorValue && appsPercent >= 9) {
+        me->constantSpeedTest = TRUE;
+    }
+    else {
+        me->constantSpeedTest = FALSE; 
+    }
 }
 //------------------------------Launch Control--------------------------------
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
