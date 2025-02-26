@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright (c) 2010 TTTControl. All rights reserved. Confidential proprietory
- * Schˆnbrunnerstraﬂe 7, A-1040 Wien, Austria. office@ttcontrol.com
+ * Sch√∂nbrunnerstra√üe 7, A-1040 Wien, Austria. office@ttcontrol.com
  **************************************************************************/
 /**********************************************************************//**
  * \file IO_Driver.h
