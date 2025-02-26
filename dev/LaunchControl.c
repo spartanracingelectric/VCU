@@ -113,7 +113,7 @@ LaunchControl_checkSpeedTest(LaunchControl *me, MotorController *mcm){
         MCM_update_speedControl(mcm, TRUE);
         MCM_commands_setSpeedRPM(mcm, me->speedCommand);
     } else {
-        MCM_update_speedControl(mcm, TRUE);
+        MCM_update_speedControl(mcm, FALSE);
         MCM_commands_setSpeedRPM(mcm, 0);
     }
 
