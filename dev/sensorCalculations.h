@@ -100,11 +100,7 @@ void GetBrakePosition(void);
 //4 funcs, one to get each wheel's speed
 //16 bumps per rotation, 16 hz = 1 rotation per second
 #define NUM_BUMPS 26
-<<<<<<< HEAD
 #define WHEEL_DIAMETER 18 //Inches    /// change to 18 check it with DAQ
-=======
-#define WHEEL_DIAMETER 18 //Inches
->>>>>>> 5238131c73b86559957a569bc853a0033751ea50
 #define NUM_BUMPS_D (double)NUM_BUMPS
 #define WHEEL_DIAMETER_D (double)WHEEL_DIAMETER
 
