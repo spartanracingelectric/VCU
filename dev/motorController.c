@@ -293,11 +293,11 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     MCM_calculateTorqueCommand(me,tps,bps);
-    MCM_calculateSpeedCommand(me,tps,bps);
+    MCM_calculateSpeedCommand(me,tps);
     /** MOTOR TORQUE COMMAND LOGIC **/
 
     /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
-    if (!me->plActive && me->launchControlActiveStatus && button) {
+    if (!me->plActive && me->launchControlActiveStatus && Sensor_LCButton.sensorValue) {
         // **USE SPEED MODE FOR LAUNCH ONLY**
         me->speedControl = TRUE; // function call to change bit in Can message 0xc0 message. Function MCM_commands_getInverter(); 
         MCM_commands_setTorqueDNm(me, 0);
@@ -353,8 +353,6 @@ void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
     //No apps pedal inputs taken to drive car in speed mode, just check to ensure driver is at 100%* request to confirm rules compliance regarding torque requests      *Should this be done properly wher the pedal actually functions, bc if so then a lot more work needs to be done + possibility for a lot of bugginess
     sbyte2 speedCommand = 0;
 
-    if(appsTorque == 231 && me->launchControlActiveStatus){ MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand); }
-
     //sbyte2 speedCommand = 7000 * appsOutputPercent; //build speedEncoder.c & .h file to allow throttle to act as a variable Speed. none of this works technically
 
     // speedEncoder should probably work as a delta RPM request (0-MAX). then do some math to turn it into an absolute rpm request (0-7000)
@@ -366,14 +364,22 @@ void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps){
     // comparitive apps speed request vs launch speed request
     // if()
 
-    me->constantSpeedTest = FALSE; //Set to TRUE if true, DO NOT TOUCH UNLESS RUNNING A CONSTANT SPEED TEST
-
-    if(me->constantSpeedTest) {
-        me->speedControl = TRUE; //Forced Speed Mode
-        speedCommand = 0; //Set constant speed for test here
+    if (me->constantSpeedTest) {
+        me->speedControl = TRUE;
+        MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand);  
+        MCM_commands_setTorqueDNm(me, 0);
+        return;
+    } 
+    
+    if (appsTorque == 231 && me->launchControlActiveStatus) { 
+        MCM_commands_setSpeedRPM(me, me->launchControlSpeedCommand); 
     }
 
-    MCM_commands_setSpeedRPM(me, speedCommand);
+    me->speedControl = FALSE;
+    MCM_commands_setTorqueDNm(me, appsTorque);
+    MCM_commands_setSpeedRPM(me, 0);
+
+
 }
 
 void MCM_relayControl(MotorController *me, Sensor *HVILTermSense)
@@ -685,6 +691,10 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
 
 void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand)
 {
+    if (!me->speedControl){
+        return;
+    }
+
     me->updateCount += (me->commands_speed == speedCommand) ? 0 : 1;
     me->commands_speed = speedCommand;
     

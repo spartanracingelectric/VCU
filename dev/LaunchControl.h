@@ -21,6 +21,8 @@ typedef struct _LaunchControl {
     bool lcActive; // Just for CAN to showcase when enabled
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
+    bool constantSpeedTest; // flag for speed mode override
+    sbyte2 speedCommand;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
