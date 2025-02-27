@@ -56,8 +56,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     if(me->lcActive){
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
-        me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the ajusted value from the pid to the torqueval}
-
+        me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         if(MCM_getGroundSpeedKPH(mcm) < 3){
             me->lcTorqueCommand = 20;
         }
@@ -74,7 +73,7 @@ void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, 
     if(me->lcActive && !me->constantSpeedTestOverride){
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pidSpeed, me->slipRatioThreeDigits);
-        me->lcSpeedCommand = PID_getOutput(me->pidSpeed); // adds the ajusted value from the pid to the torqueval}
+        me->lcSpeedCommand = PID_getOutput(me->pidSpeed);
 
         if(MCM_getGroundSpeedKPH(mcm) < 3){
             me->lcSpeedCommand = 20; //Timer-based function insert here

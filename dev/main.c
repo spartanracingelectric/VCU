@@ -212,17 +212,10 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-<<<<<<< HEAD
     // 240 Nm
     //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, MCM_MAX_TORQUE, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-=======
-    
-    // 231 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    //To change direction, also edit line 276 in motorcontroller.c
->>>>>>> 5238131c73b86559957a569bc853a0033751ea50
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, MCM_MAX_TORQUE_DNm, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
