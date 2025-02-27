@@ -742,11 +742,6 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
     me->inverterStatus = newState;
 }
 //------------------------------Speed Control--------------------------------
-void MCM_update_speedControl(MotorController *me, bool speedControl)
-{
-    me->speedControl = speedControl;
-}
-
 bool MCM_get_speedControlValidity(MotorController *me)
 {
     return me->speedControl;

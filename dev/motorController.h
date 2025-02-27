@@ -82,7 +82,6 @@ void MCM_updateInverterStatus(MotorController* me, Status newState);
 Status MCM_getLockoutStatus(MotorController* me);
 Status MCM_getInverterStatus(MotorController* me);
 
-void MCM_update_speedControl(MotorController *me, bool speedControl);
 ubyte1 MCM_get_speedControlValidity(MotorController *me);
 void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps);
 
