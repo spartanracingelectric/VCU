@@ -109,7 +109,7 @@ float4 WheelSpeeds_getWheelSpeed(WheelSpeeds *me, Wheel corner)
 
 float4 WheelSpeeds_getWheelSpeedRPM(WheelSpeeds *me, Wheel corner, bool interpolate)
 {
-    float4 speed;
+    ubyte4 speed;
     if (interpolate)
     {
         switch (corner)
