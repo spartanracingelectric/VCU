@@ -46,6 +46,7 @@ Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);
 sbyte2 MCM_commands_getTorqueLimit(MotorController* me);
+ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController* me); //currently unprotected, should remake as a Status output with defined states;
 
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);
@@ -81,7 +82,6 @@ void MCM_updateInverterStatus(MotorController* me, Status newState);
 Status MCM_getLockoutStatus(MotorController* me);
 Status MCM_getInverterStatus(MotorController* me);
 
-void MCM_update_speedControl(MotorController *me, bool speedControl);
 ubyte1 MCM_get_speedControlValidity(MotorController *me);
 void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps);
 
