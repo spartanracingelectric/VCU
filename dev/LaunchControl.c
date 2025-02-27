@@ -32,8 +32,12 @@ LaunchControl *LaunchControl_new(){
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
-    me->constantSpeedTest = FALSE;
-    me->speedCommand = 3000; // CONSTANT TEST SPEED
+
+    /** Variables for constantSpeedTestOverride Function. 
+     * Enabling this mode disabled Launch Control & 
+     * changes button function to act as a cruise control targeting a specified speed */
+    me->constantSpeedTestOverride = FALSE;
+    me->overrideTestSpeedCommand = 3000; // CONSTANT SPEED TARGET
     return me;
 }
 
@@ -101,7 +105,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     */
 
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5 && !me->constantSpeedTest) {
+    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5) {
         me->lcReady = TRUE;
     }
 
@@ -122,28 +126,9 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->lcTorqueCommand = NULL;
     }
     
-    LaunchControl_checkSpeedTest(me, mcm);
-
     //MCM struct only cares about lcActive, so we inform it here
     MCM_update_LC_activeStatus(mcm, me->lcActive);
 }
-
-LaunchControl_checkSpeedTest(LaunchControl *me, MotorController *mcm){
-
-    if (Sensor_LCButton.sensorValue == TRUE){
-        me->constantSpeedTest = !me->constantSpeedTest;
-    }
-
-    if(me->constantSpeedTest) {
-        MCM_update_speedControl(mcm, TRUE);
-        MCM_commands_setSpeedRPM(mcm, me->speedCommand);
-    } else {
-        MCM_update_speedControl(mcm, FALSE);
-        MCM_commands_setSpeedRPM(mcm, 0);
-    }
-
-}
-
 
 bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }
 
