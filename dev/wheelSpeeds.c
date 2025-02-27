@@ -19,8 +19,8 @@
 
 struct _WheelSpeeds
 {
-    float4 tireCircumferenceMillimeters_F; //calculated
-    float4 tireCircumferenceMillimeters_R; //calculated
+    float4 tireCircumferenceMeters_F; //calculated
+    float4 tireCircumferenceMeters_R; //calculated
     ubyte1 rotationsperPulse_F;
     ubyte1 rotationsperPulse_R;
     float4 speed_FL;
@@ -40,9 +40,9 @@ WheelSpeeds *WheelSpeeds_new(float4 tireDiameterInches_F, float4 tireDiameterInc
     WheelSpeeds *me = (WheelSpeeds *)malloc(sizeof(struct _WheelSpeeds));
 
     //1 inch = .0254 m
-    me->tireCircumferenceMillimeters_F = 0.79796386 * tireDiameterInches_F; // FORMER CODE me->tireCircumferenceMillimeters_F = 3.14159 * .0254 * tireDiameterInches_F;
-    me->tireCircumferenceMillimeters_R = 0.79796386 * tireDiameterInches_R; // FORMER CODE me->tireCircumferenceMillimeters_R = 3.14159 * .0254 * tireDiameterInches_R;
-    me->rotationsperPulse_F = 1 / pulsesPerRotation_F; // This flip exists to speed up future computations to avoid the float division that waws being used in WheelSpeeds_update()
+    me->tireCircumferenceMeters_F = 0.079796386 * tireDiameterInches_F; // FORMER CODE me->tireCircumferenceMeters_F = 3.14159 * .0254 * tireDiameterInches_F;
+    me->tireCircumferenceMeters_R = 0.079796386 * tireDiameterInches_R; // FORMER CODE me->tireCircumferenceMeters_R = 3.14159 * .0254 * tireDiameterInches_R;
+    me->rotationsperPulse_F = 1 / pulsesPerRotation_F; // This flip exists to speed up future computations to avoid the float division that was being used every time WheelSpeeds_update() is called
     me->rotationsperPulse_R = 1 / pulsesPerRotation_R;
     me->speed_FL = 0;
     me->speed_FR = 0;
@@ -60,17 +60,17 @@ void WheelSpeeds_update(WheelSpeeds *me, bool interpolate)
     //speed (m/s) = m * pulses/sec / pulses
     if (interpolate)
     {
-        me->speed_FL = me->tireCircumferenceMillimeters_F * Sensor_WSS_FL.heldSensorValue * me->rotationsperPulse_F;
-        me->speed_FR = me->tireCircumferenceMillimeters_F * Sensor_WSS_FR.heldSensorValue * me->rotationsperPulse_F;
-        me->speed_RL = me->tireCircumferenceMillimeters_R * Sensor_WSS_RL.heldSensorValue * me->rotationsperPulse_R;
-        me->speed_RR = me->tireCircumferenceMillimeters_R * Sensor_WSS_RR.heldSensorValue * me->rotationsperPulse_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.heldSensorValue * me->rotationsperPulse_F;
+        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.heldSensorValue * me->rotationsperPulse_F;
+        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.heldSensorValue * me->rotationsperPulse_R;
+        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.heldSensorValue * me->rotationsperPulse_R;
     }
     else
     {
-        me->speed_FL = me->tireCircumferenceMillimeters_F * Sensor_WSS_FL.sensorValue * me->rotationsperPulse_F;
-        me->speed_FR = me->tireCircumferenceMillimeters_F * Sensor_WSS_FR.sensorValue * me->rotationsperPulse_F;
-        me->speed_RL = me->tireCircumferenceMillimeters_R * Sensor_WSS_RL.sensorValue * me->rotationsperPulse_R;
-        me->speed_RR = me->tireCircumferenceMillimeters_R * Sensor_WSS_RR.sensorValue * me->rotationsperPulse_R;
+        me->speed_FL = me->tireCircumferenceMeters_F * Sensor_WSS_FL.sensorValue * me->rotationsperPulse_F;
+        me->speed_FR = me->tireCircumferenceMeters_F * Sensor_WSS_FR.sensorValue * me->rotationsperPulse_F;
+        me->speed_RL = me->tireCircumferenceMeters_R * Sensor_WSS_RL.sensorValue * me->rotationsperPulse_R;
+        me->speed_RR = me->tireCircumferenceMeters_R * Sensor_WSS_RR.sensorValue * me->rotationsperPulse_R;
     }
 }
 
