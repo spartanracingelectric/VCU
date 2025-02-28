@@ -17,7 +17,7 @@
  ****************************************************************************/
 #include "PID.h"
 
-PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
+PID* PID_new(ubyte2 Kp, ubyte2 Ki, ubyte2 Kd, ubyte2 saturationValue) {
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
@@ -34,10 +34,9 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
     pid->antiWindupFlag = FALSE;
     return pid;
 }
-
 /** SETTER FUNCTIONS  **/
 
-void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd){
+void PID_updateGainValues(PID* pid, ubyte2 Kp, ubyte2 Ki, ubyte2 Kd){
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
@@ -47,11 +46,11 @@ void PID_setTotalError(PID* pid, sbyte2 error){
     pid->totalError = error;
 }
 
-void PID_setSaturationPoint(PID *pid, sbyte2 saturationValue){
+void PID_setSaturationPoint(PID *pid, ubyte2 saturationValue){
     pid->saturationValue = saturationValue;
 }
 
-void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
+void PID_updateSetpoint(PID *pid, ubyte2 setpoint) {
     if(pid->saturationValue > setpoint)
         pid->setpoint = setpoint;
     else
@@ -65,6 +64,7 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 /** COMPUTATIONS **/
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
+    
     sbyte2 currentError = pid->setpoint - sensorValue;
     sbyte2 proportional = pid->Kp * currentError;
     sbyte2 integral     = pid->Ki * (pid->totalError + currentError) * pid->dH;
@@ -77,19 +77,19 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
 
 /** GETTER FUNCTIONS **/
 
-sbyte1 PID_getKp(PID *pid){
+ubyte2 PID_getKp(PID *pid){
     return pid->Kp;
 }
 
-sbyte1 PID_getKi(PID *pid){
+ubyte2 PID_getKi(PID *pid){
     return pid->Ki;
 }
 
-sbyte1 PID_getKd(PID *pid){
+ubyte2 PID_getKd(PID *pid){
     return pid->Kd;
 }
 
-sbyte2 PID_getSetpoint(PID *pid){
+ubyte2 PID_getSetpoint(PID *pid){
     return pid->setpoint;
 }
 
@@ -97,7 +97,7 @@ sbyte2 PID_getPreviousError(PID *pid){
     return pid->previousError;
 }
 
-sbyte4 PID_getTotalError(PID* pid){
+sbyte2 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 

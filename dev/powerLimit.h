@@ -74,6 +74,7 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sb
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque, ubyte1 clampingMethod);
+void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, ubyte4 dH);
 /** GETTER FUNCTIONS **/
 
 ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);
