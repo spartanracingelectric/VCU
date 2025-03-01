@@ -1,6 +1,5 @@
 {
     "files.associations": {
-<<<<<<< HEAD
         "mathfunctions.h": "c",
         "math.h": "c",
         "corecrt_math.h": "c",
