@@ -728,10 +728,9 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController *me){
     ubyte1 byte = 0x00;
     byte = (MCM_commands_getInverter(me) == ENABLED) ? 1 : 0;
-    byte = byte | MCM_get_speedControlValidity(me) << 2; // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
+    byte = byte | ( MCM_get_speedControlValidity(me) << 2 ); // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
     return byte;
 }
-
 
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
 {
