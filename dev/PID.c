@@ -70,29 +70,13 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
-    // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
-    // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
-    // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
+    float4 proportional = pid->Kp * currentError;
+    float4 integral     = pid->Ki * (pid->totalError + currentError) * pid->dH; // dH should be set at 100 for 100Hz = 10 ms
+    float4 derivative   = pid->Kd * (currentError - pid->previousError) / pid->dH;
+    float4 output       = proportional + integral + derivative;
     pid->previousError  = currentError;
-    pid->totalError    += (sbyte4)currentError;
-
-    // At minimum, a P(ID) Controller will always use Proportional Control
-    pid->output = pid->proportional;
-
-    //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
-    if(pid->saturationValue > sensorValue)
-    {
-        pid->antiWindupFlag = FALSE;
-        pid->output += pid->integral;
-        pid->output += pid->derivative;
-    }
-    else
-        pid->antiWindupFlag = TRUE;
-
-    //return pid->output;
+    pid->totalError    += currentError * pid->dH;
+    pid->output         = output;
 }
 
 /** GETTER FUNCTIONS **/
