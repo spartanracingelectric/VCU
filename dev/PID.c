@@ -17,7 +17,7 @@
  ****************************************************************************/
 #include "PID.h"
 
-PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
+PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue) {
     PID* pid = (PID*)malloc(sizeof(PID));
     // malloc returns NULL if it fails to allocate memory
     if (pid == NULL)
@@ -41,7 +41,7 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
 
 /** SETTER FUNCTIONS  **/
 
-void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd){
+void PID_updateGainValues(PID* pid, sbyte2 Kp, sbyte2 Ki, sbyte2 Kd){
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
@@ -71,11 +71,11 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     sbyte2 currentError = pid->setpoint - sensorValue;
     // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
+    pid->proportional   = (sbyte2) pid->Kp * currentError;
     // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
+    pid->integral       = (sbyte2) ( pid->Ki * (pid->totalError + currentError) / pid->dH );
     // Divide by 10 is used to convert the error from deci-units to normal units
-    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / 10;
+    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH ;
     pid->previousError  = currentError;
     pid->totalError    += (sbyte4)currentError;
 
@@ -83,29 +83,31 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->output = pid->proportional;
 
     //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
-    if(pid->saturationValue > sensorValue)
-    {
+    if(pid->saturationValue > sensorValue){
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;
         pid->output += pid->derivative;
     }
-    else
+    else{
         pid->antiWindupFlag = TRUE;
-
-    //return pid->output;
+        // Back Calculation here -> this is the old way of doing it with the previous "pid" method in main branch
+        pid->totalError -= pid->integral;
+    }
+    // Divide by 10 is used to convert the error from deci-units to normal units
+    pid->output = pid->output / 10;
 }
 
 /** GETTER FUNCTIONS **/
 
-sbyte1 PID_getKp(PID *pid){
+sbyte2 PID_getKp(PID *pid){
     return pid->Kp;
 }
 
-sbyte1 PID_getKi(PID *pid){
+sbyte2 PID_getKi(PID *pid){
     return pid->Ki;
 }
 
-sbyte1 PID_getKd(PID *pid){
+sbyte2 PID_getKd(PID *pid){
     return pid->Kd;
 }
 
@@ -117,7 +119,7 @@ sbyte2 PID_getPreviousError(PID *pid){
     return pid->previousError;
 }
 
-sbyte4 PID_getTotalError(PID* pid){
+sbyte2 PID_getTotalError(PID* pid){
     return pid->totalError;
 }
 
