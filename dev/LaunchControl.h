@@ -24,6 +24,7 @@ typedef struct _LaunchControl {
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
     sbyte2 lcSpeedCommand;
+    ubyte4 safteyTimer;
     bool constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
 } LaunchControl;

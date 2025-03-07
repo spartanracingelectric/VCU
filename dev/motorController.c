@@ -134,6 +134,7 @@ struct _MotorController
     //};
 
     sbyte2 lcTorqueCommand;
+    bool launchControlReadyStatus;
     bool launchControlActiveStatus;
 
     sbyte2 plTorqueCommand;
@@ -181,6 +182,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->lcTorqueCommand = 0;
     me->launchControlSpeedCommand = 0;
+    me->launchControlReadyStatus = FALSE;
     me->launchControlActiveStatus = FALSE;
 
     me-> plTorqueCommand = 0;
@@ -335,7 +337,12 @@ void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePr
         me->launchControlActiveStatus = FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
-
+    
+    // Ready Status Overrides all other TPS / Torque Requests to allow driver to put throttle at 100% TPS without moving the car
+    if(me->launchControlReadyStatus){
+        torqueOutput = 0;
+    }
+    
     MCM_commands_setTorqueDNm(me, torqueOutput);
 }
 
@@ -752,7 +759,7 @@ void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps)
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     sbyte2 appsPercent = appsOutputPercent * 100; // ("100" = 100%) Multiplication needed for int rounding to avoid float compare in if statement. Do not simplify by removing line.
 
-    if (appsPercent == 100) {
+    if (appsPercent >= 98) { // Because TPS outputs on CAN at 99.8 when at 100% quite often, we will drag down our check in consideration for this
         me->speedControl = TRUE;
     }
     else {
@@ -780,10 +787,23 @@ sbyte2 MCM_get_LC_speedCommand(MotorController *me)
     return me->launchControlSpeedCommand;
 }
 
+void MCM_update_LC_readyStatus(MotorController *me, bool newState)
+{
+    me->launchControlReadyStatus = newState;
+}
+bool MCM_get_LC_readyStatus(MotorController *me)
+{
+    return me->launchControlReadyStatus;
+}
 void MCM_update_LC_activeStatus(MotorController *me, bool newState)
 {
     me->launchControlActiveStatus = newState;
 }
+bool MCM_get_LC_activeStatus(MotorController *me)
+{
+    return me->launchControlActiveStatus;
+}
+
 //----------------------------------------------------PL-------------------------------
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand)
 {

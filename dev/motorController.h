@@ -89,7 +89,11 @@ void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand);
 sbyte2 MCM_get_LC_torqueCommand(MotorController *me);
 void MCM_update_LC_speedCommand(MotorController *me, sbyte2 lcSpeedCommand);
 sbyte2 MCM_get_LC_speedCommand(MotorController *me);
+void MCM_update_LC_readyStatus(MotorController *me, bool newState);
+bool MCM_get_LC_readyStatus(MotorController *me);
 void MCM_update_LC_activeStatus(MotorController *me, bool newState);
+bool MCM_get_LC_activeStatus(MotorController *me);
+
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
 void MCM_set_PL_updateStatus(MotorController *me, bool newState);

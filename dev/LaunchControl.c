@@ -32,6 +32,7 @@ LaunchControl *LaunchControl_new(){
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
+    me->safteyTimer = 0;
 
     /** Variables for constantSpeedTestOverride Function. 
      * Enabling this mode disabled Launch Control & 
@@ -99,34 +100,50 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     /* LC STATUS CONDITIONS *//*
      * lcReady = FALSE && lcActive = FALSE -> NOTHING HAPPENS
      * lcReady = TRUE  && lcActive = FALSE -> We are in the prep stage for lc, and all entry conditions for being in prep stage have and continue to be monitored
-     * lcReady = FALSE && lcActive = TRUE  -> We have left the prep stage by pressing the lc button on the steering wheel, stay in until exit conditions are met
+     * lcReady = FALSE && lcActive = TRUE  -> We have left the prep stage by releasing the lc button on the steering wheel, stay in Launch until exit conditions are met
      * AT ALL TIMES, EXIT CONDITIONS ARE CHECKED FOR BOTH STATES
     */
 
     // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 5) {
-        me->lcReady = TRUE;
+
+    /**
+     * Launch Control Pre-Staging Operations:
+     * If the car is near 0 kph (in case of wss float issues) & the Launch Button is pressed,
+     * we initialise a 3 second timer to confirm a valid Launch attempt
+     * Once this timer reaches maturity, we are now in "ready" state
+     * The driver can now fully press TPS/APPS without moving car
+     * 
+     * Upon button release, we are now in "active" state and will proceed with our launch as intended -> car go eeeeeeeee (e-motor sounds)
+     * 
+     * At any time, an exit condition can be triggered to reset this staging operation and cancel our launch attempt
+     */
+    if(Sensor_LCButton.sensorValue == FALSE && speedKph < 1) {
+        if (me->safteyTimer == 0){
+            IO_RTC_StartTime(&me->safteyTimer);
+        }
+        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 3000000) {
+            me->lcReady = TRUE;
+            DRS_close(drs);
+            me->safteyTimer = 0; // We don't need to track the timer anymore
+        }
     }
 
-    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
+    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
         PID_setTotalError(me->pidTorque, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
-        me->lcTorqueCommand = 0; // On the motorcontroller side, this torque should stay this way regardless of the values by the pedals while LC is ready
         me->lcActive = TRUE;
         me->lcReady = FALSE;
-        DRS_close(drs);
     }
 
-    else if(bps->percent > .35 || steeringAngle > 35 || steeringAngle < -35){
-        me->lcReady = FALSE;
-    }
-
-    if(tps->travelPercent < 0.90 || bps->percent > 0.05){
+    if(tps->travelPercent < 0.90 || bps->percent > 0.05 || steeringAngle > 35 || steeringAngle < -35){
         me->lcActive = FALSE;
+        me->lcReady = FALSE;
         me->lcTorqueCommand = NULL;
+        me->safteyTimer = 0;
     }
     
     //MCM struct only cares about lcActive, so we inform it here
     MCM_update_LC_activeStatus(mcm, me->lcActive);
+    MCM_update_LC_readyStatus(mcm, me->lcReady);
 }
 
 bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }
