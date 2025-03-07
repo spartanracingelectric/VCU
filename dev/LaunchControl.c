@@ -71,6 +71,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
 }
 
 void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
+    sbyte4 currentRPM = MCM_getMotorRPM(mcm);
     if(me->lcActive && !me->constantSpeedTestOverride){
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pidSpeed, me->slipRatioThreeDigits);
@@ -87,9 +88,17 @@ void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, 
         MCM_update_LC_speedCommand(mcm, me->lcSpeedCommand);
     }
     // constantSpeedTestOverride
-    else if(me->constantSpeedTestOverride && Sensor_LCButton.sensorValue == FALSE){
-        MCM_update_LC_speedCommand(mcm, me->overrideTestSpeedCommand);
-        MCM_update_LC_activeStatus(mcm, TRUE); //We fake the "active" status to enable speed mode in the mcm
+    else if(me->constantSpeedTestOverride && Sensor_LCButton.sensorValue == FALSE) {
+        if(currentRPM >= 3000 && currentRPM <= 4000) {
+            MCM_update_LC_speedCommand(mcm, me->overrideTestSpeedCommand);
+            MCM_update_LC_activeStatus(mcm, TRUE); //We fake the "active" status to enable speed mode in the mcm
+        } else {
+            MCM_update_LC_speedCommand(mcm, 0);
+            MCM_update_LC_activeStatus(mcm, FALSE);
+        }
+    }
+    else {
+        MCM_update_LC_speedCommand(mcm, 0);
     }
 }
 
