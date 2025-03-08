@@ -39,6 +39,9 @@ LaunchControl *LaunchControl_new(){
      * changes button function to act as a cruise control targeting a specified speed */
     me->constantSpeedTestOverride = FALSE;
     me->overrideTestSpeedCommand = 3000; // CONSTANT SPEED TARGET
+    // Safety
+    me->maxDeltaSpeedAtHighRPM = 400; // needs to be tuned, should be lower than EEPROM speed rate limit
+    me->highRPMThreshhold = 4000; // needs to be tuned, minimum speed at which maxDeltaSpeedAtHighRPM should be used instead of EEPROM limit
     return me;
 }
 
@@ -88,9 +91,29 @@ void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, 
     }
     // constantSpeedTestOverride
     else if(me->constantSpeedTestOverride && Sensor_LCButton.sensorValue == FALSE){
-        MCM_update_LC_speedCommand(mcm, me->overrideTestSpeedCommand);
+        me->lcSpeedCommand = LaunchControl_calculateConstantSpeedTestSpeedCommand(me, mcm);
+        MCM_update_LC_speedCommand(mcm, me->lcSpeedCommand);
         MCM_update_LC_activeStatus(mcm, TRUE); //We fake the "active" status to enable speed mode in the mcm
     }
+}
+
+ubyte2 LaunchControl_calculateConstantSpeedTestSpeedCommand(LaunchControl *me, MotorController *mcm){
+    // if motorRPM or overrideTestSpeedCommand > highRPMThreshold, limit deltaSpeed to maxDeltaSpeedAtHighRPM
+    // else use EEPROM speed rate limit
+    ubyte2 motorRPM = MCM_getMotorRPM(mcm);
+    if (motorRPM > me->highRPMThreshhold || me->overrideTestSpeedCommand > me->highRPMThreshhold){
+        sbyte2 deltaSpeed = me->overrideTestSpeedCommand - motorRPM;
+        if (deltaSpeed < 0 && -deltaSpeed > me->maxDeltaSpeedAtHighRPM){
+            motorRPM -= me->maxDeltaSpeedAtHighRPM;
+        }
+        else if (deltaSpeed > 0 && deltaSpeed > me->maxDeltaSpeedAtHighRPM){
+            motorRPM += me->maxDeltaSpeedAtHighRPM;
+        }
+        else {
+            motorRPM += deltaSpeed;
+        }
+    }
+    return motorRPM;
 }
 
 void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
