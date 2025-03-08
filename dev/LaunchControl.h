@@ -13,9 +13,15 @@
 #include "drs.h"
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 typedef struct _LaunchControl {
+    // Initial Time-Based Function Values
+        //ubyte1 may be sufficient for these values
+    ubyte2 initialTorqueCommand;
+    ubyte2 initialSpeedCommand;
+    ubyte1 timerDurationInSeconds;
+    ubyte2 initialPIDTotalError;
+
     PID *pidTorque;
     PID *pidSpeed;
-
 
     float4 slipRatio;
     sbyte2 slipRatioThreeDigits;
