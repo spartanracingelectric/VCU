@@ -18,17 +18,20 @@
 -------------------------------------------------------------------*/
 float4 getPercent(float4 value, float4 start, float4 end, bool zeroToOneOnly)
 {
+    // Assumed if end = start, then the value is meant to be 0%
+    if(end == start)
+        return 0;
     float4 retVal = (value - start) / (end - start);
 
     if (zeroToOneOnly == TRUE)
     {
         if (retVal < 0)
         {
-            retVal = 0;
+            return 0.0;
         }
         if (retVal > 1)
         {
-            retVal = 1;
+            return 1.0;
         }
     }
 
@@ -113,4 +116,13 @@ sbyte4 swap_int32(sbyte4 val)
 {
     val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
     return (val << 16) | ((val >> 16) & 0xFFFF);
+}
+
+ubyte4 ubyte4_lowerStepInterval(ubyte4 value, ubyte4 increment) {
+    return value - (value % increment);
+}
+ubyte4 ubyte4_upperStepInterval(ubyte4 value, ubyte4 increment) {
+    ubyte4 temp = ubyte4_lowerStepInterval(value, increment);
+    //if temp is equal to value, then we are already at the upper bound. Otherwise, add the increment to the lower bound
+    return (temp == value?temp:temp + increment);
 }

@@ -3,7 +3,7 @@
 set batpath=%~dp0
 
 :doitagain
-
+make clean
 cls
 make
 
