@@ -130,7 +130,7 @@ void TorqueEncoder_startCalibration(TorqueEncoder* me, ubyte1 secondsToRun)
     if (me->runCalibration == FALSE) //Ignore the button if calibration is already running
     {
         me->runCalibration = TRUE;
-        // TorqueEncoder_resetCalibration(me);
+        TorqueEncoder_resetCalibration(me);
         me->calibrated = FALSE;
         IO_RTC_StartTime(&(me->timestamp_calibrationStart));
         me->calibrationRunTime = secondsToRun;
