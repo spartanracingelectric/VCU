@@ -38,7 +38,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
     me->plTargetPower = 80;// HERE IS WHERE YOU CHANGE POWERLIMIT
-    me->plKwLimit = 55;
+    me->plKwLimit = 55; // this is lit never used, dont even touch this
     me->plInitializationThreshold = me->plTargetPower-15;
     me->clampingMethod = 3;
     //LUT Corners
@@ -67,7 +67,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
     me->plInitializationThreshold = me->plTargetPower-15;
 
-    if (!me->plStatus)
+    if (!me->plStatus) 
     {
         if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
             me->plStatus = TRUE;
