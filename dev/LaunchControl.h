@@ -27,9 +27,7 @@ typedef struct _LaunchControl {
     ubyte4 safteyTimer;
     bool constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
-    ubyte2 maxDeltaSpeedAtHighRPM;
-    ubyte2 highRPMThreshhold;
-    ubyte2 constantSpeedTestSpeedCommand;
+    float4 maxPercentDeltaSpeed;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
