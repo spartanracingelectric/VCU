@@ -2,7 +2,6 @@
  * hashTable.h - Hash Table implementation
  * Initial Author: Harleen Sandhu / Mehul Williams
  * Additional Author: Shaun Gilmore
- * Additional Author: Shaun Gilmore
  ******************************************************************************
  * General purpose hash table implementation, initially designed for yaw values in Torque Vectoring.
  ****************************************************************************/

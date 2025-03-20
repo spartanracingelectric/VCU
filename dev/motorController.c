@@ -130,7 +130,7 @@ struct _MotorController
     //_commands commands;
     //};
 
-    sbyte2 launchControlTorqueLimit;
+    sbyte2 lcTorqueCommand;
     bool launchControlState;
 
     sbyte2 plTorqueCommand;
@@ -179,7 +179,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->motor_temp = 99;
 
-    me->launchControlTorqueLimit = 0;
+    me->lcTorqueCommand = 0;
     me->launchControlState = FALSE;
 
     me-> plTorqueCommand = 0;
@@ -633,7 +633,7 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     me->commands_torque = newTorque;
     
     //Safety Check. torqueOutput Should never rise above 231
-    if(me->commands_torque > 231){
+    if(me->commands_torque > 2310){
        me->commands_torque = 0;
     }
 }
@@ -706,10 +706,9 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
-
-void MCM_update_LC_torqueLimit(MotorController *me, sbyte2 lcTorqueLimit)
+void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
-    me->launchControlTorqueLimit = lcTorqueLimit;
+    me->lcTorqueCommand = lcTorqueCommand;
 }
 
 void MCM_update_LC_state(MotorController *me, bool newState)

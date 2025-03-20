@@ -70,7 +70,7 @@ LaunchControl *LaunchControl_new(){// this goes outside the while loop
         return NULL;
     
     me->slipRatio = 0;
-    me->lcTorque = -1;
+    me->lcTorqueCommand = -1;
     me->lcReady = FALSE;
     me->lcActive = FALSE;
     me->buttonDebug = 0;
@@ -145,10 +145,8 @@ bool LaunchControl_getStatus(LaunchControl *me){
     return me->lcActive;
 }
 sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *me){
-sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *me){
     return me->lcTorque;
 }
-ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
     return me->buttonDebug;
 }

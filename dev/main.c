@@ -49,9 +49,10 @@
 #include "serial.h"
 #include "cooling.h"
 #include "bms.h"
-#include "LaunchControl.h"
+#include "launchControl.h"
 #include "drs.h"
 #include "powerLimit.h"
+#include "PID.h"
 
 //Application Database, needed for TTC-Downloader
 APDB appl_db =
@@ -211,10 +212,9 @@ void main(void)
 
     ReadyToDriveSound *rtds = RTDS_new();
     BatteryManagementSystem *bms = BMS_new(serialMan, BMS_BASE_ADDRESS);
-    // 240 Nm
-    //MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2400, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
-    // 75 Nm
-    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, MCM_MAX_TORQUE, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    // 231 Nm
+    MotorController *mcm0 = MotorController_new(serialMan, 0xA0, FORWARD, 2310, 5, 10); //CAN addr, direction, torque limit x10 (100 = 10Nm)
+    //To change direction, also edit line 276 in motorcontroller.c
     InstrumentCluster *ic0 = InstrumentCluster_new(serialMan, 0x702);
     TorqueEncoder *tps = TorqueEncoder_new(bench);
     BrakePressureSensor *bps = BrakePressureSensor_new();
@@ -235,9 +235,9 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
     ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
@@ -431,7 +431,6 @@ void main(void)
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
-        PID_setGain(plPID, 1.0, 0.0, 0.0);
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
