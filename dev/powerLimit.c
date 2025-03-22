@@ -246,8 +246,8 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
         PID_updateSetpoint(me->pid, pidTargetValue);
         PID_computeOutput(me->pid, pidCurrentValue);
         me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
-        if(me->plTorqueCommand > MCM_MAX_TORQUE)
-            me->plTorqueCommand = MCM_MAX_TORQUE;
+        if(me->plTorqueCommand > MCM_MAX_TORQUE_DNm)
+            me->plTorqueCommand = MCM_MAX_TORQUE_DNm;
             
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
