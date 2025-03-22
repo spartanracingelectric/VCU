@@ -37,20 +37,20 @@ Derating *Derating_new(){
     me->Derating_socLim = 0.15; //%, Lowest SOC before limp mode is acctivated 
     me->Derating_torqueLim = 1250; //Nm, The new max torque for limp mode
     me->Derating_powerLim = 0; //kW, The new power limit for limp mode
-
-    me->Derating_originalMaxTorque = 0; // Original max torque before derating is activated (updated to value in method)
-
+    
+    //the below line sould be fixed by rebase and using a constant from globalConstants.h
+    me->Derating_originalMaxTorque = 2310; // Original max torque before derating is activated (updated to value in method)
     return me;
 }
 
 void DeratingLimpMode(Derating* me, MotorController* mcm, BatteryManagementSystem* bms){ //Car will decrease torque (power once pl works) if (cells passes a certain temp || SOC passes a certain charge)
     // sbyte2 mcm_torqueMax = (MCM_commands_getTorqueLimit(mcm) / 10.0); //Max torque set on mcm side
     // sbyte2 pl_powerMax = PL_getPowerLimit(pl); //idk the actual get command ideally look smth like that
-    if((BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim) && me->Derating_status == OFF){
+    if((BMS_getHighestCellTemp_degC(bms) > me->Derating_cellTempLim || BMS_getLowestCellVoltage_mV(bms) < me->Derating_socLim) && me->Derating_status == OFF){ // me->Derating_socLim is a percentage in derating code, but is compared to a actual voltage measurement? bad if true.
         me->Derating_status = ACTIVE;
         //Send messages over CAN
         me->Derating_originalMaxTorque = MCM_getMaxTorqueDNm(mcm);
-        MCM_setMaxTorqueDNm(mcm, me->Derating_torqueLim); 
+        MCM_setMaxTorqueDNm(mcm, me->Derating_torqueLim); //Not updating the motor controller in any way, maybe rebasing will fix
     }
     //2310 dN should be original torqueMax
     if ((BMS_getHighestCellTemp_degC(bms) <= me->Derating_cellTempLim && BMS_getLowestCellVoltage_mV(bms) >= me->Derating_socLim) && me->Derating_status == ACTIVE)

@@ -20,6 +20,8 @@ typedef struct _Derating{
     float Derating_socLim; //Once soc is reached Derating will activate
     sbyte2 Derating_torqueLim;
     float Derating_powerLim;
+    sbyte2 Derating_originalMaxTorque; // Original max torque before derating is activated (updated to value in method)
+
 }Derating;
 
 Derating* Derating_new();
