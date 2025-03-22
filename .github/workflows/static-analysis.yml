@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Clang-Tidy and Clang-Format
         run: sudo apt-get update && sudo apt-get install -y clang-tidy clang-format
@@ -57,7 +57,7 @@ jobs:
           labels: automated
 
       - name: Upload Clang-Tidy Output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: clang-tidy-output
           path: clang-tidy-output.txt

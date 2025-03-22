@@ -6,8 +6,9 @@
 
 ## How to Navigate Branches on this Repository
 - main (Code that has been tested on the car)
-- flashReady (Code that needs to be tested on the car)
-- ajay (Code that is being tested and written by @Pajay1234)
-- shubham (Code that is being tested and written by @sr-shubhammishra)
+- test (Code that needs to be tested on the car, prior to pushing to main)
+- pl (Power Limiting code) Harleen Sandhu & Shaun Gilmore
+- lc (Launch Control code) Harleen Sandhu
+- derating (Derating code) Carlie Yem
 
 <br/>
