@@ -76,7 +76,7 @@ LaunchControl *LaunchControl_new(){// this goes outside the while loop
     me->buttonDebug = 0;
     return me;
 }
-void LaunchControl_slipRatioCalculation(WheelSpeeds *wss, LaunchControl *me){
+void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
     float4 unfilt_speed = (WheelSpeeds_getSlowestFront(wss) / (WheelSpeeds_getFastestRear(wss))) - 1;
     float4 filt_speed = unfilt_speed;
     if (unfilt_speed > 1.0) {
@@ -139,12 +139,12 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     }
     // Update launch control state and torque limit
     MCM_update_LC_state(mcm, me->lcActive);
-    MCM_update_LC_torqueLimit(mcm, me->lcTorqueCommand * 10);
+    MCM_update_LC_torqueCommand(mcm, me->lcTorqueCommand * 10);
 }
 bool LaunchControl_getStatus(LaunchControl *me){
     return me->lcActive;
 }
-sbyte2 LaunchControl_getCalculatedTorque(LaunchControl *me){
+sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){
     return me->lcTorque;
 }
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) {
