@@ -54,7 +54,6 @@ TorqueEncoder* TorqueEncoder_new(bool benchMode)
     me->tps0->specMax = 4900; // Target 100% = ~2000
     me->tps1->specMin = 100; // Target 0% = ~2650
     me->tps1->specMax = 4900; // Target 100% = ~4700
-
     me->tps0_calibMin = 700;
     me->tps0_calibMax = 2000;
     me->tps1_calibMin = 2600;
