@@ -315,7 +315,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
     //Safety Check. torqueOutput Should never rise above 231
-    if(torqueOutput > 2310)
+    if(torqueOutput > 2310 || torqueOutput < 0) //attempt to fix issue of -3000
     {
         torqueOutput = appsTorque;
     }
