@@ -40,7 +40,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plTargetPower = 50;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 50; // this is lit never used, dont even touch this
     me->plInitializationThreshold = me->plTargetPower-15;
-    me->clampingMethod = 3;
+    me->clampingMethod = 4;
     //LUT Corners
     me->vFloorRFloor = 0;
     me->vFloorRCeiling = 0;
