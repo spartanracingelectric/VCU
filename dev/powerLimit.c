@@ -84,67 +84,15 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
   if(me->plMode==1){
     POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
   }
-  else if (me->plMode==2){
-    POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
-  }
-   else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
-    POWERLIMIT_calculateLUTCommand(me, mcm);
-  }
-   else if (me->plMode==4){
-    POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
-  }
-}
-
-void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm){
-    
-    //if(rotary_button_input != plMode)
-    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-        me->plStatus = TRUE;
-
-        /* Sensor inputs */
-        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
-        sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
-        sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
-
-        // Pack Internal Resistance in the VehicleDynamics->power_lim_lut model is 0.027 ohms
-        sbyte4 noLoadVoltage = (mcmCurrent * 27 / 1000 ) + mcmVoltage; // 27 / 100 (0.027) is the estimated IR. Should attempt to revalidate on with new powerpack.
-        //sbyte4 pidSetpoint = (sbyte4)POWERLIMIT_retrieveTorqueFromLUT(me, &me->hashtable[me->plMode], noLoadVoltage, motorRPM);
-        //sbyte2 pidSetpoint = (sbyte2)POWERLIMIT_retrieveTorqueFromLUT(me, me->hashtable, noLoadVoltage, motorRPM);
-        
-        //issue here
-        sbyte2 pidSetpoint = POWERLIMIT_retrieveTorqueFromLUT(me, noLoadVoltage, motorRPM);
-
-        //TQ equation. uncomment to run this instead
-
-        //pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
-
-        // If the LUT gives a bad value this is our catch all
-        if(pidSetpoint < 0 | pidSetpoint > 231){
-            pidSetpoint = (sbyte2)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm)); 
-        }
-
-        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
-
-        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
-
-        me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
-    else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
-    /* FIX THIS 
-    if(POWERLIMIT_getMode(me) >= 20 && POWERLIMIT_getMode(me) < 30){
-        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
-    }
-
-    if(POWERLIMIT_getMode(me) >= 30 && POWERLIMIT_getMode(me) < 40){
-        POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
-    }
-    */
+//   else if (me->plMode==2){
+//     POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
+//   }
+//    else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
+//     POWERLIMIT_calculateLUTCommand(me, mcm);
+//   }
+//    else if (me->plMode==4){
+//     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
+//   }
 }
 
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm
@@ -213,47 +161,6 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
         POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
 
         me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
-    else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
-}
-
-void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
-        //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 3 for third pl method, 1 representing the pwoer target
-    PID_setSaturationPoint(me->pid, 8000);
-    me->plMode = 2;
-    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-        me->plStatus = TRUE;
-
-        /* Sensor inputs */
-        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
-        sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
-        sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
-
-        sbyte4 pidTargetValue = (sbyte4)(POWERLIMIT_getTargetPower(me) * 1000); // W
-        sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10); // W
-
-        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm); // Nm
-
-        POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue, me->clampingMethod);
-
-
-        sbyte4 pidOutput = PID_getOutput(me->pid);
-        if (motorRPM == 0){
-            motorRPM = 1; //avoid division by 0
-        }
-        sbyte4 PLTQ = (pidOutput + pidCurrentValue) / (motorRPM * 9.549);
-
-        me->plTorqueCommand = PLTQ * 10; //convert to deci-Nm
-        if (me->plTorqueCommand > 2310)
-            me->plTorqueCommand = 2310;
-            
-            
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
@@ -336,14 +243,6 @@ ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner){
         default:
             return 0xFF;
     }
-}
-
-void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit *me, MotorController *mcm, bool fieldWeakening){
-
-    if (fieldWeakening)
-        POWERLIMIT_calculateLUTCommand(me, mcm);
-    else
-        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
 }
 
 
