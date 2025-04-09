@@ -57,6 +57,9 @@ typedef struct _PowerLimit {
     //Odd Man Out
     // me->pid->Kd;         ubyte1
 
+// Unassigned in CAN
+    bool plAlwaysOn;
+
 } PowerLimit;
 
 PowerLimit* POWERLIMIT_new(); 
