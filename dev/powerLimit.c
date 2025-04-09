@@ -194,7 +194,7 @@ void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 s
         } 
 
         PID_updateSetpoint(me->pid, pidSetpoint);
-        PID_computeOutput(me->pid, sensorValue);
+        PID_computeOutput(me->pid, sensorValue, 10);
 }
 
 

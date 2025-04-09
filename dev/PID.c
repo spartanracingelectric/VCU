@@ -64,7 +64,7 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 /** COMPUTATIONS **/
 
-void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
+void PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 scaleFactor) {
     sbyte2 currentError = pid->setpoint - sensorValue;
     pid->proportional   = (sbyte2) pid->Kp * currentError / 10;
     pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / 10 );
