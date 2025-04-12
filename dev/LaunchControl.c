@@ -122,7 +122,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
      * 
      * At any time, an exit condition can be triggered to reset this staging operation and cancel our launch attempt
      */
-    if(Sensor_LCButton.sensorValue == FALSE && speedKph < 1) {
+    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 1) {
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
             DRS_open(drs);
@@ -134,7 +134,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         }
     }
 
-    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         PID_setTotalError(me->pidTorque, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
         me->lcActive = TRUE;
         me->lcReady = FALSE;
