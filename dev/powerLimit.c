@@ -29,7 +29,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(1, 0, 0, 231);
+    me->pid = PID_new(1, 0, 0, 231,10); // last value tells you gain value factor
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
@@ -194,7 +194,7 @@ void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 s
         } 
 
         PID_updateSetpoint(me->pid, pidSetpoint);
-        PID_computeOutput(me->pid, sensorValue, 10);
+        PID_computeOutput(me->pid, sensorValue, me->pid->scalefactor);
 }
 
 

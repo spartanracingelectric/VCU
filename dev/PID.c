@@ -17,11 +17,12 @@
  ****************************************************************************/
 #include "PID.h"
 
-PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue) {
+PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue, sbyte2 scalefactor) {
     PID* pid = (PID*)malloc(sizeof(PID));
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
+    pid->scalefactor=scalefactor;
     pid->setpoint      = 0; 
     pid->previousError = 0;
     pid->totalError    = 0;
@@ -64,11 +65,12 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 
 /** COMPUTATIONS **/
 
-void PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 scaleFactor) {
+void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
+
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = (sbyte2) pid->Kp * currentError / scaleFactor;
-    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  / scaleFactor );
-    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / scaleFactor;
+    pid->proportional   = (sbyte2) pid->Kp * currentError / pid->scalefactor;
+    pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  /pid->scalefactor);
+    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / pid->scalefactor;
     pid->previousError  = currentError;
     pid->totalError    += (sbyte4)currentError;
 
