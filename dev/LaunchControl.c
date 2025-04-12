@@ -60,6 +60,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         if(MCM_getGroundSpeedKPH(mcm) < 3){
             me->lcTorqueCommand = 20;
+            //LaunchControl_initialTorqueCurve(me, mcm);
         }
         // Tune
         if(MCM_getGroundSpeedKPH(mcm) > 30){
@@ -120,6 +121,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     if(Sensor_LCButton.sensorValue == FALSE && speedKph < 1) {
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
+            DRS_open(drs);
         }
         else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 3000000) {
             me->lcReady = TRUE;
@@ -141,9 +143,12 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->safteyTimer = 0;
     }
     
-    //MCM struct only cares about lcActive, so we inform it here
     MCM_update_LC_activeStatus(mcm, me->lcActive);
     MCM_update_LC_readyStatus(mcm, me->lcReady);
+}
+
+void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
+    me->lcSpeedCommand = 100 + ( MCM_getGroundSpeedKPH(mcm) * 30 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 
 bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }
