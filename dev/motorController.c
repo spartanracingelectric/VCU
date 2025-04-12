@@ -296,6 +296,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_update_speedControlValidity(me,tps);
     // need to satisfy all 3 cases for speed Mode: pl NOT active, lc IS reporting as active*, and tps IS 100%    
     // *In the case of a constant speed test, lc reports to mcm as active without meeting normal lc active conditions
+    /*
     if (!me->plActive && me->launchControlActiveStatus && MCM_get_speedControlValidity(me) ) {
         MCM_calculateSpeedCommand(me,tps);
         MCM_commands_setTorqueDNm(me, 0); //0 out opposing command to mcm
@@ -303,7 +304,9 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
         MCM_calculateTorqueCommand(me,tps,bps);
         MCM_commands_setSpeedRPM(me, 0); //0 out opposing command to mcm
     }
-
+    */
+    MCM_calculateTorqueCommand(me,tps,bps);
+    MCM_commands_setSpeedRPM(me, 0); //0 out opposing command to mcm
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
 
