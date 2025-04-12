@@ -182,6 +182,7 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
 
     me->lcTorqueCommand = 0;
     me->launchControlSpeedCommand = 0;
+    me->commands_speedLimit = 6000; // This is the maximum motor rpm we will allow (VCU side control)
     me->launchControlReadyStatus = FALSE;
     me->launchControlActiveStatus = FALSE;
 
