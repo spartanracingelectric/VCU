@@ -155,7 +155,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
 
-        sbyte2 pidSetpoint = (sbyte2)((sbyte4)me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+        sbyte2 pidSetpoint = (sbyte2)((sbyte4)((me->plTargetPower-2) * 9549 / MCM_getMotorRPM(mcm)));
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
