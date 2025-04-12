@@ -387,7 +387,7 @@ void main(void)
 
         // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
-
+/*
         //New Code: Pump, ALWAYS ON
           if (coolingOnTimer == 0) {
             if (Sensor_LCButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == FALSE) {
@@ -416,7 +416,7 @@ void main(void)
             IO_DO_Set(IO_DO_02, TRUE);
             IO_DO_Set(IO_DO_03, TRUE);
         }
-
+*/
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
