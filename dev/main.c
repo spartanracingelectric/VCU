@@ -400,7 +400,7 @@ void main(void)
                 coolingOnTimer = 0;
             }
         }
-        
+*/
         if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
             if (coolingOn == 0) {
                 IO_DO_Set(IO_DO_02, FALSE);
@@ -416,7 +416,7 @@ void main(void)
             IO_DO_Set(IO_DO_02, TRUE);
             IO_DO_Set(IO_DO_03, TRUE);
         }
-*/
+
         //Assign motor controls to MCM command message
         //motorController_setCommands(rtds);
         //DOES NOT set inverter command or rtds flag
