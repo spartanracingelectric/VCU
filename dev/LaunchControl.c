@@ -57,7 +57,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
     if(me->lcActive){
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
-        me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
+        me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         if(MCM_getGroundSpeedKPH(mcm) < 3){
             me->lcTorqueCommand = 20;
             //LaunchControl_initialTorqueCurve(me, mcm);
@@ -75,10 +75,11 @@ void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, 
     if(me->lcActive && !me->constantSpeedTestOverride){
         me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
         PID_computeOutput(me->pidSpeed, me->slipRatioThreeDigits);
-        me->lcSpeedCommand = PID_getOutput(me->pidSpeed);
+        me->lcSpeedCommand = MCM_getMotorRPM(mcm)+ PID_getOutput(me->pidSpeed);
 
         if(MCM_getGroundSpeedKPH(mcm) < 3){
-            me->lcSpeedCommand = 20; //Timer-based function insert here
+            //me->lcSpeedCommand = 200; //Timer-based function insert here
+            LaunchControl_initialRPMCurve(me,mcm);
         }
         // Tune
         if(MCM_getGroundSpeedKPH(mcm) > 30){
@@ -148,6 +149,10 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
+    me->lcSpeedCommand = 100 + ( MCM_getGroundSpeedKPH(mcm) * 30 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+}
+
+void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
     me->lcSpeedCommand = 100 + ( MCM_getGroundSpeedKPH(mcm) * 30 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 

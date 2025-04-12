@@ -36,6 +36,7 @@ void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressu
 bool LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *lc);
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm);
+void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm);
 float LaunchControl_getSlipRatio(LaunchControl *lc);
 sbyte2 LaunchControl_getSlipRatioThreeDigits(LaunchControl *lc);
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *lc);
