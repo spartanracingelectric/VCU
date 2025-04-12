@@ -161,6 +161,13 @@ float4 WheelSpeeds_getSlowestFront(WheelSpeeds *me)
     return (me->speed_FL < me->speed_FR) ? me->speed_FL : me->speed_FR;
 }
 
+float4 WheelSpeeds_getSlowestFrontRPM(WheelSpeeds *me)
+{
+    float4 sensor_FL = WheelSpeeds_getWheelSpeedRPM(me,FL,0);
+    float4 sensor_FR = WheelSpeeds_getWheelSpeedRPM(me,FR,0);
+    return (sensor_FL < sensor_FR) ? sensor_FL : sensor_FR;
+}
+
 //UNUSED, NEEDS ADJUSTMENT TO INTERPOLATED SPEEDS
 float4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
 {

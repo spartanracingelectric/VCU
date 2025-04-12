@@ -58,6 +58,7 @@ struct _MotorController
     sbyte1 regen_minimumSpeedKPH;        //Assigned by main
     sbyte1 regen_SpeedRampStart;
 
+
     bool relayState;
     bool previousHVILState;
     ubyte4 timeStamp_HVILLost;
@@ -101,6 +102,8 @@ struct _MotorController
 
     sbyte2 commands_torque;
     sbyte2 commands_torqueLimit;
+    sbyte2 commands_speed;
+    sbyte2 commands_speedLimit;
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
@@ -185,8 +188,8 @@ MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID,
     me-> plTorqueCommand = 0;
     me-> plActive = FALSE;
 
+    me->speedControl = FALSE;
     me->HVILOverride = FALSE;
- 
     /*
 me->setTorque = &setTorque;
 me->setInverter = &setInverter;
@@ -288,33 +291,17 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDischarge(me, DISABLED);
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
-    sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
-    sbyte2 bpsTorque = 0;
-
-    float4 appsOutputPercent;
-
-    TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
-    
-    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
-    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
-    //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
-
-    /** MOTOR TORQUE COMMAND LOGIC **/
-    // abstraction might be warranted for the below logic
-
-    torqueOutput = appsTorque + bpsTorque;
-
-    if(me->launchControlActiveStatus == TRUE && me->lcTorqueCommand < appsTorque)
-    {
-        torqueOutput = me->lcTorqueCommand;
-    } 
-    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
-    {
-        me->launchControlActiveStatus = FALSE;
-        torqueOutput = me->plTorqueCommand + bpsTorque;
+    /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
+    MCM_update_speedControlValidity(me,tps);
+    // need to satisfy all 3 cases for speed Mode: pl NOT active, lc IS reporting as active*, and tps IS 100%    
+    // *In the case of a constant speed test, lc reports to mcm as active without meeting normal lc active conditions
+    if (!me->plActive && me->launchControlActiveStatus && MCM_get_speedControlValidity(me) ) {
+        MCM_calculateSpeedCommand(me,tps);
+        MCM_commands_setTorqueDNm(me, 0); //0 out opposing command to mcm
+    } else {
+        MCM_calculateTorqueCommand(me,tps,bps);
+        MCM_commands_setSpeedRPM(me, 0); //0 out opposing command to mcm
     }
-    MCM_commands_setTorqueDNm(me, torqueOutput);
 
     //Causes MCM relay to be driven after 30 seconds with TTC60?
     // me->HVILOverride = (IO_RTC_GetTimeUS(me->timeStamp_HVILOverrideCommandReceived) < 1000000);
@@ -666,9 +653,20 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     me->updateCount += (me->commands_torque == newTorque) ? 0 : 1;
     me->commands_torque = newTorque;
     
-    //Safety Check. torqueOutput Should never rise above 231
-    if(me->commands_torque > 2310){
+    //Safety Check. torqueOutput Should never rise above maxTorqueDNm
+    if(me->commands_torque > me->torqueMaximumDNm){
        me->commands_torque = 0;
+    }
+}
+
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand)
+{
+    me->updateCount += (me->commands_speed == speedCommand) ? 0 : 1;
+    me->commands_speed = speedCommand;
+    
+    //Safety Check. commands_speed Should never rise above Max RPM (what is max + what are units?)
+    if(me->commands_speed > me->commands_speedLimit){
+       me->commands_speed = 0;
     }
 }
 
@@ -713,6 +711,10 @@ void MCM_commands_setTorqueLimit(MotorController *me, sbyte2 newTorqueLimit)
 sbyte2 MCM_commands_getTorque(MotorController *me)
 {
     return me->commands_torque;
+}
+sbyte2 MCM_commands_getSpeed(MotorController *me)
+{
+    return me->commands_speed;
 }
 Direction MCM_commands_getDirection(MotorController *me)
 {
@@ -765,7 +767,6 @@ void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps)
     }
 }
 //------------------------------Launch Control--------------------------------
-
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
     me->lcTorqueCommand = lcTorqueCommand;

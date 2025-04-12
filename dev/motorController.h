@@ -31,18 +31,22 @@ MotorController* MotorController_new(SerialManager* sm, ubyte2 canMessageBaseID,
 //CAN Message Parameters
 //Note: Speed Command (angular velocity) not used when in torque mode
 void MCM_commands_setTorqueDNm(MotorController* me, sbyte2 torque); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand);
 void MCM_commands_setDirection(MotorController* me, Direction rotation);
 void MCM_commands_setInverter(MotorController* me, Status inverterState);
 void MCM_commands_setDischarge(MotorController* me, Status dischargeState);
 void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
+
 //void setCommand(MotorController* me, MCMCommand command, void* setting);
 
 
 sbyte2 MCM_commands_getTorque(MotorController* me); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+sbyte2 MCM_commands_getSpeed(MotorController *me);
 Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);
 sbyte2 MCM_commands_getTorqueLimit(MotorController* me);
+ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController* me); //currently unprotected, should remake as a Status output with defined states;
 
 ubyte2 MCM_commands_getUpdateCount(MotorController* me);
 void MCM_commands_resetUpdateCountAndTime(MotorController* me);
@@ -77,6 +81,9 @@ void MCM_updateInverterStatus(MotorController* me, Status newState);
 //----------------------------------------------------------------------------
 Status MCM_getLockoutStatus(MotorController* me);
 Status MCM_getInverterStatus(MotorController* me);
+
+ubyte1 MCM_get_speedControlValidity(MotorController *me);
+void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps);
 
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand);
 sbyte2 MCM_get_LC_torqueCommand(MotorController *me);
@@ -127,6 +134,8 @@ sbyte2 MCM_getRegenAPPSForMaxCoastingZeroToFF(MotorController* me);
 // void MCM_readTCSSettings(MotorController* me, Sensor* TCSSwitchUp, Sensor* TCSSwitchDown, Sensor* TCSPot);
 void MCM_setRegenMode(MotorController *me, RegenMode regenMode);
 void MCM_calculateCommands(MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePressureSensor *bps);
+void MCM_calculateSpeedCommand(MotorController *me, TorqueEncoder *tps);
 
 void MCM_relayControl(MotorController* mcm, Sensor* HVILTermSense);
 void MCM_inverterControl(MotorController* mcm, TorqueEncoder* tps, BrakePressureSensor* bps, ReadyToDriveSound* rtds);
