@@ -78,7 +78,6 @@ LSL_FILE=application.lsl
 
 #
 # rules for building
-
 all : build/main.elf postbuild
 
 # call linker
