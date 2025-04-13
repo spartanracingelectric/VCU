@@ -148,4 +148,5 @@ void MCM_setStartupStage(MotorController* me, ubyte1 stage);
 sbyte4 MCM_getDCVoltage (MotorController *me);
 sbyte4 MCM_getDCCurrent(MotorController *me);
 
+bool MCM_getFieldWeakening(MotorController *me);
 #endif // _MOTORCONTROLLER_H

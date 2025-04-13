@@ -434,7 +434,7 @@ void main(void)
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
-        POWERLIMIT_calculateTorqueCommand(pl, mcm0);
+        PowerLimit_calculateCommand(pl, mcm0);
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

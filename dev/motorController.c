@@ -751,6 +751,15 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
+
+bool MCM_getFieldWeakening(MotorController *me)
+{
+    sbyte4 MotorRPM = MCM_getMotorRPM(me);
+    bool fieldWeakening = (MotorRPM > 3600);
+    return fieldWeakening;
+
+}
+
 //------------------------------Speed Control--------------------------------
 bool MCM_get_speedControlValidity(MotorController *me)
 {
