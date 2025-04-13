@@ -13,15 +13,6 @@
 //#include "hashTable.h"
 #include "math.h"
 
-#ifndef POWERLIMITCONSTANTS
-#define POWERLIMITCONSTANTS
-
-#define VOLTAGE_STEP     5        //float voltageStep = (Voltage_MAX - Voltage_MIN) / (NUM_V - 1);
-#define RPM_STEP         160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
-//#define CAN_MESSAGES_VERBOSE  // Original Idea Implementation was to have extra CAN messages for debugging purposes. now defunct for time being
-#endif
-
-
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
     PID *pid;
@@ -32,8 +23,10 @@ typedef struct _PowerLimit {
     bool   plStatus;
     ubyte1 plMode;
     ubyte1 plTargetPower;
+    ubyte1 plKwLimit;
     ubyte1 plInitializationThreshold;
     sbyte2 plTorqueCommand;
+    ubyte1 clampingMethod;
     //me->pid->pidOutput;   sbyte2
 
 //-------------CAN IN ORDER: 512: Power Limit PID Output Details-----------------------------------------------------
@@ -69,18 +62,18 @@ typedef struct _PowerLimit {
 PowerLimit* POWERLIMIT_new(); 
 
 /** SETTER FUNCTIONS  **/
-
-void POWERLIMIT_setModeParameters(PowerLimit* me);
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 
 /** COMPUTATIONS **/
 
-void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit *me, MotorController *mcm, bool fieldWeakening);
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
 //void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
 //ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque, ubyte1 clampingMethod);
 /** GETTER FUNCTIONS **/
 
 ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);
