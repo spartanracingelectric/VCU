@@ -739,8 +739,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->lcReady;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->lcActive;
-    canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc);
-    canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc) >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->safteyTimer;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->safteyTimer >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->constantSpeedTestOverride; // Override Flag & disables Launch Normally for Testing
