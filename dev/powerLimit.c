@@ -29,7 +29,7 @@
 
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(1, 0, 0, 231);
+    me->pid = PID_new(10, 20, 0, 231);
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
@@ -200,7 +200,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     me->plMode = 1;
     PID_setSaturationPoint(me->pid, 8000);
     
-    if(me->plStatus==TRUE ||(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    if(/*me->plStatus==TRUE ||*/(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
         /* Sensor inputs */
