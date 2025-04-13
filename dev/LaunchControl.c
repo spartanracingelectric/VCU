@@ -23,7 +23,7 @@ LaunchControl *LaunchControl_new(){
     // malloc returns NULL if it fails to allocate memory
     if (me == NULL)
         return NULL;
-    me->pidTorque = PID_new(200, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(20, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     me->pidSpeed = PID_new(200, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     PID_updateSetpoint(me->pidTorque, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     me->slipRatio = 0;
@@ -43,7 +43,9 @@ LaunchControl *LaunchControl_new(){
 }
 
 void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
-    me->slipRatio = ( WheelSpeeds_getSlowestFront(wss) / WheelSpeeds_getFastestRear(wss) ) - 1;
+    //me->slipRatio = ( WheelSpeeds_getSlowestFront(wss) / WheelSpeeds_getFastestRear(wss) ) - 1;
+    // Front Right WSS is not reading. putting in a software fix so we can test.
+    me->slipRatio = ( WheelSpeeds_getWheelSpeedRPM(me,FL,0) / WheelSpeeds_getFastestRear(wss) ) - 1;
     // me->slipRatio = ( WheelSpeeds_getSlowestFrontRPM(wss) / MCM_getMotorRPM(mcm) ) - 1;
     if (me->slipRatio >= 1.0) { // the >= is preferred over the > symbol because floats are checked left-to-right instead of right to left, and therefore this should hopefully speed up this check.
         me->slipRatio = 1.0;
