@@ -144,7 +144,6 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 
     if(tps->travelPercent < 0.90 || bps->percent > 0.05 || steeringAngle > 35 || steeringAngle < -35){
         me->lcActive = FALSE;
-        me->lcReady = FALSE;
         me->lcTorqueCommand = NULL;
         me->safteyTimer = 0;
     }
