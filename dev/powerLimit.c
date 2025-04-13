@@ -40,7 +40,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plTargetPower = 60;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plKwLimit = 50; // this is lit never used, dont even touch this
     me->plInitializationThreshold = me->plTargetPower-15;
-    me->clampingMethod = 3;
+    me->clampingMethod = 1;
     //LUT Corners
     me->vFloorRFloor = 0;
     me->vFloorRCeiling = 0;
@@ -200,7 +200,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     me->plMode = 1;
     PID_setSaturationPoint(me->pid, 8000);
     
-    if(/*me->plStatus==TRUE ||*/(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    if(me->plStatus==TRUE ||(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
         /* Sensor inputs */
