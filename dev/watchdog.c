@@ -1,22 +1,19 @@
+#include "watchdog.h"
 #include "IO_Driver.h"
 #include "IO_RTC.h"
-#include "watchdog.h"
 
 /// @brief Generates a watchdog timer, timeout is in microseconds
-/// @param wd 
-/// @param timeout 
-void WatchDog_new(WatchDog* wd, ubyte4 timeout)
+/// @param wd
+/// @param timeout
+void WatchDog_new(WatchDog *wd, ubyte4 timeout)
 {
     wd->timeout = timeout;
     wd->running = FALSE;
 }
 
-void WatchDog_reset(WatchDog* wd)
-{
-    wd->running = TRUE;
-}
+void WatchDog_reset(WatchDog *wd) { wd->running = TRUE; }
 
-void WatchDog_pet(WatchDog* wd)
+void WatchDog_pet(WatchDog *wd)
 {
     if (wd->running)
     {
@@ -24,7 +21,7 @@ void WatchDog_pet(WatchDog* wd)
     }
 }
 
-bool WatchDog_check(WatchDog* wd)
+bool WatchDog_check(WatchDog *wd)
 {
     if (wd->running)
     {
