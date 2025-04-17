@@ -747,21 +747,27 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50C: SAS (Steering Angle Sensor) and DRS
+    //50C: Launch Control Additional Information
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
-    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = drs->buttonPressed;
-    canMessages[canMessageCount - 1].data[byteNum++] = drs->currentDRSMode;
-    canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlapOpen;
-    canMessages[canMessageCount - 1].data[byteNum++] = drs->AutoDRSActive;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
-
+    /*
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki >> 8;
+    canMessages[canMessageCount - 1].length = byteNum;
+*/
     //50D: BPS1 (TEMPORARY ADDRESS)
     canMessageCount++;
     byteNum = 0;
@@ -884,6 +890,21 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getKi(pl->pid);
     canMessages[canMessageCount - 1].length = byteNum;
 #endif
+
+    //515: SAS (Steering Angle Sensor) and DRS
+    canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = 0x515;
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->buttonPressed;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->currentDRSMode;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlapOpen;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->AutoDRSActive;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
 
     CanManager_send(me, CAN0_HIPRI, canMessages, canMessageCount); 
 

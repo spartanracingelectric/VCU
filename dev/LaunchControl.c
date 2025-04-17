@@ -122,15 +122,20 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
      * At any time, an exit condition can be triggered to reset this staging operation and cancel our launch attempt
      */
     if(Sensor_LCButton.sensorValue == TRUE && speedKph < 1) {
+        me->lcReady = TRUE;
+        DRS_close(drs);
+        /*
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
             DRS_open(drs);
         }
-        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 3000000) {
+        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 300000) {
             me->lcReady = TRUE;
             DRS_close(drs);
             me->safteyTimer = 0; // We don't need to track the timer anymore
         }
+        */
+        
     }
 
     else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
