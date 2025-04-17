@@ -423,7 +423,7 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
 
-        LaunchControl_calculateSlipRatio(lc, wss);
+        LaunchControl_calculateSlipRatio(lc, mcm0, wss);
         LaunchControl_checkState(lc,tps,bps,mcm0, drs);
         LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0, drs);
         LaunchControl_calculateSpeedCommand(lc, tps, bps, mcm0, drs);

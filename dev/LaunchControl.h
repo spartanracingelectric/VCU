@@ -24,13 +24,14 @@ typedef struct _LaunchControl {
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
     sbyte2 lcSpeedCommand;
+    sbyte2 initialTorque;
     ubyte4 safteyTimer;
     bool constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
-void LaunchControl_calculateSlipRatio(LaunchControl *lc, WheelSpeeds *wss);
+void LaunchControl_calculateSlipRatio(LaunchControl *lc, MotorController *mcm, WheelSpeeds *wss);
 void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
 void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
 bool LaunchControl_getStatus(LaunchControl *lc);
