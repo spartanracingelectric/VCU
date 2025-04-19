@@ -232,9 +232,9 @@ void main(void)
     // ubyte2 tps0_calibMax = 0x9876;  //me->tps0->sensorValue;
     // ubyte2 tps1_calibMin = 0x5432;  //me->tps1->sensorValue;
     // ubyte2 tps1_calibMax = 0xCDEF;  //me->tps1->sensorValue;
-    ubyte2 tps0_calibMin = 800;  //me->tps0->sensorValue;
+    ubyte2 tps0_calibMin = 700;  //me->tps0->sensorValue;
     ubyte2 tps0_calibMax = 2000; //me->tps0->sensorValue;
-    ubyte2 tps1_calibMin = 3000; //me->tps1->sensorValue;
+    ubyte2 tps1_calibMin = 2600; //me->tps1->sensorValue;
     ubyte2 tps1_calibMax = 5000; //me->tps1->sensorValue;
     //TODO: Read calibration data from EEPROM?
     //TODO: Run calibration functions?
@@ -387,7 +387,7 @@ void main(void)
 
         // CoolingSystem_calculations(cs, MCM_getTemp(mcm0), MCM_getMotorTemp(mcm0), BMS_getHighestCellTemp_degC(bms), &Sensor_HVILTerminationSense);
         // CoolingSystem_enactCooling(cs); //This belongs under outputs but it doesn't really matter for cooling
-
+/*
         //New Code: Pump, ALWAYS ON
           if (coolingOnTimer == 0) {
             if (Sensor_LCButton.sensorValue == TRUE && Sensor_HVILTerminationSense.sensorValue == FALSE) {
@@ -400,7 +400,7 @@ void main(void)
                 coolingOnTimer = 0;
             }
         }
-        
+*/
         if (Sensor_HVILTerminationSense.sensorValue == FALSE) {
             if (coolingOn == 0) {
                 IO_DO_Set(IO_DO_02, FALSE);
@@ -423,7 +423,7 @@ void main(void)
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
 
-        LaunchControl_calculateSlipRatio(lc, wss);
+        LaunchControl_calculateSlipRatio(lc, mcm0, wss);
         LaunchControl_checkState(lc,tps,bps,mcm0, drs);
         LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0, drs);
         LaunchControl_calculateSpeedCommand(lc, tps, bps, mcm0, drs);

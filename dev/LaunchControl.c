@@ -23,16 +23,18 @@ LaunchControl *LaunchControl_new(){
     // malloc returns NULL if it fails to allocate memory
     if (me == NULL)
         return NULL;
-    me->pidTorque = PID_new(200, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(20, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     me->pidSpeed = PID_new(200, 0, 0, 0); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
-    PID_updateSetpoint(me->pidTorque, 20); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
+    PID_updateSetpoint(me->pidTorque, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     me->slipRatio = 0;
     me->lcTorqueCommand = NULL;
     me->lcSpeedCommand = NULL;
     me->lcReady = FALSE;
     me->lcActive = FALSE;
-    me->buttonDebug = 0;
+    me->buttonDebug = 0; // This exists as a holdover piece of code to what I presume is debugging which button was which on the steering wheel. should remove / place elsewhere
     me->safteyTimer = 0;
+
+    me->initialTorque = 100;
 
     /** Variables for constantSpeedTestOverride Function. 
      * Enabling this mode disabled Launch Control & 
@@ -42,29 +44,34 @@ LaunchControl *LaunchControl_new(){
     return me;
 }
 
-void LaunchControl_calculateSlipRatio(LaunchControl *me, WheelSpeeds *wss){
-    me->slipRatio = ( WheelSpeeds_getSlowestFront(wss) / WheelSpeeds_getFastestRear(wss) ) - 1;
-    // me->slipRatio = ( WheelSpeeds_getSlowestFrontRPM(wss) / MCM_getMotorRPM(mcm) ) - 1;
-    if (me->slipRatio >= 1.0) { // the >= is preferred over the > symbol because floats are checked left-to-right instead of right to left, and therefore this should hopefully speed up this check.
-        me->slipRatio = 1.0;
+void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
+    if (WheelSpeeds_getWheelSpeed(me,FL) == 0){
+        me->slipRatio = ( WheelSpeeds_getWheelSpeed(me,FR) / WheelSpeeds_getFastestRear(wss) ) - 1;
     }
-    if (me->slipRatio <= -1.0) {
-        me->slipRatio = -1.0;
+    else if (WheelSpeeds_getWheelSpeed(me,FR) == 0){
+        me->slipRatio = ( WheelSpeeds_getWheelSpeed(me,FL) / WheelSpeeds_getFastestRear(wss) ) - 1;
     }
+    else{
+        me->slipRatio = ( WheelSpeeds_getSlowestFront(wss) / WheelSpeeds_getFastestRear(wss) ) - 1;
+        // me->slipRatio = ( WheelSpeeds_getSlowestFrontRPM(wss) / MCM_getMotorRPM(mcm) ) - 1;
+    }
+    
+    if (me->slipRatio >= 1.0) { me->slipRatio = 1.0; }
+
+    else if (me->slipRatio <= -1.0) { me->slipRatio = -1.0; }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(me->lcActive){
-        me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
-        PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
-        me->lcTorqueCommand = MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
-        if(MCM_getGroundSpeedKPH(mcm) < 3){
-            me->lcTorqueCommand = 20;
+        if( MCM_getGroundSpeedKPH(mcm) < 3 ){ LaunchControl_initialTorqueCurve(me, mcm); }
+
+        else{
+            me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
+            PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
+            me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         }
-        // Tune
-        if(MCM_getGroundSpeedKPH(mcm) > 30){
-            DRS_open(drs);
-        }
+        // Tune 
+        if( MCM_getGroundSpeedKPH(mcm) == 30 ){ DRS_open(drs); }
         // Update launch control torque command in mcm struct
         MCM_update_LC_torqueCommand(mcm, me->lcTorqueCommand * 10); // Move the mul by 10 to within MCM struct at some point
     }
@@ -72,22 +79,21 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
 
 void LaunchControl_calculateSpeedCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(me->lcActive && !me->constantSpeedTestOverride){
-        me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
-        PID_computeOutput(me->pidSpeed, me->slipRatioThreeDigits);
-        me->lcSpeedCommand = PID_getOutput(me->pidSpeed);
-
         if(MCM_getGroundSpeedKPH(mcm) < 3){
-            me->lcSpeedCommand = 20; //Timer-based function insert here
+            LaunchControl_initialRPMCurve(me,mcm);
+        }
+        else{
+            me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
+            PID_computeOutput(me->pidSpeed, me->slipRatioThreeDigits);
+            me->lcSpeedCommand = MCM_getMotorRPM(mcm)+ PID_getOutput(me->pidSpeed);
         }
         // Tune
-        if(MCM_getGroundSpeedKPH(mcm) > 30){
-            DRS_open(drs);
-        }
-        // Update launch control torque command in mcm struct
+        if(MCM_getGroundSpeedKPH(mcm) == 30 ){ DRS_open(drs); }
+        // Update launch control speed command in mcm struct
         MCM_update_LC_speedCommand(mcm, me->lcSpeedCommand);
     }
     // constantSpeedTestOverride
-    else if(me->constantSpeedTestOverride && Sensor_LCButton.sensorValue == FALSE){
+    else if(me->constantSpeedTestOverride && Sensor_LCButton.sensorValue == TRUE){
         MCM_update_LC_speedCommand(mcm, me->overrideTestSpeedCommand);
         MCM_update_LC_activeStatus(mcm, TRUE); //We fake the "active" status to enable speed mode in the mcm
     }
@@ -104,8 +110,6 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
      * AT ALL TIMES, EXIT CONDITIONS ARE CHECKED FOR BOTH STATES
     */
 
-    // SENSOR_LCBUTTON values are reversed: FALSE = TRUE and TRUE = FALSE, due to the VCU internal Pull-Up for the button and the button's Pull-Down on Vehicle
-
     /**
      * Launch Control Pre-Staging Operations:
      * If the car is near 0 kph (in case of wss float issues) & the Launch Button is pressed,
@@ -117,36 +121,48 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
      * 
      * At any time, an exit condition can be triggered to reset this staging operation and cancel our launch attempt
      */
-    if(Sensor_LCButton.sensorValue == FALSE && speedKph < 1) {
+    if(Sensor_LCButton.sensorValue == TRUE && speedKph < 1) {
+        me->lcReady = TRUE;
+        DRS_close(drs);
+        /*
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
+            DRS_open(drs);
         }
-        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 3000000) {
+        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 300000) {
             me->lcReady = TRUE;
             DRS_close(drs);
             me->safteyTimer = 0; // We don't need to track the timer anymore
         }
+        */
+        
     }
 
-    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == TRUE){
+    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
         PID_setTotalError(me->pidTorque, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
         me->lcActive = TRUE;
         me->lcReady = FALSE;
     }
 
-    if(tps->travelPercent < 0.90 || bps->percent > 0.05 || steeringAngle > 35 || steeringAngle < -35){
+    if(tps->tps0_percent < 0.90 || tps->tps0_percent < 0.90 || bps->percent > 0.05 /* || steeringAngle > 35 || steeringAngle < -35 */){
         me->lcActive = FALSE;
-        me->lcReady = FALSE;
         me->lcTorqueCommand = NULL;
         me->safteyTimer = 0;
     }
     
-    //MCM struct only cares about lcActive, so we inform it here
     MCM_update_LC_activeStatus(mcm, me->lcActive);
     MCM_update_LC_readyStatus(mcm, me->lcReady);
 }
 
-bool LaunchControl_getStatus(LaunchControl *me){ return me->lcActive; }
+void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
+    me->lcTorqueCommand = me->initialTorque + ( MCM_getMotorRPM(mcm) / 2 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+}
+
+void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
+    me->lcSpeedCommand = 100 + ( MCM_getMotorRPM(mcm) * 30 ); // Tunable Values will be the inital Speed Request @ 0 and the scalar factor
+}
+
+bool LaunchControl_getStatus(LaunchControl *me){ return (me->lcReady << 1 || me->lcActive); }
 
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){ return me->lcTorqueCommand; }
 
