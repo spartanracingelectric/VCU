@@ -761,13 +761,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
-    /*
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki >> 8;
-    canMessages[canMessageCount - 1].length = byteNum;
-*/
+
     //50D: BPS1 (TEMPORARY ADDRESS)
     canMessageCount++;
     byteNum = 0;
