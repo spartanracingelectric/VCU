@@ -38,8 +38,8 @@ PowerLimit* POWERLIMIT_new(){
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
     me->plTargetPower = 60;// HERE IS WHERE YOU CHANGE POWERLIMIT
-    me->plKwLimit = 50; // this is lit never used, dont even touch this
-    me->plInitializationThreshold = me->plTargetPower-15;
+    me->plThresholdDiscrepancy = 15;
+    me->plInitializationThreshold = 0;
     me->clampingMethod = 1;
     me->plAlwaysOn = TRUE;
     //LUT Corners
@@ -49,6 +49,10 @@ PowerLimit* POWERLIMIT_new(){
     me->vCeilingRCeiling = 0;
 
     return me;
+}
+
+void PowerLimit_setPLInitializationThreshold(PowerLimit* me){
+    me->plInitializationThreshold = me->plTargetPower - me->plThresholdDiscrepancy;
 }
 
 
@@ -65,17 +69,42 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 /** COMPUTATIONS **/
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
-    me->plInitializationThreshold = me->plTargetPower-15;
+    
 
-    if (!me->plStatus) 
-    {
-        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
+    // if (!me->plStatus) 
+    // {
+    //     if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
+    //         me->plStatus = TRUE;
+    //         me->clampingMethod = 3;
+    //     }
+    // }
+
+    PowerLimit_setPLInitializationThreshold(me);
+    // if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    //     me->plStatus = TRUE;
+    // }
+    // else {
+    //     if (!me->plAlwaysOn /*|| (me->plAlwaysOn && appsTorque == 0)*/){
+    //         me->plStatus = FALSE;
+    //     }
+    // }
+
+    if (!me->plAlwaysOn){
+        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
             me->plStatus = TRUE;
-            me->clampingMethod = 3;
+        }
+        else{
+            me->plStatus = FALSE;
         }
     }
-
-  bool fieldWeakening = MCM_getFieldWeakening(mcm);
+    else {
+        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+            me->plStatus = TRUE;
+        }
+        // if (appsTorque == 0) {
+        //    me->plStatus = FALSE;
+        //}
+    }
   
 //1.TQ equation only
 //2.PowerPID only 
@@ -94,6 +123,9 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
 //    else if (me->plMode==4){
 //     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
 //   }
+
+MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
 
 sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 rpm){    // Find the floor and ceiling values for voltage and rpm

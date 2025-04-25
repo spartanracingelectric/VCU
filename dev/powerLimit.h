@@ -59,6 +59,7 @@ typedef struct _PowerLimit {
 
 // Unassigned in CAN
     bool plAlwaysOn;
+    ubyte1 plThresholdDiscrepancy
 
 } PowerLimit;
 
