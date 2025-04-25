@@ -46,7 +46,7 @@ void PID_updateGainValues(PID* pid, sbyte1 Kp, sbyte1 Ki, sbyte1 Kd);
 
 /** COMPUTATIONS **/
 
-void PID_computeOutput(PID *pid, sbyte2 sensorValue, sbyte2 scalefactor);
+void PID_computeOutput(PID *pid, sbyte2 sensorValue);
 
 /** GETTER FUNCTIONS **/
 
