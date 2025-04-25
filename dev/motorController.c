@@ -100,6 +100,7 @@ struct _MotorController
     ubyte2 updateCount;               //Number of updates since lastCommandSent
 
     sbyte2 commands_torque;
+    sbyte2 appsTorque;
     sbyte2 commands_torqueLimit;
     ubyte1 commands_direction;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
@@ -287,29 +288,30 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     //----------------------------------------------------------------------------
     MCM_commands_setDischarge(me, DISABLED);
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
+    me->appsTorque = 0;
 
     sbyte2 torqueOutput = 0;
-    sbyte2 appsTorque = 0;
+    
     sbyte2 bpsTorque = 0;
 
     float4 appsOutputPercent;
 
     TorqueEncoder_getOutputPercent(tps, &appsOutputPercent);
     
-    appsTorque = me->torqueMaximumDNm * appsOutputPercent;
-    //appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
+    me->appsTorque = me->torqueMaximumDNm * appsOutputPercent;
+    //me->appsTorque = me->torqueMaximumDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 1, TRUE) - me->regen_torqueAtZeroPedalDNm * getPercent(appsOutputPercent, me->regen_percentAPPSForCoasting, 0, TRUE);
     //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
 
     /** MOTOR TORQUE COMMAND LOGIC **/
     // abstraction might be warranted for the below logic
 
-    torqueOutput = appsTorque + bpsTorque;
+    torqueOutput = me->appsTorque + bpsTorque;
 
-    if(me->launchControlState == TRUE && me->lcTorqueCommand < appsTorque)
+    if(me->launchControlState == TRUE && me->lcTorqueCommand < me->appsTorque)
     {
         torqueOutput = me->lcTorqueCommand;
     } 
-    if(me->plActive == TRUE && me->plTorqueCommand < appsTorque)
+    if(me->plActive == TRUE && me->plTorqueCommand < me->appsTorque)
     {
         me->launchControlState == FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
@@ -317,7 +319,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     //Safety Check. torqueOutput Should never rise above 231
     if(torqueOutput > 2310 || torqueOutput < 0) //attempt to fix issue of -3000
     {
-        torqueOutput = appsTorque;
+        torqueOutput = me->appsTorque;
     }
     MCM_commands_setTorqueDNm(me, torqueOutput);
 
@@ -680,6 +682,11 @@ sbyte2 MCM_commands_getTorque(MotorController *me)
 {
     return me->commands_torque;
 }
+
+sbyte2 MCM_commands_getAppsTorque(MotorController *me){
+    return me->appsTorque;
+}
+
 Direction MCM_commands_getDirection(MotorController *me)
 {
     return me->commands_direction;

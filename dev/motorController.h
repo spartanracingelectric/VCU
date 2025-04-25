@@ -39,6 +39,7 @@ void MCM_commands_setTorqueLimit(MotorController* me, sbyte2 torqueLimit);
 
 
 sbyte2 MCM_commands_getTorque(MotorController* me); //Will be divided by 10 e.g. pass in 100 for 10.0 Nm
+sbyte2 MCM_commands_getAppsTorque(MotorController *me);
 Direction MCM_commands_getDirection(MotorController* me);
 Status MCM_commands_getInverter(MotorController* me);
 Status MCM_commands_getDischarge(MotorController* me);

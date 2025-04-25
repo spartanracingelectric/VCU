@@ -80,49 +80,34 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
     // }
 
     PowerLimit_setPLInitializationThreshold(me);
-    // if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-    //     me->plStatus = TRUE;
-    // }
-    // else {
-    //     if (!me->plAlwaysOn /*|| (me->plAlwaysOn && appsTorque == 0)*/){
-    //         me->plStatus = FALSE;
-    //     }
-    // }
+    if (!me->plStatus && (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+        me->plStatus = TRUE;
+    }
+    else if (!me->plAlwaysOn || MCM_commands_getAppsTorque(mcm) == 0){
+        me->plStatus = FALSE;
+    }
 
-    if (!me->plAlwaysOn){
-        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-            me->plStatus = TRUE;
-        }
-        else{
-            me->plStatus = FALSE;
-        }
-    }
-    else {
-        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-            me->plStatus = TRUE;
-        }
-        // if (appsTorque == 0) {
-        //    me->plStatus = FALSE;
-        //}
-    }
+
   
 //1.TQ equation only
 //2.PowerPID only 
 //3.LUT only 
 //4. Both TQ equation and LUT together-(Final Algorithm)
+if (me->plStatus){
+    if(me->plMode==1){
+        POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
+      }
+    //   else if (me->plMode==2){
+    //     POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
+    //   }
+    //    else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
+    //     POWERLIMIT_calculateLUTCommand(me, mcm);
+    //   }
+    //    else if (me->plMode==4){
+    //     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
+    //   }
+}
 
-  if(me->plMode==1){
-    POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
-  }
-//   else if (me->plMode==2){
-//     POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
-//   }
-//    else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
-//     POWERLIMIT_calculateLUTCommand(me, mcm);
-//   }
-//    else if (me->plMode==4){
-//     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
-//   }
 
 MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
 MCM_set_PL_updateStatus(mcm, me->plStatus);
@@ -180,28 +165,19 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 1;
     PID_setSaturationPoint(me->pid, 8000);
-    
-    if((me->plAlwaysOn && me->plStatus) ||(MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-        me->plStatus = TRUE;
 
-        /* Sensor inputs */
-        sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+    /* Sensor inputs */
+    sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
 
-        sbyte2 pidSetpoint = (sbyte2)((sbyte4)((me->plTargetPower-2) * 9549 / MCM_getMotorRPM(mcm)));
+    sbyte2 pidSetpoint = (sbyte2)((sbyte4)((me->plTargetPower-2) * 9549 / MCM_getMotorRPM(mcm)));
 
-        sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+    sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
+    POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
 
-        me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
-    else {
-        me->plStatus = FALSE;
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
-    }
+    me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+    MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+    MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
 
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue, ubyte1 clampingMethod) {

@@ -59,7 +59,7 @@ typedef struct _PowerLimit {
 
 // Unassigned in CAN
     bool plAlwaysOn;
-    ubyte1 plThresholdDiscrepancy
+    ubyte1 plThresholdDiscrepancy;
 
 } PowerLimit;
 
@@ -67,6 +67,7 @@ PowerLimit* POWERLIMIT_new();
 
 /** SETTER FUNCTIONS  **/
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
+void PowerLimit_setPLInitializationThreshold(PowerLimit* me);
 
 /** COMPUTATIONS **/
 
