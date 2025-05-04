@@ -49,7 +49,7 @@ PowerLimit* POWERLIMIT_new(){
 
     return me;
 }
-
+#ifdef POWERLIMIT_ENABLE
 /** SETTER FUNCTIONS  **/
 
 void POWERLIMIT_setModeParameters(PowerLimit* me){
@@ -638,3 +638,5 @@ ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm)
     ubyte1 value = POWER_LIM_LUT_80[row][column];
     return value;
 }
+
+#endif

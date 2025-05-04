@@ -1,3 +1,4 @@
+
 #ifndef _LAUNCHCONTROL_H
 #define _LAUNCHCONTROL_H
 
@@ -31,6 +32,7 @@ typedef struct _LaunchControl {
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
+#ifdef LAUNCHCONTROL_ENABLE
 void LaunchControl_calculateSlipRatio(LaunchControl *lc, MotorController *mcm, WheelSpeeds *wss);
 void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
 void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
@@ -41,5 +43,7 @@ void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm);
 float LaunchControl_getSlipRatio(LaunchControl *lc);
 sbyte2 LaunchControl_getSlipRatioThreeDigits(LaunchControl *lc);
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *lc);
+
+#endif //_LAUNCHCONTROL_H
 
 #endif

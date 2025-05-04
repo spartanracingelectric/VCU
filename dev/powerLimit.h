@@ -67,6 +67,7 @@ typedef struct _PowerLimit {
 } PowerLimit;
 
 PowerLimit* POWERLIMIT_new(); 
+#ifdef POWERLIMIT_ENABLE
 
 /** SETTER FUNCTIONS  **/
 
@@ -94,3 +95,5 @@ ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
 ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm);
 
 #endif //_POWERLIMIT_H
+
+#endif

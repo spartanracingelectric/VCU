@@ -5,6 +5,15 @@
         "corecrt_math.h": "c",
         "sensorcalculations.h": "c",
         "io_driver.h": "c",
-        "sensors.h": "c"
+        "sensors.h": "c",
+        "stdlib.h": "c",
+        "io_rtc.h": "c",
+        "io_dio.h": "c",
+        "launchcontrol.h": "c",
+        "torqueencoder.h": "c",
+        "wheelspeeds.h": "c",
+        "initializations.h": "c",
+        "brakepressuresensor.h": "c",
+        "motorcontroller.h": "c"
     }
 }

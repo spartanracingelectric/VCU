@@ -422,19 +422,21 @@ void main(void)
         //DOES NOT set inverter command or rtds flag
         //MCM_setRegenMode(mcm0, REGENMODE_FORMULAE); // TODO: Read regen mode from DCU CAN message - Issue #96
         // MCM_readTCSSettings(mcm0, &Sensor_TCSSwitchUp, &Sensor_TCSSwitchDown, &Sensor_TCSKnob);
-
+        #ifdef LAUNCHCONTROL_ENABLE
         LaunchControl_calculateSlipRatio(lc, mcm0, wss);
         LaunchControl_checkState(lc,tps,bps,mcm0, drs);
         LaunchControl_calculateTorqueCommand(lc, tps, bps, mcm0, drs);
         LaunchControl_calculateSpeedCommand(lc, tps, bps, mcm0, drs);
-
+        #endif
         //---------------------------------------------------------------------------------------------------------
         // input the power limit calculation here from mcm 
         //---------------------------------------------------------------------------------------------------------
         // PLMETHOD 1:TQequation+TQPID
          // PLMETHOD 2:TQequation+PWRPID
           // PLMETHOD 3: LUT+TQPID
+        #ifdef POWERLIMIT_ENABLE
         POWERLIMIT_calculateTorqueCommand(pl, mcm0);
+        #endif
         MCM_calculateCommands(mcm0, tps, bps);
 
         SafetyChecker_update(sc, mcm0, bms, tps, bps, &Sensor_HVILTerminationSense, &Sensor_LVBattery);

@@ -44,6 +44,7 @@ LaunchControl *LaunchControl_new(){
     return me;
 }
 
+#ifdef LAUNCHCONTROL_ENABLE
 void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
     if (WheelSpeeds_getWheelSpeed(me,FL) == 0){
         me->slipRatio = ( WheelSpeeds_getWheelSpeed(me,FR) / WheelSpeeds_getFastestRear(wss) ) - 1;
@@ -171,3 +172,4 @@ float LaunchControl_getSlipRatio(LaunchControl *me){ return me->slipRatio; }
 sbyte2 LaunchControl_getSlipRatioThreeDigits(LaunchControl *me){ return me->slipRatioThreeDigits; }
 
 ubyte1 LaunchControl_getButtonDebug(LaunchControl *me) { return me->buttonDebug; }
+#endif
