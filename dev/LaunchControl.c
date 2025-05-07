@@ -36,6 +36,8 @@ LaunchControl *LaunchControl_new(){
 
     me->initialTorque = 100;
 
+    me->versionControl = 0; //Time of change
+
     /** Variables for constantSpeedTestOverride Function. 
      * Enabling this mode disabled Launch Control & 
      * changes button function to act as a cruise control targeting a specified speed */

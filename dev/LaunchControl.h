@@ -29,6 +29,7 @@ typedef struct _LaunchControl {
     ubyte4 safteyTimer;
     bool constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
+    ubyte2 versionControl; //Time of change
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
