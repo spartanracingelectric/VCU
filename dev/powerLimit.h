@@ -69,24 +69,16 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 
 /** COMPUTATIONS **/
 
-void POWERLIMIT_calculateLUTCommand(PowerLimit *me, MotorController *mcm);
-void POWERLIMIT_calculateTorqueCommandTQAndLUT(PowerLimit *me, MotorController *mcm, bool fieldWeakening);
-sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, sbyte4 noLoadVoltage, sbyte4 rpm);
-//void POWERLIMIT_populateHashTable(HashTable* table, ubyte1 mode);
-//ubyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit* me, HashTable* torqueHashtable, sbyte4 noLoadVoltage, sbyte4 rpm);
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
-void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque, ubyte1 clampingMethod);
 /** GETTER FUNCTIONS **/
 
-ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me);
+ubyte1 POWERLIMIT_getClampingMethod(PowerLimit* me);
 bool   POWERLIMIT_getStatus(PowerLimit* me);
 ubyte1 POWERLIMIT_getMode(PowerLimit* me);
 sbyte2 POWERLIMIT_getTorqueCommand(PowerLimit* me);
 ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me);
 ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me);
 //Returns 0xFF if an invalid corner is given
-ubyte1 POWERLIMIT_getLUTCorner(PowerLimit* me, ubyte1 corner);
-ubyte1 POWERLIMIT_getTorqueFromArray(ubyte4 noLoadVoltage, ubyte4 rpm);
 
 #endif //_POWERLIMIT_H
