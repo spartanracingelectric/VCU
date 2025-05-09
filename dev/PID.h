@@ -20,7 +20,7 @@ typedef struct _PID {
     sbyte2 Kd;              // Derivative   gain-value
     sbyte2 setpoint;        // Target       sensor-value
     sbyte2 previousError;   // previous difference between Target(setpoint) and Measured(actual) sensor-value
-    sbyte2 totalError;
+    sbyte4 totalError;
     ubyte1 dH;              // Time interval between PID updates in seconds (VCU tick speed)
     sbyte2 output;
     sbyte4 proportional;    

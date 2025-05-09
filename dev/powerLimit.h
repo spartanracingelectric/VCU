@@ -63,7 +63,7 @@ typedef struct _PowerLimit {
 
     //Odd Man Out
     // me->pid->Kd;         ubyte1
-
+    bool cycle;
 } PowerLimit;
 
 PowerLimit* POWERLIMIT_new(); 
