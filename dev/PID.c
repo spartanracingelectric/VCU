@@ -75,7 +75,6 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     pid->proportional   = (sbyte2) pid->Kp * currentError;
     pid->integral       = (sbyte2) pid->Ki * (pid->totalError + currentError) / pid->dH ;
     pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH ;
-    pid->previousError  = currentError;
     /** Some pid implementations will increase totalError by "currentError * integral time" but we will not do this, and just add it instead,
      *  removing one mul/div per function call (its going to happen anyways in the integral component). Additionally, we could reduce lines
      *  by changing totalError prior to pid->integral calculations, but for - readability/understandability purposes - , we will take the 
@@ -102,6 +101,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
         */
         pid->totalError -= pid->previousError;
     }
+    pid->previousError  = currentError;
     // Divide by 10 is used to convert the error from deci-units to normal units (gain values are in deci-units)
     pid->output = pid->output / 10;
 }
