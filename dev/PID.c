@@ -81,7 +81,6 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
      *  by changing totalError prior to pid->integral calculations, but for - readability/understandability purposes - , we will take the 
      *  single additional clock cycle penalty associated with this lack of "optimization"
     */
-    pid->totalError    += (sbyte4)currentError;   
 
     // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional;
@@ -91,6 +90,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
         pid->antiWindupFlag = FALSE;
         pid->output += pid->integral;
         pid->output += pid->derivative;
+        pid->totalError    += (sbyte4)currentError;
     }
     else{
         pid->antiWindupFlag = TRUE;
@@ -100,7 +100,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
          *  If experiencing oscillations at saturation limits, I advise to try tuning the Ki gain value first before trying to use back-Calculation 
          *  (and if doing so, its likely best to write a whole new function, and a switch case between clamping & backCalcs, rather than amending the line below)
         */
-        // pid->totalError -= pid->integral;
+        pid->totalError -= pid->previousError;
     }
     // Divide by 10 is used to convert the error from deci-units to normal units (gain values are in deci-units)
     pid->output = pid->output / 10;
