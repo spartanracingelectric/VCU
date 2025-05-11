@@ -43,29 +43,35 @@ PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue) {
 
 /** SETTER FUNCTIONS  **/
 
-void PID_updateGainValues(PID* pid, sbyte2 Kp, sbyte2 Ki, sbyte2 Kd){
-    pid->Kp = Kp;
-    pid->Ki = Ki;
-    pid->Kd = Kd;
-}
+void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
+    switch(setting)
+    {
+        case Kp:
+        pid->Kp = input1;
 
-void PID_setTotalError(PID* pid, sbyte2 error){
-    pid->totalError = error;
-}
+        case Ki:
+        pid->Ki = input1;
 
-void PID_setSaturationPoint(PID *pid, sbyte2 saturationValue){
-    pid->saturationValue = saturationValue;
-}
+        case Kd:
+        pid->Kd = input1;
 
-void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
-    if(pid->saturationValue > setpoint)
-        pid->setpoint = setpoint;
-    else
-        pid->setpoint = pid->saturationValue;
-        
-    //this if statement exists for any uncapped pid that has no saturation point.
-    if(pid->saturationValue == 0)
-        pid->setpoint = setpoint;
+        case setpoint:
+            if(pid->saturationValue > input1)
+                pid->setpoint = input1;
+            else
+                pid->setpoint = pid->saturationValue;
+            
+            //this if statement exists for any uncapped pid that has no saturation point.
+            if(pid->saturationValue == 0)
+                pid->setpoint = input1;
+
+        case totalError:
+            pid->totalError = input1;
+        case saturationValue:
+            pid->saturationValue = input1;
+        case frequency:
+            pid->frequency = input1;
+    }
 }
 
 /** COMPUTATIONS **/

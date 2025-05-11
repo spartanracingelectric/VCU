@@ -94,7 +94,7 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         // Back calculating the hypothetical amount of error that may not belong based on kicking in and out of PL (if not in pl, but has a stored previous error value, does it belong?)
         if(me->plStatus == FALSE){
-            PID_setTotalError(me->pid, PID_getTotalError(me->pid)-PID_getPreviousError(me->pid));
+            PID_updateSettings(me->pid, totalError, PID_getTotalError(me->pid)-PID_getPreviousError(me->pid));
         }
         me->plStatus = TRUE;
 
@@ -130,7 +130,7 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
 
         //commandedTorque = (sbyte2)(MCM_getTorqueFeedback * 9549 / MCM_getMotorRPM(mcm) / 100);
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_updateSettings(me->pid, setpoint, pidSetpoint);
         PID_computeOutput(me->pid, commandedTorque);
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -202,7 +202,7 @@ sbyte2 POWERLIMIT_retrieveTorqueFromLUT(PowerLimit *me, sbyte4 voltage, sbyte4 r
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 21;
-    PID_setSaturationPoint(me->pid, 8000);
+    PID_updateSettings(PID* pid, saturationValue, 8000);
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
@@ -213,7 +213,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_updateSettings(me->pid, setpoint, pidSetpoint);
         PID_computeOutput(me->pid, commandedTorque);
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -224,7 +224,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
         MCM_update_PL_setTorqueCommand(mcm, -1);
         MCM_set_PL_updateStatus(mcm, me->plStatus);
     }
-    PID_setSaturationPoint(me->pid, 8000);
+    PID_updateSettings(PID* pid, saturationValue, 8000);
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
 
@@ -235,7 +235,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_updateSettings(me->pid, setpoint, pidSetpoint);
         PID_computeOutput(me->pid, commandedTorque);
         me->plTorqueCommand = ( commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
@@ -250,7 +250,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
 
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
         //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 3 for third pl method, 1 representing the pwoer target
-    PID_setSaturationPoint(me->pid, 8000);
+    PID_updateSettings(PID* pid, saturationValue, 8000);
     me->plMode = 31;
     if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
@@ -265,7 +265,7 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
 
         sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-        PID_updateSetpoint(me->pid, pidTargetValue);
+        PID_updateSettings(me->pid, setpoint, pidTargetValue);
         PID_computeOutput(me->pid, pidCurrentValue);
         me->plTorqueCommand = (sbyte2) ((sbyte4) commandedTorque + commandedTorque * PID_getOutput(me->pid) / pidCurrentValue) * 10; //deciNewton-meters
         if(me->plTorqueCommand > MCM_MAX_TORQUE_DNm)
