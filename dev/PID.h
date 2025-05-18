@@ -23,16 +23,19 @@ typedef struct _PID {
     sbyte2 totalError;
     ubyte1 dH;              // Time interval between PID updates in seconds (VCU tick speed)
     sbyte2 output;
-    sbyte2 proportional;    
-    sbyte2 integral;
-    sbyte2 derivative;
+    sbyte4 proportional;    
+    sbyte4 integral;
+    sbyte4 derivative;
     sbyte2 saturationValue;
     bool antiWindupFlag;
+    ubyte1 timer;           // Really bad way of confirming proper frequency of calculations
     ubyte1 frequency;       /** Overall rate of PID calculations ***
                             *   1 = 100 hz
                             *   2 = 50 hz
                             *   etc. ....
                             *   This controller is not designed to approximate frequencies that the VCU does not naturally refresh at.
+                            *   The current implementation does not protect the PID controller from a changes to VCU refresh rate. 
+                            *   If it were to drop to 5ms cycle time, the frequency setting of 1 would now be 200 hz.
                             */
 }PID;
 

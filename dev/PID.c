@@ -38,6 +38,8 @@ PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue) {
     pid->derivative    = 0;
     pid->saturationValue = saturationValue;
     pid->antiWindupFlag = FALSE;
+    pid->timer         = 1;
+
     return pid;
 }
 
@@ -75,37 +77,43 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
 }
 
 /** COMPUTATIONS **/
-
+// PID will compute at the chosen frequency. When function is called but not ready to calculate, pid->output will be set to NULL
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
-    sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = (sbyte2) pid->Kp * currentError;
-    pid->integral       = (sbyte2) pid->Ki * (pid->totalError + currentError) / pid->dH ;
-    pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH ;
+    if( pid->frequency % pid->timer == 0 ){
+        sbyte2 currentError = pid->setpoint - sensorValue;
+        pid->proportional   = (sbyte2) pid->Kp * currentError;
+        pid->integral       = (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH ;
+        pid->derivative     = (sbyte4) pid->Kd * (currentError - pid->previousError) * pid->dH ;
 
-    // At minimum, a P(ID) Controller will always use Proportional Control
-    pid->output = pid->proportional;
+        // At minimum, a P(ID) Controller will always use Proportional Control
+        pid->output = pid->proportional;
 
-    //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
-    if(pid->saturationValue > sensorValue){
-        pid->antiWindupFlag = FALSE;
-        pid->output += pid->integral;
-        pid->output += pid->derivative;
-        pid->totalError    += (sbyte4)currentError;
-        pid->previousError  = currentError;
+        //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
+        if(pid->saturationValue > sensorValue){
+            pid->antiWindupFlag = FALSE;
+            pid->output += pid->integral;
+            pid->output += pid->derivative;
+            pid->totalError    += (sbyte4)currentError;
+            pid->previousError  = currentError;
+        }
+        else{
+            pid->antiWindupFlag = TRUE;
+            /** Back Calculation here -> this is the old way of doing it with the previous "pid" method in LaunchControl.c of SR-15 main branch
+             *  Simulink recomends a "Kb" or separate tuning value for unwinding a controller, and to use either clamping or back-calculation
+             *  Both methods of anti-windup can be used simultaneously, but the complexity of using both will likely cause some unintendeed consequences.
+             *  If experiencing oscillations at saturation limits, I advise to try tuning the Ki gain value first before trying to use back-Calculation 
+             *  (and if doing so, its likely best to write a whole new function, and a switch case between clamping & backCalcs, rather than amending the line below)
+            */
+            pid->totalError -= pid->previousError;
+        }
+
+        // Divide by 10 is used to convert the error from deci-units to normal units (gain values are in deci-units)
+        pid->output = pid->output / 10;
+        pid->timer = 1;
     }
     else{
-        pid->antiWindupFlag = TRUE;
-        /** Back Calculation here -> this is the old way of doing it with the previous "pid" method in LaunchControl.c of SR-15 main branch
-         *  Simulink recomends a "Kb" or separate tuning value for unwinding a controller, and to use either clamping or back-calculation
-         *  Both methods of anti-windup can be used simultaneously, but the complexity of using both will likely cause some unintendeed consequences.
-         *  If experiencing oscillations at saturation limits, I advise to try tuning the Ki gain value first before trying to use back-Calculation 
-         *  (and if doing so, its likely best to write a whole new function, and a switch case between clamping & backCalcs, rather than amending the line below)
-        */
-        pid->totalError -= pid->previousError;
+        pid->output = NULL;
     }
-
-    // Divide by 10 is used to convert the error from deci-units to normal units (gain values are in deci-units)
-    pid->output = pid->output / 10;
 }
 
 /** GETTER FUNCTIONS **/
