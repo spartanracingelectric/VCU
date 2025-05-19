@@ -44,6 +44,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plAlwaysOn = TRUE;
     //LUT Corners
     me->vFloorRFloor = 0;
+    
     me->vFloorRCeiling = 0;
     me->vCeilingRFloor = 0;
     me->vCeilingRCeiling = 0;
