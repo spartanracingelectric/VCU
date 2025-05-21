@@ -23,11 +23,10 @@ PowerLimit* POWERLIMIT_new(){
     if (me == NULL)
         return NULL;
 
-    me->pid = PID_new(40, 20, 0, 231);
+    me->pid = PID_new(40, 2, 0, 231, 100);
     me->plMode = 0;
 
     me->cycle = FALSE;
-    me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
     me->plTargetPower = 80;
     me->plInitializationThreshold = me->plTargetPower - 20;
@@ -55,7 +54,7 @@ void POWERLIMIT_setModeParameters(PowerLimit* me){
     if(me->plTargetPower == 20)
         me->plMode = 5;
 
-    me->plInitializationThreshold = me->plTargetPower - 15;
+    me->plInitializationThreshold = me->plTargetPower - 20;
 }
 
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
@@ -74,9 +73,7 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     
     //if(rotary_button_input != plMode)
     //POWERLIMIT_setModeParameters(me);
-    me->cycle=!(me->cycle);
-    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold && me->cycle){
-        me->plStatus = TRUE;
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
 
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
@@ -85,40 +82,21 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
 
         sbyte2 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
 
-        PID_updateSetpoint(me->pid, pidSetpoint);
+        PID_updateSettings(me->pid, setpoint, pidSetpoint);
         PID_computeOutput(me->pid, MCM_getCommandedTorque(mcm));
 
         me->plTorqueCommand = MCM_getCommandedTorque(mcm) + me->pid->output;
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand * 10);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
+        MCM_set_PL_updateStatus(mcm, TRUE);
     }
     else {
-        me->plStatus = FALSE;
         MCM_update_PL_setTorqueCommand(mcm, -1);
-        MCM_set_PL_updateStatus(mcm, me->plStatus);
+        MCM_set_PL_updateStatus(mcm, FALSE);
     }
 }
 
 
 /** GETTER FUNCTIONS **/
-
-ubyte1 POWERLIMIT_getStatusCodeBlock(PowerLimit* me){
-    ubyte1 eightBits = 0x00;
-    //First Bit
-    if(me->plStatus)
-        eightBits | (1 << 7);
-    // 2nd through 4th bit
-    eightBits | (me->plMode << 4);
-    // 5th bit
-    eightBits | (PID_getAntiWindupFlag(me->pid) << 3);
-    // 6th bit and beyond
-    
-    return eightBits;
-}
-
-bool POWERLIMIT_getStatus(PowerLimit* me){
-    return me->plStatus;
-}
 
 ubyte1 POWERLIMIT_getMode(PowerLimit* me){
     return me->plMode;

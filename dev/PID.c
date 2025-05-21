@@ -17,7 +17,7 @@
  *  The author of this comment cannot imagine a currently viable use-case of this, 
  *  but nonetheless the option remains for those that choose to dabble in such magic
 */
-PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue) {
+PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue, ubyte2 scalar) {
     PID* pid = (PID*)malloc(sizeof(PID));
     /** malloc returns NULL if it fails to allocate memory. Ideally, this trips a flag & outputs on CAN, 
      *  but such a thing is beyond the current scope of this commit
@@ -39,7 +39,7 @@ PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue) {
     pid->saturationValue = saturationValue;
     pid->antiWindupFlag = FALSE;
     pid->timer         = 1;
-
+    pid->scalar        = scalar;
     return pid;
 }
 
@@ -69,10 +69,15 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
 
         case totalError:
             pid->totalError = input1;
+
         case saturationValue:
             pid->saturationValue = input1;
+
         case frequency:
             pid->frequency = input1;
+            
+        case scalar:
+            pid->scalar = input1;
     }
 }
 
@@ -81,18 +86,18 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     if( pid->frequency % pid->timer == 0 ){
         sbyte2 currentError = pid->setpoint - sensorValue;
-        pid->proportional   = (sbyte2) pid->Kp * currentError;
+        pid->proportional   = (sbyte4) pid->Kp * currentError;
         pid->integral       = (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH ;
         pid->derivative     = (sbyte4) pid->Kd * (currentError - pid->previousError) * pid->dH ;
 
         // At minimum, a P(ID) Controller will always use Proportional Control
-        pid->output = pid->proportional;
+        pid->output = (sbyte2) pid->proportional;
 
         //Check to see if motor is saturated at max torque request already, if so, clamp the output to the saturation value
         if(pid->saturationValue > sensorValue){
             pid->antiWindupFlag = FALSE;
-            pid->output += pid->integral;
-            pid->output += pid->derivative;
+            pid->output += (sbyte2) pid->integral;
+            pid->output += (sbyte2) pid->derivative;
             pid->totalError    += (sbyte4)currentError;
             pid->previousError  = currentError;
         }
@@ -108,30 +113,44 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
         }
 
         // Divide by 10 is used to convert the error from deci-units to normal units (gain values are in deci-units)
-        pid->output = pid->output / 10;
+        pid->output = pid->output / pid->scalar;
         pid->timer = 1;
     }
     else{
         pid->output = NULL;
+        ++pid->timer;
     }
 }
 
 /** GETTER FUNCTIONS **/
 
-sbyte2 PID_getKp(PID *pid){
-    return pid->Kp;
-}
+sbyte2 PID_getSettings(PID* pid, PID_Settings setting){
+    switch(setting)
+    {
+        case Kp:
+            return pid->Kp;
 
-sbyte2 PID_getKi(PID *pid){
-    return pid->Ki;
-}
+        case Ki:
+            return pid->Ki;
 
-sbyte2 PID_getKd(PID *pid){
-    return pid->Kd;
-}
+        case Kd:
+            return pid->Kd;
 
-sbyte2 PID_getSetpoint(PID *pid){
-    return pid->setpoint;
+        case setpoint:
+            return pid->setpoint;
+
+        case totalError:        // Does this belong?
+            return pid->totalError;
+
+        case saturationValue:
+            return pid->saturationValue;
+
+        case frequency:
+            return pid->frequency;
+
+        case scalar:
+            return pid->scalar;
+    }
 }
 
 sbyte2 PID_getPreviousError(PID *pid){
@@ -156,10 +175,6 @@ sbyte2 PID_getIntegral(PID *pid){
 
 sbyte2 PID_getDerivative(PID *pid){
     return pid->derivative;
-}
-
-sbyte2 PID_getSaturationValue(PID *pid){
-    return pid->saturationValue;
 }
 
 bool PID_getAntiWindupFlag(PID *pid){

@@ -736,10 +736,9 @@ sbyte2 MCM_commands_getTorqueLimit(MotorController *me)
 {
     return me->commands_torqueLimit;
 }
-ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController *me){
-    ubyte1 byte = ( MCM_commands_getInverter(me) == ENABLED ) ? 1 : 0;
-    byte = byte | ( (ubyte1) me->speedControl << 2 ); // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
-    return byte;
+ubyte1 MCM_commands_getInverterAndSpeedMode(MotorController *me)
+{
+    return (ubyte1) ( MCM_commands_getInverter(me) == ENABLED ? 1 : 0 ) | ( me->speedControl << 2 ); // OR masking 3rd bit (starting from 1) or 2nd bit (starting count from 0) to enter / exit Speed Mode via CAN
 }
 
 void MCM_updateLockoutStatus(MotorController *me, Status newState)
@@ -822,7 +821,7 @@ void MCM_set_PL_updateStatus(MotorController *me, bool newState)
 {
     me->plActive = newState;
 }
-bool MCM_get_PL_state(MotorController *me)
+bool MCM_get_PL_updateStatus(MotorController *me)
 {
     return me->plActive;
 }

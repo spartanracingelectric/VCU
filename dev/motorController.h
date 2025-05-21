@@ -97,6 +97,8 @@ bool MCM_get_LC_activeStatus(MotorController *me);
 
 void MCM_update_PL_setTorqueCommand(MotorController *me, sbyte2 torqueCommand);
 void MCM_set_PL_updateStatus(MotorController *me, bool newState);
+bool MCM_get_PL_updateStatus(MotorController *me);
+
 
 sbyte2 MCM_get_PL_torqueCommand(MotorController *me);
 sbyte4 MCM_getMotorRPM(MotorController *me);
