@@ -23,7 +23,8 @@ PowerLimit* POWERLIMIT_new(){
     if (me == NULL)
         return NULL;
 
-    me->pid = PID_new(40, 2, 0, 231, 100);
+    me->pid = PID_new(400, 2, 0, 231, 100);
+    PID_updateSettings(me->pid, frequency, 3);
     me->plMode = 0;
 
     me->cycle = FALSE;
@@ -86,6 +87,10 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         PID_computeOutput(me->pid, MCM_getCommandedTorque(mcm));
 
         me->plTorqueCommand = MCM_getCommandedTorque(mcm) + me->pid->output;
+        if(me->plTorqueCommand > 231){
+            me->pid->totalError -= (me->plTorqueCommand - 231) * me->pid->previousError / me->pid->output;
+            me->plTorqueCommand = 231; // Need to integrate this into PID.c/.h or redesign the whole system
+        }
         MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand * 10);
         MCM_set_PL_updateStatus(mcm, TRUE);
     }

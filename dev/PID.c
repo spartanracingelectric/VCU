@@ -17,7 +17,7 @@
  *  The author of this comment cannot imagine a currently viable use-case of this, 
  *  but nonetheless the option remains for those that choose to dabble in such magic
 */
-PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue, ubyte2 scalar) {
+PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue, sbyte2 scalar) {
     PID* pid = (PID*)malloc(sizeof(PID));
     /** malloc returns NULL if it fails to allocate memory. Ideally, this trips a flag & outputs on CAN, 
      *  but such a thing is beyond the current scope of this commit
@@ -38,6 +38,7 @@ PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue, ubyte2 sca
     pid->derivative    = 0;
     pid->saturationValue = saturationValue;
     pid->antiWindupFlag = FALSE;
+    pid->frequency     = 1;
     pid->timer         = 1;
     pid->scalar        = scalar;
     return pid;

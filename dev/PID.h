@@ -46,7 +46,7 @@ typedef struct _PID {
  * If using the PID with deci-newton meters, the maximum safe Kp value is 141 aka 14.1, in the event of a 
  * maximized currenterror (pid->setpoint - sensorValue = 2310)
  * */
-PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue);
+PID* PID_new(sbyte2 Kp, sbyte2 Ki, sbyte2 Kd, sbyte2 saturationValue, sbyte2 scalar);
 
 /** SETTER FUNCTIONS  **/
 void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1);
