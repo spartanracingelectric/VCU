@@ -69,7 +69,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 /** COMPUTATIONS **/
 
-void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
+void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps){
     
 
     // if (!me->plStatus) 
@@ -84,7 +84,7 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm){
     if (!me->plStatus && (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
         me->plStatus = TRUE;
     }
-    else if (!me->plAlwaysOn || MCM_commands_getAppsTorque(mcm) == 0){
+    else if (!me->plAlwaysOn || tps->travelPercent == 0){ //doesn't take output curve into account this currently hard coded
         me->plStatus = FALSE;
     }
 
@@ -108,10 +108,10 @@ if (me->plStatus){
     //     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
     //   }
 }
-
-
-MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
-MCM_set_PL_updateStatus(mcm, me->plStatus);
+else{
+    MCM_update_PL_setTorqueCommand(mcm, -1);
+    MCM_set_PL_updateStatus(mcm, me->plStatus);
+}
 }
 
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){

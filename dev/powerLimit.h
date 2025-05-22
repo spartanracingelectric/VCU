@@ -70,7 +70,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 void PowerLimit_setPLInitializationThreshold(PowerLimit* me);
 
 /** COMPUTATIONS **/
-
+void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps);
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm);
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 commandedTorque, ubyte1 clampingMethod);
