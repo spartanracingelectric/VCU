@@ -38,7 +38,6 @@ PowerLimit* POWERLIMIT_new(){
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
     me->plTargetPower = 20;// HERE IS WHERE YOU CHANGE POWERLIMIT
-    me->plKwLimit = 50; // this is lit never used, dont even touch this
     me->plInitializationThreshold = me->plTargetPower-5;
     me->clampingMethod = 1;
     //LUT Corners
