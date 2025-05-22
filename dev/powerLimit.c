@@ -87,7 +87,7 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEnc
         if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
             me->plStatus = TRUE;
         }
-        if (!me->plAlwaysOn && (MCM_getPower(mcm) / 1000) < me->plInitializationThreshold) {
+        if (!me->plAlwaysOn && ((MCM_getPower(mcm) / 1000) < me->plInitializationThreshold)) {
             me->plStatus = FALSE;
         }
     }
@@ -113,7 +113,7 @@ if (me->plStatus){
     //   }
 }
 else{
-    MCM_update_PL_setTorqueCommand(mcm, -1);
+    MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
     MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
 }
@@ -126,7 +126,7 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     /* Sensor inputs */
     sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
 
-    sbyte2 pidSetpoint = (sbyte2)((sbyte4)((me->plTargetPower-2) * 9549 / MCM_getMotorRPM(mcm)));
+    sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
 
     sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 

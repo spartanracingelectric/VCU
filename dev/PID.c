@@ -22,7 +22,7 @@ PID* PID_new(sbyte1 Kp, sbyte1 Ki, sbyte1 Kd, sbyte2 saturationValue, sbyte2 sca
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
-    pid->scalefactor=scalefactor;
+    pid->scalefactor = scalefactor;
     pid->setpoint      = 0; 
     pid->previousError = 0;
     pid->totalError    = 0;
@@ -68,7 +68,7 @@ void PID_updateSetpoint(PID *pid, sbyte2 setpoint) {
 void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
 
     sbyte2 currentError = pid->setpoint - sensorValue;
-    pid->proportional   = (sbyte2) pid->Kp * currentError / pid->scalefactor;
+    pid->proportional   = (sbyte2) ((pid->Kp * currentError) / pid->scalefactor);
     pid->integral       = (sbyte2) ( (sbyte4) pid->Ki * (pid->totalError + currentError) / pid->dH  /pid->scalefactor);
     pid->derivative     = (sbyte2) pid->Kd * (currentError - pid->previousError) * pid->dH  / pid->scalefactor;
     pid->previousError  = currentError;
