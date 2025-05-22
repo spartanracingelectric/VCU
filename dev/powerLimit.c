@@ -81,11 +81,15 @@ void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEnc
     // }
 
     PowerLimit_setPLInitializationThreshold(me);
-    if (!me->plStatus && (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
-        me->plStatus = TRUE;
-    }
-    else if (!me->plAlwaysOn || tps->travelPercent == 0){ //doesn't take output curve into account this currently hard coded
+    if (tps->travelPercent == 0) { // hardcoded value because it doesn't take into account the curve which is deactivated right now
         me->plStatus = FALSE;
+    } else {
+        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
+            me->plStatus = TRUE;
+        }
+        if (!me->plAlwaysOn && (MCM_getPower(mcm) / 1000) < me->plInitializationThreshold) {
+            me->plStatus = FALSE;
+        }
     }
 
 
