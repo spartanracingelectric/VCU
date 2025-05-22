@@ -186,3 +186,4 @@ ubyte1 POWERLIMIT_getTargetPower(PowerLimit* me){
 ubyte1 POWERLIMIT_getInitialisationThreshold(PowerLimit* me){
     return me->plInitializationThreshold;
 }
+
