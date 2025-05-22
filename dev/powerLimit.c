@@ -42,6 +42,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plInitializationThreshold = me->plTargetPower-5;
     me->clampingMethod = 1;
     //LUT Corners
+    
     me->vFloorRFloor = 0;
     me->vFloorRCeiling = 0;
     me->vCeilingRFloor = 0;
