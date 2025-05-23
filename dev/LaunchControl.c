@@ -26,6 +26,7 @@ LaunchControl *LaunchControl_new(){
     me->pidTorque = PID_new(200, 2, 0, 0, 100); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     me->pidSpeed =  PID_new(200, 2, 0, 0, 100); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     PID_updateSettings(me->pidTorque, setpoint, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
+    PID_updateSettings(me->pidTorque, frequency, 3);
     me->slipRatio = 0;
     me->lcTorqueCommand = NULL;
     me->lcSpeedCommand = NULL;

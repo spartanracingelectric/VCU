@@ -852,7 +852,11 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getSpeed(mcm);  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getSpeed(mcm) >> 8;  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Motor direction (0 = Reverse, 1 = Forward)
+    #ifdef LAUNCHCONTROL_ENABLE
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverterAndSpeedMode(MotorController *me);
+    #else
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
+    #endif
     canMessages[canMessageCount - 1].data[byteNum++] = (ubyte1)MCM_commands_getTorqueLimit(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getTorqueLimit(mcm) >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
@@ -899,8 +903,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = pl->pid->Ki >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->pid->frequency;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->versionControl;
     canMessages[canMessageCount - 1].length = byteNum;
 
  //514: Power Limit PID Information
@@ -914,8 +918,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 16;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getTotalError(pl->pid) >> 24;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
-    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->pid->previousError;
+    canMessages[canMessageCount - 1].data[byteNum++] = pl->pid->previousError >> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 #endif
 
