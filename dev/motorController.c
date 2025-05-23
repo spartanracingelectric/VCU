@@ -621,14 +621,14 @@ void MCM_commands_setDirection(MotorController *me, Direction newDirection)
     {
     case _0:
     case CLOCKWISE:
-    case REVERSE:
+    case FORWARD:
         me->updateCount += (me->commands_direction == 0) ? 0 : 1;
         me->commands_direction = 0;
         break;
 
     case _1:
     case COUNTERCLOCKWISE:
-    case FORWARD:
+    case REVERSE:
         me->updateCount += (me->commands_direction == 1) ? 0 : 1;
         me->commands_direction = 1;
         break;
