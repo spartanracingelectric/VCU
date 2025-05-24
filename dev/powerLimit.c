@@ -29,7 +29,7 @@ PowerLimit* POWERLIMIT_new(){
 
     me->cycle = FALSE;
     me->plTorqueCommand = 0; 
-    me->plTargetPower = 80;
+    me->plTargetPower = 50;
     me->plInitializationThreshold = me->plTargetPower - 20;
     return me;
 }
