@@ -853,7 +853,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getSpeed(mcm) >> 8;  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getDirection(mcm);  //Motor direction (For SR-16: 0 = Forward, 1 = Reverse)
     #ifdef LAUNCHCONTROL_ENABLE
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverterAndSpeedMode(me);
+    canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     #else
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     #endif
