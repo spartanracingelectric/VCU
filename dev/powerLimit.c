@@ -121,7 +121,7 @@ else{
 void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorController *mcm){
     //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 2 for second pl method, 1 representing the pwoer target
     me->plMode = 1;
-    PID_setSaturationPoint(me->pid, 8000);
+    PID_setSaturationPoint(me->pid, 231);
 
     /* Sensor inputs */
     sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
