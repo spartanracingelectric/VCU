@@ -45,6 +45,6 @@
     #endif
 
     #define POWERLIMIT_ENABLE
-    //#define LAUNCHCONTROL_ENABLE
+    #define LAUNCHCONTROL_ENABLE
 
 #endif /* GLOBAL_CONSTANTS_H */

@@ -853,7 +853,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getSpeed(mcm) >> 8;  //Speed (RPM?) - not needed - mcu should be in torque mode
     canMessages[canMessageCount - 1].data[byteNum++] = 0;  //Motor direction (0 = Reverse, 1 = Forward)
     #ifdef LAUNCHCONTROL_ENABLE
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverterAndSpeedMode(MotorController *me);
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverterAndSpeedMode(me);
     #else
     canMessages[canMessageCount - 1].data[byteNum++] = (MCM_commands_getInverter(mcm) == ENABLED) ? 1 : 0; //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     #endif
@@ -889,7 +889,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getDerivative(pl->pid);
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getDerivative(pl->pid) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = PID_getAntiWindupFlag(pl->pid);
-    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getStatusCodeBlock(pl);
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
  //513: Power Limit LUT Parameters

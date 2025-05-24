@@ -77,6 +77,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
 /** COMPUTATIONS **/
 
 void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm);
+void POWERLIMIT_endfix(PowerLimit* me, MotorController* mcm);
 
 /** GETTER FUNCTIONS **/
 

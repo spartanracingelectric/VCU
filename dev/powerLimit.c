@@ -81,9 +81,9 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
         sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
-        sbyte2 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
 
-        PID_updateSettings(me->pid, setpoint, pidSetpoint);
+        sbyte4 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+        PID_updateSettings(me->pid, setpoint, (sbyte2)pidSetpoint);
         PID_computeOutput(me->pid, MCM_getCommandedTorque(mcm));
 
         me->plTorqueCommand = MCM_getCommandedTorque(mcm) + me->pid->output;
@@ -100,7 +100,19 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     }
 }
 
+void POWERLIMIT_endfix(PowerLimit* me, MotorController* mcm){
+    if( ( MCM_getPower(mcm) / 1000 ) > me->plInitializationThreshold){
+        sbyte2 torqueRequest = MCM_commands_getTorque(mcm) / 10;
+        if( me->plTorqueCommand != torqueRequest )
+        {
+            me->pid->totalError -= (torqueRequest - me->plTorqueCommand) * me->pid->previousError / me->pid->output;
+        }
+        else
+        {
 
+        }
+    }
+}
 /** GETTER FUNCTIONS **/
 
 ubyte1 POWERLIMIT_getMode(PowerLimit* me){

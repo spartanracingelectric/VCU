@@ -436,6 +436,7 @@ void main(void)
           // PLMETHOD 3: LUT+TQPID
         #ifdef POWERLIMIT_ENABLE
         POWERLIMIT_calculateTorqueCommand(pl, mcm0);
+        POWERLIMIT_endfix(pl, mcm0);
         #endif
         MCM_calculateCommands(mcm0, tps, bps);
 
