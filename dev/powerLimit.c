@@ -102,16 +102,16 @@ if (me->plStatus){
     if(me->plMode==1){
         POWERLIMIT_calculateTorqueCommandTorqueEquation(me, mcm);
       }
-    //   else if (me->plMode==2){
-    //     POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
-    //   }
+      else if (me->plMode==2){
+        POWERLIMIT_calculateTorqueCommandPowerPID(me, mcm);
+      }
     //    else if (me->plMode==3){ // write the saftey checks for these make sure that if the lut is out of range it uses tq equation
     //     POWERLIMIT_calculateLUTCommand(me, mcm);
     //   }
     //    else if (me->plMode==4){
     //     POWERLIMIT_calculateTorqueCommandTQAndLUT(me, mcm, fieldWeakening);
     //   }
-}
+    }
 else{
     MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
     MCM_set_PL_updateStatus(mcm, me->plStatus);
@@ -136,6 +136,40 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
     MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
+
+void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *mcm){
+        //doing this should be illegal, but since pl mode is also going to be used for the equation version for right now, i feel fine about it. 3 for third pl method, 1 representing the pwoer target
+    PID_setSaturationPoint(me->pid, 8000);
+
+    /* Sensor inputs */
+    sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
+    sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
+    sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
+
+    sbyte4 pidTargetValue = (sbyte4)(POWERLIMIT_getTargetPower(me) * 1000); // W
+    sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10); // W
+
+    sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm); // Nm
+
+    POWERLIMIT_updatePIDController(me, pidTargetValue, pidCurrentValue, me->clampingMethod);
+
+
+    sbyte4 pidOutput = PID_getOutput(me->pid);
+    if (motorRPM == 0){
+        motorRPM = 1; //avoid division by 0
+    }
+    sbyte4 PLTQ = (pidOutput + pidCurrentValue) / (motorRPM * 9.549);
+
+    me->plTorqueCommand = PLTQ * 10; //convert to deci-Nm
+    if (me->plTorqueCommand > 2310)
+        me->plTorqueCommand = 2310;
+        
+        
+    MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
+    MCM_set_PL_updateStatus(mcm, me->plStatus);
+}
+
+
 
 void POWERLIMIT_updatePIDController(PowerLimit* me, sbyte2 pidSetpoint, sbyte2 sensorValue, ubyte1 clampingMethod) {
         sbyte2 currentError = PID_getSetpoint(me->pid) - sensorValue;
