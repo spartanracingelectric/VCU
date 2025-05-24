@@ -867,7 +867,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    canMessages[canMessageCount - 1].data[byteNum++] = MCM_get_PL_updateStatus(mcm);
+    canMessages[canMessageCount - 1].data[byteNum++] = MCM_get_PL_Status(mcm);
     canMessages[canMessageCount - 1].data[byteNum++] = pl->plMode;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->plTargetPower;
     canMessages[canMessageCount - 1].data[byteNum++] = pl->plInitializationThreshold;

@@ -91,21 +91,21 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
             me->pid->totalError -= (me->plTorqueCommand - 231) * me->pid->previousError / me->pid->output;
             me->plTorqueCommand = 231; // Need to integrate this into PID.c/.h or redesign the whole system
         }
-        MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand * 10);
-        MCM_set_PL_updateStatus(mcm, TRUE);
+        MCM_update_PL_TorqueCommand(mcm, me->plTorqueCommand * 10);
+        MCM_set_PL_Status(mcm, TRUE);
     }
     else {
-        MCM_update_PL_setTorqueCommand(mcm, -1);
-        MCM_set_PL_updateStatus(mcm, FALSE);
+        MCM_update_PL_TorqueCommand(mcm, -1);
+        MCM_set_PL_Status(mcm, FALSE);
     }
 }
 
 void POWERLIMIT_endfix(PowerLimit* me, MotorController* mcm){
-    if( ( MCM_getPower(mcm) / 1000 ) > me->plInitializationThreshold){
+    if( MCM_get_PL_Status(mcm) ){
         sbyte2 torqueRequest = MCM_commands_getTorque(mcm) / 10;
         if( me->plTorqueCommand != torqueRequest )
         {
-            me->pid->totalError -= (torqueRequest - me->plTorqueCommand) * me->pid->previousError / me->pid->output;
+            me->pid->totalError -= (me->plTorqueCommand - torqueRequest) * me->pid->previousError / me->pid->output;
         }
         else
         {
