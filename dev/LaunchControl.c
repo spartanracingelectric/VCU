@@ -23,7 +23,7 @@ LaunchControl *LaunchControl_new(){
     // malloc returns NULL if it fails to allocate memory
     if (me == NULL)
         return NULL;
-    me->pidTorque = PID_new(2, 0, 0, 0, 1); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(2, 0, 0, 0, 10); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     me->pidSpeed =  PID_new(200, 2, 0, 0, 100); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     PID_updateSettings(me->pidTorque, setpoint, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
@@ -58,7 +58,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(MCM_get_LC_activeStatus(mcm)){
-        if( MCM_getGroundSpeedKPH(mcm) < 12 * (1 + me->pidTorque->setpoint / 1000) ){
+        if( MCM_getGroundSpeedKPH(mcm) < 15 ){
             LaunchControl_initialTorqueCurve(me, mcm);
             me->initialCurve = TRUE;
         }
