@@ -49,27 +49,19 @@ LaunchControl *LaunchControl_new(){
 
 #ifdef LAUNCHCONTROL_ENABLE
 void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
-    if (WheelSpeeds_getWheelSpeed(me,FL) == 0){
-        me->slipRatio = ( WheelSpeeds_getWheelSpeed(me,FR) / WheelSpeeds_getFastestRear(wss) ) - 1;
-    }
-    else if (WheelSpeeds_getWheelSpeed(me,FR) == 0){
-        me->slipRatio = ( WheelSpeeds_getWheelSpeed(me,FL) / WheelSpeeds_getFastestRear(wss) ) - 1;
-    }
-    else{
-        me->slipRatio = ( WheelSpeeds_getSlowestFront(wss) / WheelSpeeds_getFastestRear(wss) ) - 1;
-        // me->slipRatio = ( WheelSpeeds_getSlowestFrontRPM(wss) / MCM_getMotorRPM(mcm) ) - 1;
-    }
-    
+    me->slipRatio = ( WheelSpeeds_getRearAverage(wss) / WheelSpeeds_getGroundSpeed(wss,0) ) - 1;
     if (me->slipRatio >= 1.0) { me->slipRatio = 1.0; }
-
     else if (me->slipRatio <= -1.0) { me->slipRatio = -1.0; }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(MCM_get_LC_activeStatus(mcm)){
-        if( MCM_getGroundSpeedKPH(mcm) < 3 ){ LaunchControl_initialTorqueCurve(me, mcm); }
-
+        if( MCM_getGroundSpeedKPH(mcm) < 12 ){
+            LaunchControl_initialTorqueCurve(me, mcm);
+            me->initialCurve = TRUE;
+        }
         else{
+            me->initialCurve = FALSE;
             me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
             me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval

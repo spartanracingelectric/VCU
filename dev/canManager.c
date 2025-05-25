@@ -745,7 +745,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
     canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->constantSpeedTestOverride; // Override Flag & disables Launch Normally for Testing
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialCurve; // Override Flag & disables Launch Normally for Testing
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 

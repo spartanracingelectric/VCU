@@ -174,6 +174,10 @@ float4 WheelSpeeds_getFastestRear(WheelSpeeds *me)
     return (me->speed_RL > me->speed_RR) ? me->speed_RL : me->speed_RR;
 }
 
+float4 WheelSpeeds_getRearAverage(WheelSpeeds *me)
+{
+    return (me->speed_RL + me->speed_RR) / 2;
+}
 
 float4 WheelSpeeds_getGroundSpeed(WheelSpeeds *me, ubyte1 tire_config)
 {
