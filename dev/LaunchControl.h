@@ -31,6 +31,7 @@ typedef struct _LaunchControl {
     sbyte2 overrideTestSpeedCommand;
     ubyte2 versionControl; //Time of change
     ubyte1 initialCurve;
+    ubyte1 overRequestFlag;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();

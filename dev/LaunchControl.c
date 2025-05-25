@@ -35,7 +35,7 @@ LaunchControl *LaunchControl_new(){
     me->buttonDebug = 0; // This exists as a holdover piece of code to what I presume is debugging which button was which on the steering wheel. should remove / place elsewhere
     me->safteyTimer = 0;
     me->initialCurve = FALSE;
-
+    me->overRequestFlag = FALSE;
     me->initialTorque = 100;
 
     me->versionControl = 0; //Time of change
@@ -71,6 +71,14 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         // Tune 
         if( MCM_getGroundSpeedKPH(mcm) == 30 ){ DRS_open(drs); }
         // Update launch control torque command in mcm struct
+        if(me->lcTorqueCommand > 231)
+        {
+            me->lcTorqueCommand = 231;
+            me->overRequestFlag = TRUE;
+        }
+        else{
+            me->overRequestFlag = FALSE;
+        }
         MCM_update_LC_torqueCommand(mcm, me->lcTorqueCommand * 10); // Move the mul by 10 to within MCM struct at some point
     }
 }
@@ -160,7 +168,7 @@ void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
     me->lcSpeedCommand = (sbyte2) 100 + ( MCM_getMotorRPM(mcm) * 10 ); // Tunable Values will be the inital Speed Request @ 0 and the scalar factor
 }
 
-ubyte1 LaunchControl_getStatus(LaunchControl *me){ return (ubyte1)(me->lcReady << 1 | me->lcActive | me->initialCurve << 2); }
+ubyte1 LaunchControl_getStatus(LaunchControl *me){ return (ubyte1)(me->lcReady << 1 | me->lcActive | me->initialCurve << 2 | me->overRequestFlag << 4); }
 
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){ return me->lcTorqueCommand; }
 
