@@ -397,7 +397,7 @@ BO_ 1297 VCU_Power_Limit_Overview: 8 mcm
  SG_ PL_Target_Power : 16|8@1+ (1,0) [0|255] "kW" VCU
  SG_ PL_Initialisation_Threshold : 24|8@1+ (1,0) [0|255] "kW" VCU
  SG_ Torque_Command : 32|16@1- (0.1,0) [-3276.8|3276.7] "Nm" VCU
- SG_ PID_Output : 48|16@1- (1,0) [-32768|32767] "Nm" VCU
+ SG_ PID_setpoint : 48|16@1- (1,0) [-32768|32767] "Nm" VCU
 
 BO_ 1298 VCU_Power_Limit_PID_Output_Details: 8 mcm
  SG_ PID_Proportional : 0|16@1+ (1,0) [-32768|32767] "" VCU
@@ -407,7 +407,7 @@ BO_ 1298 VCU_Power_Limit_PID_Output_Details: 8 mcm
  SG_ PL_ClampingMethod : 56|8@1+ (1,0) [0|1] "clamping method" VCU
 
 BO_ 1300 VCU_Power_Limit_PID_Information: 8 mcm
- SG_ PID_Setpoint : 0|16@1- (1,0) [-32768|32767] "Nm" VCU
+ SG_ PID_output : 0|16@1- (1,0) [-32768|32767] "Nm" VCU
  SG_ PID_TotalError : 16|32@1- (1,0) [-2147483648|2147483647] "PID totalError" VCU
  SG_ PID_Kp : 48|8@1+ (1,0) [0|250] "Gain Values" VCU
  SG_ PID_Ki : 56|8@1+ (1,0) [0|250] "Gain Values" VCU

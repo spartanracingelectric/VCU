@@ -125,13 +125,18 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     /* Sensor inputs */
     sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
 
-    sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
+    // maybe recalculate pidsetpoint
 
-    sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+    float setpoint = (me->plTargetPower - (2.0))* (9549.0/motorRPM);
+    sbyte2 pidSetpoint= (sbyte2)(setpoint);
+  //  sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
 
-    POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
+    //sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-    me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+   // POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
+    me->plTorqueCommand = pidSetpoint * 10; //deciNewton-meters
+
+   // me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
     MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
     MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
