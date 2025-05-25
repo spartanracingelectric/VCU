@@ -74,15 +74,14 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     
     //if(rotary_button_input != plMode)
     //POWERLIMIT_setModeParameters(me);
-    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold){
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold && MCM_commands_getAppsTorque(mcm) != 0){
 
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
         sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
-        sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
-        //sbyte4 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+        sbyte4 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
         if(pidSetpoint > 231)
         {
             pidSetpoint = 231;
