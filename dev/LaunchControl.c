@@ -36,7 +36,7 @@ LaunchControl *LaunchControl_new(){
     me->safteyTimer = 0;
     me->initialCurve = FALSE;
     me->overRequestFlag = FALSE;
-    me->initialTorque = 100;
+    me->initialTorque = 80;
 
     me->versionControl = 0; //Time of change
 
