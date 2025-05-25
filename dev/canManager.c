@@ -758,10 +758,10 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Kp >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->Ki >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
     canMessages[canMessageCount - 1].length = byteNum;
 
     #else

@@ -334,15 +334,20 @@ void MCM_calculateTorqueCommand(MotorController *me, TorqueEncoder *tps, BrakePr
     //bpsTorque = 0 - (me->regen_torqueLimitDNm - me->regen_torqueAtZeroPedalDNm) * getPercent(bps->percent, 0, me->regen_percentBPSForMaxRegen, TRUE);
     sbyte2 torqueOutput = appsTorque + bpsTorque;
 
-    if(me->launchControlActiveStatus && me->lcTorqueCommand < appsTorque && me->lcTorqueCommand != 0){
+    if(me->launchControlActiveStatus && me->lcTorqueCommand <= appsTorque && me->lcTorqueCommand > 0 && torqueOutput >= me->lcTorqueCommand){
         torqueOutput = me->lcTorqueCommand;
     }
+    else{
+        me->launchControlActiveStatus = FALSE;
+    }
+#ifdef POWERLIMIT_ENABLE
 
     if(me->plActive && me->plTorqueCommand < appsTorque){
         me->launchControlActiveStatus = FALSE;
         torqueOutput = me->plTorqueCommand + bpsTorque;
     }
-    
+
+#endif
     // Ready Status Overrides all other TPS / Torque Requests to allow driver to put throttle at 100% TPS without moving the car
     if(me->launchControlReadyStatus){
         torqueOutput = 0;

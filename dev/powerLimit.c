@@ -74,7 +74,7 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
     
     //if(rotary_button_input != plMode)
     //POWERLIMIT_setModeParameters(me);
-    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold && MCM_commands_getAppsTorque(mcm) != 0){
+    if( (MCM_getPower(mcm) / 1000) > me->plInitializationThreshold ){
 
         /* Sensor inputs */
         sbyte4 motorRPM   = MCM_getMotorRPM(mcm);
@@ -91,11 +91,12 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         PID_computeOutput(me->pid, MCM_getCommandedTorque(mcm));
 
         me->plTorqueCommand = ((sbyte2)MCM_getCommandedTorque(mcm) + me->pid->output) * 10;
-        if(me->plTorqueCommand > 2310){
+        /**
+            if(me->plTorqueCommand > 2310){
             me->pid->totalError -= (me->plTorqueCommand - 2310) * me->pid->previousError / me->pid->output;
             me->plTorqueCommand = 2310; // Need to integrate this into PID.c/.h or redesign the whole system
         }
-
+        */
         MCM_update_PL_TorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_Status(mcm, TRUE);
     }

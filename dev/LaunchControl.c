@@ -66,7 +66,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
-    if(me->lcActive){
+    if(MCM_get_LC_activeStatus(mcm)){
         if( MCM_getGroundSpeedKPH(mcm) < 3 ){ LaunchControl_initialTorqueCurve(me, mcm); }
 
         else{
