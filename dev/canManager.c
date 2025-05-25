@@ -924,6 +924,21 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     //canMessages[canMessageCount - 1].data[byteNum++] = pl->pid->frequency;
     //canMessages[canMessageCount - 1].data[byteNum++] = lc->versionControl;
     canMessages[canMessageCount - 1].length = byteNum;
+#else
+ //511: Power Limit Overview Hijacked
+ canMessageCount++;
+ byteNum = 0;
+ canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+ canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+ canMessages[canMessageCount - 1].data[byteNum++] = 0;
+ canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getStatus(lc);
+ canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverterAndSpeedMode(mcm);
+ canMessages[canMessageCount - 1].data[byteNum++] = MCM_commands_getInverter(mcm);
+ canMessages[canMessageCount - 1].data[byteNum++] = 0;
+ canMessages[canMessageCount - 1].data[byteNum++] = 0;
+ canMessages[canMessageCount - 1].data[byteNum++] = 0;
+ canMessages[canMessageCount - 1].data[byteNum++] = 0;
+ canMessages[canMessageCount - 1].length = byteNum;
 #endif
 
     //515: SAS (Steering Angle Sensor) and DRS

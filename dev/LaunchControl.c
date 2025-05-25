@@ -34,6 +34,7 @@ LaunchControl *LaunchControl_new(){
     me->lcActive = FALSE;
     me->buttonDebug = 0; // This exists as a holdover piece of code to what I presume is debugging which button was which on the steering wheel. should remove / place elsewhere
     me->safteyTimer = 0;
+    me->initialCurve = FALSE;
 
     me->initialTorque = 100;
 
@@ -50,19 +51,20 @@ LaunchControl *LaunchControl_new(){
 #ifdef LAUNCHCONTROL_ENABLE
 void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
     me->slipRatio = ( WheelSpeeds_getRearAverage(wss) / WheelSpeeds_getGroundSpeed(wss,0) ) - 1;
-    if (me->slipRatio >= 1.0) { me->slipRatio = 1.0; }
-    else if (me->slipRatio <= -1.0) { me->slipRatio = -1.0; }
+    if (me->slipRatio >= 1.0)   { me->slipRatio = 1.0; }
+    else 
+    if (me->slipRatio <= -1.0)  { me->slipRatio = -1.0; }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if(MCM_get_LC_activeStatus(mcm)){
-        if( MCM_getGroundSpeedKPH(mcm) < 12 ){
+        if( MCM_getGroundSpeedKPH(mcm) < 12 * (1 + me->pidTorque->setpoint / 1000) ){
             LaunchControl_initialTorqueCurve(me, mcm);
             me->initialCurve = TRUE;
         }
         else{
             me->initialCurve = FALSE;
-            me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 100);
+            me->slipRatioThreeDigits = (sbyte2) (me->slipRatio * 1000);
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
             me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         }
@@ -146,8 +148,8 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         me->safteyTimer = 0;
     }
     
-    MCM_update_LC_activeStatus(mcm, me->lcActive);
-    MCM_update_LC_readyStatus(mcm, me->lcReady);
+    MCM_update_LC_activeStatus(mcm, (bool)me->lcActive);
+    MCM_update_LC_readyStatus(mcm, (bool)me->lcReady);
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
@@ -158,7 +160,7 @@ void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
     me->lcSpeedCommand = (sbyte2) 100 + ( MCM_getMotorRPM(mcm) * 10 ); // Tunable Values will be the inital Speed Request @ 0 and the scalar factor
 }
 
-bool LaunchControl_getStatus(LaunchControl *me){ return (me->lcReady << 1 || me->lcActive); }
+ubyte1 LaunchControl_getStatus(LaunchControl *me){ return (ubyte1)(me->lcReady << 1 | me->lcActive | me->initialCurve << 2); }
 
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *me){ return me->lcTorqueCommand; }
 

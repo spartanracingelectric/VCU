@@ -20,17 +20,17 @@ typedef struct _LaunchControl {
 
     float4 slipRatio;
     sbyte2 slipRatioThreeDigits;
-    bool lcReady;
-    bool lcActive; // Just for CAN to showcase when enabled
+    ubyte1 lcReady;
+    ubyte1 lcActive; // Just for CAN to showcase when enabled
     ubyte1 buttonDebug;
     sbyte2 lcTorqueCommand;
     sbyte2 lcSpeedCommand;
     sbyte2 initialTorque;
     ubyte4 safteyTimer;
-    bool constantSpeedTestOverride; // flag for speed mode override
+    ubyte1 constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
     ubyte2 versionControl; //Time of change
-    bool initialCurve;
+    ubyte1 initialCurve;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();
@@ -38,7 +38,7 @@ LaunchControl *LaunchControl_new();
 void LaunchControl_calculateSlipRatio(LaunchControl *lc, MotorController *mcm, WheelSpeeds *wss);
 void LaunchControl_calculateTorqueCommand(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
 void LaunchControl_checkState(LaunchControl *lc, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs);
-bool LaunchControl_getStatus(LaunchControl *lc);
+ubyte1 LaunchControl_getStatus(LaunchControl *lc);
 sbyte2 LaunchControl_getTorqueCommand(LaunchControl *lc);
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm);
 void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm);

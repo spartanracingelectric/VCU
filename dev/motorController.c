@@ -294,7 +294,7 @@ void MCM_calculateCommands(MotorController *me, TorqueEncoder *tps, BrakePressur
     MCM_commands_setDirection(me, FORWARD); //1 = forwards for our car, 0 = reverse
 
     /*** SELECT CONTROL MODE: SPEED MODE VS TORQUE MODE ***/
-    //MCM_update_speedControlValidity(me,tps);
+    MCM_update_speedControlValidity(me,tps);
     // need to satisfy all 3 cases for speed Mode: pl NOT active, lc IS reporting as active*, and tps IS 100%    
     // *In the case of a constant speed test, lc reports to mcm as active without meeting normal lc active conditions
     /*
