@@ -304,7 +304,7 @@ void SafetyChecker_update(SafetyChecker *me, MotorController *mcm, BatteryManage
     if (bps->percent >=  BRAKES_APPS_THRESH && tpsAbove25Percent)
     {
         // Set the TPS/BPS implaisibility VCU fault
-        me->faults |= F_tpsbpsImplausible;
+        // me->faults |= F_tpsbpsImplausible;
         //SerialManager_send(me->serialMan, "TPS BPS implausiblity detected.\n");
     }
     else if (tps->travelPercent < .05) //TPS is reduced to < 5%
