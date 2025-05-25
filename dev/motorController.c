@@ -105,6 +105,7 @@ struct _MotorController
     sbyte2 commands_speed;
     sbyte2 commands_speedLimit;
     ubyte1 commands_direction;
+    bool overTorque;
     //unused/unused/unused/unused unused/unused/Discharge/Inverter Enable
     Status commands_discharge;
     Status commands_inverter;
@@ -660,7 +661,9 @@ void MCM_commands_setTorqueDNm(MotorController *me, sbyte2 newTorque)
     //Safety Check. torqueOutput Should never rise above maxTorqueDNm
     if(me->commands_torque > me->torqueMaximumDNm){
        me->commands_torque = 0;
+       me->overTorque = TRUE;
     }
+    me->overTorque = FALSE;
 }
 
 void MCM_commands_setSpeedRPM(MotorController *me,sbyte2 speedCommand)
@@ -749,6 +752,10 @@ void MCM_updateInverterStatus(MotorController *me, Status newState)
 {
     me->inverterStatus = newState;
 }
+bool MCM_get_overTorqueFlag(MotorController* me){
+    return me->overTorque;
+}
+
 //------------------------------Speed Control--------------------------------
 bool MCM_get_speedControlValidity(MotorController *me)
 {

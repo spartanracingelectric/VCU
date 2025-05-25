@@ -23,7 +23,7 @@ PowerLimit* POWERLIMIT_new(){
     if (me == NULL)
         return NULL;
 
-    me->pid = PID_new(400, 2, 0, 231, 100);
+    me->pid = PID_new(400, 0, 0, 231, 100);
     PID_updateSettings(me->pid, frequency, 3);
     me->plMode = 0;
 
@@ -81,17 +81,23 @@ void POWERLIMIT_calculateTorqueCommand(PowerLimit *me, MotorController *mcm){
         sbyte4 mcmVoltage = MCM_getDCVoltage(mcm);
         sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
+        sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
+        //sbyte4 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
+        if(pidSetpoint > 231)
+        {
+            pidSetpoint = 231;
+        }
 
-        sbyte4 pidSetpoint = (sbyte4)(me->plTargetPower * 9549 / MCM_getMotorRPM(mcm));
         PID_updateSettings(me->pid, setpoint, (sbyte2)pidSetpoint);
         PID_computeOutput(me->pid, MCM_getCommandedTorque(mcm));
 
-        me->plTorqueCommand = MCM_getCommandedTorque(mcm) + me->pid->output;
-        if(me->plTorqueCommand > 231){
-            me->pid->totalError -= (me->plTorqueCommand - 231) * me->pid->previousError / me->pid->output;
-            me->plTorqueCommand = 231; // Need to integrate this into PID.c/.h or redesign the whole system
+        me->plTorqueCommand = ((sbyte2)MCM_getCommandedTorque(mcm) + me->pid->output) * 10;
+        if(me->plTorqueCommand > 2310){
+            me->pid->totalError -= (me->plTorqueCommand - 2310) * me->pid->previousError / me->pid->output;
+            me->plTorqueCommand = 2310; // Need to integrate this into PID.c/.h or redesign the whole system
         }
-        MCM_update_PL_TorqueCommand(mcm, me->plTorqueCommand * 10);
+
+        MCM_update_PL_TorqueCommand(mcm, me->plTorqueCommand);
         MCM_set_PL_Status(mcm, TRUE);
     }
     else {
@@ -105,7 +111,7 @@ void POWERLIMIT_endfix(PowerLimit* me, MotorController* mcm){
         sbyte2 torqueRequest = MCM_commands_getTorque(mcm) / 10;
         if( me->plTorqueCommand != torqueRequest )
         {
-            me->pid->totalError -= (me->plTorqueCommand - torqueRequest) * me->pid->previousError / me->pid->output;
+            me->pid->totalError -= (me->plTorqueCommand - torqueRequest) * me->pid->previousError / me->pid->output; //linked with line 92, what happens if we have a total subteactoin greater than our previous error?
         }
         else
         {

@@ -84,6 +84,7 @@ Status MCM_getInverterStatus(MotorController* me);
 
 ubyte1 MCM_get_speedControlValidity(MotorController *me);
 void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps);
+bool MCM_get_overTorqueFlag(MotorController* me);
 
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand);
 sbyte2 MCM_get_LC_torqueCommand(MotorController *me);
