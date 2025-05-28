@@ -39,7 +39,7 @@ PowerLimit* POWERLIMIT_new(){
     me->plTargetPower = 30;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plThresholdDiscrepancy = 15;
     me->plInitializationThreshold = 0;
-    me->clampingMethod = 1;
+    me->clampingMethod = 3;
     me->plAlwaysOn = TRUE;
     //LUT Corners
     me->vFloorRFloor = 0;
