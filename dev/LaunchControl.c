@@ -102,7 +102,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         {
             me->initialCurve = FALSE;
             me->slipRatioThreeDigits = (me->slipRatio * 1000);
-            me->slipRatioThreeDigits = Sensor_WSS_RR.sensorValue *1000 / Sensor_WSS_FR.sensorValue;
+            // me->slipRatioThreeDigits = Sensor_WSS_RR.sensorValue *1000 / Sensor_WSS_FR.sensorValue;
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
             me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         }
