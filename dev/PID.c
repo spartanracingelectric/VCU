@@ -51,12 +51,15 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
     {
         case Kp:
         pid->Kp = input1;
+        break;
 
         case Ki:
         pid->Ki = input1;
+        break;
 
         case Kd:
         pid->Kd = input1;
+        break;
 
         case setpoint:
             if(pid->saturationValue > input1)
@@ -67,18 +70,23 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1){
             //this if statement exists for any uncapped pid that has no saturation point.
             if(pid->saturationValue == 0)
                 pid->setpoint = input1;
+        break;
 
         case totalError:
             pid->totalError = input1;
+        break;
 
         case saturationValue:
             pid->saturationValue = input1;
+        break;
 
         case frequency:
             pid->frequency = input1;
-            
+        break;
+
         case scalar:
             pid->scalar = input1;
+        break;
     }
 }
 
@@ -140,8 +148,8 @@ sbyte2 PID_getSettings(PID* pid, PID_Settings setting){
         case setpoint:
             return pid->setpoint;
 
-        case totalError:        // Does this belong?
-            return pid->totalError;
+        // case totalError:        // Does this belong?
+            //return pid->totalError;
 
         case saturationValue:
             return pid->saturationValue;
@@ -152,6 +160,7 @@ sbyte2 PID_getSettings(PID* pid, PID_Settings setting){
         case scalar:
             return pid->scalar;
     }
+    return NULL;
 }
 
 sbyte2 PID_getPreviousError(PID *pid){
