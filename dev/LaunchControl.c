@@ -158,17 +158,17 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     if(Sensor_LCButton.sensorValue == TRUE && speedKph < 1) {
         me->lcReady = TRUE;
         DRS_close(drs);
-        /*
+        
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
             DRS_open(drs);
         }
-        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 300000) {
+        else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 30000) {
             me->lcReady = TRUE;
             DRS_close(drs);
             me->safteyTimer = 0; // We don't need to track the timer anymore
         }
-        */
+        
         
     }
 
