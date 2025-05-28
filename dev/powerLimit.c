@@ -28,7 +28,7 @@
 // #define ELIMINATE_CAN_MESSAGES
 PowerLimit* POWERLIMIT_new(){
     PowerLimit* me = (PowerLimit*)malloc(sizeof(PowerLimit));
-    me->pid = PID_new(1, 0, 0, 231,1); // last value tells you gain value factor
+    me->pid = PID_new(15, 0, 0, 231,10); // last value tells you gain value factor
     me->plMode = 1;    // each number corresponds to a different method
     //1.TQ equation only
     //2.PowerPID only 
@@ -130,12 +130,12 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     sbyte2 pidSetpoint= (sbyte2)(setpoint);
   //  sbyte2 pidSetpoint = (me->plTargetPower - (sbyte1)(2)) * (9549.0/motorRPM); //DONT FUCKING TOUCH THIS LINE, please
 
-    //sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
+    sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
-   // POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
-    me->plTorqueCommand = pidSetpoint * 10; //deciNewton-meters
+   POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
+//me->plTorqueCommand = pidSetpoint * 10; //deciNewton-meters
 
-   // me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
+    me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
     MCM_update_PL_setTorqueCommand(mcm, me->plTorqueCommand);
     MCM_set_PL_updateStatus(mcm, me->plStatus);
 }
