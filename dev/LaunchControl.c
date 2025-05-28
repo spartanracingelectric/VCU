@@ -48,7 +48,7 @@ LaunchControl *LaunchControl_new(){
         return NULL;
 
     //Torque Mode Settings for LC
-    me->pidTorque = PID_new(1, 0, 0, 0, 1); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(2, 0, 0, 0, 1); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     PID_updateSettings(me->pidTorque, setpoint, 50); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
@@ -101,7 +101,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         else
         {
             me->initialCurve = FALSE;
-            me->slipRatioThreeDigits = (me->slipRatio * 1000);
+            me->slipRatioThreeDigits = (me->slipRatio * 1000.0);
             // me->slipRatioThreeDigits = Sensor_WSS_RR.sensorValue *1000 / Sensor_WSS_FR.sensorValue;
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
             me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
