@@ -30,6 +30,15 @@ static const ubyte1 LC_constantSpeedOverride = 0x20;
 static const ubyte1 LC_belowSlipTarget = 0x40;
 static const ubyte1 LC_aboveSlipTarget = 0x80;
 
+//Initial Torque Setpoints
+static const sbyte2 PnR_noAero = 30;
+static const sbyte2 Crows_15Aero = 100;
+
+
+//Preset Torque Curves
+// PnR MCM_getMotorRPM(mcm) / 3
+// Crows MCM_getMotorRPM(mcm)
+
 LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     // malloc returns NULL if it fails to allocate memory
@@ -41,7 +50,7 @@ LaunchControl *LaunchControl_new(){
     PID_updateSettings(me->pidTorque, setpoint, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
-    me->initialTorque = 80;
+    me->initialTorque = PnR_noAero;
 
     //Slip Ratio
     me->slipRatio = 0;
