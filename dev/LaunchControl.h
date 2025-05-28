@@ -15,23 +15,27 @@
 #include "IO_Driver.h" //Includes datatypes, constants, etc - should be included in every c file
 typedef struct _LaunchControl {
     PID *pidTorque;
-    PID *pidSpeed;
-
+    sbyte2 lcTorqueCommand;
+    sbyte2 initialTorque;
 
     float4 slipRatio;
     sbyte2 slipRatioThreeDigits;
-    ubyte1 lcReady;
-    ubyte1 lcActive; // Just for CAN to showcase when enabled
-    ubyte1 buttonDebug;
-    sbyte2 lcTorqueCommand;
-    sbyte2 lcSpeedCommand;
-    sbyte2 initialTorque;
+
     ubyte4 safteyTimer;
+    ubyte1 lcReady;
+    ubyte1 lcActive;
+    ubyte1 initialCurve;
+    ubyte1 overTorque;
+    ubyte1 flags;
+
+
+    PID *pidSpeed;
+    sbyte2 lcSpeedCommand;
+
     ubyte1 constantSpeedTestOverride; // flag for speed mode override
     sbyte2 overrideTestSpeedCommand;
-    ubyte2 versionControl; //Time of change
-    ubyte1 initialCurve;
-    ubyte1 overRequestFlag;
+
+    ubyte1 buttonDebug;
 } LaunchControl;
 
 LaunchControl *LaunchControl_new();

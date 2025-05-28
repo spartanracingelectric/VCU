@@ -739,27 +739,27 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->lcReady;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->lcActive;
+    canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getStatus(lc);
     canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc);
     canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc) >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio;
-    canMessages[canMessageCount - 1].data[byteNum++] = (sbyte2)lc->slipRatio >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialCurve; // Override Flag & disables Launch Normally for Testing
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50C: Launch Control Additional Information
+    //50C: SAS (Steering Angle Sensor) and DRS
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
-    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque >> 8;
+    canMessages[canMessageCount - 1].id_format = 0x515;
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees();
+    canMessages[canMessageCount - 1].data[byteNum++] = steering_degrees() >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->buttonPressed;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->currentDRSMode;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlapOpen;
+    canMessages[canMessageCount - 1].data[byteNum++] = drs->AutoDRSActive;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
     canMessages[canMessageCount - 1].length = byteNum;
