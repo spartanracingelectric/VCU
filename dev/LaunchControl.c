@@ -31,7 +31,7 @@ static const ubyte1 LC_belowSlipTarget = 0x40;
 static const ubyte1 LC_aboveSlipTarget = 0x80;
 
 //Initial Torque Setpoints
-static const sbyte2 PnR_noAero = 70;
+static const sbyte2 PnR_noAero = 65;
 static const sbyte2 Crows_15Aero = 100;
 
 
@@ -200,7 +200,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
-    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) / 2 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) / 3 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 
 void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
