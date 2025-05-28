@@ -761,7 +761,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = drs->drsFlapOpen;
     canMessages[canMessageCount - 1].data[byteNum++] = drs->AutoDRSActive;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->output>> 8;
     canMessages[canMessageCount - 1].length = byteNum;
 
     #else
