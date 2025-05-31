@@ -85,13 +85,13 @@ LaunchControl *LaunchControl_new(){
 #ifdef LAUNCHCONTROL_ENABLE
 void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
     me->slipRatio = ( WheelSpeeds_getRearAverage(wss) / WheelSpeeds_getGroundSpeed(wss,0) ) - 1;
-    if (me->slipRatio >= 1.0)   { me->slipRatio = 1.0; }
+    if ( me->slipRatio >= 1.0 )   { me->slipRatio = 1.0; }
     else 
-    if (me->slipRatio <= -1.0)  { me->slipRatio = -1.0; }
+    if ( me->slipRatio <= -1.0 )  { me->slipRatio = -1.0; }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
-    if(MCM_get_LC_activeStatus(mcm))
+    if( MCM_get_LC_activeStatus(mcm) )
     {
         if( MCM_getGroundSpeedKPH(mcm) < 3 )
         {
@@ -104,7 +104,7 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
             me->slipRatioThreeDigits = (me->slipRatio * 1000.0);
             // me->slipRatioThreeDigits = Sensor_WSS_RR.sensorValue *1000 / Sensor_WSS_FR.sensorValue;
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
-            me->lcTorqueCommand = (sbyte2)MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
+            me->lcTorqueCommand = (sbyte2) MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         }
 
         // Tune 
@@ -116,10 +116,8 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
             me->lcTorqueCommand = 231;
             me->overTorque = TRUE;
         }
-        else{
-            me->overTorque = FALSE;
-        }
-        MCM_update_LC_torqueCommand(mcm, me->lcTorqueCommand * 10); // Move the mul by 10 to within MCM struct at some point
+        else { me->overTorque = FALSE; }
+        MCM_update_LC_torqueCommand(mcm, me->lcTorqueCommand);
     }
 }
 
@@ -173,24 +171,24 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
         
         if (me->safteyTimer == 0){
             IO_RTC_StartTime(&me->safteyTimer);
-            DRS_open(drs);
+            DRS_open(drs); // Visual Indicator of LC staging
         }
         else if (IO_RTC_GetTimeUS(me->safteyTimer) >= 50000) {
             me->lcReady = TRUE;
-            DRS_close(drs);
-            me->safteyTimer = 0; // We don't need to track the timer anymore
+            DRS_close(drs); // Visual Indicator of LC staging
+            me->safteyTimer = 0; // We don't need to track the time anymore
         }
         
         
     }
 
-    else if(me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE){
-        PID_updateSettings(me->pidTorque, totalError, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
+    else if( me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE ){
+        //PID_updateSettings(me->pidTorque, totalError, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
         me->lcActive = TRUE;
         me->lcReady = FALSE;
     }
 
-    if(tps->tps0_percent < 0.90 || tps->tps0_percent < 0.90 || bps->percent > 0.05 /* || steeringAngle > 35 || steeringAngle < -35 */){
+    if( tps->tps0_percent < 0.90 || tps->tps0_percent < 0.90 || bps->percent > 0.05 /* || steeringAngle > 35 || steeringAngle < -35 */ ){
         me->lcActive = FALSE;
         me->lcTorqueCommand = NULL;
         me->safteyTimer = 0;
