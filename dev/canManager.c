@@ -744,8 +744,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = LaunchControl_getTorqueCommand(lc) >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque;
     canMessages[canMessageCount - 1].data[byteNum++] = lc->initialTorque >> 8;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint;
-    canMessages[canMessageCount - 1].data[byteNum++] = lc->pidTorque->setpoint >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits;
+    canMessages[canMessageCount - 1].data[byteNum++] = lc->slipRatioThreeDigits >> 8;
     canMessages[canMessageCount - 1].data[byteNum++] = Sensor_LCButton.sensorValue;
     canMessages[canMessageCount - 1].length = byteNum;
 
