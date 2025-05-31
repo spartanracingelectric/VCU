@@ -33,11 +33,13 @@ static const ubyte1 LC_aboveSlipTarget = 0x80;
 //Initial Torque Setpoints
 static const sbyte2 PnR_noAero = 65;
 static const sbyte2 Crows_15Aero = 100;
+static const sbyte2 Crows_16 = 120;
+static const sbyte2 Crows_16_2ndPass = 120;
 
 
 //Preset Torque Curves
 // PnR MCM_getMotorRPM(mcm) / 3
-// Crows MCM_getMotorRPM(mcm)
+// Crows MCM_getMotorRPM(mcm) / 4
 
 // Slip Targets
 // PnR -> ???
@@ -52,7 +54,7 @@ LaunchControl *LaunchControl_new(){
     PID_updateSettings(me->pidTorque, setpoint, 50); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
-    me->initialTorque = PnR_noAero;
+    me->initialTorque = Crows_16;
 
     //Slip Ratio
     me->slipRatio = 0;
@@ -88,6 +90,16 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
     if ( me->slipRatio >= 1.0 )   { me->slipRatio = 1.0; }
     else 
     if ( me->slipRatio <= -1.0 )  { me->slipRatio = -1.0; }
+
+    //me->slipRatioThreeDigits = (me->slipRatio * 1000.0F);
+    if(Sensor_WSS_FR.sensorValue == 0)
+    {
+        me->slipRatioThreeDigits = (ubyte4) Sensor_WSS_RR.sensorValue * 1000 / 1;
+    }
+    else
+    {
+        me->slipRatioThreeDigits = (ubyte4) Sensor_WSS_RR.sensorValue * 1000 / Sensor_WSS_FR.sensorValue;
+    }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
@@ -101,8 +113,6 @@ void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps,
         else
         {
             me->initialCurve = FALSE;
-            //me->slipRatioThreeDigits = (me->slipRatio * 1000.0);
-            me->slipRatioThreeDigits = (ubyte4) Sensor_WSS_RR.sensorValue *1000 / (Sensor_WSS_FR.sensorValue +1);
             PID_computeOutput(me->pidTorque, me->slipRatioThreeDigits);
             me->lcTorqueCommand = (sbyte2) MCM_getCommandedTorque(mcm) + PID_getOutput(me->pidTorque); // adds the adjusted value from the pid to the torqueval
         }
