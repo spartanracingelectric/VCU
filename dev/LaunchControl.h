@@ -19,7 +19,7 @@ typedef struct _LaunchControl {
     sbyte2 initialTorque;
 
     float4 slipRatio;
-    sbyte2 slipRatioThreeDigits;
+    ubyte2 slipRatioThreeDigits;
 
     ubyte4 safteyTimer;
     ubyte1 lcReady;

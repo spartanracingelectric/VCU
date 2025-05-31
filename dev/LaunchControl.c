@@ -92,13 +92,17 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
     if ( me->slipRatio <= -1.0 )  { me->slipRatio = -1.0; }
 
     //me->slipRatioThreeDigits = (me->slipRatio * 1000.0F);
-    if(Sensor_WSS_FR.sensorValue == 0)
+    if( (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5) == 0 )
     {
-        me->slipRatioThreeDigits = (ubyte4) Sensor_WSS_RR.sensorValue * 1000 / 1;
-    }
+        ubyte2 RearR = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
+        ubyte4 calcs = (RearR * 1000);
+        me->slipRatioThreeDigits = (ubyte2) calcs;    }
     else
     {
-        me->slipRatioThreeDigits = (ubyte4) Sensor_WSS_RR.sensorValue * 1000 / Sensor_WSS_FR.sensorValue;
+        ubyte2 RearR = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
+        ubyte2 FrontL = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5);
+        ubyte4 calcs = (RearR * 1000) / FrontL;
+        me->slipRatioThreeDigits = (ubyte2) calcs;
     }
 }
 
