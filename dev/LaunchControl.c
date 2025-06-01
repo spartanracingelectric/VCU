@@ -33,7 +33,7 @@ static const ubyte1 LC_aboveSlipTarget = 0x80;
 //Initial Torque Setpoints
 static const sbyte2 PnR_noAero = 65;
 static const sbyte2 Crows_15Aero = 100;
-static const sbyte2 Crows_16 = 40;
+static const sbyte2 Crows_16 = 80;
 static const sbyte2 Crows_16_2ndPass = 120;
 
 
@@ -109,7 +109,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if( MCM_get_LC_activeStatus(mcm) )
     {
-        if( MCM_getGroundSpeedKPH(mcm) < 7 )
+        if( MCM_getGroundSpeedKPH(mcm) < 6 )
         {
             me->initialCurve = TRUE;
             LaunchControl_initialTorqueCurve(me, mcm);
@@ -213,7 +213,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
-    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) * 3 / 10 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) * 4 / 10 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 
 void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
