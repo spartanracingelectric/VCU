@@ -780,10 +780,13 @@ void MCM_update_speedControlValidity(MotorController *me, TorqueEncoder *tps)
         me->speedControl = FALSE; 
     }
 }
+
 //------------------------------Launch Control--------------------------------
+
+/** Converts Nm input to DNm in MCM struct */
 void MCM_update_LC_torqueCommand(MotorController *me, sbyte2 lcTorqueCommand)
 {
-    me->lcTorqueCommand = lcTorqueCommand;
+    me->lcTorqueCommand = lcTorqueCommand * 10;
 }
 
 sbyte2 MCM_get_LC_torqueCommand(MotorController *me)
