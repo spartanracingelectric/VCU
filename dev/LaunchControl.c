@@ -33,7 +33,7 @@ static const ubyte1 LC_aboveSlipTarget = 0x80;
 //Initial Torque Setpoints
 static const sbyte2 PnR_noAero = 65;
 static const sbyte2 Crows_15Aero = 100;
-static const sbyte2 Crows_16 = 120;
+static const sbyte2 Crows_16 = 40;
 static const sbyte2 Crows_16_2ndPass = 120;
 
 
@@ -50,8 +50,8 @@ LaunchControl *LaunchControl_new(){
         return NULL;
 
     //Torque Mode Settings for LC
-    me->pidTorque = PID_new(2, 0, 0, 0, 1); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
-    PID_updateSettings(me->pidTorque, setpoint, 50); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
+    me->pidTorque = PID_new(2, 0, 0, 0, 10); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    PID_updateSettings(me->pidTorque, setpoint, 250); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
     me->initialTorque = Crows_16;
@@ -109,7 +109,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
     if( MCM_get_LC_activeStatus(mcm) )
     {
-        if( MCM_getGroundSpeedKPH(mcm) < 3 )
+        if( MCM_getGroundSpeedKPH(mcm) < 5 )
         {
             me->initialCurve = TRUE;
             LaunchControl_initialTorqueCurve(me, mcm);
@@ -213,7 +213,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
-    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) / 2 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) / 4 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 
 void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
