@@ -50,7 +50,7 @@ LaunchControl *LaunchControl_new(){
         return NULL;
 
     //Torque Mode Settings for LC
-    me->pidTorque = PID_new(10, 1, 0, 0, 10); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(20, 1, 0, 0, 1000); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
     PID_updateSettings(me->pidTorque, setpoint, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
@@ -197,7 +197,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
     }
 
     else if( me->lcReady == TRUE && Sensor_LCButton.sensorValue == FALSE ){
-        //PID_updateSettings(me->pidTorque, totalError, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
+        PID_updateSettings(me->pidTorque, totalError, 170); // Error should be set here, so for every launch we reset our error to this value (check if this is the best value)
         me->lcActive = TRUE;
         me->lcReady = FALSE;
     }
@@ -213,7 +213,7 @@ void LaunchControl_checkState(LaunchControl *me, TorqueEncoder *tps, BrakePressu
 }
 
 void LaunchControl_initialTorqueCurve(LaunchControl* me, MotorController* mcm){
-    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) * 3 / 10 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
+    me->lcTorqueCommand = (sbyte2) me->initialTorque + ( MCM_getMotorRPM(mcm) * 4 / 10 ); // Tunable Values will be the inital Torque Request @ 0 and the scalar factor
 }
 
 void LaunchControl_initialRPMCurve(LaunchControl* me, MotorController* mcm){
