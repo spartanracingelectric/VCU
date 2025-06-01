@@ -33,7 +33,7 @@ static const ubyte1 LC_aboveSlipTarget = 0x80;
 //Initial Torque Setpoints
 static const sbyte2 PnR_noAero = 65;
 static const sbyte2 Crows_15Aero = 100;
-static const sbyte2 Crows_16 = 100;
+static const sbyte2 Crows_16 = 120;
 static const sbyte2 Crows_16_2ndPass = 120;
 
 
@@ -51,7 +51,7 @@ LaunchControl *LaunchControl_new(){
 
     //Torque Mode Settings for LC
     me->pidTorque = PID_new(20, 1, 0, 0, 1000); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
-    PID_updateSettings(me->pidTorque, setpoint, 200); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
+    PID_updateSettings(me->pidTorque, setpoint, 400); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
     me->initialTorque = Crows_16;
