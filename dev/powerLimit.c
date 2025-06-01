@@ -133,6 +133,9 @@ void POWERLIMIT_calculateTorqueCommandTorqueEquation(PowerLimit *me, MotorContro
     sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm);
 
    POWERLIMIT_updatePIDController(me, pidSetpoint, commandedTorque, me->clampingMethod);
+   if (pidSetpoint>231){
+        pidSetpoint = 231; //saturation point
+    }
     me->plTorqueCommand = pidSetpoint * 10; //deciNewton-meters
 
    // me->plTorqueCommand = (commandedTorque + PID_getOutput(me->pid) ) * 10; //deciNewton-meters
