@@ -70,26 +70,25 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps){
     
 
-    // if (!me->plStatus) 
-    // {
-    //     if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
-    //         me->plStatus = TRUE;
-    //         me->clampingMethod = 3;
-    //     }
-    // }
-
     PowerLimit_setPLInitializationThreshold(me);
-    if (MCM_commands_getAppsTorque(mcm) == 0) { // hardcoded value because it doesn't take into account the curve which is deactivated right now
+
+    if (MCM_commands_getAppsTorque(mcm) == 0) { // if no torque command, turn off PL
         me->plStatus = FALSE;
-    } else {
-        if ((MCM_getPower(mcm) / 1000) > me->plInitializationThreshold) {
-            me->plStatus = TRUE;
-        }
-        if (!me->plAlwaysOn && ((MCM_getPower(mcm) / 1000) < me->plInitializationThreshold)) {
-            me->plStatus = FALSE;
+    }
+    else {
+        sbyte4 current_power_kw = MCM_getPower(mcm) / 1000;
+        if (!me->plAlwaysOn) { // if PL is not always on, only turn on if power is above threshold and off if below
+            if (current_power_kw > me->plInitializationThreshold) {
+                me->plStatus = TRUE;
+            } else {
+                me->plStatus = FALSE;
+            }
+        } else { // if PL is always on, only turn on if power is above threshold and never turn off
+            if (!me->plStatus && current_power_kw > me->plInitializationThreshold) {
+                me->plStatus = TRUE;
+            }
         }
     }
-
 
   
 //1.TQ equation only
