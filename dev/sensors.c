@@ -222,3 +222,57 @@ void Light_set(Light light, float4 percent)
 * Revision history:
 * 2015-11-16 - Rusty Pedrosa -
 *****************************************************************************/
+
+RotaryPosition getRotaryPosition(Sensor* sensor) {
+    float voltage = sensor->sensorValue;
+    
+    if (voltage > 4.0) return ROTARY_POS_1;
+    if (voltage > 3.3) return ROTARY_POS_2;
+    if (voltage > 2.6) return ROTARY_POS_3;
+    if (voltage > 1.9) return ROTARY_POS_4;
+    if (voltage > 1.2) return ROTARY_POS_5;
+    if (voltage > 0.5) return ROTARY_POS_6;
+    return ROTARY_POS_0;
+}
+
+DRSMode getDRSMode(Sensor* sensor) {
+    RotaryPosition pos = getRotaryPosition(sensor);
+    
+    switch(pos) {
+        case ROTARY_POS_1:
+            return DRS_MODE_OFF;
+        case ROTARY_POS_2:
+            return DRS_MODE_MANUAL;
+        case ROTARY_POS_3:
+            return DRS_MODE_ASSISTIVE;
+        case ROTARY_POS_4:
+            return DRS_MODE_AUTO;
+        case ROTARY_POS_5:
+            return DRS_MODE_STAY_OPEN;
+        case ROTARY_POS_6:
+            return DRS_MODE_STAY_CLOSED;
+        default:
+            return DRS_MODE_OFF;  // default to safe mode
+    }
+}
+
+PLMode getPLMode(Sensor* sensor) {
+    RotaryPosition pos = getRotaryPosition(sensor);
+    
+    switch(pos) {
+        case ROTARY_POS_1:
+            return PL_MODE_OFF;
+        case ROTARY_POS_2:
+            return PL_MODE_25;
+        case ROTARY_POS_3:
+            return PL_MODE_50;
+        case ROTARY_POS_4:
+            return PL_MODE_75;
+        case ROTARY_POS_5:
+            return PL_MODE_100;
+        case ROTARY_POS_6:
+            return PL_MODE_AUTO;
+        default:
+            return PL_MODE_OFF;  // default to safe mode
+    }
+}
