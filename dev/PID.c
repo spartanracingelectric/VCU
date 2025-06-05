@@ -81,7 +81,7 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
 
     // At minimum, a P(ID) Controller will always use Proportional Control
     pid->output = pid->proportional+pid->integral;
-
+// BUG ISSUE: WE ARE DOUBLE INPUTING THE INTEGRAL AND DERIVATIVE TERMS INTO THE OUTPUT 
     //Check to see if motor is saturated at max torque request already
     if(pid->saturationValue >= sensorValue)
     {
