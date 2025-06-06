@@ -38,11 +38,11 @@ static const sbyte2 Crows_16_2ndPass = 120;
 
 
 //Preset Torque Curves
-// PnR MCM_getMotorRPM(mcm) / 3
-// Crows MCM_getMotorRPM(mcm) / 4
+// Crows_15Aero = MCM_getMotorRPM(mcm) * 4 / 10
 
 // Slip Targets
-// PnR -> ???
+// Crows_15Aero -> 300
+
 LaunchControl *LaunchControl_new(){
     LaunchControl* me = (LaunchControl*)malloc(sizeof(struct _LaunchControl));
     // malloc returns NULL if it fails to allocate memory
@@ -50,7 +50,7 @@ LaunchControl *LaunchControl_new(){
         return NULL;
 
     //Torque Mode Settings for LC
-    me->pidTorque = PID_new(20, 1, 0, 0, 1000); //No saturation point to see what the behavior of the PID is, will need a saturation value somewhere to prevent wind-up of the pid in the future
+    me->pidTorque = PID_new(20, 1, 0, 0, 1000); //Divide by 1000 needed to offset the x 1000 used to scale up our calculated slip ratio.
     PID_updateSettings(me->pidTorque, setpoint, 300); // Having a statically coded slip ratio may not be the best. this requires knowing that this is both a) the best slip ratio for the track, and b) that our fronts are not in any way slipping / entirely truthful regarding the groundspeed of the car. Using accel as a target is perhaps better, but needs to be better understood.
     PID_updateSettings(me->pidTorque, frequency, 1);
     me->lcTorqueCommand = NULL;
@@ -92,12 +92,7 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
     if ( me->slipRatio <= -1.0 )  { me->slipRatio = -1.0; }
 
     //me->slipRatioThreeDigits = (me->slipRatio * 1000.0F);
-    if( (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5) == 0 )
-    {
-        ubyte2 RearR = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
-        ubyte4 calcs = (RearR * 1000);
-        me->slipRatioThreeDigits = (ubyte2) calcs;    }
-    else
+    if( (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5) != 0 )
     {
         ubyte2 RearR = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, RR, TRUE) + 0.5);
         ubyte2 FrontL = (ubyte2)(WheelSpeeds_getWheelSpeedRPM(wss, FL, TRUE) + 0.5);
@@ -240,7 +235,7 @@ ubyte1 LaunchControl_getStatus(LaunchControl *me){
         me->flags &= ~LC_active;
     }
     //Predetermined Torque Curve;
-    if (me-> initialCurve == TRUE)
+    if (me->initialCurve == TRUE)
     {
         me->flags |= LC_initalCurve;
     }
