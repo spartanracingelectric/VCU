@@ -54,6 +54,7 @@ void PID_updateSettings(PID* pid, PID_Settings setting, sbyte2 input1);
 /** COMPUTATIONS **/
 
 void PID_computeOutput(PID *pid, sbyte2 sensorValue);
+void PID_addSensorInput(PID* pid, ubyte2 (*funcPtr)());
 
 /** GETTER FUNCTIONS **/
 

@@ -85,6 +85,7 @@ LaunchControl *LaunchControl_new(){
 }
 
 #ifdef LAUNCHCONTROL_ENABLE
+
 void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, WheelSpeeds *wss){
     me->slipRatio = ( WheelSpeeds_getRearAverage(wss) / WheelSpeeds_getGroundSpeed(wss,0) ) - 1;
     if ( me->slipRatio >= 1.0 )   { me->slipRatio = 1.0; }
@@ -99,6 +100,9 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
         ubyte4 calcs = (RearR * 1000) / FrontL;
         me->slipRatioThreeDigits = (ubyte2) calcs;
     }
+    ubyte2 (*fpr)(MotorController,ubyte2);
+    fpr = &MCM_getCommandedTorque(mcm);
+    PID_addSensorInput(me->pidTorque, fpr);
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){

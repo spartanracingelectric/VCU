@@ -131,6 +131,13 @@ void PID_computeOutput(PID *pid, sbyte2 sensorValue) {
     }
 }
 
+void PID_addSensorInput(PID* pid, ubyte2 (*funcPtr)()) {
+    if (funcPtr != NULL) {
+        pid->output = funcPtr();
+    }
+}
+
+
 /** GETTER FUNCTIONS **/
 
 sbyte2 PID_getSettings(PID* pid, PID_Settings setting){
