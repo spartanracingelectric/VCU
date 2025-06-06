@@ -103,6 +103,13 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
     ubyte2 (*fpr)(MotorController*,ubyte2);
     fpr = &MCM_getCommandedTorque;
     PID_addSensorInput(me->pidTorque, fpr);
+    ubyte2 sensorCheck = MCM_getCommandedTorque(mcm);
+    if(sensorCheck == me->pidTorque->output)
+    {
+        me->constantSpeedTestOverride = TRUE;
+    } else {
+        me->constantSpeedTestOverride = FALSE;
+    }
 }
 
 void LaunchControl_calculateTorqueCommand(LaunchControl *me, TorqueEncoder *tps, BrakePressureSensor *bps, MotorController *mcm, DRS *drs){
