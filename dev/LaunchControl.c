@@ -100,8 +100,8 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
         ubyte4 calcs = (RearR * 1000) / FrontL;
         me->slipRatioThreeDigits = (ubyte2) calcs;
     }
-    ubyte2 (*fpr)(MotorController,ubyte2);
-    fpr = &MCM_getCommandedTorque(mcm);
+    ubyte2 (*fpr)(MotorController*,ubyte2);
+    fpr = &MCM_getCommandedTorque;
     PID_addSensorInput(me->pidTorque, fpr);
 }
 
