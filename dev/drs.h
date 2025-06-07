@@ -25,6 +25,8 @@ typedef struct _DRS
     ubyte1 currentDRSMode;
     ubyte1 buttonPressed;
     ubyte1 drsFlap;
+    bool drsFlapOpen;
+    ubyte4 drsSafetyTimer;
 
 } DRS;
 //DRS is an instance of the _DRS struct

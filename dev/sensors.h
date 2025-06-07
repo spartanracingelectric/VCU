@@ -207,4 +207,42 @@ void setMCMRelay(bool turnOn);
 //----------------------------------------------------------------------------
 void Light_set(Light light, float4 percent);
 
+
+// rotary switch position definitions
+typedef enum {
+    ROTARY_POS_0 = 0,
+    ROTARY_POS_1 = 1,
+    ROTARY_POS_2 = 2,
+    ROTARY_POS_3 = 3,
+    ROTARY_POS_4 = 4,
+    ROTARY_POS_5 = 5,
+    ROTARY_POS_6 = 6
+} RotaryPosition;
+
+// DRS mode definitions
+typedef enum {
+    DRS_MODE_OFF = 1,
+    DRS_MODE_MANUAL = 2,
+    DRS_MODE_ASSISTIVE = 3,
+    DRS_MODE_AUTO = 4,
+    DRS_MODE_STAY_OPEN = 5,
+    DRS_MODE_STAY_CLOSED = 6
+} DRSMode;
+
+// PL mode definitions
+typedef enum {
+    PL_MODE_30 = 1,
+    PL_MODE_40 = 2,
+    PL_MODE_50 = 3,
+    PL_MODE_60 = 4,
+    PL_MODE_80 = 5,
+    PL_MODE_OFF = 6
+} PLMode;
+
+// function declarations
+RotaryPosition getRotaryPosition(Sensor* sensor);
+DRSMode getDRSMode(Sensor* sensor);
+PLMode getPLMode(Sensor* sensor);
+
+
 #endif // _SENSORS_H
