@@ -222,3 +222,35 @@ void Light_set(Light light, float4 percent)
 * Revision history:
 * 2015-11-16 - Rusty Pedrosa -
 *****************************************************************************/
+RotaryPosition getRotaryPosition(Sensor* sensor) {
+    float voltage = sensor->sensorValue;
+    
+    if (voltage > 4.0) return ROTARY_POS_1;
+    if (voltage > 3.3) return ROTARY_POS_2;
+    if (voltage > 2.6) return ROTARY_POS_3;
+    if (voltage > 1.9) return ROTARY_POS_4;
+    if (voltage > 1.2) return ROTARY_POS_5;
+    if (voltage > 0.5) return ROTARY_POS_6;
+    return ROTARY_POS_0;
+}
+
+PLMode getPLMode(Sensor* sensor) {
+    RotaryPosition pos = getRotaryPosition(sensor);
+    
+    switch(pos) {
+        case ROTARY_POS_1:
+            return PL_MODE_30;
+        case ROTARY_POS_2:
+            return PL_MODE_40;
+        case ROTARY_POS_3:
+            return PL_MODE_50;
+        case ROTARY_POS_4:
+            return PL_MODE_60;
+        case ROTARY_POS_5:
+            return PL_MODE_80;
+        case ROTARY_POS_6:
+            return PL_MODE_OFF;
+        default:
+            return PL_MODE_OFF;  // default to safe mode
+    }
+}
