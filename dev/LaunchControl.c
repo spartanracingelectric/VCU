@@ -100,6 +100,15 @@ void LaunchControl_calculateSlipRatio(LaunchControl *me, MotorController *mcm, W
         ubyte4 calcs = (RearR * 1000) / FrontL;
         me->slipRatioThreeDigits = (ubyte2) calcs;
     }
+    ubyte2 thing = 0;
+    if(Sensor_LCButton.sensorValue == TRUE)
+    {
+        thing = 1;
+    }
+    else{
+        thing = 0;
+    }
+    MCM_setFakeMessage(mcm, thing);
     ubyte2 (*fpr)(MotorController*,ubyte2);
     fpr = &MCM_getFakeMessage;
     PID_addSensorInput(me->pidTorque, fpr);
