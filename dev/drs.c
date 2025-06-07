@@ -46,87 +46,55 @@ DRS *DRS_new()
 //----------------------------------------------------------------------
 
 
-
 void DRS_update(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
-    // get the drs mode from sensor
-    me->currentDRSMode = getDRSMode(&Sensor_DRSKnob);
+
+    // permanantly in pot_DRS_LC == 0 (! retired functionality of pot_DRS_LC)
+    // if(pot_DRS_LC == 1) {
+    //     me->currentDRSMode = AUTO;
+    // } else {
+    //     //update_knob(me); Change to when we have a working rotary
+    //     me->currentDRSMode = MANUAL;
+    // }
+    me->currentDRSMode = MANUAL; 
+
+    switch(me->currentDRSMode)
+        {
+            case STAY_CLOSED:
+                DRS_close(me);
+                break;
+            case STAY_OPEN:
+                DRS_open(me);           
+                break;
+            case MANUAL:
+                if(Sensor_DRSButton.sensorValue == TRUE) {
+                    me->buttonPressed = TRUE;
+                    DRS_open(me);
+                } else {
+                    me->buttonPressed = FALSE;
+                    DRS_close(me);
+                }
+                break;
+            case AUTO:
+                runAuto(me, mcm, tps, bps);
+                break;
+            default:
+                break;
+        }
     
-    sbyte2 steeringAngle = steering_degrees();
-    float4 bpsPercent = bps->percent;
-    float4 appsPercent = tps->travelPercent;
-    sbyte2 groundspeedMPH = 0.62 * MCM_getGroundSpeedKPH(mcm);
-    
-    if(Sensor_DRSButton.sensorValue) { 
-        me->buttonPressed = TRUE;
-    } else {
-        me->buttonPressed = FALSE;
-    }
-
-    switch(me->currentDRSMode) {
-        case DRS_MODE_STAY_CLOSED:
-            DRS_close(me);
-            break;
-            
-        case DRS_MODE_STAY_OPEN:
-            DRS_open(me);
-            break;
-            
-        case DRS_MODE_MANUAL:
-            if(me->buttonPressed) {
-                DRS_open(me);
-            } else {
-                DRS_close(me);
-            }
-            break;
-            
-        case DRS_MODE_ASSISTIVE:
-            /* 
-            1. To open, check if button is pressed & DRS flap closed (should be false) & Have waited at least 5 cycles (50ms)
-            2. Restar timer & Open DRS
-            3. To close, check if button is pressed & DRS engaged (should be TRUE) & Have waited at least 5 cycles (50ms)
-            4. Restart timer & Close DRS
-            5. EXIT CONDITONS: (Brake pressure is > 20% or steering angle is +/- 15° ) */
-
-            // conditions are listed in prioritised order, check flap state first (put ourselves in the relevant if statement), then button press, then timer
-            if(!me->drsFlapOpen && me->buttonPressed && IO_RTC_GetTimeUS(&me->drsSafetyTimer) >= 45000) {
-                IO_RTC_StartTime(&me->drsSafetyTimer); //restart timer
-                DRS_open(me);
-            }
-            // conditions are listed in prioritised order
-            else if(me->drsFlapOpen && me->buttonPressed && IO_RTC_GetTimeUS(&me->drsSafetyTimer) >= 10000) {
-                IO_RTC_StartTime(&me->drsSafetyTimer); //restart timer
-                DRS_close(me);
-            }
-
-            if(me->drsFlapOpen && (bpsPercent > .20 || steeringAngle > 15 || steeringAngle < -15)){ //check if [ bps > 20% or steering angle > +/- 15deg ] and drs is open 
-                // IO_RTC_StartTime(&me->drsSafteyTimer); //restart timer? or allow immediate correcting in edge cases...
-                DRS_close(me);
-            }
-            break;
-
-        case DRS_MODE_AUTO:
-
-            // Unknown for now if physical components can be damaged when requesting flap open  when already opened, hence the nested if
-            if (groundspeedMPH > 5 && appsPercent > .75 && steeringAngle > -15 && steeringAngle < 15 && bpsPercent < .10) {
-                me->AutoDRSActive = TRUE;
-                if(!me->drsFlapOpen){ DRS_open(me); }
-            }
-            // Unknown for now if physical components can be damaged when requesting flap close  when already closed, hence the nested if
-            else {
-                me->AutoDRSActive = FALSE;
-                if(me->drsFlapOpen) { DRS_close(me); }
-            }
-            // Use & uncomment instead if no harm to components
-            /*
-            else {
-                DRS_close(me);
-            } */
-            break;
-        default:
-            break;
-    }
 }
 
+void runAuto(DRS *me, MotorController *mcm, TorqueEncoder *tps, BrakePressureSensor *bps) {
+    sbyte2 vehicle_speed_mph = 0.62 * MCM_getGroundSpeedKPH(mcm); // >30mph
+    sbyte2 curr_steer_angle = steering_degrees(); // < +-15 deg
+    float4 brake_travel = bps->percent; // > 50%
+    float4 throttle_travel = tps->travelPercent; // > 90%
+
+    if (vehicle_speed_mph > 5 && throttle_travel > .75 && curr_steer_angle > -15 && curr_steer_angle < 15 && brake_travel < .10) {
+        DRS_open(me);
+    } else {
+        DRS_close(me);
+    }
+}
 
 void DRS_open(DRS *me) {
     IO_DO_Set(IO_DO_06, TRUE);
@@ -140,3 +108,16 @@ void DRS_close(DRS *me) {
 
 }
 
+//Change to future regarding rotary voltage values
+void update_knob(DRS *me) {
+        if (Sensor_DRSKnob.sensorValue == 0)
+        {    me->currentDRSMode = STAY_CLOSED;}
+        else if (Sensor_DRSKnob.sensorValue <= 1.1)
+        {    me->currentDRSMode = MANUAL;}
+        else if (Sensor_DRSKnob.sensorValue <= 2.2)
+        {    me->currentDRSMode = AUTO;}
+        else if (Sensor_DRSKnob.sensorValue <= 3.3)
+        {    me->currentDRSMode = STAY_OPEN;}
+        else if (Sensor_DRSKnob.sensorValue > 3.3)
+        {    me->currentDRSMode = STAY_CLOSED;}
+}
