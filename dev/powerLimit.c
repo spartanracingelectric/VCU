@@ -69,14 +69,16 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps){
     
-
+    if (mcm->DC_Current <0){
+        mcm->DC_Current = 0;
+    }
     PowerLimit_setPLInitializationThreshold(me);
 
     if (MCM_commands_getAppsTorque(mcm) == 0) { // if no torque command, turn off PL
         me->plStatus = FALSE;
     }
     else {
-        sbyte4 current_power_kw = MCM_getPower(mcm) / 1000;
+        sbyte4 current_power_kw = (mcm->DC_Voltage * mcm->DC_Current) / 1000;
         if (!me->plAlwaysOn) { // if PL is not always on, only turn on if power is above threshold and off if below
             if (current_power_kw > me->plInitializationThreshold) {
                 me->plStatus = TRUE;
@@ -152,7 +154,7 @@ void POWERLIMIT_calculateTorqueCommandPowerPID(PowerLimit *me, MotorController *
     sbyte4 mcmCurrent = MCM_getDCCurrent(mcm);
 
     sbyte4 pidTargetValue = (sbyte4)(POWERLIMIT_getTargetPower(me) * 1000); // W
-    sbyte4 pidCurrentValue = (sbyte4)(MCM_getPower(mcm) / 10); // W
+    sbyte4 pidCurrentValue = (sbyte4)((mcm->DC_Voltage * mcm->DC_Current) / 10); // W
 
     sbyte2 commandedTorque = (sbyte2)MCM_getCommandedTorque(mcm); // Nm
 
