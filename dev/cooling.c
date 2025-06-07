@@ -55,29 +55,20 @@ CoolingSystem *CoolingSystem_new(SerialManager *serialMan)
 void CoolingSystem_calculationsPump(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
 {
     //Water pump ------------------ ALWAYS ON
-    if(HVILTermSense->sensorValue == TRUE){
-        me->waterPumpPercent = 1;
-    } else if (HVILTermSense->sensorValue == FALSE && (motorControllerTemp >= 50.0 || motorTemp >= 50.0)){
-        me->waterPumpPercent = 1;
-    } else {
-        me->waterPumpPercent = 1;
-    }
+    me->waterPumpPercent = 1.0;
 }
 
 void CoolingSystem_calculationsFans(CoolingSystem *me, sbyte2 motorControllerTemp, sbyte2 motorTemp, sbyte1 batteryTemp, Sensor *HVILTermSense)
 {
-    if (motorControllerTemp >= me->radFanHigh || motorTemp >= me->radFanHigh)
+    // turn on fans at 100% if temperatures are too high or abnormal
+    if (motorControllerTemp >= 50.0 || motorTemp >= 50.0 || 
+        motorControllerTemp <= 0.0 || motorTemp <= 0.0)
     {
-        me->radFanPercent = 1.0;  //0.9
-    }
-    else if (motorControllerTemp < me->radFanLow && motorTemp < me->radFanLow)
-    {
-        me->radFanPercent = 1.0; //0.2
+        me->radFanPercent = 1.0;  // run at 100% for high or abnormal temperatures
     }
     else
     {
-        //me->radFanPercent = .2 + .7 * getPercent(max(motorControllerTemp, motorTemp), me->radFanLow, me->radFanHigh, TRUE);
-        me->radFanPercent = 1.0;
+        me->radFanPercent = 0.0;  // turn off fans for normal temperatures
     }
 }
 
