@@ -151,4 +151,7 @@ void MCM_setStartupStage(MotorController* me, ubyte1 stage);
 sbyte4 MCM_getDCVoltage (MotorController *me);
 sbyte4 MCM_getDCCurrent(MotorController *me);
 
+ubyte2 MCM_setFakeMessage(MotorController *me, ubyte2 fakeMessage);
+ubyte2 MCM_getFakeMessage(MotorController *me);
+
 #endif // _MOTORCONTROLLER_H

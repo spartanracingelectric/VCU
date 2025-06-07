@@ -143,6 +143,7 @@ struct _MotorController
 
     bool speedControl;
     sbyte2 launchControlSpeedCommand;
+    ubyte2 fakeMessage;
 };
 
 MotorController *MotorController_new(SerialManager *sm, ubyte2 canMessageBaseID, Direction initialDirection, sbyte2 torqueMaxInDNm, sbyte1 minRegenSpeedKPH, sbyte1 regenRampdownStartSpeed)
@@ -202,6 +203,7 @@ me->updateInverterStatus = &updateInverterStatus;
 me->getLockoutStatus = &getLockoutStatus;
 me->getInverterStatus = &getInverterStatus;
         */
+    me->fakeMessage = 0;
     return me;
 }
 
@@ -904,7 +906,14 @@ ubyte2 MCM_getCommandedTorque(MotorController *me)
 {
     return me->commandedTorque;
 }
-
+ubyte2 MCM_setFakeMessage(MotorController *me, ubyte2 fakeMessage)
+{
+    me->fakeMessage = fakeMessage;
+}
+ubyte2 MCM_getFakeMessage(MotorController *me)
+{
+    return me->fakeMessage;
+}
 sbyte2 MCM_getTemp(MotorController *me)
 {
     return me->motor_temp; //TODO: Figure out which temperature to return for Motor Controller
