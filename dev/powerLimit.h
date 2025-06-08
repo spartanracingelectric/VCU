@@ -12,6 +12,8 @@
 #include "PID.h"
 //#include "hashTable.h"
 #include "math.h"
+#include "sensors.h"
+
 
 // Define a structure for the PID controller
 typedef struct _PowerLimit {
@@ -67,7 +69,7 @@ PowerLimit* POWERLIMIT_new();
 
 /** SETTER FUNCTIONS  **/
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me);
-void PowerLimit_setPLInitializationThreshold(PowerLimit* me);
+void PowerLimit_InitializeParameters(PowerLimit* me);
 
 /** COMPUTATIONS **/
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps);

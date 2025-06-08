@@ -212,6 +212,8 @@ Sensor Sensor_HVILTerminationSense;
 
 Sensor Sensor_DRSButton;
 Sensor Sensor_DRSKnob;
+Sensor Sensor_PLKnob;
+
 //Switches
 //precharge failure
 

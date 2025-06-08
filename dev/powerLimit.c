@@ -16,6 +16,8 @@
 //#include "hashTable.h"
 #include "powerLimit.h"
 #include "mathFunctions.h"
+#include "sensors.h"
+extern Sensor Sensor_PLKnob;
 
 #ifndef POWERLIMITCONSTANTS
 #define POWERLIMITCONSTANTS
@@ -24,6 +26,7 @@
 #define RPM_STEP         160      //sbyte4 rpmStep = (RPM_MAX - RPM_MIN) / (NUM_S - 1);
 
 #endif
+ 
 
 // #define ELIMINATE_CAN_MESSAGES
 PowerLimit* POWERLIMIT_new(){
@@ -36,7 +39,7 @@ PowerLimit* POWERLIMIT_new(){
     //4. Both TQ equation and LUT together-(Final Algorithm)
     me->plStatus = FALSE;
     me->plTorqueCommand = 0; 
-    me->plTargetPower = 90;// HERE IS WHERE YOU CHANGE POWERLIMIT
+    me->plTargetPower = 0;// HERE IS WHERE YOU CHANGE POWERLIMIT
     me->plThresholdDiscrepancy = 15;
     me->plInitializationThreshold = 0;
     me->clampingMethod = 3;
@@ -50,9 +53,32 @@ PowerLimit* POWERLIMIT_new(){
     return me;
 }
 
-void PowerLimit_setPLInitializationThreshold(PowerLimit* me){
+void PowerLimit_InitializeParameters(PowerLimit* me){
+    // if shauns code works
+    PLMode mode = getPLMode(&Sensor_PLKnob);
+//write switch case and update the kwhlimit accordingly 
+    switch(mode){
+        case PL_MODE_30: 
+            me->plTargetPower = 30;
+        case PL_MODE_40:
+            me->plTargetPower = 40;
+        case PL_MODE_50:
+            me->plTargetPower = 50;
+        case PL_MODE_60:
+            me->plTargetPower = 60;
+        case PL_MODE_80:
+            me->plTargetPower = 80;
+        case PL_MODE_OFF:
+            me->plTargetPower = 0;
+        default:
+            me->plTargetPower = 0; //means powerlimiting is off
+    }
     me->plInitializationThreshold = me->plTargetPower - me->plThresholdDiscrepancy;
+
+
 }
+
+
 
 
 void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
@@ -69,10 +95,10 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps){
     
+    PLMode mode = getPLMode(&Sensor_PLKnob);
+    PowerLimit_InitializeParameters(me);
 
-    PowerLimit_setPLInitializationThreshold(me);
-
-    if (MCM_commands_getAppsTorque(mcm) == 0) { // if no torque command, turn off PL
+    if (me->plTargetPower == 0 || MCM_commands_getAppsTorque(mcm) == 0) { // if no torque command, turn off PL
         me->plStatus = FALSE;
     }
     else {

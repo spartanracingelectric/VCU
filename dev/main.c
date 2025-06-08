@@ -127,6 +127,7 @@ extern Sensor Sensor_TestButton;
 extern Sensor Sensor_TEMP_BrakingSwitch;
 extern Sensor Sensor_EcoButton;
 extern Sensor Sensor_DRSButton;
+extern Sensor Sensor_PLKnob;
 
 /*****************************************************************************
 * Main!
