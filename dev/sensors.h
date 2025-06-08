@@ -232,7 +232,7 @@ typedef enum {
 
 // function declarations
 RotaryPosition getRotaryPosition(Sensor* sensor);
-PLMode getPLMode(Sensor* sensor);
+PLMode getPLMode();
 
 
 

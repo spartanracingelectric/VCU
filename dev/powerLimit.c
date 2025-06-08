@@ -55,23 +55,32 @@ PowerLimit* POWERLIMIT_new(){
 
 void PowerLimit_InitializeParameters(PowerLimit* me){
     // if shauns code works
-    PLMode mode = getPLMode(&Sensor_PLKnob);
+    PLMode mode = getPLMode();
+    
+
 //write switch case and update the kwhlimit accordingly 
     switch(mode){
         case PL_MODE_30: 
             me->plTargetPower = 30;
+            break;
         case PL_MODE_40:
             me->plTargetPower = 40;
+            break;
         case PL_MODE_50:
             me->plTargetPower = 50;
+            break;
         case PL_MODE_60:
             me->plTargetPower = 60;
+            break;
         case PL_MODE_80:
             me->plTargetPower = 80;
+            break;
         case PL_MODE_OFF:
             me->plTargetPower = 0;
+            break;
         default:
             me->plTargetPower = 0; //means powerlimiting is off
+            break;
     }
     me->plInitializationThreshold = me->plTargetPower - me->plThresholdDiscrepancy;
 

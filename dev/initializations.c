@@ -108,13 +108,14 @@ void vcu_initializeADC(bool benchMode)
     // DRS
     //Sensor_DRSRotary.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_32V_00, IO_ADC_ABSOLUTE, 0, 0, IO_ADC_SENSOR_SUPPLY_1, NULL); // IO_ADC_ABSOLUTE / IO_ADC_RATIO..
     Sensor_DRSKnob.ioErr_signalInit = IO_ADC_ChannelInit(IO_ADC_VAR_00 , IO_ADC_ABSOLUTE , IO_ADC_RANGE_25V, 0, 0, NULL );
+     
 
     //TCS Pot
     //IO_ADC_ChannelInit(IO_ADC_5V_04, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
 
     //Unused
     //IO_ADC_ChannelInit(IO_ADC_5V_05, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
-    //IO_ADC_ChannelInit(IO_ADC_5V_06, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
+    Sensor_PLKnob.ioErr_signalInit=IO_ADC_ChannelInit(IO_ADC_5V_06, IO_ADC_ABSOLUTE, IO_ADC_RANGE_5V, 0, 0, NULL);
     //IO_ADC_ChannelInit(IO_ADC_5V_07, IO_ADC_RESISTIVE, 0, 0, 0, NULL);
 
     //----------------------------------------------------------------------------
@@ -148,7 +149,7 @@ void vcu_initializeADC(bool benchMode)
     Sensor_DRSButton.ioErr_signalInit = IO_DI_Init(IO_DI_04, IO_DI_PD_10K); //DRS Button
     // TODO unoccupied I/O on VCU
     Sensor_TestButton.ioErr_signalInit = IO_DI_Init(IO_DI_02, IO_DI_PD_10K); //Test Button
-
+    
     // Sensor_IO_DI_06.ioErr_signalInit = IO_DI_Init(IO_DI_06, IO_DI_PD_10K); //Unused
     Sensor_HVILTerminationSense.ioErr_signalInit = IO_DI_Init(IO_DI_07, IO_DI_PD_10K); //HVIL Term sense, high = HV present
 }

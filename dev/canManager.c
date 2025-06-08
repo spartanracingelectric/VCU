@@ -747,7 +747,8 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
-    //50C: SAS (Steering Angle Sensor) and DRS
+    //50C: SAS (Steering Angle Sensor) and 
+    /*
     canMessageCount++;
     byteNum = 0;
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
@@ -762,6 +763,22 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].data[byteNum++] = 0;
     canMessages[canMessageCount - 1].length = byteNum;
 
+*/
+
+//DEBUG
+ canMessageCount++;
+    byteNum = 0;
+    canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
+    canMessages[canMessageCount - 1].id_format = IO_CAN_STD_FRAME;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_PLKnob.sensorValue;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_PLKnob.sensorValue >> 8;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_PLKnob.sensorValue >> 16;
+    canMessages[canMessageCount - 1].data[byteNum++] = Sensor_PLKnob.sensorValue >> 24;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].data[byteNum++] = 0;
+    canMessages[canMessageCount - 1].length = byteNum;
     //50D: BPS1 (TEMPORARY ADDRESS)
     canMessageCount++;
     byteNum = 0;
