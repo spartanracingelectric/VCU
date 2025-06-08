@@ -69,7 +69,7 @@ void POWERLIMIT_setLimpModeOverride(PowerLimit* me){
 
 void PowerLimit_calculateCommand(PowerLimit *me, MotorController *mcm, TorqueEncoder *tps){
     
-    if (mcm->DC_Current <0){
+    if (mcm->DC_Current < 0){
         mcm->DC_Current = 0;
     }
     PowerLimit_setPLInitializationThreshold(me);
