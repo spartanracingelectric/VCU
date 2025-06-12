@@ -230,12 +230,12 @@ void Light_set(Light light, float4 percent)
 RotaryPosition getRotaryPosition(Sensor* sensor) {
     float voltage = sensor->sensorValue;
     
-    if (voltage > 4.0) return ROTARY_POS_1;
-    if (voltage > 3.3) return ROTARY_POS_2;
-    if (voltage > 2.6) return ROTARY_POS_3;
-    if (voltage > 1.9) return ROTARY_POS_4;
-    if (voltage > 1.2) return ROTARY_POS_5;
-    if (voltage > 0.5) return ROTARY_POS_6;
+    if (voltage > 2900) return ROTARY_POS_1;
+    if (voltage > 2300) return ROTARY_POS_2;
+    if (voltage > 1500) return ROTARY_POS_3;
+    if (voltage > 800) return ROTARY_POS_4;
+    //if (voltage > 800) return ROTARY_POS_5;
+    //if (voltage > 800) return ROTARY_POS_6;
     return ROTARY_POS_0;
 }
 

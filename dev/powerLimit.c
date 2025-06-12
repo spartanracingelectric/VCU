@@ -75,11 +75,11 @@ void PowerLimit_InitializeParameters(PowerLimit* me){
         case PL_MODE_80:
             me->plTargetPower = 80;
             break;
-        case PL_MODE_OFF:
-            me->plTargetPower = 0;
+        case PL_MODE_OFF:       //Changed to unlimited power - "unreachable value"
+            me->plTargetPower = 200;
             break;
         default:
-            me->plTargetPower = 0; //means powerlimiting is off
+            me->plTargetPower = 200; //means powerlimiting is off
             break;
     }
     me->plInitializationThreshold = me->plTargetPower - me->plThresholdDiscrepancy;

@@ -847,7 +847,7 @@ void canOutput_sendDebugMessage(CanManager* me, TorqueEncoder* tps, BrakePressur
     canMessages[canMessageCount - 1].id = canMessageID + canMessageCount - 1;
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getStatus(pl);
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getMode(pl);
-    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTargetPower(pl);
+    canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTargetPower(pl); //Target power in kW, changed using rotary 
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getInitialisationThreshold(pl);
     canMessages[canMessageCount - 1].data[byteNum++] = POWERLIMIT_getTorqueCommand(pl);
     canMessages[canMessageCount - 1].data[byteNum++] = (POWERLIMIT_getTorqueCommand(pl) >> 8);
